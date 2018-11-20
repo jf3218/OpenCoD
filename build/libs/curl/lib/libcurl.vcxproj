@@ -208,62 +208,7 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:X86 /machine:X86 /MANIFEST:NO</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <CustomBuild Include="D:\etlegacy_2\libs\curl\lib\CMakeLists.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
-C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
-C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
-C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
-C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
-    </CustomBuild>
-  </ItemGroup>
+  
   <ItemGroup>
     <ClInclude Include="D:\etlegacy_2\libs\curl\lib\arpa_telnet.h" />
     <ClInclude Include="D:\etlegacy_2\libs\curl\lib\netrc.h" />
