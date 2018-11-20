@@ -1,0 +1,259 @@
+// This script contains functionality to allow bots to escort vehicles
+this.Name = "ESCORT";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+this.NotDelayed = true;
+this.Debug = false;
+
+this.OnSpawn = function()
+{
+	// don't consider this goal right away, because ET takes a few frame to initialize entities
+	// so vehicles will be alive temporarily at the start of the map for a few frames
+	if (this.NotDelayed) {
+		this.NotDelayed = null;
+		this.DelayGetPriority(3);
+	}
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0xba7e23b5 /* ESCORT */);
+};
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	goal = this.MapGoal;
+	if ( !goal.Offsets || tableCount(goal.Offsets) < 1 ) {
+		Util.InvalidGoal(this, "no offsets defined!");
+	}
+
+//	this.Escorting = false; // in route to vehicle
+//	this.PainSource = null;
+	this.offsetCount = tableCount(goal.Offsets);
+
+	if ( !goal.Vehicle ) {
+		Util.InvalidGoal(this, "no vehicle defined!");
+	}
+	this.VehicleGoal = GetGoal(goal.Vehicle);
+	if (!this.VehicleGoal) {
+		Util.InvalidGoal(this, "invalid vehicle defined!");
+	}
+	this.VehicleEnt = this.VehicleGoal.GetEntity();
+	if (!this.VehicleEnt) {
+		Util.InvalidGoal(this, "no entity for defined vehicle!");
+	}
+
+	if (!this.MapGoal.OccupiedOffset) {
+		this.MapGoal.OccupiedOffset = {};
+	}
+};
+
+this.Exit = function()
+{
+	// clear occupied offset
+	if ( this.MapGoal && !IsNull(this.escortIndex) ) {
+		this.MapGoal.OccupiedOffset[ this.escortIndex ] = null;
+		this.escortIndex = null;
+	}
+
+//	this.PainSource = null;
+//	this.Escorting = false;
+};
+
+// find an offset that is not in line of site of current pain inflictor
+//this.GetCoveredOffset = function()
+//{
+//	ind = -1;
+//	if (!this.PainSource) {
+//		return ind;
+//	}
+
+//	painSourcePosition = GetEntPosition(this.PainSource) + Vector3(0,0,64);
+//	for ( i = 0; i < this.offsetCount; i += 1 )
+//	{
+//		targetPosition = GetEntityWorldSpace(this.VehicleEnt, this.MapGoal.Offsets[ i ]);
+//		tr = TraceLine(painSourcePosition, targetPosition, null, TRACE.SHOT, this.PainSource, false);
+//		if ( tr.fraction < 1 )
+//		{
+//			if ( this.Debug ) {
+//				this.Bot.Say("found safe offset position");
+//				DrawDebugLine(painSourcePosition, targetPosition, COLOR.GREEN, 30);
+//			}
+
+//			this.Bot.HoldButton(BTN.SPRINT, 2.0);
+
+//			fc = 0;
+//			while ( fc < 40 ) {
+//				// TODO: needs logic to navigate around the vehicle here
+//				this.Bot.MoveTowards(GetEntityWorldSpace(this.VehicleEnt, this.MapGoal.Offsets[ i ]), 8, MoveMode.Run);
+//				fc += 1;
+//			}
+
+//			ind = i;
+//			break;
+//		}
+//	}
+
+//	this.PainSource = null;
+//	return ind;
+//};
+
+this.Update = function()
+{
+	pathSuccess = false;
+	startIndex = this.MapGoal.StartIndex;
+
+	// randomly select a start index if one isn't defined or invalid
+	if ( !IsInt(startIndex) || startIndex < 0 || startIndex >= this.offsetCount ) {
+		startIndex = RandInt(0, this.offsetCount - 1);
+		if ( this.Debug ) { print(this.MapGoal.GetName(), "selected random start index of", startIndex); }
+	}
+	else {
+		if ( this.Debug ) { print(this.MapGoal.GetName(), "user defined start index of", startIndex); }
+	}
+
+	// loop through from the start index until we get a good path
+	for ( i = 0; i < this.offsetCount; i += 1 )
+	{
+		ind = (startIndex + i) % this.offsetCount;
+
+		// if it's excluded, skip it
+		if ( this.MapGoal.ExcludeIndexes && !IsNull(Util.GetTableKey(this.MapGoal.ExcludeIndexes, ind)) ) {
+			if ( this.Debug ) { print(this.Name, "skipping index", ind); }
+			continue;
+		}
+
+		// if it's occupied, skip it
+		if (this.MapGoal.OccupiedOffset[ind]) {
+			continue;
+		}
+		if (!IsNull(this.escortIndex)) {
+			this.MapGoal.OccupiedOffset[ this.escortIndex ] = null;
+		}
+		this.escortIndex = ind;
+		this.MapGoal.OccupiedOffset[ ind ] = true;
+
+		// and finally check and see if the bot can get there
+		offsetPos = GetEntityWorldSpace(this.VehicleEnt, this.MapGoal.Offsets[ ind ]);
+		if ( this.Goto(offsetPos, 32.0) != EVENT.PATH_FAILED ) {
+			pathSuccess = true;
+			break;
+		}
+		if ( this.Debug ) {
+			print( this.MapGoal.GetName(), "path failed for index", ind);
+		}
+	}
+
+	if ( pathSuccess ) {
+//		this.Escorting = true;
+
+		if(!this.MarkInUse()) { this.Finished(); }
+
+		// randomly choose a button
+		button = Util.GetRandomTableValue(this.MapGoal.Buttons);
+
+		deadCheckInterval = 0;
+		stuckCheckInterval = 30; // frames
+		jumpCounter = 99;
+//		res = null;
+		while(1)
+		{
+			// check every second (20 frames) so they can leave if damaged while already escorting
+			deadCheckInterval -= 1;
+			if ( deadCheckInterval < 1 ) {
+				deadCheckInterval = 20;
+
+				if ( GetEntFlags(this.VehicleEnt, ENTFLAG.DEAD) ) {
+					if ( !Map.InvVehicle || !Map.InvVehicle[ this.VehicleEnt ] ) {
+						// vehicle is damaged
+						this.BlackboardDelay(10);
+						this.Finished();
+					}
+				}
+			}
+
+//			// if taking fire, adjust the offset to be used
+//			if ( this.PainSource ) {
+//				res = this.GetCoveredOffset();
+//			}
+
+//			if ( res && res > -1 ) {
+//				ind = res;
+//			}
+
+			this.GetNewVehicleLookPosition();
+			if ( button )
+				{ this.Bot.PressButton(button); }
+
+			offsetPos = GetEntityWorldSpace(this.VehicleEnt, this.MapGoal.Offsets[ ind ]);
+			if ( offsetPos ) {
+				dist = this.Bot.DistanceTo(offsetPos);
+				if ( dist < 128 ) {
+					this.Bot.MoveTowards(offsetPos, 8, MoveMode.Walk);
+					stuckCheckInterval = 0;
+					jumpCounter = 0;
+				}
+				else {
+					this.Bot.MoveTowards(offsetPos, 8, MoveMode.Run);
+					stuckCheckInterval += 1;
+					if ( stuckCheckInterval > 40 ) {
+						stuckCheckInterval = 0;
+						if (jumpCounter < 2) {
+							jumpCounter += 1;
+							this.Bot.PressButton(BTN.JUMP);
+						} else {
+							jumpCounter = 0;
+							// repath
+							this.ReleaseAimRequest();
+							if ( this.Goto(offsetPos) == EVENT.PATH_FAILED ) {
+								this.Finished();
+							}
+						}
+					}
+				}
+			}
+			else {
+				break;
+			}
+			yield();
+		}
+	}
+	else
+	{
+		Util.PathFailed(this);
+	}
+
+	this.Finished();
+};
+
+this.GetNewVehicleLookPosition = function()
+{
+	vehicleVelocity = GetEntVelocity(this.VehicleEnt);
+
+	if(!vehicleVelocity || vehicleVelocity.IsZero())
+	{
+		vehicleVelocity = GetEntFacing( this.VehicleEnt );
+	}
+	this.AddAimRequest(Priority.Low, "facing", vehicleVelocity);
+};
+
+//this.LastFeelPainTime = 0;
+//this.Events[EVENT.FEEL_PAIN] = function(Inflictor, PreviousHealth, CurrentHealth)
+//{
+//	//TODO: add team check
+//	if (!this.Escorting || this.offsetCount < 2) {
+//		return;
+//	}
+//
+//	time = GetTime();
+//	timeBetweenLast = this.LastFeelPainTime;
+//	this.LastFeelPainTime = time;
+//
+//	if ( timeBetweenLast < 2.0 ) {
+//		return;
+//	}
+//
+//	this.PainSource = Inflictor;
+//};

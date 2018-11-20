@@ -1,0 +1,9 @@
+if (GetModName()!="etblight") { return; }
+
+WEAPON.MADSEN = 70;
+this.Name = "madsen";
+this.WeaponId = WEAPON.MADSEN;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 5;
+this.PrimaryFire.LowAmmoPriority = 0.8;

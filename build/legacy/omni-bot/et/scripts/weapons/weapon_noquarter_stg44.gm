@@ -1,0 +1,9 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.STG44 = 85;
+this.Name = "StG44";
+this.WeaponId = WEAPON.STG44;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 5;
+this.PrimaryFire.LowAmmoPriority = 0.8;

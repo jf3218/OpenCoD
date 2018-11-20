@@ -1,0 +1,48 @@
+// This script contains functionality to reset XP if it greater than maxxp
+// Command resetmyxp must be enabled for level 0 in the file shrubbot.cfg.
+this.AutoAdd = GetModName()!="etmain";
+
+this.Name = "ResetXP";
+this.Parent = "LowLevel";
+this.GetPriorityDelay = 180;
+this.EnableXPReset = ConfigGet("XP","Reset", -1);
+this.BotMaxXP = ConfigGet("XP","Max", 10000);
+
+this.GetPriority = function()
+{
+	while(1)
+	{
+		if ( this.EnableXPReset > 0 )
+		{
+			botXP = GetEntityStat(this.Bot.GetGameEntity(), "xp");
+
+			if ( botXP >= this.BotMaxXP )
+			{
+				this.Bot.Say("!resetmyxp");
+			}
+		}
+
+		sleep(this.GetPriorityDelay);
+	}
+};
+
+////////////////////////////////////////////////////////////////////
+
+this.Commands["resetxp"] =
+{
+	Func = function( _params )
+	{
+		this.EnableXPReset = ToInt(_params[0], 1);
+	},
+};
+
+this.Commands["maxxp"] =
+{
+	Func = function( _params )
+	{
+		if(typeId(_params[0]) != 0)
+		{
+			this.BotMaxXP = ToInt(_params[0], 10000);
+		}
+	},
+};

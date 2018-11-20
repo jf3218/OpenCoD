@@ -1,0 +1,242 @@
+global _MG =
+{
+	AMMOCAB_t51 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(1600.000, -914.000, 40.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	BUILD_Command_Post =
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Position = Vec3(2868.000, -1570.000, 937.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	CHECKPOINT_the_flag =
+	{
+		CreateOnLoad = 0,
+		GoalType = "CHECKPOINT",
+		Position = Vec3(6336.000, -1648.000, 70.000),
+	},
+	DEFEND_Main_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.221, 0.964, -0.145),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(4924.730, -1461.291, 3.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_ATC_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.984, -0.063, -0.169),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(3304.046, -1294.491, 905.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_ATC_3 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.985, -0.037, -0.166),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(2747.112, -755.081, 1.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_ATC_4 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.135, 0.989, -0.063),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(2488.874, -1049.727, 1.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_North_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.907, 0.268, -0.325),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(1657.897, 994.922, 513.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_North_2 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.593, 0.800, -0.095),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(1459.138, 854.610, 385.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_West_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.798, -0.503, -0.332),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-720.131, 209.835, 513.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_West_2 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.531, -0.844, -0.071),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-564.482, 316.463, 385.125),
+		Radius = 32,
+		TagName = "",
+	},
+	DEFEND_West_3 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.321, -0.867, -0.380),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-391.475, 285.017, 513.125),
+		Radius = 32,
+		TagName = "",
+	},
+	HEALTHCAB_t52 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(1704.000, -914.000, 40.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	MOUNTMG42_131 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 90,
+		MinCampTime = 15,
+		Position = Vec3(2210.000, 576.000, 454.000),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	PLANT_Air_Traffic_Control_Tower =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(3416.000, -1312.000, 922.500),
+		TagName = "Air Traffic Control Tower",
+		TeamAvailability = 4,
+	},
+	PLANT_Command_Post =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		Position = Vec3(2869.000, -1554.500, 956.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	PLANT_Dockhouse_Door =
+	{
+		CoverSpots =
+		{
+			[0] =
+			{
+				AimVectors =
+				{
+					[0] = Vec3(0.971, 0.203, -0.128),
+				},
+				position = Vec3(-1697.601, -2360.729, 24.125),
+				stance = "stand",
+			},
+		},
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(-1432.000, -2236.000, 61.000),
+		TagName = "Dockhouse Door",
+		TeamAvailability = 4,
+	},
+	PLANT_Main_Hangar =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(5226.000, -1468.000, 128.000),
+		TagName = "Main Hangar",
+		TeamAvailability = 4,
+	},
+	PLANT_North_Anti_Aircraft_Gun =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(990.027, 1120.000, 481.605),
+		TagName = "North Anti Aircraft Gun",
+		TeamAvailability = 4,
+	},
+	PLANT_West_Anti_Aircraft_Gun =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(-94.027, 32.000, 481.605),
+		TagName = "West Anti Aircraft Gun",
+		TeamAvailability = 4,
+	},
+	REPAIRMG42_131 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(2210.000, 576.000, 454.000),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	ROUTE_310 =
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1434.396, -2335.756, 1.125),
+		Radius = 125,
+		TagName = "",
+	},
+	Version = 1,
+};

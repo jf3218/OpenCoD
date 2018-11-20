@@ -1,0 +1,281 @@
+
+//	low_airstrip2.gm
+//
+//	Who                  	When		What
+//------------------------------------------------------------------------------------------
+//	maker@bigsighstudios.com	13 March 2018	Initial Script
+
+global Map =
+{
+	Debug = 1,
+	DefendingTeam = TEAM.AXIS,
+
+	ATC_Tower_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Air_Traffic_Control_Tower" );
+		MDP( "ATC_Tower_Planted" );
+	},
+	ATC_Tower_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Air_Traffic_Control_Tower" );
+		MDP( "ATC_Tower_Defused" );
+	},
+	ATC_Tower_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Dockhouse_Door" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_North_Anti_Aircraft_Gun" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_West_Anti_Aircraft_Gun" );
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFEND_ATC_.*" );
+		MDP( "ATC_Tower_Destroyed" );
+	},
+
+	Dockhouse_Door_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Dockhouse_Door" );
+		MDP( "Dockhouse_Door_Planted" );
+	},
+	Dockhouse_Door_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Dockhouse_Door" );
+		MDP( "Dockhouse_Door_Defused" );
+	},
+	Dockhouse_Door_Destroyed = function( trigger )
+	{
+		MDP( "Dockhouse_Door_Destroyed" );
+	},
+
+	Main_Hangar_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Main_Hangar" );
+		MDP( "Main_Hangar_Planted" );
+	},
+	Main_Hangar_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Main_Hangar" );
+		MDP( "Main_Hangar_Defused" );
+	},
+	Main_Hangar_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFEND_Main_.*" );
+		MDP( "Main_Hangar_Destroyed" );
+	},
+
+	North_AA_Gun_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_North_Anti_Aircraft_Gun" );
+		MDP( "North_AA_Gun_Planted" );
+	},
+	North_AA_Gun_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_North_Anti_Aircraft_Gun" );
+		MDP( "North_AA_Gun_Defused" );
+	},
+	North_AA_Gun_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFEND_North_.*" );
+		MDP( "North_AA_Gun_Destroyed" );
+	},
+
+	West_AA_Gun_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_West_Anti_Aircraft_Gun" );
+		MDP( "West_AA_Gun_Planted" );
+	},
+	West_AA_Gun_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_West_Anti_Aircraft_Gun" );
+		MDP( "West_AA_Gun_Defused" );
+	},
+	West_AA_Gun_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFEND_West_.*" );
+		MDP( "West_AA_Gun_Destroyed" );
+	},
+
+	the_flag_Axis_Captured = function( trigger )
+	{
+		MDP( "the_flag_Axis_Captured" );
+	},
+
+	the_flag_Allies_Captured = function( trigger )
+	{
+		MDP( "the_flag_Allies_Captured" );
+	},
+
+	// Neutral Command Post
+	CP_Owner = 0,
+	CP_Dyno = 0,
+
+	Set_CP = function(_p) // p = TEAM.ALLIES or TEAM.AXIS or 0 (unbuilt)
+	{
+		switch(_p)
+		{
+			case 0:
+			{
+				Map.CP_Owner = 0;
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+			case TEAM.ALLIES:
+			{
+				Map.CP_Owner = TEAM.ALLIES;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "BUILD_Command_Post" );
+			}
+			case TEAM.AXIS:
+			{
+				Map.CP_Owner = TEAM.AXIS;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "BUILD_Command_Post" );
+			}
+		}
+		//MDP("CP Owner: " + Map.CP_Owner );
+	},
+	Allied_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.ALLIES);
+		MDP( "Allied_CP_Built" );
+	},
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		MDP( "Allied_CP_Destroyed" );
+	},
+	Axis_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.AXIS);
+		MDP( "Axis_CP_Built" );
+	},
+	Axis_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		MDP( "Axis_CP_Destroyed" );
+	},
+	CP_Planted = function( trigger )
+	{
+		Map.CP_Dyno += 1;
+		MDP( "CP_Planted" );
+	},
+	CP_Defused = function( trigger )
+	{
+		Map.CP_Dyno -= 1;
+		MDP( "CP_Defused" );
+	},
+
+};
+
+global MDP = function( s ) { Util.MapDebugPrint( s ); };
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Planted at the Air Traffic Control Tower.", Map.ATC_Tower_Planted );
+	OnTrigger( "Defused at the Air Traffic Control Tower.", Map.ATC_Tower_Defused );
+	OnTrigger( "^6The AT Tower Controls has been destroyed!", Map.ATC_Tower_Destroyed );
+
+	OnTrigger( "Planted at the Dockhouse Door.", Map.Dockhouse_Door_Planted );
+	OnTrigger( "Defused at the Dockhouse Door.", Map.Dockhouse_Door_Defused );
+	OnTrigger( "^6The Dockhouse Door has been breached!", Map.Dockhouse_Door_Destroyed );
+
+	OnTrigger( "Planted at the Main Hangar.", Map.Main_Hangar_Planted );
+	OnTrigger( "Defused at the Main Hangar.", Map.Main_Hangar_Defused );
+	OnTrigger( "the Main Hangar Destroyed", Map.Main_Hangar_Destroyed );
+
+	OnTrigger( "Planted at the North Anti Aircraft Gun.", Map.North_AA_Gun_Planted );
+	OnTrigger( "Defused at the North Anti Aircraft Gun.", Map.North_AA_Gun_Defused );
+	OnTrigger( "^6The North AA Gun has been destroyed!", Map.North_AA_Gun_Destroyed );
+
+	OnTrigger( "Planted at the West Anti Aircraft Gun.", Map.West_AA_Gun_Planted );
+	OnTrigger( "Defused at the West Anti Aircraft Gun.", Map.West_AA_Gun_Defused );
+	OnTrigger( "^6The West AA Gun has been destroyed!", Map.West_AA_Gun_Destroyed );
+
+	OnTrigger( "Axis reclaims the Main Hangar!", Map.the_flag_Axis_Captured );
+	OnTrigger( "Allies capture the Main Hangar!", Map.the_flag_Allies_Captured );
+
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!",  Map.Allied_CP_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!",          Map.Allied_CP_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!",    Map.Axis_CP_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!",          Map.Axis_CP_Destroyed );
+	OnTrigger( "Planted at the Command Post.",                              Map.CP_Planted  );
+	OnTrigger( "Defused at the Command Post.",                              Map.CP_Defused  );
+
+	//---------------------------------------------------------------------------
+
+	Util.DisableGoal( ".*", 1 ); // all but routes
+	Util.LimitToClass( "PLANT_Command_Post", 0, 5 );
+
+	//Allied
+	SetAvailableMapGoals( TEAM.ALLIES, 1, {
+		"ATTACK_.*",
+		"BUILD_Command_Post",
+		"PLANT_Air_Traffic_Control_Tower",
+		"PLANT_Main_Hangar",
+		"PLANT_Dockhouse_Door",
+	});
+	//SetGoalPriority( "PLANT_Main_Entrance", 0.9 );
+
+	//Axis
+	SetAvailableMapGoals( TEAM.AXIS, 1, {
+		"DEFEND_.*",
+		"BUILD_Command_Post",
+	});
+
+	Util.AddUsePoint( "PLANT_Main_Hangar", Vec3( 5184, -1440, 6 ) );
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+
+
+	MDP( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	//~bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CHECKPOINT_the_flag =
+		{
+		},
+		PLANT_Dockhouse_Door =
+		{
+		},
+		PLANT_Main_Hangar =
+		{
+		},
+		PLANT_Air_Traffic_Control_Tower =
+		{
+		},
+		PLANT_North_Anti_Aircraft_Gun =
+		{
+		},
+		PLANT_West_Anti_Aircraft_Gun =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

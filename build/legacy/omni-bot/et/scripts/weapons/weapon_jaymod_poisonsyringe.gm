@@ -1,0 +1,10 @@
+if (GetModName()!="Jaymod") { return; }
+
+WEAPON.POISONSYRINGE = 75;
+this.Name = "Poison Syringe";
+this.WeaponId = WEAPON.POISONSYRINGE;
+
+this.PrimaryFire.WeaponType = "melee";
+this.PrimaryFire.WaterProof = true;
+this.PrimaryFire.IgnoreReload = true;
+this.PrimaryFire.SetDesirabilityRange(0, 100, 0.85);

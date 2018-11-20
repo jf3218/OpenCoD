@@ -1,0 +1,324 @@
+//==========================================================================================
+//
+//	temple_of_dal.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	ETPlayer	22 September 2010	waypoints
+//	palota  	11 September 2015	script, goals, routes, ladders
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+
+	gateCount = 2,
+
+	Roles =
+	{
+		AXIS = {
+			SNIPER =
+			{
+				crucialClass = CLASS.COVERTOPS,
+				numbots = 1,
+				spawnpt = 4,
+			}
+		}
+	},
+
+	axisGateGroup = {
+		"DEFEND_gate.*",
+		"DEFEND_side.*",
+		"DEFEND_wall.*",
+		"CALLARTILLERY_wall.*",
+	},
+
+	gate_Destroyed = function()
+	{
+		sleep(2);
+
+		Map.gateCount -= 1;
+		if(Map.gateCount > 0)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_altar.*",
+				"DEFEND_towerNW.*",
+			});
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"CHECKPOINT_flag",
+				"PLANT_Wall_of_altar",
+				"DEFEND_altar.*",
+				"AMMOCAB.*",
+				"HEALTHCAB.*",
+			});
+
+			SetGoalPriority( "CHECKPOINT_flag", 0.5, TEAM.AXIS);
+		}
+	},
+
+	Main_gate_Destroyed = function( trigger )
+	{
+		Map.gate_Destroyed();
+		Util.EnableGoal("ROUTE_main_gate");
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_gate.*");
+		Util.MapDebugPrint( "Main_gate_Destroyed" );
+	},
+
+	Side_gate_Destroyed = function( trigger )
+	{
+		Map.gate_Destroyed();
+		Util.EnableGoal("ROUTE_side_gate");
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_side.*");
+		Util.MapDebugPrint( "Side_gate_Destroyed" );
+	},
+
+	Wall_of_altar_Destroyed = function( trigger )
+	{
+		sleep(2);
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"DEFEND_altar.*",
+			"SNIPE_towerSE.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"FLAG_dal",
+			"CAPPOINT_truck",
+		});
+		Util.MapDebugPrint( "Wall_of_altar_Destroyed" );
+	},
+
+	dal_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_altar.*");
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_towerNW.*");
+		Util.EnableGoal("DEFEND_truck.*");
+		Util.MapDebugPrint( "dal_Taken" );
+	},
+
+	dal_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_altar.*");
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_towerNW.*");
+		Util.DisableGoal("DEFEND_truck.*");
+		Util.MapDebugPrint( "dal_Returned" );
+	},
+
+	dal_Secured = function( trigger )
+	{
+		ETUtil.WinningChat( TEAM.ALLIES );
+		ETUtil.LosingChat( TEAM.AXIS );
+		Util.MapDebugPrint( "dal_Secured" );
+	},
+
+	flag_Axis_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, Map.axisGateGroup);
+		Util.MapDebugPrint( "flag_Axis_Captured" );
+	},
+
+	flag_Allies_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, Map.axisGateGroup);
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_flag");
+		Util.MapDebugPrint( "flag_Allies_Captured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Allies have breached the Main gate", Map.Main_gate_Destroyed );
+	OnTrigger( "Allies have breached the Side gate", Map.Side_gate_Destroyed );
+	OnTrigger( "Allies have breached the Wall of altar", Map.Wall_of_altar_Destroyed );
+	OnTrigger( "Allies have stolen the Artifact of dal!", Map.dal_Taken );
+	OnTrigger( "Flag returned dal!", Map.dal_Returned );
+	OnTrigger( "Allied captured Artifact of dal", Map.dal_Secured );
+	OnTrigger( "Axis capture the Allies 2nd Flag", Map.flag_Axis_Captured );
+	OnTrigger( "Allies capture the Allies 2nd Flag", Map.flag_Allies_Captured );
+
+	Util.DisableGoal( ".*", true );
+	Util.DisableGoal("ROUTE_main_gate");
+	Util.DisableGoal("ROUTE_side_gate");
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		"AMMOCAB.*",
+		"HEALTHCAB.*",
+		"ARTILLERY_S_spawn.*",
+		"PLANTMINE_x.*",
+		"SNIPE_towerSW.*",
+	});
+	SetAvailableMapGoals( TEAM.AXIS, true, Map.axisGateGroup);
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"ATTACK_gate.*",
+		"ATTACK_side.*",
+		"PLANT_Main_gate",
+		"PLANT_Side_gate",
+		"SNIPE_towerSE.*",
+	});
+
+	SetGoalPriority( "FLAG_dal", 0.7);
+	SetGoalPriority( "CHECKPOINT_flag", 0.7, TEAM.ALLIES);
+
+	SetMapGoalProperties( "DEFEND_.*", {MinCampTime=20, MaxCampTime=90} );
+	SetMapGoalProperties( "ATTACK_.*", {MinCampTime=10, MaxCampTime=40} );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_dal =
+		{
+			ROUTE_flag_spawn =
+			{
+				ROUTE_temple_E =
+				{
+					ROUTE_stairs =
+					{
+					},
+				},
+				ROUTE_temple_S =
+				{
+					ROUTE_stairs =
+					{
+					},
+				},
+				ROUTE_ladderE =
+				{
+					Weight = 0.2
+				},
+				ROUTE_ladderNE =
+				{
+				},
+				ROUTE_ladderNW =
+				{
+				},
+			},
+			ROUTE_allied_spawn =
+			{
+				ROUTE_main_gate =
+				{
+					ROUTE_stairs =
+					{
+					},
+					ROUTE_ladderW =
+					{
+					},
+					ROUTE_ladderE =
+					{
+					},
+					ROUTE_ladderNW =
+					{
+					},
+				},
+				ROUTE_side_gate =
+				{
+					ROUTE_temple_E =
+					{
+					},
+					ROUTE_ladderE =
+					{
+					},
+					ROUTE_tower_NE =
+					{
+						ROUTE_ladderNE =
+						{
+						},
+					},
+				},
+			},
+		},
+		CAPPOINT_truck =
+		{
+			ROUTE_artifact =
+			{
+				ROUTE_main_gate =
+				{
+				},
+				ROUTE_side_gate =
+				{
+				},
+			},
+		},
+		PLANT_Main_gate =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_allied1 =
+				{
+				},
+				ROUTE_allied2 =
+				{
+				},
+			},
+		},
+		PLANT_Side_gate =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_allied2 =
+				{
+				},
+				ROUTE_allied3 =
+				{
+				},
+			},
+		},
+		CHECKPOINT_flag =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_allied1 =
+				{
+					ROUTE_main_gate =
+					{
+					},
+					ROUTE_side_gate =
+					{
+					},
+				},
+				ROUTE_allied2 =
+				{
+					ROUTE_main_gate =
+					{
+					},
+					ROUTE_side_gate =
+					{
+					},
+				},
+				ROUTE_allied3 =
+				{
+					ROUTE_main_gate =
+					{
+					},
+					ROUTE_side_gate =
+					{
+					},
+				},
+			},
+			ROUTE_axis_spawn =
+			{
+				ROUTE_axis_door_W =
+				{
+					ROUTE_axis_door_E =
+					{
+					},
+				},
+				ROUTE_temple_W =
+				{
+				},
+			},
+		},
+	};
+
+	MapRoutes["ATTACK_side.*"] = MapRoutes.PLANT_Side_gate;
+	MapRoutes["ATTACK_gate.*"] = MapRoutes.PLANT_Main_gate;
+	MapRoutes.PLANT_Wall_of_altar = MapRoutes.FLAG_dal;
+	MapRoutes["DEFEND_altar.*"] = MapRoutes.FLAG_dal;
+
+	Util.Routes(MapRoutes);
+};

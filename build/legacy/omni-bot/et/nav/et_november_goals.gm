@@ -1,0 +1,168 @@
+global _MG = 
+{
+	AMMOCAB_south_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-834.000, -362.000, 80.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_south_ammocabinet_1 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(732.000, -735.000, 41.000),
+		Range = 1250,
+		TagName = "south_ammocabinet",
+		TeamAvailability = 6,
+	},
+	CAPPOINT_allied = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(1858.206, -980.257, 497.125),
+		TeamAvailability = 4,
+	},
+	CAPPOINT_axis = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(-3634.691, -279.350, 205.125),
+		TeamAvailability = 2,
+	},
+	FLAG_allies_gold_crate = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(2220.000, 308.000, 501.125),
+		TeamAvailability = 2,
+	},
+	FLAG_axis_gold_crate = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(-2432.000, -1508.000, 209.125),
+		TeamAvailability = 4,
+	},
+	HEALTHCAB_south_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-834.000, -226.000, 78.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_south_healthcabinet_1 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(868.000, -735.000, 33.000),
+		Range = 1250,
+		TagName = "south_healthcabinet",
+		TeamAvailability = 6,
+	},
+	MOUNTMG42_mg_allied = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 90,
+		MinCampTime = 15,
+		Position = Vec3(576.000, 512.000, 180.000),
+		TeamAvailability = 4,
+	},
+	MOUNTMG42_mg_axis = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.839, -0.535, -0.098),
+		},
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 90,
+		MinCampTime = 15,
+		Position = Vec3(-1152.000, 672.000, 260.000),
+		TeamAvailability = 2,
+	},
+	REPAIRMG42_mg_allied = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(576.000, 512.000, 180.000),
+		TeamAvailability = 4,
+	},
+	REPAIRMG42_mg_axis = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(-1152.000, 672.000, 260.000),
+		TeamAvailability = 2,
+	},
+	ROUTE_center_bridge = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(22.628, -191.960, 99.425),
+		Radius = 200,
+	},
+	ROUTE_center_water = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(52.356, 1055.565, -96.859),
+		Radius = 200,
+	},
+	ROUTE_l_cappoint = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(1854.681, -949.876, 497.344),
+		Radius = 300,
+	},
+	ROUTE_l_gold = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(2232.396, 306.634, 497.125),
+		Radius = 250,
+	},
+	ROUTE_l_ladder = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(1052.216, -466.114, 496.125),
+		Radius = 400,
+	},
+	ROUTE_l_stairs = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(1090.141, 304.430, 272.125),
+		Radius = 400,
+	},
+	ROUTE_x_cappoint = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-3630.015, -271.294, 205.125),
+		Radius = 400,
+	},
+	ROUTE_x_crates = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-2557.542, 466.090, 49.125),
+		Radius = 500,
+	},
+	ROUTE_x_gold = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-2434.092, -1383.179, 208.125),
+		Radius = 300,
+	},
+	ROUTE_x_stairs_N = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1512.281, 266.943, 123.793),
+		Radius = 300,
+	},
+	ROUTE_x_stairs_S = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1253.438, -506.143, 147.984),
+		Radius = 300,
+	},
+	Version = 1,
+};

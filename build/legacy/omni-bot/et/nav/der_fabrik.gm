@@ -1,0 +1,253 @@
+//==========================================================================================
+//
+//	der_fabrik.gm
+//
+//	Who                  	When		What
+//------------------------------------------------------------------------------------------
+//	maker@bigsighstudios.com	31 January 2018	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1, // please set to zero before distributing your script
+	DefendingTeam = TEAM.AXIS,
+
+	Gate_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Gate_.*" );
+		Util.MapDebugPrint( "Gate_to_the_Lower_Corridor_Built" );
+	},
+	Gate_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Gate_.*" );
+		Util.MapDebugPrint( "Gate_to_the_Lower_Corridor_Planted" );
+	},
+	Gate_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Gate_.*" );
+		Util.MapDebugPrint( "Gate_to_the_Lower_Corridor_Defused" );
+	},
+	Gate_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Gate_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "CHECKPOINT_forward_spawn" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Gen.*" );
+		Util.MapDebugPrint( "Gate_Destroyed" );
+	},
+
+	Generator_Hub_1_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Generator_Hub_1" );
+		Util.MapDebugPrint( "Generator_Hub_1_Planted" );
+	},
+	Generator_Hub_1_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Generator_Hub_1" );
+		Util.MapDebugPrint( "Generator_Hub_1_Defused" );
+	},
+	Generator_Hub_1_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Generator_Hub_1" );
+		Util.MapDebugPrint( "Generator_Hub_1_Destroyed" );
+	},
+
+	Generator_Hub_2_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Generator_Hub_2" );
+		Util.MapDebugPrint( "Generator_Hub_2_Planted" );
+	},
+	Generator_Hub_2_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Generator_Hub_2" );
+		Util.MapDebugPrint( "Generator_Hub_2_Defused" );
+	},
+	Generator_Hub_2_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Generator_Hub_2" );
+		Util.MapDebugPrint( "Generator_Hub_2_Destroyed" );
+	},
+
+	forward_spawn_Axis_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "CHECKPOINT_forward_spawn" );
+		Util.MapDebugPrint( "forward_spawn_Axis_Captured" );
+	},
+
+	forward_spawn_Allies_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 1, "CHECKPOINT_forward_spawn" );
+		Util.MapDebugPrint( "forward_spawn_Allies_Captured" );
+	},
+
+	// Neutral Command Post
+	CP_Owner = 0,
+	CP_Dyno = 0,
+
+	Set_CP = function(_p) // p = TEAM.ALLIES or TEAM.AXIS or 0 (unbuilt)
+	{
+		switch(_p)
+		{
+			case 0:
+			{
+				Map.CP_Owner = 0;
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+			case TEAM.ALLIES:
+			{
+				Map.CP_Owner = TEAM.ALLIES;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "PLANT_Command_Post" );
+			}
+			case TEAM.AXIS:
+			{
+				Map.CP_Owner = TEAM.AXIS;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+		}
+		//Util.MapDebugPrint("CP Owner: " + Map.CP_Owner );
+	},
+	Allied_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.ALLIES);
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+	Axis_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.AXIS);
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+	Axis_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+	CP_Planted = function( trigger )
+	{
+		Map.CP_Dyno += 1;
+		Util.MapDebugPrint( "CP_Planted" );
+	},
+	CP_Defused = function( trigger )
+	{
+		Map.CP_Dyno -= 1;
+		Util.MapDebugPrint( "CP_Defused" );
+	},
+
+// Command Post END
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+
+	OnTrigger( "The Axis team has constructed the Corridor Gate!", Map.Gate_Built );
+	OnTrigger( "Planted at the Gate to the Lower Corridor.", Map.Gate_Planted );
+	OnTrigger( "Defused at the Gate to the Lower Corridor.", Map.Gate_Defused );
+	OnTrigger( "MISSING_STRING", Map.Gate_Destroyed );
+
+	OnTrigger( "Planted at Generator Hub #1.", Map.Generator_Hub_1_Planted );
+	OnTrigger( "Defused at Generator Hub #1.", Map.Generator_Hub_1_Defused );
+	//OnTrigger( "Allied team has blown up one of the generator hubs!", Map.Generator_Hub_1_Destroyed );
+	OnTrigger( "Generator Hub #1 Destroyed.", Map.Generator_Hub_1_Destroyed );
+
+	OnTrigger( "Planted at Generator Hub #2.", Map.Generator_Hub_2_Planted );
+	OnTrigger( "Defused at Generator Hub #2.", Map.Generator_Hub_2_Defused );
+	//OnTrigger( "Allied team has blown up one of the generator hubs!", Map.Generator_Hub_2_Destroyed );
+	OnTrigger( "Generator Hub #2 Destroyed.", Map.Generator_Hub_2_Destroyed );
+
+	OnTrigger( "Axis capture the forward spawn!", Map.forward_spawn_Axis_Captured );
+	OnTrigger( "Allies capture the forward spawn!", Map.forward_spawn_Allies_Captured );
+
+	OnTrigger( "Allied Command Post constructed. Charge speed increased! [15 second spawn timer]",  Map.Allied_CP_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post! [15 second spawn timer]",          Map.Allied_CP_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!",    Map.Axis_CP_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!",          Map.Axis_CP_Destroyed );
+	OnTrigger( "Planted at the Command Post.",                              Map.CP_Planted  );
+	OnTrigger( "Defused at the Command Post.",                              Map.CP_Defused  );
+
+	//---------------------------------------------------------------------------
+
+	Util.DisableGoal( ".*", true ); // all but routes
+
+	Util.LimitToClass("PLANT_Command_Post", 0, 5);
+	Util.AddUsePoint("PLANT_Generator_Hub_1", Vec3( -938, 122, -1091 ));
+	Util.AddUsePoint("PLANT_Generator_Hub_2", Vec3( -941, -131, -1091 ));
+	Util.AddUsePoint("PLANT_Gate_to_the_Lower_Corridor", Vec3( 1000, 92, 76 ));
+
+	//Allies
+	SetAvailableMapGoals( TEAM.ALLIES, 1, {
+		"ATTACK_Stage1_.*",
+		"CHECKPOINT_forward_spawn",
+		"BUILD_Command_Post",
+		"MOUNTMG42_.*",
+	});
+
+	//Axis
+	SetAvailableMapGoals( TEAM.AXIS, 1, {
+		"DEFEND_Stage1_.*",
+		"BUILD_Gate_.*",
+		"BUILD_Command_Post",
+		"MOUNTMG42_.*",
+	});
+	SetGoalPriority( "BUILD_Gate_.*", 0.95 );
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=30, MaxCampTime=90} );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	//~bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Gate_to_the_Lower_Corridor =
+		{
+		},
+		PLANT_Gate_to_the_Lower_Corridor =
+		{
+		},
+		PLANT_Generator_Hub_1 =
+		{
+		},
+		PLANT_Generator_Hub_2 =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		CHECKPOINT_forward_spawn =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

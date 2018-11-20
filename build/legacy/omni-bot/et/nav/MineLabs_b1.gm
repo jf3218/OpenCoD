@@ -1,0 +1,2230 @@
+//==========================================================================================
+//
+//	MineLabs_b1.gm
+//
+//	Who       	When			What
+//------------------------------------------------------------------------------------------
+//	Native12	Note:			Lift is disabled for bots, because (IMO) this is not good way for them.
+//						If you want to bots use lift, you can only biconnect waypoints near lift (only waypoints UID: 3169 & 3171)
+//						and then you have to enable disabled routes in InitializeRoutes table.
+//	Native12	18.01.2018		Remaking from MineLabs_a3f: way file, script file and goal file
+//	Native12	01.02.2018		Released
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	ShowMovers = false,
+	
+	Allied_CP_Build = false,
+	Axis_CP_Build = false,
+	First_Door_destroyed = false,
+	FirstDoorThread = true,
+	Second_Door_destroyed = false,
+	SecondDoorThread = true,
+	RepulsorGunDestroyed = false,
+	DocumentsTransmitted = false,
+	Allies_Win = false,
+	LiftIsBottom = true,
+	LiftIsOnTheTop = false,
+	LiftMoving = false,
+	ExitDoorOpened = false,
+	ExitDoorClosed = true,
+	KeySecured = false,
+	DoorOpened = false,
+	SupplyflagAllies = false,
+	GunDestroyed = false,
+	Gun_Dyno = 0,
+	TankPastWeaponSupply = false,
+	TankAtCP = false,
+	AllyInside = 0,
+	AxisInside = 0,
+	AllyIn_CT = 0,
+	RepulsorGunDyno = 0,
+	
+	DontDispenseAmmo = true,
+	
+	Roles =
+	{
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER2 =	
+			{
+				numbots = 5,
+				//crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER3 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+		
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			ATTACKER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER2 =	
+			{
+				numbots = 5,
+				//crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER3 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+	
+	Exit_door_Moving = function( trigger )
+	{
+		if ( trigger.Action == "opening" )
+		{
+			Map.ExitDoorClosed = false;
+			Map.ExitDoorOpened = true;
+			
+			Map.Switches.exit_door.Enabled = false;
+			
+			Util.MapDebugPrint( "Exit door opening" );
+		}
+		if ( trigger.Action == "closing" )
+		{
+			Map.ExitDoorOpened = false;
+			Map.ExitDoorClosed = true;
+			
+			Util.MapDebugPrint( "Exit door closing" );
+			
+			Map.Switches.exit_door.Enabled = true;
+			
+			Util.MapDebugPrint( "Exit door switch enabled" );
+		}
+	},
+	
+	Switches =
+	{
+		//	/bot waypoint_setproperty paththrough UseSwitch_PT:exit_door
+		exit_door =
+		{
+			AimPosition = Vec3(-4944.929, 6082.125, 752.752),	// /bot aim_pos
+			Enabled = true,
+			Priority = 0.0,
+			WaypointName = "exitDoorSwitch",
+			LimitBots = 1,
+			Timeout = 2500,
+			
+			Wait = function()
+			{
+				return Map.ExitDoorOpened;
+			},
+		},
+		//  	/bot waypoint_setproperty paththrough UseSwitch_PT:lower_switch_out
+		lower_switch_out =
+		{
+			WaypointName = "lower_switch_out_WP",
+			Enabled = false,	//on the start of map is disabled
+			LimitBots = 1,
+			AimPosition = Vec3(-6397.875, 6272.023, 502.095),	//	/bot aim_pos
+			Priority = 0.0,
+			Timeout = 3000,
+			
+			Wait = function()
+			{
+				return Map.LiftIsBottom;
+			},
+			
+		},
+		//  	/bot waypoint_setproperty paththrough UseSwitch_PT:lower_switch_in
+		lower_switch_in =
+		{
+			WaypointName = "lower_switch_in_WP",
+			Enabled = true,	//on the start of map is enabled
+			LimitBots = 1,
+			AimPosition = Vec3(-6525.875, 6400.114, 502.079),	//	/bot aim_pos
+			Priority = 0.0,
+			Timeout = 2500,
+			
+			Wait = function()
+			{
+				return Map.LiftIsOnTheTop;
+			},
+			
+		},
+	},
+	
+	Lift_on_the_top =
+	{
+		Name = "Lift_on_the_top",
+		TriggerOnEntity = GetGoal("MOVER_lift").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.LiftIsOnTheTop = true;
+			Map.LiftMoving = false;
+			
+			Util.MapDebugPrint( "Lift is on the top" );
+		},
+		OnExit = function(ent)
+		{
+			
+		},
+	},
+	
+	Lift_bottom =
+	{
+		Name = "Lift_bottom",
+		TriggerOnEntity = GetGoal("MOVER_lift").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.LiftIsBottom = true;
+			Map.LiftMoving = false;
+			
+			Map.Switches.lower_switch_out.Enabled = false;
+			Map.Switches.lower_switch_in.Enabled = true;
+			
+			Util.MapDebugPrint( "Lift is at the bottom" );
+		},
+		OnExit = function(ent)
+		{
+			
+		},
+	},
+	
+	Lift_Moving = function( trigger )
+	{
+		if ( Map.DoorOpened )
+		{
+			vel = ToVector(trigger.Action);
+			
+			Map.Switches.lower_switch_out.Enabled = true;
+			
+			if ( vel[ 2 ] > 0 )
+			{
+				Map.LiftIsBottom = false;
+				Map.LiftMoving = true;
+				
+				Util.MapDebugPrint( "Lift goes up" );
+			}
+			if ( vel[ 2 ] < 0 )
+			{
+				Map.LiftIsOnTheTop = false;
+				Map.LiftMoving = true;
+				
+				Util.MapDebugPrint( "Lift goes down" );
+			}
+			
+			sleep(1);
+			
+			Map.Switches.lower_switch_in.Enabled = false;
+		}
+	},
+	
+	Navigation =
+	{
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough Navigation_PT:wait_low
+		wait_low =
+		{
+			navigate = function(_this)
+			{
+				if ( Map.LiftMoving )
+				{
+					while ( Map.LiftMoving )
+					{
+						yield();
+					}
+					if ( !Map.LiftIsBottom )
+					{
+						_this.Goto(Vector3(-6295.425, 6420.261, 472.125));
+						Util.MapDebugPrint( "Bots can not board lift" );
+					}
+				}
+				else
+				{
+					if ( !Map.LiftIsBottom )
+					{
+						_this.Goto(Vector3(-6295.425, 6420.261, 472.125));
+						Util.MapDebugPrint( "Bots can not board lift" );
+					}
+				}
+			},
+		},
+	},
+	
+	vkey_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Key_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Truck" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Truck" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_vkey" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_Allies_Key_.*" );
+		
+		SetAvailableMapGoals( 0, true, "DEFEND_LockedDoor_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Locked_Door" );
+		
+		Util.MapDebugPrint( "vkey_Taken" );
+	},
+	
+	vkey_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( 0, false, "DEFEND_LockedDoor_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Locked_Door" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Key_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Truck" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Truck" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_vkey" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Allies_Key_.*" );
+		
+		Util.MapDebugPrint( "vkey_Returned" );
+	},
+	
+	vkey_Secured = function( trigger )
+	{
+		Map.KeySecured = true;
+		
+		WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+		
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam() == TEAM.AXIS and bot.GetClass() == CLASS.ENGINEER )
+			{
+				if ( bot.GetReinforceTime() <= 15 )
+				{
+					bot.ExecCommand ("kill");
+				}
+			}
+		}
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_vkey" );
+		
+		sleep(2);
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Locked_Door" );
+		
+		if ( !Map.Allied_CP_Build and !Map.Axis_CP_Build )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+		}
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gun_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Flag_.*" );
+		
+		Util.MapDebugPrint( "vkey_Secured" );
+	},
+	
+	Door_opened = function( trigger )
+	{
+		Map.DoorOpened = true;
+		
+		SetAvailableMapGoals( 0, false, "MOUNTMG42_Yard" );
+		SetAvailableMapGoals( 0, false, "REPAIRMG42_Yard" );
+		SetAvailableMapGoals( 0, false, "MOUNTMG42_Truck" );
+		SetAvailableMapGoals( 0, false, "REPAIRMG42_Truck" );
+		SetAvailableMapGoals( 0, false, "DEFEND_LockedDoor_.*" );
+		
+		SetAvailableMapGoals( 0, true, "AMMOCAB_misc_cabinet_supply1" );
+		SetAvailableMapGoals( 0, true, "HEALTHCAB_misc_cabinet_health1" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Key_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Yard_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_Allies_Key_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Yard_.*" );
+		
+		if ( !Map.Allied_CP_Build and !Map.Axis_CP_Build )
+		{
+			SetAvailableMapGoals( 0, true, "BUILD_Command_Post" );
+		}
+		else if ( Map.Axis_CP_Build )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+		else if ( Map.Allied_CP_Build )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+		}
+		
+		if ( !Map.SupplyflagAllies )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_supplyflag" );
+		}
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_Gun_.*" );
+		
+		if ( !Map.GunDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_gun" );
+		}
+		
+		Util.MapDebugPrint( "Door_opened" );
+	},
+	
+	supplyflag_Axis_Captured = function( trigger )
+	{
+		Map.SupplyflagAllies = false;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_supplyflag" );
+		
+		if ( !Map.GunDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_supplyflag" );
+		}
+		
+		Util.MapDebugPrint( "supplyflag_Axis_Captured" );
+	},
+	
+	supplyflag_Allies_Captured = function( trigger )
+	{
+		Map.SupplyflagAllies = true;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_supplyflag" );
+		
+		if ( !Map.GunDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_supplyflag" );
+		}
+		
+		Util.MapDebugPrint( "supplyflag_Allies_Captured" );
+	},
+	
+	gun_Planted = function( trigger )
+	{
+		Map.Gun_Dyno += 1;
+		
+		SetGoalRole( "DEFUSE_gun_.*", ROLE.ROAMER );
+		
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam() == TEAM.AXIS and bot.GetClass() == CLASS.ENGINEER )
+			{
+				if ( bot.GetMapGoalName() == "BUILD_Command_Post" )
+				{
+					Util.MapDebugPrint( "ignore defuse gun" );
+				}
+				else
+				{
+					bot.SetRoles( ROLE.ROAMER );
+				}
+			}
+		}
+		
+		Util.MapDebugPrint( "gun_Planted" );
+	},
+	
+	gun_Defused = function( trigger )
+	{
+		Map.Gun_Dyno -= 1;
+		
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ROAMER) )
+			{
+				bot.ClearRoles( ROLE.ROAMER );
+			}
+		}
+		
+		Util.MapDebugPrint( "gun_Defused" );
+	},
+	
+	gun_Destroyed = function( trigger )
+	{
+		Map.SupplyflagAllies = true;
+		
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ROAMER) )
+			{
+				bot.ClearRoles( ROLE.ROAMER );
+			}
+		}
+		
+		if ( Map.Gun_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_gun_.*" );
+		}
+		
+		Map.SetSpawn();
+		
+		Map.Gun_Dyno = 0;
+		Map.GunDestroyed = true;
+		
+		WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MOBILE_MG42, true );
+		
+		Util.DisableGoal( "CHECKPOINT_supplyflag" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Gun_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Flag_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_gun" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_WS_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Axis_Gun_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_WS_.*" );
+		
+		Util.MapDebugPrint( "gun_Destroyed" );
+	},
+	
+	Tank_at_start =
+	{
+		Name = "Tank_at_start",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			sleep(1);
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Tank" );
+			
+			Util.MapDebugPrint( "Tank is ready to escort" );
+		},
+		OnExit = function(ent)
+		{
+			ETUtil.SetExcludeIndexes( "ESCORT_Tank", {} );
+		},
+	},
+	
+	Tank_at_gun =
+	{
+		Name = "Tank_at_gun",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "MOUNT_Tank_Allies" );
+			
+			Util.MapDebugPrint( "Tank is ready to mount" );
+		},
+		OnExit = function(ent)
+		{
+			
+		},
+	},
+	
+	Tank_near_weapon_supply =
+	{
+		Name = "Tank_near_weapon_supply",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			ETUtil.SetExcludeIndexes( "ESCORT_Tank", { 2, 3, 4, 5} );
+			ETUtil.SetExcludeIndexes( "MOUNT_Tank_Allies", { 1, 2, 3, 4} );
+			ETUtil.SetExcludeIndexes( "MOUNT_Tank_Axis", { 1, 2, 3, 4} );
+			
+			SetGoalRole( "DEFEND_Axis_WS_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			Util.SetMaxUsers( 1, "DEFEND_Axis_WS_.*" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_WS_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "PLANTMINE_Axis_Gun_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_Gun_.*" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+			
+			Util.MapDebugPrint( "Tank_near_weapon_supply" );
+		},
+		OnExit = function(ent)
+		{
+			
+		},
+	},
+	
+	Tank_past_weapon_supply =
+	{
+		Name = "Tank_past_weapon_supply",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.TankPastWeaponSupply = true;
+			
+			ETUtil.SetExcludeIndexes( "ESCORT_Tank", {} );
+			ETUtil.SetExcludeIndexes( "MOUNT_Tank_Allies", {} );
+			ETUtil.SetExcludeIndexes( "MOUNT_Tank_Axis", {} );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_WS_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_CP_.*" );
+			
+			Util.MapDebugPrint( "Tank_past_weapon_supply" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNT_Tank_Axis" );
+		},
+	},
+	
+	Tank_at_CP =
+	{
+		Name = "Tank_at_CP",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.TankAtCP = true;
+			
+			if ( Map.AllyIn_CT == 0 )
+			{
+				if ( Map.Allied_CP_Build )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+				}
+			}
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_CP_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_FirstDoor_.*" );
+			
+			Util.MapDebugPrint( "Tank_at_CP" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FirstDoor_.*" );
+			
+			GetGoal("DEFEND_Axis_CP_19").AimVectors = { Vec3(0.968, -0.111, -0.226), Vec3(0.703, 0.606, -0.372), Vec3(-0.674, 0.643, -0.362) };
+			GetGoal("DEFEND_Axis_CP_14").AimVectors = { Vec3(0.876, 0.328, -0.355), Vec3(0.267, 0.867, -0.420), Vec3(-0.466, 0.819, -0.335) };
+			GetGoal("DEFEND_Axis_CP_13").AimVectors = { Vec3(0.815, 0.382, -0.436), Vec3(0.267, 0.842, -0.469), Vec3(-0.460, 0.809, -0.366) };
+			
+			SetGoalPriority( "DEFEND_Axis_CP_19", 0.51, TEAM.AXIS, 0 );
+			SetGoalPriority( "DEFEND_Axis_CP_14", 0.51, TEAM.AXIS, 0 );
+			SetGoalPriority( "DEFEND_Axis_CP_13", 0.51, TEAM.AXIS, 0 );
+			
+			SetAvailableMapGoals( TEAM.AXIS, false, "PLANTMINE_Axis_CP_.*" );
+		},
+	},
+	
+	tank_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_tank" );
+		
+		Util.MapDebugPrint( "tank_Built" );
+	},
+	
+	tank_Damaged = function( trigger )
+	{
+		if ( !Map.Second_Door_destroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_tank" );
+		}
+		
+		Util.MapDebugPrint( "tank_Damaged" );
+	},
+	
+	Allied_Command_Post_Built = function( trigger )
+	{
+		Map.Allied_CP_Build = true;
+		
+		Map.SetSpawn();
+		
+		if ( Map.DoorOpened )
+		{
+			SetAvailableMapGoals( 0, false, "BUILD_Command_Post" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+			
+			if ( Map.AllyIn_CT == 0 )
+			{
+				if ( Map.TankAtCP )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+				}
+			}
+		}
+		
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+	
+	Axis_Command_Post_Built = function( trigger )
+	{
+		Map.Axis_CP_Build = true;
+		
+		Map.SetSpawn();
+		
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ROAMER) )
+			{
+				bot.ClearRoles( ROLE.ROAMER );
+			}
+		}
+		
+		if ( Map.DoorOpened )
+		{
+			SetAvailableMapGoals( 0, false, "BUILD_Command_Post" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+		
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+	
+	SetSpawn1 = function(bot)
+	{
+		if ( !Map.KeySecured )
+		{
+			bot.ChangeSpawnPoint(0);
+		}
+		else
+		{
+			if (bot.GetTeam() == TEAM.ALLIES)
+			{
+				if ( !Map.First_Door_destroyed )
+				{
+					if ( Map.Allied_CP_Build )
+					{
+						if ( Map.GunDestroyed )
+						{
+							if ( !Map.TankPastWeaponSupply )
+							{
+								if ( bot.HasRole(ROLE.ATTACKER2) or bot.HasRole(ROLE.ATTACKER3) )
+								{
+									bot.ChangeSpawnPoint(4);
+								}
+								else
+								{
+									bot.ChangeSpawnPoint(0);
+								}
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(4);
+							}
+						}
+						else
+						{
+							bot.ChangeSpawnPoint(0);
+						}
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(0);
+					}
+				}
+				else
+				{
+					if ( Map.Allied_CP_Build )
+					{
+						bot.ChangeSpawnPoint(4);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(0);
+					}
+				}
+			}
+			else
+			{
+				if ( !Map.First_Door_destroyed )
+				{
+					if ( Map.Axis_CP_Build )
+					{
+						if ( Map.GunDestroyed )
+						{
+							if ( !Map.TankAtCP )
+							{
+								bot.ChangeSpawnPoint(4);	//CP spawn
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(3);	//weaponsupply spawn
+							}
+						}
+						else
+						{
+							bot.ChangeSpawnPoint(3);	//weaponsupply spawn
+						}
+					}
+					else
+					{
+						if ( Map.GunDestroyed )
+						{
+							bot.ChangeSpawnPoint(5);	//minesupply spawn
+						}
+						else
+						{
+							bot.ChangeSpawnPoint(3);	//weaponsupply spawn
+						}
+					}
+				}
+				else
+				{
+					if ( Map.Axis_CP_Build )
+					{
+						if ( Map.AllyIn_CT > 0 )
+						{
+							if ( bot.HasRole(ROLE.DEFENDER3) )
+							{
+								if ( !Map.TankAtCP )
+								{
+									bot.ChangeSpawnPoint(4);	//CP spawn
+								}
+								else
+								{
+									bot.ChangeSpawnPoint(5);	//minesupply spawn
+								}
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(5);	//minesupply spawn
+								
+								if ( bot.GetReinforceTime() <= 3 and Map.AllyIn_CT > 0 and Map.AxisInside == 0 )
+								{
+									bot.ExecCommand("kill");
+								}
+							}
+						}
+						else
+						{
+							if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+							{
+								if ( !Map.TankAtCP )
+								{
+									bot.ChangeSpawnPoint(4);	//CP spawn
+								}
+								else
+								{
+									bot.ChangeSpawnPoint(5);	//minesupply spawn
+								}
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(5);	//minesupply spawn
+							}
+						}
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(5);	//minesupply spawn
+					}
+				}
+			}
+		}
+	},
+	
+	SetSpawn = function()
+	{
+		foreach(bot in BotTable)
+		{
+			Map.SetSpawn1(bot);
+		}
+	},
+	
+	Command_Post_Planted = function( trigger )
+	{
+		Util.MapDebugPrint( "Command_Post_Planted" );
+		
+		sleep(0.1);
+		
+		foreach( goal in Util.GoalTable("DEFUSE_Command_Post_.*") )
+		{
+			name = goal.GetName();
+			Util.SetGoalRange( name, 1600);
+		}
+	},
+	
+	Command_Post_Defused = function( trigger )
+	{
+		Util.MapDebugPrint( "Command_Post_Defused" );
+	},
+	
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+		Map.Allied_CP_Build = false;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( 0, false, "PLANT_Command_Post" );
+		
+		if ( Map.DoorOpened )
+		{
+			if ( !Map.TankAtCP )
+			{
+				SetAvailableMapGoals( 0, true, "BUILD_Command_Post" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+				
+				if ( Map.AllyIn_CT == 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_PastCP_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+				}
+			}
+		}
+		
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+	
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+		Map.Axis_CP_Build = false;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( 0, false, "PLANT_Command_Post" );
+		
+		if ( Map.DoorOpened )
+		{
+			if ( !Map.TankAtCP )
+			{
+				SetAvailableMapGoals( 0, true, "BUILD_Command_Post" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+			}
+		}
+		
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+	
+	Tank_near_first_door =
+	{
+		Name = "Tank_near_first_door",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "MOUNT_Tank_Axis" );
+			
+			Util.MapDebugPrint( "Tank_near_first_door" );
+		},
+		OnExit = function(ent)
+		{
+			
+		},
+	},
+	
+	Control_trigger =
+	{
+		Name = "Control_trigger",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( Map.AllyIn_CT == 0 )
+				{
+					Map.SetSpawn();
+				}
+				
+				Map.AllyIn_CT += 1;
+				
+				Util.MapDebugPrint( "Allies in CT + 1; Total amount: " + Map.AllyIn_CT );
+				
+				if ( !Map.RepulsorGunDestroyed or !Map.DocsTaken )
+				{
+					if ( Map.AllyInside == 0 )
+					{
+						Util.LimitToClass( "PLANT_Command_Post", TEAM.AXIS, CLASS.COVERTOPS );
+						
+						if ( Map.First_Door_destroyed )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+							
+							SetGoalRole( ".*_Axis_CP_.*", ROLE.DEFENDER3 );
+							SetGoalRole( "DEFEND_Axis_PastCP_.*", ROLE.DEFENDER3 );
+							
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FirstDoorEntrance_.*" );
+							
+							sleep(0.5);
+							
+							if ( !Map.Second_Door_destroyed )
+							{
+								if ( Map.Allied_CP_Build )
+								{
+									SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+								}
+							}
+						}
+						
+						if ( Map.Second_Door_destroyed )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+							SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_PastCP_.*" );
+							
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SecondDoorEntrance_.*" );
+						}
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_PastCP_.*" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AllyIn_CT -= 1;
+				
+				Util.MapDebugPrint( "Allies in CT - 1; Total amount: " + Map.AllyIn_CT );
+				
+				if ( Map.AllyIn_CT == 0 )
+				{
+					Map.SetSpawn();
+					
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_FirstDoorEntrance_.*" );
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SecondDoorEntrance_.*" );
+					
+					Util.LimitToClass( "PLANT_Command_Post", TEAM.AXIS, CLASS.COVERTOPS, CLASS.ENGINEER );
+					
+					ClearGoalRole( ".*_Axis_CP_.*", ROLE.DEFENDER3 );
+					ClearGoalRole( "DEFEND_Axis_PastCP_.*", ROLE.DEFENDER3 );
+					
+					if ( !Map.Allied_CP_Build )
+					{
+						if ( !Map.Axis_CP_Build )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+						}
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+					}
+					
+					Util.MapDebugPrint( "Ally in CT = 0" );
+				}
+			}
+		},
+	},
+	
+	Inside_bunker =
+	{
+		Name = "Inside_bunker",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( Map.AllyInside == 0 )
+				{
+					Map.SetSpawn();
+				}
+				
+				Map.AllyInside += 1;
+				
+				Util.MapDebugPrint( "Allies inside + 1; Total amount: " + Map.AllyInside );
+				
+				if ( !Map.RepulsorGunDestroyed or !Map.DocsTaken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_FirstDoorEntrance_.*" );
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SecondDoorEntrance_.*" );
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_PastCP_.*" );
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Bunker_.*" );
+					
+					if ( !Map.DocsTaken )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Documents_.*" );
+					}
+				}
+			}
+			else
+			{
+				Map.AxisInside += 1;
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AllyInside -= 1;
+				
+				Util.MapDebugPrint( "Allies inside - 1; Total amount: " + Map.AllyInside );
+				
+				if ( Map.AllyInside == 0 )
+				{
+					Map.SetSpawn();
+					
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Bunker_.*" );
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Documents_.*" );
+					
+					if ( Map.AllyIn_CT == 0 )
+					{
+						if ( !Map.RepulsorGunDestroyed )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_FirstDoorEntrance_.*" );
+							SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SecondDoorEntrance_.*" );
+							
+							ClearGoalRole( ".*_Axis_CP_.*", ROLE.DEFENDER3 );
+							ClearGoalRole( "DEFEND_Axis_PastCP_.*", ROLE.DEFENDER3 );
+							
+							if ( !Map.Allied_CP_Build )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+							}
+							else
+							{
+								SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+							}
+						}
+					}
+					else
+					{
+						if ( !Map.RepulsorGunDestroyed )
+						{
+							if ( Map.First_Door_destroyed )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FirstDoorEntrance_.*" );
+							}
+							
+							if ( Map.Second_Door_destroyed )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SecondDoorEntrance_.*" );
+							}
+						}
+					}
+					
+					Util.MapDebugPrint( "Ally inside = 0" );
+				}
+			}
+			else
+			{
+				Map.AxisInside -= 1;
+			}
+		},
+	},
+	
+	First_Door_Thread = function()
+	{
+		start = Vector3(-4371.458, 7038.193, 280.125);
+		end = Vector3(-4478.456, 7038.803, 280.125);
+		Util.MapDebugPrint("^5First_Door_Thread started");
+		while (1)
+		{
+			tr = TraceLine(start, end, null, TRACE.SOLID, 0, false);
+			if(tr.fraction < 1)
+			{
+				if ( Map.FirstDoorThread )
+				{
+					Util.MapDebugPrint("THREAD - First door");
+					
+					Map.FirstDoorThread = false;
+				}
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.RED, 1 );
+				}
+			}
+			else
+			{
+				if ( !Map.FirstDoorThread )
+				{
+					Util.MapDebugPrint("First door to the laboratory destroyed");
+					
+					Map.FirstDoorThread = true;
+					Map.First_Door_destroyed = true;
+					
+					Util.EnableGoal( "ROUTE_DoorOppositeLift" );
+					Util.EnableGoal( "ROUTE_FirstDoor" );
+					
+					Map.SetSpawn();
+					
+					Util.SetMaxUsers( 1, "ESCORT_Tank" );
+					Util.SetMaxUsers( 1, "BUILD_tank" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_FirstDoor_.*" );
+					
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_FirstDoor_.*" );
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_Bunker_.*" );
+					
+					if ( !Map.DocsTaken )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_docs" );
+					}
+					
+					if ( !Map.RepulsorGunDestroyed )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Repulsor_Gun" );
+					}
+				}
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.GREEN, 1 );
+				}
+			}
+			
+			sleep(2);
+		}
+	},
+	
+	Second_Door_Thread = function()
+	{
+		start = Vector3(-4307.876, 5187.582, 365.818);
+		end = Vector3(-4144.741, 5187.115, 376.125);
+		Util.MapDebugPrint("^5Second_Door_Thread started");
+		while (1)
+		{
+			tr = TraceLine(start, end, null, TRACE.SOLID, 0, false);
+			if(tr.fraction < 1)
+			{
+				if ( Map.SecondDoorThread )
+				{
+					Util.MapDebugPrint("THREAD - Second door");
+					
+					Map.SecondDoorThread = false;
+				}
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.RED, 1 );
+				}
+			}
+			else
+			{
+				if ( !Map.SecondDoorThread )
+				{
+					Util.MapDebugPrint("Second door to the laboratory destroyed");
+					
+					Map.SecondDoorThread = true;
+					Map.Second_Door_destroyed = true;
+					
+					Map.SetSpawn();
+					
+					Util.EnableGoal( "ROUTE_DoorToSecondDoor" );
+					Util.EnableGoal( "ROUTE_SecondDoor" );
+					
+					if ( Map.AllyIn_CT > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CP_.*" );
+					}
+					
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Tank" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "MOUNT_Tank_Allies" );
+					
+					if ( !Map.LadderBuilt )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_ladder" );
+					
+					}
+					if ( Map.AllyInside == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SecondDoorEntrance_.*" );
+					}
+					
+					ClearGoalRole( ".*_Axis_FirstDoorEntrance_.*", ROLE.DEFENDER2 );
+					ClearGoalRole( "MOBILEMG42_Axis_FirstDoorEntrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+					ClearGoalRole( "MOBILEMG42_Axis_SecondDoorEntrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+					
+					ClearGoalRole( "PLANT_Repulsor_Gun", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+					ClearGoalRole( "FLAG_docs", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+					ClearGoalRole( "ATTACK_Allies_Bunker_.*", ROLE.ATTACKER3 );
+					
+					SetGoalRole( "ATTACK_Allies_Bunker_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+					
+					if ( !Map.RepulsorGunDestroyed and !Map.DocumentsTransmitted )
+					{
+						SetGoalRole( "PLANT_Repulsor_Gun", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+					}
+				}
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.GREEN, 1 );
+				}
+			}
+			
+			sleep(2);
+		}
+	},
+	
+	ladder_Built = function( trigger )
+	{
+		Map.LadderBuilt = true;
+		
+		Wp.SetWaypointFlag( "Ladder_1", "closed", false );
+		Wp.SetWaypointFlag( "Ladder_3", "closed", true );
+		Wp.SetWaypointFlag( "Ladder_4", "closed", true );
+		
+		Util.EnableGoal( "ROUTE_LadderNearSecondDoor" );
+		Util.EnableGoal( "ROUTE_AmmoStorage" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_ladder" );
+		
+		Util.MapDebugPrint( "ladder_Built" );
+	},
+	
+	Repulsor_Gun_Planted = function( trigger )
+	{
+		Map.RepulsorGunDyno += 1;
+		
+		Util.MapDebugPrint( "Repulsor_Gun_Planted" );
+	},
+	
+	Repulsor_Gun_Defused = function( trigger )
+	{
+		Map.RepulsorGunDyno -= 1;
+		
+		Util.MapDebugPrint( "Repulsor_Gun_Defused" );
+	},
+	
+	Repulsor_Gun_Destroyed = function( trigger )
+	{
+		if ( Map.RepulsorGunDyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Repulsor_Gun_.*" );
+		}
+		
+		Map.RepulsorGunDestroyed = true;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Repulsor_Gun" );
+		
+		if ( Map.DocumentsTransmitted )
+		{
+			if ( !Map.Axis_Win )
+			{
+				Map.Allies_Win = true;
+				
+				ETUtil.WinningChat( TEAM.ALLIES );
+				ETUtil.LosingChat( TEAM.AXIS );
+				
+				Util.MapDebugPrint( "Allies_Win" );
+			}
+		}
+		else
+		{
+			ClearGoalRole( "FLAG_docs", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			ClearGoalRole( "ATTACK_Allies_Bunker_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		}
+		
+		Util.MapDebugPrint( "Repulsor_Gun_Destroyed" );
+	},
+	
+	docs_Taken = function( trigger )
+	{
+		Map.DocsTaken = true;
+		
+		//SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Documents_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_docs" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Transmitter" );
+		
+		if ( Map.RepulsorGunDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Bunker_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_Bunker_.*" );
+			
+			SetAvailableMapGoals( 0, true, "ATTACK_Transmitter_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Bunker_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_Bunker_.*" );
+			
+			SetAvailableMapGoals( 0, true, "ATTACK_Transmitter_0.*" );
+			
+			sleep(0.5);
+			
+			if ( !Map.RepulsorGunDestroyed )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_Bunker_.*" );
+				
+				if ( Map.AllyInside == 0 )
+				{
+					if ( Map.AllyIn_CT == 0 )
+					{
+						if ( !Map.Allied_CP_Build )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+						}
+					}
+					else
+					{
+						if ( Map.First_Door_destroyed )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FirstDoorEntrance_.*" );
+						}
+						
+						if ( Map.Second_Door_destroyed )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SecondDoorEntrance_.*" );
+						}
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Bunker_.*" );
+				}
+			}
+		}
+		
+		Util.MapDebugPrint( "docs_Taken" );
+		
+		sleep(2);
+		
+		if ( Map.DocsTaken )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Documents_.*" );
+		}
+	},
+	
+	docs_Returned = function( trigger )
+	{
+		Map.DocsTaken = false;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Transmitter" );
+		
+		SetAvailableMapGoals( 0, false, "ATTACK_Transmitter_.*" );
+		
+		if ( Map.First_Door_destroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_docs" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_Bunker_.*" );
+		}
+		
+		if ( Map.AllyInside == 0 )
+		{
+			if ( Map.AllyIn_CT == 0 )
+			{
+				if ( !Map.Allied_CP_Build )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CP_.*" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_PastCP_.*" );
+				}
+			}
+			else
+			{
+				if ( Map.First_Door_destroyed )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FirstDoorEntrance_.*" );
+				}
+				
+				if ( Map.Second_Door_destroyed )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SecondDoorEntrance_.*" );
+				}
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Bunker_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Documents_.*" );
+			
+		}
+		
+		Util.MapDebugPrint( "docs_Returned" );
+	},
+	
+	docs_Secured = function( trigger )
+	{
+		Map.DocumentsTransmitted = true;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Transmitter" );
+		
+		SetAvailableMapGoals( 0, false, "ATTACK_Transmitter_.*" );
+		
+		if ( Map.RepulsorGunDestroyed )
+		{
+			if ( !Map.Axis_Win )
+			{
+				Map.Allies_Win = true;
+				
+				ETUtil.WinningChat( TEAM.ALLIES );
+				ETUtil.LosingChat( TEAM.AXIS );
+				
+				Util.MapDebugPrint( "Allies_Win" );
+			}
+		}
+		else
+		{
+			Util.SetMaxUsers( 2, "DEFEND_Axis_Bunker_.*" );
+			
+			ClearGoalRole( "PLANT_Repulsor_Gun", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			ClearGoalRole( "ATTACK_Allies_Bunker_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		}
+		
+		Util.MapDebugPrint( "docs_Secured" );
+	},
+	
+	Thirty_second = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+		
+		Util.MapDebugPrint( "^5Thirty_second" );
+		
+		sleep(30);
+		
+		if ( !Map.Allies_Win )
+		{
+			Map.Axis_Win = true;
+			
+			Util.MapDebugPrint( "^5Axis_Win" );
+			
+			ETUtil.WinningChat( TEAM.AXIS );
+			ETUtil.LosingChat( TEAM.ALLIES );
+		}
+	},
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Allied Command Post constructed", Map.Allied_Command_Post_Built );
+	OnTrigger( "Axis Command Post constructed", Map.Axis_Command_Post_Built );
+	OnTrigger( "Planted at the Command Post.", Map.Command_Post_Planted );
+	OnTrigger( "Planted at Command Post.", Map.Command_Post_Planted );	//Nitmod
+	OnTrigger( "Defused at the Command Post.", Map.Command_Post_Defused );
+	OnTrigger( "Defused at Command Post.", Map.Command_Post_Defused );	//Nitmod
+	OnTrigger( "the allied did construct a ^1ladder to the second floor!", Map.ladder_Built );
+	OnTrigger( "^5The tank has been repaired", Map.tank_Built );
+	OnTrigger( "^5The tank has been damaged", Map.tank_Damaged );
+	OnTrigger( "Axis team has destroyed the Allied Command Post", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "The allies has destroyed the Axis Command Post", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "Planted at The Repulsor Gun.", Map.Repulsor_Gun_Planted );
+	OnTrigger( "Defused at The Repulsor Gun.", Map.Repulsor_Gun_Defused );
+	OnTrigger( "The repulse gun was destroyed!", Map.Repulsor_Gun_Destroyed );
+	OnTrigger( "Planted at the gun.", Map.gun_Planted );
+	OnTrigger( "Planted at gun.", Map.gun_Planted );	//Nitmod
+	OnTrigger( "Defused at the gun.", Map.gun_Defused );
+	OnTrigger( "Defused at gun.", Map.gun_Defused );	//Nitmod
+	OnTrigger( "The anti tank gun was destroyed, the tank is coming", Map.gun_Destroyed );
+	OnTrigger( "^1The documents are not on the table!", Map.docs_Taken );
+	OnTrigger( "^1The key is not on the table!", Map.vkey_Taken );
+	OnTrigger( "^2The axis did return the documents!", Map.docs_Returned );
+	OnTrigger( "^2The axis returned the key!", Map.vkey_Returned );
+	OnTrigger( "^1The allied has taken the documents to the transmitter!", Map.docs_Secured );
+	OnTrigger( "^1The allies unlocked the gate!", Map.vkey_Secured );
+	OnTrigger( "the axis did capture the weapon supply!", Map.supplyflag_Axis_Captured );
+	OnTrigger( "the allies captured the weapon supply!", Map.supplyflag_Allies_Captured );
+	
+	OnTrigger( "the door is open", Map.Door_opened );
+	OnTrigger( "thirty second warning.", Map.Thirty_second );
+	OnTrigger( "lift_goto", Map.Lift_Moving );
+	OnTrigger( "ldoor_Moving", Map.Exit_door_Moving );
+
+	Util.DisableGoal( ".*", true );
+	
+	ClearGoalRole( ".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	
+	Util.DisableGoal( "ROUTE_DoorOppositeLift" );
+	Util.DisableGoal( "ROUTE_FirstDoor" );
+	Util.DisableGoal( "ROUTE_DoorToSecondDoor" );
+	Util.DisableGoal( "ROUTE_SecondDoor" );
+	Util.DisableGoal( "ROUTE_LadderNearSecondDoor" );
+	Util.DisableGoal( "ROUTE_AmmoStorage" );
+	
+	SetAvailableMapGoals( 0, true, "MOUNTMG42_Yard" );
+	SetAvailableMapGoals( 0, true, "REPAIRMG42_Yard" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Truck" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Truck" );
+	SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Key_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Yard_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_vkey" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Allies_Key_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_Yard_.*" );
+
+	Util.SetMaxUsers( 1, "MOBILEMG42_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "REPAIRMG42_.*" );
+	Util.SetMaxUsers( 1, "BUILD_Command_Post" );
+	Util.SetMaxUsers( 1, "PLANT_Command_Post" );
+	Util.SetMaxUsers( 1, "MOUNT_Tank_.*" );
+	Util.SetMaxUsers( 1, "SMOKEBOMB_Allies_CP_20" );
+	Util.SetMaxUsers( 1, "BUILD_ladder" );
+	Util.SetMaxUsers( 2, "BUILD_tank" );
+	Util.SetMaxUsers( 2, "DEFEND_Axis_WS.*" );
+	Util.SetMaxUsers( 2, "ATTACK_Transmitter_.*" );
+	Util.SetMaxUsers( 4, "CHECKPOINT_supplyflag" );
+	
+	Util.AddUseWp( "PLANT_gun", "Gun_WP" );
+	Util.AddUseWp( "PLANT_Repulsor_Gun", "plant_RG_WP" );
+	Util.AddUseWp( "BUILD_ladder", "Ladder_2" );
+	Util.AddUseWp( "CHECKPOINT_supplyflag", "Flag_1" );
+	Util.AddUseWp( "CHECKPOINT_supplyflag", "Flag_2" );
+	Util.AddUseWp( "CHECKPOINT_supplyflag", "Flag_3" );
+	Util.AddUseWp( "CHECKPOINT_supplyflag", "Flag_4" );
+	
+	Util.SetGoalRange( "SMOKEBOMB_Allies_CP_20", 700);
+	
+	ETUtil.SetExcludeIndexes( "ESCORT_Tank", { 0, 1, 2, 3 } );
+	
+	SetGoalPriority( "DEFEND_Axis_PastCP_.*", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Key_0.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Flag_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FirstDoor_.*", 0.53, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FirstDoorEntrance_.*", 0.54, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_SecondDoorEntrance_.*", 0.54, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Bunker_.*", 0.55, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Documents_.*", 0.55, TEAM.AXIS, 0 );
+	SetGoalPriority( "ATTACK_Transmitter_.*", 0.56, 0, 0 );
+	SetGoalPriority( "PLANT_Command_Post", 0.75, TEAM.AXIS, CLASS.ENGINEER );
+	
+	SetGoalPriority( "PLANT_Command_Post", 0.82, TEAM.ALLIES, CLASS.COVERTOPS );
+	SetGoalPriority( "BUILD_Command_Post", 0.92, TEAM.ALLIES, CLASS.ENGINEER );
+	
+	SetGoalRole( "DEFEND_Axis_Key_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 });
+	SetGoalRole( "CALLARTILLERY_Axis_Key_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 });
+	SetGoalRole( "DEFEND_Axis_Flag_.*", ROLE.DEFENDER2 );
+	SetGoalRole( "DEFEND_Axis_Yard_.*", ROLE.DEFENDER3 );
+	SetGoalRole( "DEFEND_Axis_Documents_.*", ROLE.DEFENDER );
+	SetGoalRole( ".*_Axis_FirstDoorEntrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+	SetGoalRole( ".*_Axis_SecondDoorEntrance_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	
+	SetGoalRole( "MOUNTMG42_Yard", { ROLE.DEFENDER3, ROLE.ATTACKER3 });
+	SetGoalRole( "REPAIRMG42_Yard", { ROLE.DEFENDER3, ROLE.ATTACKER3 });
+	SetGoalRole( "MOUNTMG42_Truck", ROLE.DEFENDER2 );
+	SetGoalRole( "REPAIRMG42_Truck", ROLE.DEFENDER2 );
+	SetGoalRole( "ATTACK_Transmitter_0.*", { ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER2, ROLE.ATTACKER3 });
+	
+	SetGoalRole( "FLAG_vkey", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 });
+	SetGoalRole( "SMOKEBOMB_Allies_Key_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 });
+	SetGoalRole( "ATTACK_Allies_Yard_.*", ROLE.ATTACKER3 );
+	SetGoalRole( "DEFEND_Allies_WS_.*", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "PLANT_Repulsor_Gun", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "FLAG_docs", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "ATTACK_Allies_Bunker_.*", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "BUILD_ladder", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.VENOM, false );
+	
+	RegionTrigger.Create(AABB(1338.497,4884.325,193.125,1468.226,4976.875,267.125), "DisableCombatMovement", "Weapon_Supply_Window");
+	RegionTrigger.Create(AABB(1551.125,5012.202,193.125,1642.203,5156.875,294.548), "DisableCombatMovement", "Weapon_Supply_Window");
+	RegionTrigger.Create(AABB(1191.194,4814.850,175.900,1397.171,4937.652,310.932), "DisableCombatMovement", "Weapon_Supply_Window");
+	RegionTrigger.Create(AABB(-1267.900,22.650,159.079,-1070.109,602.521,355.082), "DisableCombatMovement", "Wooden_Footbridge");
+	RegionTrigger.Create(AABB(-972.287,856.442,-36.455,-859.082,1023.697,251.136), "DisableCombatMovement", "Ladder_To_Key");
+	RegionTrigger.Create(AABB(-980.039,489.182,145.125,-866.625,595.066,263.567), "DisableCombatMovement", "Window_Near_Key");
+	RegionTrigger.Create(AABB(-846.859,622.126,179.125,-763.235,757.646,269.125), "DisableBotPush", "Table_With_Key");
+	RegionTrigger.Create(AABB(3063.842,4746.277,-18.904,3364.766,4864.826,271.732), "DisableCombatMovement", "Ladder_to_Spawn");
+	RegionTrigger.Create(AABB(2662.990,3627.017,34.891,3201.405,3897.235,232.554), "DisableCombatMovement", "Around_Gun");
+	RegionTrigger.Create(AABB(2831.125,4879.125,193.125,3195.939,5139.125,311.337), "DisableCombatMovement", "Weapon_Supply_1");
+	RegionTrigger.Create(AABB(1948.990,4879.125,193.259,2467.356,5011.442,315.125), "DisableCombatMovement", "Weapon_Supply_2");
+	RegionTrigger.Create(AABB(1604.798,4623.125,193.125,1904.873,4794.274,311.388), "DisableCombatMovement", "Weapon_Supply_3");
+	RegionTrigger.Create(AABB(-1824.043,5608.610,349.759,-1347.904,5813.676,751.113), "DisableCombatMovement", "Hill_1_near_CP");
+	RegionTrigger.Create(AABB(-2147.400,5024.370,315.375,-1385.337,6274.872,1151.125), "DisableCombatMovement", "Hill_2_near_CP");
+	RegionTrigger.Create(AABB(-6528.875,6184.670,449.125,-6267.029,6521.628,773.913), "DisableCombatMovement", "Lower_switch");
+	RegionTrigger.Create(AABB(-5152.875,7391.125,257.125,-5083.966,7541.948,503.471), "DisableCombatMovement", "Vent_Shaft");
+	RegionTrigger.Create(AABB(-5152.875,7391.125,257.125,-5083.966,7541.948,503.471), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-4071.125,5875.091,305.125,-3885.549,5986.943,400.645), "BreakableDistance", "Wooden_Fence");
+	RegionTrigger.Create(AABB(-5376.873,5504.371,705.125,-5184.108,5677.600,806.158), "DisableCombatMovement", "Axis_Bunker_22");
+	RegionTrigger.Create(AABB(-5376.873,5504.371,705.125,-5184.108,5677.600,806.158), "DisableBotPush", "");
+	
+	OnTriggerRegion(AABB(3178.892,2550.151,-54.758,3216.892,2588.151,19.242), Map.Tank_at_start);
+	OnTriggerRegion(AABB(2418.687,3446.883,-54.873,2456.687,3484.883,19.127), Map.Tank_at_gun);
+	OnTriggerRegion(AABB(2660.102,4709.086,-62.875,2698.102,4747.086,11.125), Map.Tank_near_weapon_supply);
+	OnTriggerRegion(AABB(2579.996,5632.335,-28.270,2617.996,5670.335,45.730), Map.Tank_past_weapon_supply);
+	OnTriggerRegion(AABB(-1326.451,6425.609,313.171,-1288.451,6463.609,387.171), Map.Tank_at_CP);
+	OnTriggerRegion(AABB(-2805.961,7015.381,259.819,-2767.961,7053.381,333.819), Map.Tank_near_first_door);
+	
+	OnTriggerRegion(AABB(-6449.285,6425.613,705.125,-6411.285,6463.613,779.125), Map.Lift_on_the_top);
+	OnTriggerRegion(AABB(-6472.234,6355.277,401.125,-6434.234,6393.277,423.125), Map.Lift_bottom);
+	OnTriggerRegion(AABB(-7600.875,4151.125,242.009,-2817.314,7744.875,866.585), Map.Control_trigger);
+	OnTriggerRegion(AABB(-7600.875,4151.125,251.246,-4943.125,7548.698,866.199), Map.Inside_bunker);
+	
+	thread(Map.First_Door_Thread);
+	thread(Map.Second_Door_Thread);
+	
+	Wp.SetWaypointFlag( "Ladder_1", "closed", true );
+	Wp.SetWaypointFlag( "Ladder_3", "closed", false );
+	Wp.SetWaypointFlag( "Ladder_4", "closed", false );
+	
+	Map.SetSpawn();
+	
+	Util.UpdateSwitchData();
+
+	print( "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3 for map: ^7" + GetMapName() );
+	
+	Util.BotChat( 0, "say", "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12 ^3for ^3map ^7" + GetMapName(), 1 );
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 100.0;
+	
+	Map.SetSpawn();
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CHECKPOINT_supplyflag =
+		{
+			ROUTE_Headquarters_Spawn =
+			{
+				ROUTE_SmallDoor =
+				{
+					ROUTE_NewTunnel_1 =
+					{
+						Weight = 3,
+						ROUTE_NewTunnel_2 = {},
+					},
+					ROUTE_AroundWall =
+					{
+						ROUTE_AroundWall_2 = {},
+					},
+					ROUTE_Park_1 =
+					{
+						ROUTE_Park_2 = {},
+					},
+				},
+				ROUTE_NearLockedDoor =
+				{
+					ROUTE_OpenedGate = {},
+				},
+			},
+			ROUTE_Headquarters_Spawn_1 =
+			{
+				ROUTE_SmallDoor =
+				{
+					ROUTE_NewTunnel_1 =
+					{
+						Weight = 3,
+						ROUTE_NewTunnel_2 = {},
+					},
+					ROUTE_AroundWall =
+					{
+						ROUTE_AroundWall_2 = {},
+					},
+					ROUTE_Park_1 =
+					{
+						ROUTE_Park_2 = {},
+					},
+				},
+				ROUTE_NearLockedDoor =
+				{
+					ROUTE_OpenedGate = {},
+				},
+			},
+			ROUTE_Minesupply_Spawn =
+			{
+				ROUTE_AroundLaboratory_1 =
+				{
+					Weight = 3,
+					ROUTE_LaboratoryStairs =
+					{
+						ROUTE_EmergencyExit = {},
+					},
+				},
+				/*ROUTE_Lift_1 =
+				{
+					ROUTE_Lift_2 =
+					{
+						ROUTE_EmergencyExit = {},
+					},
+				},*/
+				ROUTE_DoorOppositeLift =
+				{
+					Weight = 4,
+					ROUTE_FirstDoor = {},
+				},
+				ROUTE_DoorToSecondDoor =
+				{
+					Weight = 2,
+					ROUTE_SecondDoor = {},
+				},
+			},
+		},
+		BUILD_ladder =
+		{
+			ROUTE_CP_Spawn =
+			{
+				ROUTE_SecondDoor =
+				{
+					Weight = 3,
+					ROUTE_DoorToSecondDoor = {},
+				},
+				ROUTE_FirstDoor =
+				{
+					ROUTE_DoorToSecondDoor = {},
+				},
+			},
+			ROUTE_Weaponsupply_Spawn =
+			{
+				ROUTE_SecondDoor =
+				{
+					Weight = 3,
+					ROUTE_DoorToSecondDoor = {},
+				},
+				ROUTE_FirstDoor =
+				{
+					ROUTE_DoorToSecondDoor = {},
+				},
+			},
+		},
+		PLANT_ladder =
+		{
+		},
+		BUILD_tank =
+		{
+		},
+		PLANT_gun =
+		{
+			ROUTE_Headquarters_Spawn =
+			{
+				ROUTE_SmallDoor =
+				{
+					ROUTE_AroundWall =
+					{
+						ROUTE_AroundWall_2 = {},
+					},
+					ROUTE_Park_1 =
+					{
+						ROUTE_Park_2 = {},
+					},
+				},
+				ROUTE_NearLockedDoor =
+				{
+					ROUTE_OpenedGate = {},
+				},
+			},
+			ROUTE_Headquarters_Spawn_1 =
+			{
+				ROUTE_SmallDoor =
+				{
+					ROUTE_AroundWall =
+					{
+						ROUTE_AroundWall_2 = {},
+					},
+					ROUTE_Park_1 =
+					{
+						ROUTE_Park_2 = {},
+					},
+				},
+				ROUTE_NearLockedDoor =
+				{
+					ROUTE_OpenedGate = {},
+				},
+			},
+		},
+		FLAG_vkey =
+		{
+			ROUTE_Hut_Spawn =
+			{
+				ROUTE_HillNearKey_1 =
+				{
+					ROUTE_HillNearKey_2 = {},
+					ROUTE_OutsideLadder =
+					{
+						ROUTE_InsideHall = {},
+					},
+				},
+				ROUTE_LeftWayToKey =
+				{
+					ROUTE_OutsideLadder =
+					{
+						ROUTE_InsideHall = {},
+					},
+					ROUTE_InsideStairs =
+					{
+						ROUTE_InsideHall = {},
+					},
+				},
+			},
+		},
+		BUILD_Command_Post =
+		{
+		},
+		FLAG_docs =
+		{
+		},
+		PLANT_Repulsor_Gun =
+		{
+			ROUTE_CP_Spawn =
+			{
+				ROUTE_FirstDoor =
+				{
+					ROUTE_DoorOppositeLift =
+					{
+						Weight = 3,
+						ROUTE_AroundLaboratory_1 =
+						{
+							Weight = 3,
+							ROUTE_LaboratoryStairs = {},
+						},
+						/*ROUTE_Lift_1 =
+						{
+							ROUTE_Lift_2 = {},
+						},*/
+						ROUTE_LadderNearSecondDoor =
+						{
+							ROUTE_AmmoStorage = {},
+						},
+					},
+				},
+				ROUTE_SecondDoor =
+				{
+					ROUTE_DoorToSecondDoor =
+					{
+						ROUTE_LadderNearSecondDoor  =
+						{
+							Weight = 2,
+							ROUTE_AmmoStorage = {},
+						},
+					},
+					ROUTE_DoorOppositeLift =
+					{
+						ROUTE_AroundLaboratory_1 =
+						{
+							Weight = 3,
+							ROUTE_LaboratoryStairs = {},
+						},
+						/*ROUTE_Lift_1 =
+						{
+							ROUTE_Lift_2 = {},
+						},*/
+					},
+				},
+			},
+			ROUTE_Weaponsupply_Spawn =
+			{
+				ROUTE_FirstDoor =
+				{
+					ROUTE_DoorOppositeLift =
+					{
+						Weight = 3,
+						ROUTE_AroundLaboratory_1 =
+						{
+							Weight = 3,
+							ROUTE_LaboratoryStairs = {},
+						},
+						/*ROUTE_Lift_1 =
+						{
+							ROUTE_Lift_2 = {},
+						},*/
+						ROUTE_LadderNearSecondDoor =
+						{
+							ROUTE_AmmoStorage = {},
+						},
+					},
+				},
+				ROUTE_SecondDoor =
+				{
+					ROUTE_DoorToSecondDoor =
+					{
+						ROUTE_LadderNearSecondDoor  =
+						{
+							Weight = 2,
+							ROUTE_AmmoStorage = {},
+						},
+					},
+					ROUTE_DoorOppositeLift =
+					{
+						ROUTE_AroundLaboratory_1 =
+						{
+							Weight = 3,
+							ROUTE_LaboratoryStairs = {},
+						},
+						/*ROUTE_Lift_1 =
+						{
+							ROUTE_Lift_2 = {},
+						},*/
+					},
+				},
+			},
+		},
+		PLANT_Command_Post =
+		{
+			ROUTE_Minesupply_Spawn =
+			{
+				ROUTE_AroundLaboratory_1 =
+				{
+					Weight = 3,
+					ROUTE_LaboratoryStairs =
+					{
+						ROUTE_EmergencyExit =
+						{
+							ROUTE_BackWay_1 =
+							{
+								ROUTE_BackWay_2 =
+								{
+									ROUTE_BackWay_3 =
+									{
+										ROUTE_BackWay_4 = {},
+									},
+								},
+							},
+						},
+					},
+				},
+				/*ROUTE_Lift_1 =
+				{
+					ROUTE_Lift_2 =
+					{
+						ROUTE_EmergencyExit =
+						{
+							ROUTE_BackWay_1 =
+							{
+								ROUTE_BackWay_2 =
+								{
+									ROUTE_BackWay_3 =
+									{
+										ROUTE_BackWay_4 = {},
+									},
+								},
+							},
+						},
+					},
+				},*/
+				ROUTE_DoorOppositeLift =
+				{
+					Weight = 4,
+					ROUTE_FirstDoor =
+					{
+						ROUTE_BackWay_1 =
+						{
+							ROUTE_BackWay_2 =
+							{
+								ROUTE_BackWay_3 =
+								{
+									ROUTE_BackWay_4 = {},
+								},
+							},
+						},
+					},
+				},
+				ROUTE_DoorToSecondDoor =
+				{
+					Weight = 2,
+					ROUTE_SecondDoor =
+					{
+						ROUTE_BackWay_1 =
+						{
+							ROUTE_BackWay_2 =
+							{
+								ROUTE_BackWay_3 =
+								{
+									ROUTE_BackWay_4 = {},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		CAPPOINT_Locked_Door =
+		{
+			ROUTE_FlagKeyRoom =
+			{
+				ROUTE_AroundGarrage =
+				{
+					Weight = 3,
+					ROUTE_Yard_1 =
+					{
+						ROUTE_Yard_2 = {},
+					},
+				},
+				ROUTE_LadderToKeyRoom =
+				{
+					ROUTE_YardBox_1 =
+					{
+						ROUTE_NearLockedDoor = {},
+					},
+				},
+				ROUTE_InsideHall =
+				{
+					ROUTE_InsideStairs =
+					{
+						ROUTE_TunnelBox =
+						{
+							ROUTE_YardBox_2 =
+							{
+								ROUTE_NearLockedDoor = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	
+	MapRoutes[".*_Axis_Yard_.*"] =
+	{
+		ROUTE_Headquarters_Spawn =
+		{
+			ROUTE_Yard_1 =
+			{
+				Weight = 3,
+				ROUTE_Yard_2 = {},
+			},
+			ROUTE_HillNearKey_2 =
+			{
+				ROUTE_FlagKeyRoom = {},
+			},
+		},
+		ROUTE_Headquarters_Spawn_1 =
+		{
+			ROUTE_Yard_1 =
+			{
+				Weight = 3,
+				ROUTE_Yard_2 = {},
+			},
+			ROUTE_HillNearKey_2 =
+			{
+				ROUTE_FlagKeyRoom = {},
+			},
+		},
+	};
+	
+	MapRoutes["DEFEND_LockedDoor_.*"] =
+	{
+		ROUTE_Hut_Spawn =
+		{
+			ROUTE_HillNearKey_1 =
+			{
+				ROUTE_AroundGarrage =
+				{
+					ROUTE_WoodenGate = {},
+				},
+			},
+		},
+	};
+	
+	MapRoutes[".*_Axis_Gun_.*"] =
+	{
+		ROUTE_Minesupply_Spawn =
+		{
+			ROUTE_AroundLaboratory_1 =
+			{
+				Weight = 3,
+				ROUTE_LaboratoryStairs =
+				{
+					ROUTE_EmergencyExit = {},
+				},
+			},
+			/*ROUTE_Lift_1 =
+			{
+				ROUTE_Lift_2 =
+				{
+					ROUTE_EmergencyExit = {},
+				},
+			},*/
+			ROUTE_DoorOppositeLift =
+			{
+				Weight = 4,
+				ROUTE_FirstDoor = {},
+			},
+			ROUTE_DoorToSecondDoor =
+			{
+				Weight = 2,
+				ROUTE_SecondDoor = {},
+			},
+		},
+	};
+	
+	MapRoutes["ATTACK_Transmitter_.*"] =
+	{
+		ROUTE_Minesupply_Spawn =
+		{
+			ROUTE_AroundLaboratory_1 =
+			{
+				Weight = 3,
+				ROUTE_LaboratoryStairs =
+				{
+					ROUTE_EmergencyExit = {},
+				},
+			},
+			/*ROUTE_Lift_1 =
+			{
+				ROUTE_Lift_2 =
+				{
+					ROUTE_EmergencyExit = {},
+				},
+			},*/
+			ROUTE_DoorOppositeLift =
+			{
+				Weight = 4,
+				ROUTE_FirstDoor = {},
+			},
+		},
+	};
+	
+	MapRoutes[".*_Axis_Bunker_.*"] =
+	{
+		ROUTE_Minesupply_Spawn =
+		{
+			ROUTE_AroundLaboratory_1 =
+			{
+				Weight = 2,
+				ROUTE_LaboratoryStairs ={},
+			},
+			/*ROUTE_Lift_1 =
+			{
+				ROUTE_Lift_2 ={},
+			},*/
+			ROUTE_LadderNearSecondDoor =
+			{
+				ROUTE_AmmoStorage = {},
+			},
+		},
+	};
+	
+	MapRoutes[".*_Allies_Gun_.*"] = MapRoutes.PLANT_gun;
+	MapRoutes["DEFEND_LockedDoor_.*"] = MapRoutes[".*_Axis_Yard_.*"];
+	MapRoutes["DEFEND_Axis_Flag_.*"] = MapRoutes[".*_Axis_Gun_.*"];
+	MapRoutes[".*_Axis_WS_.*"] = MapRoutes[".*_Axis_Gun_.*"];
+	MapRoutes[".*_Axis_CP_.*"] = MapRoutes[".*_Axis_Gun_.*"];
+	MapRoutes["DEFEND_Axis_Documents_.*"] = MapRoutes[".*_Axis_Bunker_.*"];
+	MapRoutes.FLAG_docs = MapRoutes.PLANT_Repulsor_Gun;
+	MapRoutes["DEFEND_Allies_Bunker_.*"] = MapRoutes.PLANT_Repulsor_Gun;
+	
+	Util.Routes(MapRoutes);
+};

@@ -1,0 +1,190 @@
+global _MG = 
+{
+	PLANT_al_plant_1 = 
+	{
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		MinRadius = 32,
+		Position = Vec3(-961.815, -9.104, -254.875),
+		TeamAvailability = 20,
+		TraceInfo = 
+		{
+		},
+	},
+	PLANT_ax_plant_1 = 
+	{
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		MinRadius = 32,
+		Position = Vec3(463.150, 5.173, -253.875),
+		TeamAvailability = 10,
+		TraceInfo = 
+		{
+		},
+	},
+	ROUTE_al_duel_route = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(455.588, -32.125, -61.554),
+		Radius = 35,
+		TeamAvailability = 20,
+	},
+	ROUTE_al_spawn_route = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(466.526, -352.927, 32.125),
+		Radius = 125,
+		TeamAvailability = 20,
+	},
+	ROUTE_ax_duel_route = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-972.026, 32.125, -45.541),
+		Radius = 35,
+		TeamAvailability = 10,
+	},
+	ROUTE_ax_spawn_route = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-960.324, 344.510, 32.125),
+		Radius = 125,
+		TeamAvailability = 10,
+	},
+	SMOKEBOMB_al_smoke_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.869, -0.325, -0.373),
+		},
+		GoalType = "SMOKEBOMB",
+		MinRadius = 32,
+		Position = Vec3(493.874, 125.874, -254.875),
+		Radius = 32,
+		Stance = "crouch",
+		TeamAvailability = 20,
+	},
+	SMOKEBOMB_ax_smoke_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.949, 0.305, -0.083),
+		},
+		GoalType = "SMOKEBOMB",
+		MinRadius = 32,
+		Position = Vec3(-1003.115, -125.874, -254.875),
+		Radius = 32,
+		Stance = "crouch",
+		TeamAvailability = 10,
+	},
+	SWITCH_al_boxes = 
+	{
+		AimPosition = Vec3(279.924, -507.875, 91.795),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "al_arena_switches",
+		Position = Vec3(278.615, -478.024, 33.125),
+		Radius = 32,
+		TeamAvailability = 20,
+		Timeout = 1000,
+	},
+	SWITCH_al_duel = 
+	{
+		AimPosition = Vec3(501.107, -96.509, -207.875),
+		Facing = Vec3(0.819, -0.010, -0.573),
+		GoalType = "SWITCH",
+		GroupName = "duel_switches",
+		Position = Vec3(462.946, -90.688, -254.875),
+		Radius = 32,
+		TeamAvailability = 20,
+		Timeout = 1000,
+	},
+	SWITCH_al_floor = 
+	{
+		AimPosition = Vec3(376.168, -507.875, 89.585),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "al_arena_switches",
+		Position = Vec3(380.782, -477.091, 33.125),
+		Radius = 32,
+		TeamAvailability = 20,
+		Timeout = 1000,
+	},
+	SWITCH_al_grates = 
+	{
+		AimPosition = Vec3(231.814, -507.875, 92.026),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "al_arena_switches",
+		Position = Vec3(231.572, -479.782, 33.125),
+		Radius = 32,
+		TeamAvailability = 20,
+		Timeout = 1000,
+	},
+	SWITCH_al_walls = 
+	{
+		AimPosition = Vec3(327.419, -507.875, 92.805),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "al_arena_switches",
+		Position = Vec3(328.143, -483.300, 33.125),
+		Radius = 32,
+		TeamAvailability = 20,
+		Timeout = 1000,
+	},
+	SWITCH_ax_boxes = 
+	{
+		AimPosition = Vec3(-792.452, 507.875, 91.605),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "ax_arena_switches",
+		Position = Vec3(-793.593, 478.937, 33.125),
+		Radius = 32,
+		TeamAvailability = 10,
+		Timeout = 1000,
+	},
+	SWITCH_ax_duel = 
+	{
+		AimPosition = Vec3(-1011.875, 98.065, -208.107),
+		Facing = Vec3(-0.760, 0.007, -0.650),
+		GoalType = "SWITCH",
+		GroupName = "duel_switches",
+		Position = Vec3(-992.875, 97.888, -254.875),
+		Radius = 32,
+		TeamAvailability = 10,
+		Timeout = 1000,
+	},
+	SWITCH_ax_floor = 
+	{
+		AimPosition = Vec3(-888.508, 507.875, 95.400),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "ax_arena_switches",
+		Position = Vec3(-888.928, 487.873, 33.170),
+		Radius = 32,
+		TeamAvailability = 10,
+		Timeout = 1000,
+	},
+	SWITCH_ax_grates = 
+	{
+		AimPosition = Vec3(-743.525, 507.875, 92.044),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "ax_arena_switches",
+		Position = Vec3(-743.725, 478.911, 33.125),
+		Radius = 32,
+		TeamAvailability = 10,
+		Timeout = 1000,
+	},
+	SWITCH_ax_walls = 
+	{
+		AimPosition = Vec3(-840.330, 507.875, 95.717),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		GroupName = "ax_arena_switches",
+		Position = Vec3(-840.899, 487.873, 33.170),
+		Radius = 32,
+		TeamAvailability = 10,
+		Timeout = 1000,
+	},
+	Version = 1,
+};

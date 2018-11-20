@@ -1,0 +1,10 @@
+if (GetModName()!="etblight") { return; }
+
+WEAPON.PROTO = 72;
+this.Name = "MN Proto";
+this.WeaponId = WEAPON.PROTO;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 0;
+this.PrimaryFire.LowAmmoPriority = 0.8;
+this.PrimaryFire.LowAmmoGetAmmoAmount = 4;

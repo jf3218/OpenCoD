@@ -1,0 +1,535 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9DD1AA50-34A7-3A88-9CCA-5BC6D32616C3}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>libcurl</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\libs\curl\lib\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">libcurl.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">libcurl-d</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\libs\curl\lib\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">libcurl.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">libcurl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\libs\curl\lib\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">libcurl.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">libcurl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\libs\curl\lib\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">libcurl.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">libcurl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4127</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;CURL_EMBED_MANIFEST;_DEBUG;_WINDOWS;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /machine:X86 /MANIFEST:NO</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DisableSpecificWarnings>4127</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;CURL_EMBED_MANIFEST;_WINDOWS;NDEBUG;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /machine:X86 /MANIFEST:NO</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DisableSpecificWarnings>4127</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;CURL_EMBED_MANIFEST;_WINDOWS;NDEBUG;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /machine:X86 /MANIFEST:NO</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4127</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;CURL_EMBED_MANIFEST;_WINDOWS;NDEBUG;BUILDING_LIBCURL;CURL_HIDDEN_SYMBOLS;_WIN32_WINNT=0x0600;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USRDLL;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\curl\include\curl;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\build\libs\curl\lib\..\include;D:\etlegacy_2\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib\..\include;D:\etlegacy_2\build\libs\curl\lib\..;D:\etlegacy_2\libs\curl\lib;D:\etlegacy_2\build\libs\curl\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /machine:X86 /MANIFEST:NO</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\libs\curl\lib\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule D:/etlegacy_2/libs/curl/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/curl -BD:/etlegacy_2/build/libs/curl --check-stamp-file D:/etlegacy_2/build/libs/curl/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/libs/curl/lib/CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;D:\etlegacy_2\libs\curl\lib\curl_config.h.cmake;D:\etlegacy_2\build\libs\curl\lib\Makefile.inc.cmake;D:\etlegacy_2\libs\curl\lib\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\libs\curl\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\arpa_telnet.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\netrc.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\file.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\timeval.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\hostip.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\progress.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\formdata.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\cookie.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\sendf.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\ftp.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\url.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\dict.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\if2ip.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\speedcheck.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\urldata.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_ldap.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\escape.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\telnet.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\getinfo.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\strcase.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_sec.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\memdebug.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http_chunks.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_fnmatch.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\wildcard.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\fileinfo.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\ftplistparser.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\strtok.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\connect.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\llist.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\hash.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\content_encoding.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\share.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_md4.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_md5.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http_digest.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http_negotiate.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\inet_pton.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\amigaos.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\strtoofft.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\strerror.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\inet_ntop.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curlx.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_memory.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_setup.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\transfer.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\select.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\easyif.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\multiif.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\parsedate.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\tftp.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\sockaddr.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\splay.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\strdup.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\socks.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\ssh.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_base64.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_addrinfo.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_sspi.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\slist.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\nonblock.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_memrchr.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\imap.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\pop3.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\smtp.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\pingpong.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\rtsp.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_threads.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\warnless.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_hmac.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_rtmp.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_gethostname.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\gopher.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http_proxy.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\non-ascii.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\asyn.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http_ntlm.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_gssapi.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_ntlm_wb.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_ntlm_core.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_sasl.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_multibyte.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\hostcheck.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\conncache.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_setup_once.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\multihandle.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\setup-vms.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\pipeline.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\dotdot.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\x509asn1.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\http2.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\sigpipe.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\smb.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_endian.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_des.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_printf.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\system_win32.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\rand.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\mime.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_sha256.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\setopt.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_path.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_ctype.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\curl_range.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\psl.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vauth\vauth.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vauth\digest.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vauth\ntlm.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\openssl.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\vtls.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\gtls.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\nssg.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\polarssl.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\polarssl_threadlock.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\axtls.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\cyassl.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\schannel.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\darwinssl.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\gskit.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\curl\lib\vtls\mbedtls.h" />
+    <ClInclude Include="D:\etlegacy_2\build\libs\curl\lib\curl_config.h" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\file.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\timeval.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\base64.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hostip.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\progress.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\formdata.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\cookie.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\sendf.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\ftp.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\url.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\dict.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\if2ip.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\speedcheck.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\ldap.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\version.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\getenv.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\escape.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\mprintf.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\telnet.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\netrc.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\getinfo.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\transfer.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\strcase.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\easy.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\security.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_fnmatch.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\fileinfo.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\ftplistparser.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\wildcard.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\krb5.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\memdebug.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http_chunks.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\strtok.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\connect.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\llist.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hash.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\multi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\content_encoding.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\share.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http_digest.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\md4.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\md5.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http_negotiate.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\inet_pton.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\strtoofft.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\strerror.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\amigaos.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hostasyn.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hostip4.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hostip6.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hostsyn.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\inet_ntop.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\parsedate.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\select.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\tftp.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\splay.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\strdup.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\socks.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\ssh.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\ssh-libssh.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_addrinfo.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\socks_gssapi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\socks_sspi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_sspi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\slist.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\nonblock.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_memrchr.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\imap.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\pop3.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\smtp.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\pingpong.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\rtsp.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_threads.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\warnless.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hmac.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_rtmp.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\openldap.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_gethostname.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\gopher.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\idn_win32.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http_proxy.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\non-ascii.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\asyn-ares.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\asyn-thread.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_gssapi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http_ntlm.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_ntlm_wb.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_ntlm_core.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_sasl.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\rand.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_multibyte.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\hostcheck.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\conncache.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\pipeline.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\dotdot.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\x509asn1.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\http2.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\smb.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_endian.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_des.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\system_win32.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\mime.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\sha256.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\setopt.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_path.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_ctype.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\curl_range.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\psl.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\vauth.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\cleartext.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\cram.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\digest.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\digest_sspi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\krb5_gssapi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\krb5_sspi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\ntlm.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\ntlm_sspi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\oauth2.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\spnego_gssapi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vauth\spnego_sspi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\openssl.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\gtls.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\vtls.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\nss.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\polarssl.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\polarssl_threadlock.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\axtls.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\cyassl.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\schannel.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\schannel_verify.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\darwinssl.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\gskit.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\curl\lib\vtls\mbedtls.c" />
+    <ResourceCompile Include="D:\etlegacy_2\libs\curl\lib\libcurl.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\etlegacy_2\build\libs\curl\ZERO_CHECK.vcxproj">
+      <Project>{EB0A471B-FB72-3DBB-BFFB-AACBA1586837}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

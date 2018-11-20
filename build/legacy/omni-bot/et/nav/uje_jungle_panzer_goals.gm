@@ -1,0 +1,60 @@
+global _MG = 
+{
+	AMMOCAB_ammo7 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(2959.000, -1976.500, 293.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_ammokast3 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(163.000, -1934.000, 308.500),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_health7 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(2854.000, -1976.500, 293.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_healthkast3 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(239.000, -1932.000, 307.500),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	SNIPE_allied1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.936, -0.179, -0.301),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-1415.915, -1267.368, 448.125),
+		Radius = 35,
+	},
+	SNIPE_axis1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.406, 0.876, -0.261),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(1277.023, -2842.197, 427.315),
+		Radius = 35,
+	},
+	Version = 1,
+};

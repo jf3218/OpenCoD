@@ -1,0 +1,52 @@
+//==========================================================================================
+//
+//	twc_paintball.gm
+//
+//	Who  	When		What
+//------------------------------------------------------------------------------------------
+//	MickyP	01 February 2016	Initial Script
+//	palota	03 February 2016	random spawns
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	DeathMatch = 1,
+
+	SetSpawn1 = function(bot)
+	{
+		if (bot.GetTeam() == TEAM.AXIS){
+			s = {1,3,4,5,6,7,8};
+		}else{
+			s = {2,9,10,11,12,13,14};
+		}
+		bot.ChangeSpawnPoint(Util.GetRandomTableValue(s));
+	},
+
+	SpawnThread = function()
+	{
+		for(;;)
+		{
+			sleep(50);
+
+			foreach(bot in BotTable)
+			{
+				Map.SetSpawn1(bot);
+			}
+		}
+	},
+};
+
+global OnMapLoad = function()
+{
+	thread(Map.SpawnThread);
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	Map.SetSpawn1(bot);
+};

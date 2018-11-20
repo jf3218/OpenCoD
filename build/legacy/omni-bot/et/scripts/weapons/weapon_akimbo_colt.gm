@@ -1,0 +1,6 @@
+this.Name = "Akimbo Colt";
+this.WeaponId = WEAPON.COLT_AKIMBO;
+
+this.PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 1.0);
+this.PrimaryFire.DefaultDesirability = 0.4;
+this.PrimaryFire.LowAmmoGetAmmoAmount = 16;

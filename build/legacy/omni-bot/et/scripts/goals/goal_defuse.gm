@@ -1,0 +1,115 @@
+// This script contains functionality to allow engineers to defuse dynamites
+this.Name = "DEFUSE";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = false; // cs: let them abort for higher priority defuses
+
+//this.DebugAbortForHigherPriority = true;
+
+this.LimitToWeapon(WEAPON.PLIERS);
+
+this.GetPriority = function()
+{
+	// cs: GetPriority seems to be called the same frame as this.Finished(). need to wait a frame
+	//     so all the vars can be cleaned up. this.MapGoal is not null for example if goal is
+	//     aborted for a higher priority one; which causes evaluation for the new goal to happen twice
+	yield();
+
+	while(1)
+	{
+		if ( this.QueryGoals(Util.QueryTable, 0x1899efc7 /* DEFUSE */) )
+		{
+			// always go for the closest one of the highest priority
+			dist = null;
+			evalDist = null;
+			closestGoal = null;
+			priority = 0;
+
+			foreach ( goal in Util.QueryTable )
+			{
+				evalDist = this.Bot.DistanceTo(goal.GetEntity());
+				evalPriority = goal.GetGoalPriority(this.Bot);
+
+				if ( !dist || (evalDist < dist && evalPriority >= priority) ) {
+					dist = evalDist;
+					closestGoal = goal;
+					priority = evalPriority;
+				}
+			}
+
+			if ( closestGoal && closestGoal != this.MapGoal ) {
+				// cs: this is temp. goals of the same type are not natively being aborted even for higher priority goals
+				//     but i think that they should be.
+				if ( this.IsActive() ) {
+					dyno = this.MapGoal.GetEntity();
+					// don't abort current goal if new dynamite is near previous dynamite
+					if (!EntityIsValid(dyno) || Abs(this.Bot.DistanceTo(dyno) - dist) > 400) {
+						//if (this.DebugAbortForHigherPriority) { this.Bot.Say("aborting defuse for higher priority"); }
+						this.Finished();
+					}
+				} else {
+					this.MapGoal = closestGoal;
+					this.Priority = priority;
+				}
+			}
+		}
+
+		sleep(2);
+	}
+};
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	this.TargetEntity = this.MapGoal.GetEntity();
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this, 64);
+
+	pos = GetEntPosition(this.TargetEntity);
+	this.AddAimRequest(Priority.High, "position", pos);
+	this.AddWeaponRequest(Priority.High, WEAPON.PLIERS );
+	this.BlockForWeaponChange( WEAPON.PLIERS );
+
+	eyePos = this.Bot.GetEyePosition();
+	prone = false;
+	if ( eyePos.z - pos.z > 48 ) {
+		if (this.MapGoal.Stance == "prone"){
+			prone = true;
+			this.Bot.HoldButton(BTN.PRONE, 99);
+		}else{
+			this.Bot.HoldButton(BTN.CROUCH, 99);
+		}
+	}
+
+	while( this.TargetEntity && EntityIsValid(this.TargetEntity) ) { // goal deleted with entity
+		pos = GetEntPosition(this.TargetEntity);
+		if ( pos ) {
+			z = 12;
+			if(prone){ z = 0; }
+			this.AddAimRequest(Priority.High, "position", pos + Vector3(0,0,z));
+
+			if ( this.Bot.DistanceTo(pos) > 64 && !prone) {
+				this.Bot.MoveTowards(pos);
+			}
+
+			this.Bot.HoldButton(BTN.ATTACK1, 0.25);
+		}
+		else {
+			this.Finished();
+		}
+		yield();
+	}
+
+	this.Finished();
+};
+
+this.Exit = function()
+{
+	this.TargetEntity = null;
+	this.Bot.ReleaseButton(BTN.CROUCH);
+	this.Bot.ReleaseButton(BTN.PRONE);
+	this.MapGoal = null;
+};

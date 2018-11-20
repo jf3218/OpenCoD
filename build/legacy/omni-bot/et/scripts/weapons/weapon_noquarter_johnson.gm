@@ -1,0 +1,9 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.JOHNSON = 102;
+this.Name = "Johnson";
+this.WeaponId = WEAPON.JOHNSON;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 1;
+this.PrimaryFire.LowAmmoPriority = 0.8;

@@ -1,0 +1,408 @@
+//==========================================================================================
+//
+//	te_escape2.gm
+//
+//	Who  	When		What
+//------------------------------------------------------------------------------------------
+//	jcfgonc@gmail.com	30 April 2016	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1, // please set to zero before distributing your script
+
+	AxisRespawnBack = function()
+	{
+		wppos = Util.GetWpNamePosition( "winecellar_entrance" );
+//		Util.MapDebugPrint( "wppos:", wppos );
+		foreach(bot in BotTable) {
+			if (bot.GetTeam() == TEAM.AXIS && bot.DistanceTo(wppos)>1500 && RandInt(0,4)>1){
+				bot.ExecCommand("kill");
+				bot.ChangeSpawnPoint(1);
+			}
+		}
+	},
+
+	Command_Post_Built = function( trigger )
+	{
+//		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+//		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_allies_p1.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_allies_p2.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_p1.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_p2.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_unholy_grail" );
+		
+		Util.MapDebugPrint( "Command_Post_Built" );
+	},
+
+	Command_Post_Destroyed = function( trigger )
+	{
+//		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+//		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_allies_p1.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_allies_p2.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_p1.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_p2.*" );
+
+		Util.MapDebugPrint( "Command_Post_Destroyed" );
+		},
+
+	Tunnel_Door_Destroyed = function( trigger )
+	{
+		Map.Main_Gate_Destroyed();
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Tunnel_Door" );
+
+		Util.MapDebugPrint( "Tunnel_Door_Destroyed" );
+	},
+
+	Main_Gate_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allied_entrance1.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_allies_b_bridge.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_allies_t_bridge.*" );
+		
+		//		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Main_Gate" );
+		Util.MapDebugPrint( "Main_Gate_Destroyed" );
+	},
+
+	unholy_grail_Taken = function( trigger )
+	{
+		Map.AxisRespawnBack();
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allied_entrance1.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allies_b_bridge.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allies_t_bridge.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cappoint.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_cappoint.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_p1.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_p2.*" );
+
+		//	SetGoalPriority( "FLAGRETURN.*", 3.0 );
+		Util.MapDebugPrint( "unholy_grail_Taken" );
+	},
+
+	unholy_grail_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_allies_b_bridge.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_allies_t_bridge.*" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cappoint.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_cappoint.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_allies_p2.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_p2.*" );
+
+		Util.MapDebugPrint( "unholy_grail_Returned" );
+	},
+
+	unholy_grail_Secured = function( trigger )
+	{
+		Util.MapDebugPrint( "unholy_grail_Secured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Command_Post_Destroyed );
+	OnTrigger( "Allies have destroyed the Tunnel Door!", Map.Tunnel_Door_Destroyed );
+	OnTrigger( "Allies have destroyed the Main Gate!", Map.Main_Gate_Destroyed );
+	OnTrigger( "Allies have stolen the Unholy Grail!", Map.unholy_grail_Taken );
+	OnTrigger( "Flag returned unholy_grail!", Map.unholy_grail_Returned );
+	OnTrigger( "MISSING_STRING", Map.unholy_grail_Secured ); //lol... has if it was needed
+
+	Util.DisableGoal( ".*", true );
+
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_allies_p1.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_allies_p1.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_allies_p2.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_allies_p2.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_p1.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis_p1.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_p2.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis_p2.*" );
+
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cappoint.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_cappoint.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cappoint_hp.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_cappoint_hp.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "AMMOCAB_south_ammocabinet" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_south_ammocabinet" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "HEALTHCAB_south_healthcabinet" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_south_healthcabinet" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_unholy_grail" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_261" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_261" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Tunnel_Door" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main_Gate" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Main_Gate" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_allied_entrance1.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allies_b_bridge.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allies_t_bridge.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "ARTILLERY_S.*" );
+	
+
+	Util.SetGoalPosition( -4670, 701, -292, "PLANT_Tunnel_Door" );
+	
+//	SetGoalPriority( "FLAG.*", 1.0 );
+//	SetGoalPriority( "BUILD_Command_Post", 1.0 );
+//	SetGoalPriority( "CAPPOINT_261.*", 1.0 );
+	SetGoalPriority( "PLANT_Tunnel_Door.*", 0.83, TEAM.ALLIES);
+	SetGoalPriority( "DEFEND_cappoint.*", 0.55, TEAM.ALLIES);
+	SetGoalPriority( "DEFEND_cappoint.*", 0.55, TEAM.AXIS);
+	SetGoalPriority( "DEFEND_cappoint_hp.*", 0.65, TEAM.ALLIES);
+	SetGoalPriority( "DEFEND_cappoint_hp.*", 0.65, TEAM.AXIS);
+	//	SetGoalPriority( "PLANT_Command_Post.*", 1.0 );
+//	SetGoalPriority( "PLANT_Tunnel_Door.*", 1.0 );
+//	SetGoalPriority( "PLANT_Main_Gate.*", 1.0 );
+//	SetGoalPriority( "DEFUSE.*", 1.0 );
+	
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_cappoint.*" );
+	Util.SetMaxUsers( 1, "DEFEND_cappoint_hp.*" );
+	Util.SetMaxUsers( 3, "CAPPOINT_261.*" );
+	Util.SetMaxUsers( 3, "FLAG_unholy_grail.*" );
+	
+	SetMapGoalProperties( "ATTACK_.*", {MinCampTime=5, MaxCampTime=20} );
+	SetMapGoalProperties( "DEFEND_.*", {MinCampTime=5, MaxCampTime=20} );
+	SetMapGoalProperties( "DEFEND_cappoint.*", {MinCampTime=30, MaxCampTime=60} );
+	
+	// Max users per goal
+	//Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+
+	// Camp times
+	//SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	//~bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function() {
+	MapRoutes = {
+		//---------------------------
+		BUILD_Command_Post = {
+			ROUTE_allied_backspawn = {
+				ROUTE_p1_doorfront =  {
+					ROUTE_corridor1_north =  {},
+					ROUTE_corridor1_south =  {},
+					ROUTE_stairs1_top =  {},
+				},
+				ROUTE_p1_doorleftside =  {
+					ROUTE_p1_bonfire_right = {
+						ROUTE_corridor1_north = {},
+					},
+					ROUTE_p1_bonfire_left = {
+						ROUTE_corridor1_north = {},
+					},
+					ROUTE_corridor1_south =  {},
+					ROUTE_p1_bonfire_right = {
+						ROUTE_stairs1_top =  {},
+					},
+					ROUTE_p1_bonfire_left = {
+						ROUTE_stairs1_top =  {},
+					},
+				},
+				ROUTE_p1_doortop =  {
+					ROUTE_corridor1_north =  {},
+					ROUTE_corridor1_south =  {},
+					ROUTE_stairs1_top =  {},
+				},
+				ROUTE_p1_doorleftside = {
+					ROUTE_stairs1_top =  {
+						Weight = 0.5,
+						ROUTE_stairs1_bottom =  {
+							ROUTE_allied_frontspawn =  {},
+						},
+					},
+				},
+			},
+		},
+		//---------------------------
+		PLANT_Command_Post = {
+		},
+		//---------------------------
+		PLANT_Main_Gate = {
+		},
+		//---------------------------
+		Plant_Tunnel_Door = {
+			ROUTE_allied_backspawn = {
+				ROUTE_allied_frontspawn =  {},
+				ROUTE_stairs1_top =  {
+					ROUTE_stairs1_bottom =  {},
+				},
+			},
+			ROUTE_allied_frontspawn = {
+				ROUTE_gate_bridge = {},
+				ROUTE_stairs1_top =  {
+					ROUTE_stairs1_bottom =  {},
+				},
+			},
+		},
+		//---------------------------
+		DEFEND_axis_p1 = {
+			ROUTE_allied_frontspawn = {
+				ROUTE_corridor1_north = {},
+				ROUTE_corridor1_south = {},
+				ROUTE_stairs1_top = {},
+			},
+		},
+		//---------------------------
+		FLAG_unholy_grail = {
+			ROUTE_allied_frontspawn =  {
+				ROUTE_gate_bridge = {
+					ROUTE_courtyard = {
+						ROUTE_courtyard_bottomdoor = {
+							ROUTE_grail_room = {},
+						},
+						ROUTE_axis_backspawn = {
+							ROUTE_grail_room = {},
+						},
+						ROUTE_winecellar_conduit = {
+							ROUTE_square_corridor = {
+								ROUTE_inner_barracks = {
+									ROUTE_grail_room = {},
+								},
+							},
+						},
+					},
+				},
+				ROUTE_gate_bridge = {
+					ROUTE_bridge_lower_center = {
+						ROUTE_frozenstairs_bottom = {
+							ROUTE_frozenstairs_top = {
+								ROUTE_courtyard = {
+									ROUTE_courtyard_bottomdoor = {
+										ROUTE_grail_room = {},
+									},
+									ROUTE_axis_backspawn = {
+										ROUTE_grail_room = {},
+									},
+									ROUTE_winecellar_conduit = {
+										ROUTE_square_corridor = {
+											ROUTE_inner_barracks = {
+												ROUTE_grail_room = {},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					ROUTE_bridge_lower_right = {
+						ROUTE_square_corridor = {
+							ROUTE_inner_barracks = {
+								ROUTE_grail_room = {},
+							},
+						},
+					},
+				},
+				ROUTE_stairs1_top = {
+					ROUTE_stairs1_bottom = {
+						ROUTE_bridge_lower_center = {
+							ROUTE_frozenstairs_bottom = {
+								ROUTE_frozenstairs_top = {
+									ROUTE_courtyard = {
+										ROUTE_courtyard_bottomdoor = {
+											ROUTE_grail_room = {},
+										},
+										ROUTE_axis_backspawn = {
+											ROUTE_grail_room = {},
+										},
+										ROUTE_winecellar_conduit = {
+											ROUTE_square_corridor = {
+												ROUTE_inner_barracks = {
+													ROUTE_grail_room = {},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						ROUTE_bridge_lower_right = {
+							ROUTE_square_corridor = {
+								ROUTE_inner_barracks = {
+									ROUTE_grail_room = {},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		//---------------------------
+		CAPPOINT_261 = {
+			ROUTE_grail_room =  {
+				ROUTE_frozenstairs_bottom = {
+					ROUTE_bridge_lower_center = {
+						ROUTE_bridge_lower_right = {
+							ROUTE_winecellar = {},
+						},
+					},
+				},
+				ROUTE_frozenstairs_bottom = {
+					ROUTE_frozenstairs_top = {
+						ROUTE_courtyard = {
+							ROUTE_axis_backspawn = {
+								ROUTE_square_corridor = {},
+							},
+							ROUTE_winecellar_conduit = {
+								ROUTE_winecellar = {},
+							},
+						},
+					},
+				},
+				ROUTE_courtyard_bottomdoor = {
+					ROUTE_courtyard = {
+						ROUTE_axis_backspawn = {
+							ROUTE_square_corridor = {},
+						},
+						ROUTE_winecellar_conduit = {
+							ROUTE_winecellar = {},
+						},
+						ROUTE_gate_bridge = {
+							ROUTE_bridge_lower_right = {
+								ROUTE_winecellar = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	
+	MapRoutes["DEFEND_axis_p1.*"] = MapRoutes.DEFEND_axis_p1;
+	MapRoutes["ATTACK_allies_p1.*"] = MapRoutes.BUILD_Command_Post;
+	
+	MapRoutes["DEFEND_axis_p2.*"] = MapRoutes.FLAG_unholy_grail;
+	MapRoutes["ATTACK_allies_p2.*"] = MapRoutes.FLAG_unholy_grail;
+	Util.Routes(MapRoutes);
+	
+};

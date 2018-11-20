@@ -1,0 +1,10 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.POISONSYRINGE = 99;
+this.Name = "Poison Syringe";
+this.WeaponId = WEAPON.POISONSYRINGE;
+
+this.PrimaryFire.WeaponType = "melee";
+this.PrimaryFire.WaterProof = true;
+this.PrimaryFire.IgnoreReload = true;
+this.PrimaryFire.SetDesirabilityRange(0, 80, 0.4);

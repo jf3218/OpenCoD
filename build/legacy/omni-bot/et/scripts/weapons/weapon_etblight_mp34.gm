@@ -1,0 +1,9 @@
+if (GetModName()!="etblight") { return; }
+
+WEAPON.BSMG2 = 71;
+this.Name = "BSMG2";
+this.WeaponId = WEAPON.BSMG2;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 5;
+this.PrimaryFire.LowAmmoPriority = 0.8;

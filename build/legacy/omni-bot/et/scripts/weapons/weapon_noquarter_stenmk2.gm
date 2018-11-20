@@ -1,0 +1,9 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.STENMKII = 95;
+this.Name = "Sten MKII";
+this.WeaponId = WEAPON.STENMKII;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 5;
+this.PrimaryFire.LowAmmoPriority = 0.8;

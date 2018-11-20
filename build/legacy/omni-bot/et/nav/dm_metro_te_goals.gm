@@ -1,0 +1,179 @@
+global _MG = 
+{
+	AIRSTRIKE_test1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.708, 0.123, 0.695),
+			[1] = Vec3(0.651, -0.223, 0.725),
+		},
+		GoalType = "AIRSTRIKE",
+		MinRadius = 32,
+		Position = Vec3(1100.367, 1126.902, 0.125),
+		TeamAvailability = 0,
+	},
+	AIRSTRIKE_test2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.948, 0.239, 0.208),
+			[1] = Vec3(0.932, -0.240, 0.270),
+		},
+		GoalType = "AIRSTRIKE",
+		MinRadius = 32,
+		Position = Vec3(1076.957, 206.768, 0.125),
+		TeamAvailability = 0,
+	},
+	CAMP_deez = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.718, -0.696, -0.017),
+			[1] = Vec3(0.998, -0.056, 0.004),
+			[2] = Vec3(-0.229, -0.973, 0.019),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 30,
+		MinCampTime = 20,
+		MinRadius = 32,
+		Position = Vec3(502.740, 1373.732, 12.125),
+		Radius = 32,
+		RandomUsePoint = 1,
+		Stance = "crouch",
+		TeamAvailability = 6,
+	},
+	CAMP_nutz = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.718, -0.696, -0.017),
+			[1] = Vec3(0.998, -0.056, 0.004),
+			[2] = Vec3(-0.229, -0.973, 0.019),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 30,
+		MinCampTime = 20,
+		MinRadius = 32,
+		Position = Vec3(514.112, 984.482, 0.125),
+		Radius = 32,
+		RandomUsePoint = 1,
+		Range = 1,
+		Stance = "peek",
+		TeamAvailability = 6,
+	},
+	CAMP_test2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.611, 0.792, 0.006),
+			[1] = Vec3(0.991, -0.132, -0.016),
+			[2] = Vec3(0.137, -0.990, 0.017),
+		},
+		GoalType = "CAMP",
+		GroupName = "testgroup",
+		MaxCampTime = 30,
+		MinCampTime = 20,
+		MinRadius = 32,
+		Position = Vec3(283.106, 357.456, 0.125),
+		Radius = 64,
+		Stance = "crouch",
+		TeamAvailability = 4,
+	},
+	CAMP_test3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-1.000, 0.000, 0.015),
+			[1] = Vec3(-0.715, -0.018, -0.699),
+			[2] = Vec3(-0.809, 0.006, 0.588),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 30,
+		MinCampTime = 20,
+		MinRadius = 32,
+		Position = Vec3(876.548, 675.407, 80.125),
+		TeamAvailability = 0,
+	},
+	CAMP_test4 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.507, 0.843, -0.178),
+			[1] = Vec3(0.105, 0.967, 0.234),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 30,
+		MinCampTime = 20,
+		MinRadius = 32,
+		Position = Vec3(250.328, 411.292, -136.875),
+		RandomUsePoint = 1,
+		TeamAvailability = 0,
+	},
+	CAMP_teststuck = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.193, -0.979, -0.068),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 30,
+		MinCampTime = 20,
+		MinRadius = 32,
+		Position = Vec3(208.786, 1293.625, -368.875),
+	},
+	MOBILEMG42_mobilemgtest = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.738, 0.674, 0.016),
+		},
+		GoalType = "MOBILEMG42",
+		MaxCampTime = 15,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(61.000, -210.000, 11.000),
+	},
+	MOBILEMORTAR_mortartest = 
+	{
+		GoalType = "MOBILEMORTAR",
+		MinRadius = 32,
+		MortarAim = 
+		{
+			[0] = Vec3(0.834, -0.452, 0.317),
+		},
+		Position = Vec3(80.000, 1567.000, 11.000),
+	},
+	SMOKEBOMB_test = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.999, 0.002, 0.053),
+		},
+		GoalType = "SMOKEBOMB",
+		MinRadius = 32,
+		Position = Vec3(1181.845, 688.498, 79.125),
+	},
+	SNIPE_asdasd = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.862, -0.505, 0.055),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 30,
+		MinCampTime = 15,
+		MinRadius = 32,
+		Position = Vec3(210.912, 1193.993, -0.849),
+		Radius = 50,
+	},
+	SWITCH_func_button_155 = 
+	{
+		AimPosition = Vec3(0.000, 0.000, 0.000),
+		Facing = Vec3(0.000, 0.000, 0.000),
+		GoalType = "SWITCH",
+		Position = Vec3(1100.367, 1131.902, 0.125),
+		Radius = 32,
+		TeamAvailability = 4,
+	},
+	Version = 1,
+};

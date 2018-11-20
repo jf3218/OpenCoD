@@ -1,0 +1,1106 @@
+//==========================================================================================
+//
+//	flakcannon.gm
+//
+//	Who      	When		What
+//------------------------------------------------------------------------------------------
+//	Qiki		03.08.2016	Initial Script & waypoints
+//	native12	03.09.2016	Script & waypoints
+//	native12	11.12.2016	Fixed stuckages, released
+//
+//	Bugs and suggestions: PM on http://omni-bot.invisionzone.com/index.php?/index
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	Allies_Command_Post = false,
+	Allies_Command_Post_Dyno = 0,
+	Ammo_Storage_Gate = false,
+	Ammo_Storage_Gate_Dyno = 0,
+	Construction_MG42 = false,
+	Construction_MG42_Dyno = 0,
+	Flak_Cannon = false,
+	Flak_Cannon_Dyno = 0,
+	Ammo_Supply = true,
+	Ammo_Supply_Dyno = 0,
+	Main_Door = true,
+	Main_Door_Dyno = 0,
+	Side_Gate = true,
+	Side_Gate_Dyno = 0,
+	forwardbunker_flag_Axis = true,
+	forwardbunker_flag_Allies = false,
+	
+	DontDispenseAmmo = true,
+	
+	AllyInside = 0,
+	
+	Roles =
+	{
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			
+			DEFENDER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =	
+			{
+				numbots = 5,
+				//crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER2 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER3 =	
+			{
+				numbots = 5,
+				//crucialClass = CLASS.ENGINEER,
+			},
+		},
+		
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			
+			ATTACKER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =	
+			{
+				numbots = 5,
+				//crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER2 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER3 =	
+			{
+				numbots = 5,
+				//crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+	
+	Navigation =
+	{
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+	},
+	
+	SetSpawn = function()
+	{
+		foreach(bot in BotTable)
+		{
+			Map.SetSpawn1(bot);
+		}
+	},
+	
+	SetSpawn1 = function(bot)
+	{
+		if (bot.GetTeam() == TEAM.AXIS)
+		{
+			if ( !Map.Main_Door )
+			{
+				if ( Map.Side_Gate )
+				{
+					if ( bot.HasRole( ROLE.DEFENDER ) or bot.HasRole( ROLE.DEFENDER1 ) or bot.HasRole( ROLE.DEFENDER2 ) )
+					{
+						bot.ChangeSpawnPoint(2);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(5);
+					}
+				}
+				else
+				{
+					bot.ChangeSpawnPoint(2);
+				}
+			}
+			
+			if ( !Map.Side_Gate )
+			{
+				if ( Map.Main_Door )
+				{
+					if ( bot.HasRole( ROLE.DEFENDER2 ) )
+					{
+						bot.ChangeSpawnPoint(2);
+					}
+					
+					if ( bot.HasRole( ROLE.DEFENDER3 ) )
+					{
+						bot.ChangeSpawnPoint(5);
+					}
+				}
+				else
+				{
+					bot.ChangeSpawnPoint(2);
+				}
+			}
+		}
+		else
+		{
+			if ( Map.Allies_Command_Post )
+			{
+				if ( bot.HasRole( ROLE.ATTACKER2 ) or bot.HasRole( ROLE.ATTACKER3 ) )
+				{
+					bot.ChangeSpawnPoint(4);
+				}
+			}
+			else
+			{
+				bot.ChangeSpawnPoint(0);
+			}
+		}
+	},
+	
+	forwardbunker_flag_Axis_Captured = function( trigger )
+	{
+		Map.forwardbunker_flag_Axis = true;
+		Map.forwardbunker_flag_Allies = false;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_Allies_ForwardBunker_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_Allies_SideGate_.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_forwardbunker_flag" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_ForwardBunker_.*" );
+		
+		if ( !Map.Side_Gate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_ForwardBunker_SG_.*" );
+		}
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_forwardbunker_flag" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "MOUNTMG42_Northern_Shack_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "REPAIRMG42_Northern_Shack_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "MOUNTMG42_Northern_Shack_2" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "REPAIRMG42_Northern_Shack_2" );
+		
+		Util.MapDebugPrint( "^3forwardbunker_flag_Axis_Captured" );
+	},
+	
+	forwardbunker_flag_Allies_Captured = function( trigger )
+	{
+		Map.forwardbunker_flag_Axis = false;
+		Map.forwardbunker_flag_Allies = true;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_ForwardBunker_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_forwardbunker_flag" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "MOUNTMG42_Northern_Shack_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "REPAIRMG42_Northern_Shack_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "MOUNTMG42_Northern_Shack_2" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "REPAIRMG42_Northern_Shack_2" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_forwardbunker_flag" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAMP_Allies_ForwardBunker_.*" );
+		
+		if ( Map.Side_Gate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAMP_Allies_SideGate_.*" );
+		}
+		
+		Util.MapDebugPrint( "^3forwardbunker_flag_Allies_Captured" );
+	},
+	
+	Main_Door_Planted = function( trigger )
+	{
+		Map.Main_Door_Dyno += 1;
+		
+		Util.MapDebugPrint( "^3Main_Door_Planted" );
+	},
+	
+	Main_Door_Defused = function( trigger )
+	{
+		Map.Main_Door_Dyno -= 1;
+		
+		Util.MapDebugPrint( "^3Main_Door_Defused" );
+	},
+	
+	Main_Door_Destroyed = function( trigger )
+	{
+		Map.Main_Door = false;
+		
+		if ( Map.Main_Door_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Main_Door_.*" );
+		}
+		
+		SetAvailableMapGoals( 0, false, "CHECKPOINT_forwardbunker_flag" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_ForwardBunker_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SGDestroyed_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Main_Door" );
+		
+		Util.SetMaxUsers( 2, "BUILD_Flak_Cannon" );
+		Util.SetMaxUsers( 2, "BUILD_Construction_MG42" );
+		Util.SetMaxUsers( 2, "BUILD_Ammo_Storage_Gate" );
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FlakCannon_.*" );
+		
+		if ( Map.Side_Gate )
+		{
+			SetAvailableMapGoals( 0, true, "AMMOCAB_.*" );
+			SetAvailableMapGoals( 0, true, "HEALTHCAB_.*" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideGate_.*" );
+			
+			if ( Map.Ammo_Supply )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainBunker_.*" );
+				//SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Bunker_1" );
+				//SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Bunker_1" );
+			}
+		}
+		else
+		{
+			ClearGoalRole( "DEFEND_Axis_FlakCannon_.*", ROLE.DEFENDER2 );
+			
+			SetGoalRole( "DEFEND_Axis_AmmoStorage_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			
+			if ( Map.Ammo_Supply )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainBunker_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_AmmoStorage_.*" );
+				//SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Bunker_1" );
+				//SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Bunker_1" );
+			}
+		}
+		
+		if ( !Map.Flak_Cannon )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Flak_Cannon" );
+		}
+		
+		if ( !Map.Ammo_Storage_Gate )
+		{
+			if( Map.AllyInside == 0 and Map.Ammo_Supply and Map.Ammo_Supply_Dyno == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Ammo_Storage_Gate" );
+			}
+		}
+		
+		if ( !Map.Construction_MG42 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Construction_MG42" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Construction_MG42" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Construction_MG42" );
+		}
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Bunker_2" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Bunker_2" );
+		
+		Util.MapDebugPrint( "^3Main_Door_Destroyed" );
+		
+		sleep(3);
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_Allies_ForwardBunker_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "MOUNTMG42_Northern_Shack_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "REPAIRMG42_Northern_Shack_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "MOUNTMG42_Northern_Shack_2" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "REPAIRMG42_Northern_Shack_2" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_FlakCannon_.*" );
+		
+		if ( Map.Side_Gate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAMP_Allies_SideGate_.*" );
+			
+			if ( !Map.Allies_Command_Post )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allies_Command_Post" );
+			}
+		}
+		
+		if ( Map.Flak_Cannon )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Flak_Cannon" );
+		}
+		
+		if ( Map.Ammo_Supply )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_AmmoStorage_.*" );
+			
+			if ( !Map.Ammo_Storage_Gate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Ammo_Supply" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Ammo_Storage_Gate" );
+			}
+		}
+		
+		if ( Map.Construction_MG42 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Construction_MG42" );
+		}
+	},
+	
+	Side_Gate_Planted = function( trigger )
+	{
+		Map.Side_Gate_Dyno += 1;
+		
+		Util.MapDebugPrint( "^3Side_Gate_Planted" );
+	},
+	
+	Side_Gate_Defused = function( trigger )
+	{
+		Map.Side_Gate_Dyno -= 1;
+		
+		Util.MapDebugPrint( "^3Side_Gate_Defused" );
+	},
+	
+	Side_Gate_Destroyed = function( trigger )
+	{
+		Map.Side_Gate = false;
+		
+		if ( Map.Side_Gate_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Side_Gate_.*" );
+		}
+		
+		Util.DisableGoal( ".*_Axis_ForwardBunker_R_.*" );
+		
+		ClearGoalRole( "DEFEND_Axis_ForwardBunker_H_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		SetGoalRole( "DEFEND_Axis_ForwardBunker_H_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_ForwardBunker_SG_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideGate_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Side_Gate" );
+		
+		if ( Map.Main_Door )
+		{
+			SetGoalRole( "CHECKPOINT_forwardbunker_flag", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			
+			SetAvailableMapGoals( 0, true, "AMMOCAB_.*" );
+			SetAvailableMapGoals( 0, true, "HEALTHCAB_.*" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SGDestroyed_.*" );
+		}
+		else
+		{
+			ClearGoalRole( "DEFEND_Axis_FlakCannon_.*", ROLE.DEFENDER2 );
+			
+			SetGoalRole( "DEFEND_Axis_AmmoStorage_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			
+			if ( Map.Ammo_Supply )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainBunker_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_AmmoStorage_.*" );
+				//SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Bunker_1" );
+				//SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Bunker_1" );
+			}
+		}
+		
+		if ( !Map.Ammo_Storage_Gate )
+		{
+			if( Map.AllyInside == 0 and Map.Ammo_Supply and Map.Ammo_Supply_Dyno == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Ammo_Storage_Gate" );
+			}
+		}
+		
+		if ( !Map.Construction_MG42 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Construction_MG42" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Construction_MG42" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Construction_MG42" );
+		}
+		
+		Util.MapDebugPrint( "^3Side_Gate_Destroyed" );
+		
+		sleep(3);
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_Allies_SideGate_.*" );
+		
+		if ( Map.Main_Door )
+		{
+			SetGoalRole( "CHECKPOINT_forwardbunker_flag", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			
+			SetAvailableMapGoals( 0, true, "AMMOCAB_.*" );
+			SetAvailableMapGoals( 0, true, "HEALTHCAB_.*" );
+			
+			if ( !Map.Allies_Command_Post )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allies_Command_Post" );
+			}
+		}
+		
+		if ( Map.Construction_MG42 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Construction_MG42" );
+		}
+		
+		if ( Map.Ammo_Supply )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_AmmoStorage_.*" );
+			
+			if ( !Map.Ammo_Storage_Gate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Ammo_Supply" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Ammo_Storage_Gate" );
+			}
+		}
+	},
+	
+	Allies_Command_Post_Built = function( trigger )
+	{
+		Map.Allies_Command_Post = true;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allies_Command_Post" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allies_Command_Post" );
+		
+		Util.MapDebugPrint( "^3Allies_Command_Post_Built" );
+	},
+	
+	Allies_Command_Post_Planted = function( trigger )
+	{
+		Map.Allies_Command_Post_Dyno += 1;
+		
+		Util.MapDebugPrint( "^3Allies_Command_Post_Planted" );
+	},
+	
+	Allies_Command_Post_Defused = function( trigger )
+	{
+		Map.Allies_Command_Post_Dyno -= 1;
+		
+		Util.MapDebugPrint( "^3Allies_Command_Post_Defused" );
+	},
+	
+	Allies_Command_Post_Destroyed = function( trigger )
+	{
+		Map.Allies_Command_Post = false;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allies_Command_Post" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allies_Command_Post" );
+		
+		Util.MapDebugPrint( "^3Allies_Command_Post_Destroyed" );
+	},
+	
+	Flak_Cannon_Built = function( trigger )
+	{
+		Map.Flak_Cannon = true;
+		
+		Wp.SetWaypointFlag( "FC_1", "crouch", false );
+		Wp.SetWaypointFlag( "FC_2", "crouch", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Flak_Cannon" );
+		
+		if ( !Map.Main_Door )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Flak_Cannon" );
+		}
+		
+		if ( Map.Ammo_Supply )
+		{
+			SetGoalRole( "PLANT_Ammo_Supply", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		}
+		
+		Util.MapDebugPrint( "^3Flak_Cannon_Built" );
+	},
+	
+	Flak_Cannon_Planted = function( trigger )
+	{
+		Map.Flak_Cannon_Dyno += 1;
+		
+		Util.MapDebugPrint( "^3Flak_Cannon_Planted" );
+	},
+	
+	Flak_Cannon_Defused = function( trigger )
+	{
+		Map.Flak_Cannon_Dyno -= 1;
+		
+		Util.MapDebugPrint( "^3Flak_Cannon_Defused" );
+	},
+	
+	Flak_Cannon_Destroyed = function( trigger )
+	{
+		Map.Flak_Cannon = false;
+		
+		Wp.SetWaypointFlag( "FC_1", "crouch", true );
+		Wp.SetWaypointFlag( "FC_2", "crouch", true );
+		
+		if ( !Map.Ammo_Supply )
+		{
+			ETUtil.WinningChat( TEAM.ALLIES );
+			ETUtil.LosingChat( TEAM.AXIS );
+		}
+		else
+		{
+			ClearGoalRole( "PLANT_Ammo_Supply", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Flak_Cannon" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Flak_Cannon" );
+		}
+		
+		Util.MapDebugPrint( "^3Flak_Cannon_Destroyed" );
+	},
+	
+	Construction_MG42_Built = function( trigger )
+	{
+		Map.Construction_MG42 = true;
+		
+		Wp.SetWaypointFlag( "CMG42", "closed", true );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Construction_MG42" );
+		
+		if ( !Map.Main_Door )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Construction_MG42" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Construction_MG42" );
+		}
+		
+		if ( !Map.Side_Gate or !Map.Main_Door )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Construction_MG42" );
+		}
+		
+		Util.MapDebugPrint( "^3Construction_MG42_Built" );
+	},
+	
+	Construction_MG42_Planted = function( trigger )
+	{
+		Map.Construction_MG42_Dyno += 1;
+		
+		Util.SetMaxUsers( 1, "DEFUSE_Construction_MG42.*" );
+		
+		Util.MapDebugPrint( "^3Construction_MG42_Planted" );
+	},
+	
+	Construction_MG42_Defused = function( trigger )
+	{
+		Map.Construction_MG42_Dyno -= 1;
+		
+		Util.MapDebugPrint( "^3Construction_MG42_Defused" );
+	},
+	
+	Construction_MG42_Destroyed = function( trigger )
+	{
+		Map.Construction_MG42 = false;
+		
+		Wp.SetWaypointFlag( "CMG42", "closed", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Construction_MG42" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Construction_MG42" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Construction_MG42" );
+		
+		if ( !Map.Main_Door )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Construction_MG42" );
+		}
+		
+		Util.MapDebugPrint( "^3Construction_MG42_Destroyed" );
+	},
+	
+	Ammo_Storage_Gate_Built = function( trigger )
+	{
+		Map.Ammo_Storage_Gate = true;
+		
+		Wp.SetWaypointFlag( "ASG", "closed", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Ammo_Storage_Gate" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Ammo_Supply" );
+		
+		if ( !Map.Main_Door or !Map.Side_Gate )
+		{
+			if ( Map.Ammo_Supply )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Ammo_Storage_Gate" );
+			}
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Storage_Gate_Built" );
+	},
+	
+	Ammo_Storage_Gate_Planted = function( trigger )
+	{
+		Map.Ammo_Storage_Gate_Dyno += 1;
+		
+		if ( !Map.Ammo_Supply )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Ammo_Storage_Gate_.*" );
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Storage_Gate_Planted" );
+	},
+	
+	Ammo_Storage_Gate_Defused = function( trigger )
+	{
+		Map.Ammo_Storage_Gate_Dyno -= 1;
+		
+		if ( Map.Ammo_Supply and Map.Ammo_Supply_Dyno == 0 and Map.AllyInside == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Ammo_Storage_Gate" );
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Storage_Gate_Defused" );
+	},
+	
+	Ammo_Storage_Gate_Destroyed = function( trigger )
+	{
+		Map.Ammo_Storage_Gate = false;
+		
+		Wp.SetWaypointFlag( "ASG", "closed", true );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Ammo_Storage_Gate" );
+		
+		if ( Map.Ammo_Supply )
+		{
+			if ( Map.AllyInside > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Ammo_Storage_Gate" );
+			}
+			else
+			{
+				if ( Map.Ammo_Supply_Dyno == 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Ammo_Storage_Gate" );
+				}
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Ammo_Storage_Gate" );
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Storage_Gate_Destroyed" );
+		
+		sleep(3);
+		
+		if ( Map.Ammo_Supply )
+		{
+			if ( !Map.Main_Door or !Map.Side_Gate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Ammo_Supply" );
+			}
+		}
+	},
+	
+	Ally_Inside =
+	{
+		Name = "Ally_Inside",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES and GetEntClass(ent) == CLASS.ENGINEER )
+			{
+				Map.AllyInside += 1;
+				
+				if ( Map.Ammo_Supply and !Map.Ammo_Storage_Gate )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Ammo_Storage_Gate" );
+				}
+				
+				Util.MapDebugPrint( "^3Ally eng entered into Ammo supply trigger" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES and GetEntClass(ent) == CLASS.ENGINEER )
+			{
+				Map.AllyInside -= 1;
+				
+				Util.MapDebugPrint( "^3Ally eng left Ammo supply trigger" );
+				
+				if( Map.AllyInside == 0 )
+				{
+					if ( Map.Ammo_Supply and !Map.Ammo_Storage_Gate and Map.Ammo_Supply_Dyno == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Ammo_Storage_Gate" );
+					}
+					
+					Util.MapDebugPrint( "^3Ammo supply trigger is safe" );
+				}
+			}
+		},
+	},
+	
+	Ammo_Supply_Planted = function( trigger )
+	{
+		Map.Ammo_Supply_Dyno += 1;
+		
+		if ( !Map.Ammo_Storage_Gate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_FD_AmmoStorage_.*" );
+			
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Ammo_Storage_Gate" );
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Supply_Planted" );
+	},
+	
+	Ammo_Supply_Defused = function( trigger )
+	{
+		Map.Ammo_Supply_Dyno -= 1;
+		
+		if ( Map.Ammo_Supply_Dyno == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_FD_AmmoStorage_.*" );
+			
+			if ( Map.Ammo_Supply and !Map.Ammo_Storage_Gate and Map.AllyInside == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Ammo_Storage_Gate" );
+			}
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Supply_Defused" );
+	},
+	
+	Ammo_Supply_Destroyed = function( trigger )
+	{
+		if ( Map.Ammo_Supply_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Ammo_Supply_.*" );
+		}
+		
+		Map.Ammo_Supply = false;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainBunker_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_AmmoStorage_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_FD_AmmoStorage_.*" );
+		//SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Bunker_1" );
+		//SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Bunker_1" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Ammo_Supply" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_AmmoStorage_.*" );
+		
+		if ( !Map.Ammo_Storage_Gate )
+		{
+			Util.DisableGoal( "BUILD_Ammo_Storage_Gate" );
+		}
+		
+		if ( !Map.Flak_Cannon )
+		{
+			ETUtil.WinningChat( TEAM.ALLIES );
+			ETUtil.LosingChat( TEAM.AXIS );
+		}
+		else
+		{
+			SetGoalPriority( "DEFUSE_Flak_Cannon.*", 1.00, TEAM.AXIS, CLASS.ENGINEER, true );	//default value
+			
+			ClearGoalRole( "PLANT_Flak_Cannon", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_FD_FlakCannon_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_FA_FlakCannon_.*" );
+		}
+		
+		Util.MapDebugPrint( "^3Ammo_Supply_Destroyed" );
+	},
+	
+	Thirty_second = function( trigger )
+	{
+		if ( TestMap )
+		{
+			return;
+		}
+		
+		Util.MapDebugPrint( "^5Thirty_second" );
+		
+		sleep(30);
+		
+		if ( Map.Flak_Cannon or Map.Ammo_Supply )
+		{
+			Util.MapDebugPrint( "^5Axis_Win" );
+			
+			ETUtil.WinningChat( TEAM.AXIS );
+			ETUtil.LosingChat( TEAM.ALLIES );
+		}
+	},
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allies_Command_Post_Built );
+	OnTrigger( "Planted at the Allies Command Post.", Map.Allies_Command_Post_Planted );
+	OnTrigger( "Planted at Allies Command Post.", Map.Allies_Command_Post_Planted );	//Nitmod
+	OnTrigger( "Defused at the Allies Command Post.", Map.Allies_Command_Post_Defused );
+	OnTrigger( "Defused at Allies Command Post.", Map.Allies_Command_Post_Defused );	//Nitmod
+	OnTrigger( "Axis team has destroyed the Allies Command Post!", Map.Allies_Command_Post_Destroyed );
+	
+	OnTrigger( "Axis team has built the Ammo Storage Gate!", Map.Ammo_Storage_Gate_Built );
+	OnTrigger( "Planted at the Ammo Storage Gate.", Map.Ammo_Storage_Gate_Planted );
+	OnTrigger( "Planted at Ammo Storage Gate.", Map.Ammo_Storage_Gate_Planted );	//Nitmod
+	OnTrigger( "Defused at the Ammo Storage Gate.", Map.Ammo_Storage_Gate_Defused );
+	OnTrigger( "Defused at Ammo Storage Gate.", Map.Ammo_Storage_Gate_Defused );	//Nitmod
+	OnTrigger( "Allied team has destroyed the Ammo Storage Gate!", Map.Ammo_Storage_Gate_Destroyed );
+	
+	OnTrigger( "Axis team has built the mg42!", Map.Construction_MG42_Built );
+	OnTrigger( "Planted at the Construction MG42.", Map.Construction_MG42_Planted );
+	OnTrigger( "Planted at Construction MG42.", Map.Construction_MG42_Planted );	//Nitmod
+	OnTrigger( "Defused at the Construction MG42.", Map.Construction_MG42_Defused );
+	OnTrigger( "Defused at Construction MG42.", Map.Construction_MG42_Defused );	//Nitmod
+	OnTrigger( "Allied team has destroyed the mg42!", Map.Construction_MG42_Destroyed );
+	
+	OnTrigger( "Axis team have repaired the Flak Cannon!", Map.Flak_Cannon_Built );
+	OnTrigger( "Planted at The Flak Cannon.", Map.Flak_Cannon_Planted );
+	OnTrigger( "Defused at The Flak Cannon.", Map.Flak_Cannon_Defused );
+	OnTrigger( "Allied team have damaged the Flak Cannon!", Map.Flak_Cannon_Destroyed );
+	OnTrigger( "Allied team have damaged Flak Cannon!", Map.Flak_Cannon_Destroyed );
+	
+	OnTrigger( "Planted at The Ammo Supply.", Map.Ammo_Supply_Planted );
+	OnTrigger( "Defused at The Ammo Supply.", Map.Ammo_Supply_Defused );
+	OnTrigger( "Allies have destoyed Ammo Supply!", Map.Ammo_Supply_Destroyed );
+	
+	OnTrigger( "Planted at the Main Door.", Map.Main_Door_Planted );
+	OnTrigger( "Planted at Main Door.", Map.Main_Door_Planted );	//Nitmod
+	OnTrigger( "Defused at the Main Door.", Map.Main_Door_Defused );
+	OnTrigger( "Defused at Main Door.", Map.Main_Door_Defused );	//Nitmod
+	OnTrigger( "Allied team has breached the Main Door and secured the Forward Shack!", Map.Main_Door_Destroyed );
+	
+	OnTrigger( "Planted at the Side Gate.", Map.Side_Gate_Planted );
+	OnTrigger( "Planted at Side Gate.", Map.Side_Gate_Planted );	//Nitmod
+	OnTrigger( "Defused at the Side Gate.", Map.Side_Gate_Defused );
+	OnTrigger( "Defused at Side Gate.", Map.Side_Gate_Defused );	//Nitmod
+	OnTrigger( "Allies have breached the Side Gate!", Map.Side_Gate_Destroyed );
+	
+	OnTrigger( "Axis capture the forward Bunker!", Map.forwardbunker_flag_Axis_Captured );
+	OnTrigger( "Allies capture the Forward Bunker!", Map.forwardbunker_flag_Allies_Captured );
+	
+	OnTrigger( "thirty second warning.", Map.Thirty_second );
+	
+	Util.DisableGoal( ".*", true );
+	
+	ClearGoalRole( ".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	
+	SetGoalRole( "DEFEND_Axis_ForwardBunker_L_.*", ROLE.DEFENDER );
+	SetGoalRole( "DEFEND_Axis_ForwardBunker_R_.*", ROLE.DEFENDER1 );
+	SetGoalRole( "DEFEND_Axis_ForwardBunker_H_.*", ROLE.DEFENDER2 );
+	SetGoalRole( "DEFEND_Axis_SGDestroyed_1.*", ROLE.DEFENDER2 );
+	SetGoalRole( "DEFEND_Axis_MainBunker_.*", ROLE.DEFENDER2 );
+	SetGoalRole( "MOUNTMG42_Bunker_1", ROLE.DEFENDER2 );
+	SetGoalRole( "DEFEND_Axis_ForwardBunker_SG_.*", ROLE.DEFENDER3 );
+	SetGoalRole( ".*_Axis_SideGate_.*", ROLE.DEFENDER3 );
+	SetGoalRole( "DEFEND_Axis_SGDestroyed_0.*", ROLE.DEFENDER3 );
+	SetGoalRole( "DEFEND_Axis_AmmoStorage_.*", ROLE.DEFENDER3 );
+	SetGoalRole( "PLANTMINE_Axis_ForwardBunker_MD_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "PLANTMINE_Axis_ForwardBunker_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "PLANTMINE_Axis_ForwardBunker_SG_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFEND_Axis_FD_AmmoStorage_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFUSE_Side_Gate_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 }, true );
+	SetGoalRole( "MOUNTMG42_Construction_MG42", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "REPAIRMG42_Construction_MG42", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "MOUNTMG42_Bunker_2", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "REPAIRMG42_Bunker_2", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_FlakCannon_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+	
+	SetGoalRole( "PLANT_Main_Door", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	SetGoalRole( "PLANT_Flak_Cannon", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	SetGoalRole( "ATTACK_Allies_FlakCannon_.*", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	SetGoalRole( "PLANT_Ammo_Storage_Gate", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "BUILD_Allies_Command_Post", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "PLANT_Side_Gate", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "PLANT_Ammo_Supply", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "ATTACK_Allies_AmmoStorage_.*", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "CAMP_Allies_ForwardBunker_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+	SetGoalRole( "CAMP_Allies_SideGate_.*", ROLE.ATTACKER3 );
+	
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "MOUNTMG42_Northern_Shack_1" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "REPAIRMG42_Northern_Shack_1" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "MOUNTMG42_Northern_Shack_2" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "REPAIRMG42_Northern_Shack_2" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_forwardbunker_flag" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main_Door" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Side_Gate" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_ForwardBunker_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "AMMOCAB_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "HEALTHCAB_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Flak_Cannon" );
+	
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "REPAIRMG42_.*" );
+	Util.SetMaxUsers( 1, "BUILD_Flak_Cannon" );
+	Util.SetMaxUsers( 1, "BUILD_Allies_Command_Post" );
+	Util.SetMaxUsers( 1, "PLANT_Allies_Command_Post" );
+	Util.SetMaxUsers( 1, "BUILD_Construction_MG42" );
+	
+	Util.LimitToClass( "PLANT_Allies_Command_Post", TEAM.AXIS, CLASS.COVERTOPS );
+	
+	SetGoalPriority( "DEFEND_Axis_SideGate_.*", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_SGDestroyed_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_MainBunker_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FlakCannon_.*", 0.53, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FlakCannon_01", 0.54, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FlakCannon_04", 0.54, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_AmmoStorage_.*", 0.55, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FD_AmmoStorage_.*", 0.54, TEAM.AXIS, 0 );
+	SetGoalPriority( "MOUNTMG42_.*", 0.67, TEAM.AXIS, CLASS.SOLDIER );
+	SetGoalPriority( "MOBILEMG42_.*", 0.69, TEAM.AXIS, CLASS.SOLDIER );
+	SetGoalPriority( "DEFUSE_Construction_MG42.*", 0.75, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "PLANTMINE_Axis_.*", 0.78, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_ForwardBunker_SF_.*", 0.79, TEAM.AXIS, CLASS.ENGINEER );	//default value
+	SetGoalPriority( "AIRSTRIKE_Axis_ForwardBunker_20", 0.81, TEAM.AXIS, CLASS.FIELDOPS );
+	SetGoalPriority( "BUILD_Construction_MG42", 0.89, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "DEFUSE_Side_Gate.*", 0.95, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_Main_Door.*", 0.96, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_Flak_Cannon.*", 0.97, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "BUILD_Ammo_Storage_Gate.*", 0.98, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "DEFUSE_Ammo_Storage_Gate.*", 0.99, TEAM.AXIS, CLASS.ENGINEER, true );
+	
+	SetGoalPriority( "PLANT_Construction_MG42", 0.7, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Construction_MG42", 0.8, TEAM.ALLIES, CLASS.COVERTOPS );
+	
+	Util.AddUseWp( "CHECKPOINT_forwardbunker_flag", "Flag_1" );
+	Util.AddUseWp( "CHECKPOINT_forwardbunker_flag", "Flag_2" );
+	Util.AddUseWp( "CHECKPOINT_forwardbunker_flag", "Flag_3" );
+	Util.AddUseWp( "CHECKPOINT_forwardbunker_flag", "Flag_4" );
+	Util.AddUseWp( "BUILD_Ammo_Storage_Gate", "ASG_1" );
+	Util.AddUseWp( "PLANT_Ammo_Storage_Gate", "ASG_2" );
+	Util.AddUseWp( "PLANT_Ammo_Storage_Gate", "ASG_3" );
+	//Util.AddUseWp( "BUILD_Construction_MG42", "CMG42_1" );
+	Util.AddUseWp( "BUILD_Construction_MG42", "CMG42_2" );
+	
+	Util.AddUsePoint( "PLANT_Ammo_Supply", { Vec3(-1827.850, -4621.860, 376.125), Vec3(-2041.032, -4607.003, 281.300), Vec3(-1517.344, -4531.964, 273.130), Vec3(-1814.560, -4520.870, 274.231) });
+	Util.AddUseWp( "PLANT_Side_Gate", "SG_1" );
+	Util.AddUseWp( "PLANT_Side_Gate", "SG_2" );
+	Util.AddUseWp( "PLANT_Side_Gate", "SG_3" );
+	Util.AddUseWp( "PLANT_Side_Gate", "SG_4" );
+	
+	Util.SetGoalPosition(-1816.170, -939.705, 600.125, "PLANT_Flak_Cannon");
+	Util.SetGoalPosition(-1904.130, -1031.430, 600.125, "BUILD_Flak_Cannon");
+	
+	Wp.SetWaypointFlag( "ASG", "closed", true );
+	Wp.SetWaypointFlag( "FC_1", "crouch", true );
+	Wp.SetWaypointFlag( "FC_2", "crouch", true );
+	
+	RegionTrigger.Create(AABB(-2464.875,-1706.546,433.125,-1729.913,-394.298,552.508), "DisableCombatMovement", "Walls_Around_Flak_Cannon");
+	RegionTrigger.Create(AABB(-2316.711,-3136.875,185.125,-2183.244,-3016.258,539.125), "DisableCombatMovement", "Ladder_In_Bunker");
+	RegionTrigger.Create(AABB(-1389.025,-1653.106,335.186,-999.125,-1431.125,553.966), "DisableCombatMovement", "Construction_MG42");
+	RegionTrigger.Create(AABB(-2018.875,-1300.785,423.934,-1556.354,-858.926,695.130), "DisableCombatMovement", "Around_Flak_Cannon");
+	RegionTrigger.Create(AABB(-1765.820,-779.031,433.125,-1267.145,-676.607,507.125), "DisableCombatMovement", "Around_Flak_Cannon2");
+	RegionTrigger.Create(AABB(-1593.698,-1718.109,417.125,-1416.681,-1570.111,511.125), "DisableCombatMovement", "Wall_1");
+	RegionTrigger.Create(AABB(-401.647,1671.516,409.125,377.147,1730.272,483.125), "DisableCombatMovement", "ForwardBunkerWall_1");
+	RegionTrigger.Create(AABB(-401.647,1671.516,409.125,377.147,1730.272,483.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-135.377,2421.936,409.125,248.056,2484.307,483.125), "DisableCombatMovement", "ForwardBunkerWall_2");
+	RegionTrigger.Create(AABB(-135.377,2421.936,409.125,248.056,2484.307,483.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-26.648,1845.076,501.125,103.646,2079.151,575.125), "DisableCombatMovement", "ForwardBunkerGenerator");
+	RegionTrigger.Create(AABB(-26.648,1845.076,501.125,103.646,2079.151,575.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1593.230,21.421,529.125,2418.508,150.521,671.729), "DisableCombatMovement", "SideGate");
+	RegionTrigger.Create(AABB(1593.230,21.421,529.125,2418.508,150.521,671.729), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-118.381,2591.125,223.372,163.204,2762.801,307.366), "DisableCombatMovement", "Axis_ForwardBunker_50");
+	RegionTrigger.Create(AABB(-935.987,1625.164,289.854,-758.161,1771.024,393.233), "DisableCombatMovement", "Axis_ForwardBunker_20");
+	
+	AllyIns = OnTriggerRegion( AABB(-2112.177,-4640.875,242.758,-1471.954,-4371.125,430.399), Map.Ally_Inside );
+	
+	print( "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3 for map: ^7" + GetMapName() );
+	
+	Util.BotChat( 0, "say", "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12", 1 );
+	
+	sleep(5);
+	
+	SetGoalPriority( "AIRSTRIKE_Axis_ForwardBunker_20", 0.8, TEAM.AXIS, CLASS.FIELDOPS );	//default value
+};
+
+global OnBotJoin = function( bot )
+{
+	
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_Main_Door =
+		{
+		},
+		BUILD_Construction_MG42 =
+		{
+		},
+		PLANT_Construction_MG42 =
+		{
+		},
+		PLANT_Side_Gate =
+		{
+		},
+		BUILD_Ammo_Storage_Gate =
+		{
+		},
+		PLANT_Ammo_Storage_Gate =
+		{
+		},
+		CHECKPOINT_forwardbunker_flag =
+		{
+			ROUTE_NorthernShack =
+			{
+				ROUTE_LeftWay_1 =
+				{
+					ROUTE_LeftWay =
+					{
+						ROUTE_LeftWay_2 = {},
+					},
+				},
+				ROUTE_MiddleWay = {},
+				ROUTE_RightWay =
+				{
+					ROUTE_RightWay_1 = {},
+				},
+			},
+		},
+		PLANT_Ammo_Supply =
+		{
+		},
+		BUILD_Flak_Cannon =
+		{
+		},
+		PLANT_Flak_Cannon =
+		{
+		},
+		BUILD_Allies_Command_Post =
+		{
+		},
+		PLANT_Allies_Command_Post =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

@@ -1,0 +1,2548 @@
+//==========================================================================================
+//
+//	airassfp1.gm
+//
+//	Who			When		What
+//------------------------------------------------------------------------------------------------------------
+//	The Grim Reaper	unknown	Original script
+//	jaskot			02/03/09	Converted old script to new format
+//	Native12		05.04.2014	supplemented and modified by Qiki and Native12
+//	Native12		17.06.2014	Finished
+//
+//	Bugs and suggestions: PM on http://omni-bot.invisionzone.com/index.php?/index
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+
+	Assault_Ramp = false,
+	Assault_Ramp_Dyno = 0,
+	Main_Entrance_Dyno = 0,
+	Side_Entrance_Dyno = 0,
+	East_Sewer_Gate_Dyno = 0,
+	West_Sewer_Gate_Dyno = 0,
+	West_Truck_Defences_Dyno = 0,
+	East_Truck_Defences_Dyno = 0,
+	West_Chemical_Truck_Dyno = 0,
+	East_Chemical_Truck_Dyno = 0,
+	Main_Entrance = true,
+	Side_Entrance = true,
+	East_Sewer_Gate = true,
+	West_Sewer_Gate = true,
+	Axis_CP = false,
+	Axis_CP_Dyno = 0,
+	Allied_CP = false,
+	Allied_CP_Dyno = 0,
+	South_Depot_MG_Nest = false,
+	South_Depot_MG_Nest_Dyno = 0,
+	East_Truck_Defences_Part_1 = false,
+	East_Truck_Defences_Part_2 = false,
+	West_Truck_Defences_Part_1 = false,
+	West_Truck_Defences_Part_2 = false,
+	East_Depot_MG_Nest = false,
+	East_Depot_MG_Nest_Dyno = 0,
+	Hydro_Pole_Power = true,
+	West_Chemical_Truck = true,
+	East_Chemical_Truck = true,
+	Allied_Engs_At_East_Chemical_Truck = 0,
+	Allied_Engs_At_West_Chemical_Truck = 0,
+	AlliesEngInside = 0,
+	AlliesInsideWest = 0,
+	AlliesInsideEast = 0,
+	EastGateDoor_Opened = false,
+	EastGateDoor_Closing = false,
+	WestGateDoor_Opened = false,
+	WestGateDoor_Closing = false,
+	Allies_Win = false,
+
+	DispenseAmmoTime = 15,
+
+	Roles =
+	{
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =	//defend West sewer gate; defend west chemical truck
+			{
+				numbots = 4,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =	//defend Front Entrance; defend west chemical truck
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER2 =	//defend right side & front side; defend east chemical truck
+			{
+				numbots = 4,
+				crucialClass = CLASS.FIELDOPS,	//or Engineer ??
+			},
+			DEFENDER3 =	//build East depot MG nest; defend Side Entrance;
+			{		//defend east chemical truck
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			ATTACKER =	//plant + attack West sewer gate; plant + attack west chemical truck
+			{
+				numbots = 4,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =	//plant + attack east chemical truck
+			{
+				numbots = 4,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER2 =	//plant + attack west chemical truck
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER3 =	//plant + attack Side Entrance; plant + attack east chemical truck
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+
+	Navigation =
+	{
+		ladder1 =
+		{
+			navigate = function( _this )
+			{
+				_this.Bot.HoldButton( BTN.FORWARD, 1 );
+				sleep( 1 );
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function( _this )
+			{
+				_this.Bot.HoldButton( BTN.JUMP, 0.55 );
+				sleep( 0.55 );
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_a
+		ladder_a =	//ladder to east sewer gate
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_A", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					yield();
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.055, -0.347, -0.936) );
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.WALK, 1.4);
+					_this.Bot.HoldButton(BTN.CROUCH, 1.4);
+					_this.Bot.HoldButton(BTN.FORWARD, 1.4);
+					sleep(1.4);
+					_this.ReleaseAimRequest();
+					_this.Bot.ReleaseButton(BTN.CROUCH);
+					_this.Bot.ReleaseButton(BTN.WALK);
+					_this.Bot.ReleaseButton(BTN.FORWARD);
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.012, 0.425, 0.905) );
+					_this.Bot.HoldButton(BTN.BACKWARD, 1);
+					sleep(1);
+					_this.ReleaseAimRequest();
+					_this.Bot.ReleaseButton(BTN.BACKWARD);
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_b
+		ladder_b =	//outside ladder to sewers
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_B", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.095, 0.345, -0.934) );
+					yield();
+					if(GetModName() == "noquarter")
+					{
+						if ( _this.Bot.HasWeapon(WEAPON.BAR) and ( _this.Bot.GetClass() == CLASS.COVERTOPS or _this.Bot.GetClass() == CLASS.SOLDIER ) )
+						{
+							Util.MapDebugPrint( "^5I have bar" );
+							_this.Bot.MoveTowards(Vec3(-3275.875, -2103.532, 216.125));
+							_this.Bot.HoldButton(BTN.CROUCH, 1.5);
+							sleep(1.2);
+						}
+						else
+						{
+							_this.Bot.MoveTowards(Vec3(-3275.875, -2103.532, 216.125));
+							_this.Bot.HoldButton(BTN.CROUCH, 1.5);
+							sleep(0.87);
+						}
+					}
+					else
+					{
+						_this.Bot.MoveTowards(Vec3(-3275.875, -2103.532, 216.125));
+						_this.Bot.HoldButton(BTN.CROUCH, 1.5);
+						sleep(0.87);
+					}
+					_this.ReleaseAimRequest();
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.135, -0.340, 0.931) );
+					yield();
+					_this.Bot.HoldButton(BTN.BACKWARD, 0.8);
+					sleep(0.8);
+					_this.ReleaseAimRequest();
+					_this.Bot.ReleaseButton(BTN.CROUCH);
+					_this.Bot.ReleaseButton(BTN.BACKWARD);
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_c
+		ladder_c =	//ladder to west sewer gate
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_C", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					yield();
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.418, -0.097, -0.903) );
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.WALK, 1);
+					_this.Bot.HoldButton(BTN.CROUCH, 1);
+					_this.Bot.HoldButton(BTN.FORWARD, 1);
+					sleep(1);
+					_this.ReleaseAimRequest();
+					_this.Bot.ReleaseButton(BTN.CROUCH);
+					_this.Bot.ReleaseButton(BTN.WALK);
+					_this.Bot.ReleaseButton(BTN.FORWARD);
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.061, 0.001, 0.998) );
+					_this.Bot.HoldButton(BTN.BACKWARD, 2);
+					sleep(2);
+					_this.ReleaseAimRequest();
+					_this.Bot.ReleaseButton(BTN.BACKWARD);
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:westsewergate_inside
+		westsewergate_inside =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("WestSewerGateInside", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					if ( !Map.WestGateDoor_Opened )
+					{
+						_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.990, 0.123, -0.061));
+						sleep(0.1);
+						while ( !Map.WestGateDoor_Opened )
+						{
+							_this.Bot.PressButton(BTN.USE);
+							sleep(0.1);
+						}
+						_this.ReleaseAimRequest();
+						_this.Bot.MoveTowards(Vec3(-2723.687, -585.378, -184.673));
+						yield();
+					}
+					else if ( Map.WestGateDoor_Closing )
+					{
+						while ( Map.WestGateDoor_Closing )
+						{
+							yield();
+						}
+						yield();
+						_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.990, 0.123, -0.061));
+						sleep(0.1);
+						while ( !Map.WestGateDoor_Opened )
+						{
+							_this.Bot.PressButton(BTN.USE);
+							sleep(0.1);
+						}
+						_this.ReleaseAimRequest();
+						_this.Bot.MoveTowards(Vec3(-2723.687, -585.378, -184.673));
+						yield();
+					}
+					else
+					{
+						_this.Bot.MoveTowards(Vec3(-2723.687, -585.378, -184.673));
+						yield();
+					}
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:eastsewergate_inside
+		eastsewergate_inside =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("EastSewerGateInside", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					if ( !Map.EastGateDoor_Opened )
+					{
+						_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.998, 0.016, -0.065));
+						sleep(0.1);
+						while ( !Map.EastGateDoor_Opened )
+						{
+							_this.Bot.PressButton(BTN.USE);
+							sleep(0.1);
+						}
+						_this.ReleaseAimRequest();
+						_this.Bot.MoveTowards(Vec3(-742.187, -564.608, -184.440));
+						yield();
+					}
+					else if ( Map.EastGateDoor_Closing )
+					{
+						while ( Map.EastGateDoor_Closing )
+						{
+							yield();
+						}
+						yield();
+						_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.998, 0.016, -0.065));
+						sleep(0.1);
+						while ( !Map.EastGateDoor_Opened )
+						{
+							_this.Bot.PressButton(BTN.USE);
+							sleep(0.1);
+						}
+						_this.ReleaseAimRequest();
+						_this.Bot.MoveTowards(Vec3(-742.187, -564.608, -184.440));
+						yield();
+					}
+					else
+					{
+						_this.Bot.MoveTowards(Vec3(-742.187, -564.608, -184.440));
+						yield();
+					}
+				}
+			},
+		},
+	},
+
+	Assault_Ramp_Built = function( trigger )
+	{
+
+		Map.Assault_Ramp = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Assault_Ramp" );
+
+		Util.EnableGoal( "ROUTE_Assault_Ramp" );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Assault_Ramp" );
+		}
+
+		Util.MapDebugPrint( "^5Assault_Ramp_Built" );
+	},
+
+	Assault_Ramp_Planted = function( trigger )
+	{
+
+		Map.Assault_Ramp_Dyno += 1;
+
+		Util.MapDebugPrint( "^5Assault_Ramp_Planted" );
+	},
+
+	Assault_Ramp_Defused = function( trigger )
+	{
+
+		Map.Assault_Ramp_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Assault_Ramp_Defused" );
+	},
+
+	Assault_Ramp_Destroyed = function( trigger )
+	{
+
+		Map.Assault_Ramp = false;
+		Map.Assault_Ramp_Dyno = 0;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Assault_Ramp" );
+
+		Util.DisableGoal( "ROUTE_Assault_Ramp" );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Assault_Ramp" );
+		}
+
+		Util.MapDebugPrint( "^5Assault_Ramp_Destroyed" );
+	},
+
+	Axis_CP_Built = function( trigger )
+	{
+
+		Map.Axis_CP = true;
+
+		SetAvailableMapGoals( 0, false, "BUILD_Command_Post" );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_CP_Built" );
+	},
+
+	Allied_CP_Built = function( trigger )
+	{
+
+		Map.Allied_CP = true;
+
+		SetAvailableMapGoals( 0, false, "BUILD_Command_Post" );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_CP_Built" );
+	},
+
+	Command_Post_Planted = function( trigger )
+	{
+
+		Util.SetMaxUsers( 1, "DEFUSE_Command_Post_.*" );
+
+		if ( Map.Axis_CP )
+		{
+			Map.Axis_CP_Dyno += 1;
+
+			Util.MapDebugPrint( "^5Axis_CP_Planted" );
+		}
+		else
+		{
+			Map.Allied_CP_Dyno += 1;
+
+			Util.MapDebugPrint( "^5Allied_CP_Planted" );
+		}
+	},
+
+	Command_Post_Defused = function( trigger )
+	{
+
+		if ( Map.Axis_CP )
+		{
+			Map.Axis_CP_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Axis_CP_Defused" );
+		}
+		else
+		{
+			Map.Allied_CP_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Allied_CP_Defused" );
+		}
+
+		Util.MapDebugPrint( "^5Command_Post_Defused" );
+	},
+
+	Axis_CP_Destroyed = function( trigger )
+	{
+
+		Map.Axis_CP = false;
+		Map.Axis_CP_Dyno = 0;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( 0, true, "BUILD_Command_Post" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_CP_Destroyed" );
+	},
+
+	Allied_CP_Destroyed = function( trigger )
+	{
+
+		Map.Allied_CP = false;
+		Map.Allied_CP_Dyno = 0;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( 0, true, "BUILD_Command_Post" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_CP_Destroyed" );
+	},
+
+	Main_Entrance_Planted = function( trigger )
+	{
+
+		Map.Main_Entrance_Dyno += 1;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_Allied_Main_Entrance_11" );
+
+		Util.MapDebugPrint( "^5Main_Entrance_Planted" );
+	},
+
+	Main_Entrance_Defused = function( trigger )
+	{
+
+		Map.Main_Entrance_Dyno -= 1;
+
+		if ( Map.Main_Entrance_Dyno == 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Allied_Main_Entrance_11" );
+		}
+
+		Util.MapDebugPrint( "^5Main_Entrance_Defused" );
+	},
+
+	Main_Entrance_Destroyed = function( trigger )
+	{
+
+		Map.Main_Entrance = false;
+
+		if ( Map.Main_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Main_Entrance_.*" );
+		}
+
+		Map.Main_Entrance_Dyno = 0;
+
+		Trigger_AlliesEngInside = OnTriggerRegion(AABB(-4480.874,485.594,185.125,4416.875,4301.463,962.875), Map.Allies_Eng_Inside);
+		Trigger_AlliesInside_East = OnTriggerRegion(AABB(-1199.158,1279.375,185.125,4416.875,4216.769,962.381), Map.Allies_Inside_East);
+		Trigger_AlliesInside_West = OnTriggerRegion(AABB(-3872.339,1279.608,185.125,-1200.902,4223.406,962.525), Map.Allies_Inside_West);
+
+		WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.MORTAR, false );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_Main_Entrance_.*",
+			"PLANT_Assault_Ramp",
+			"AMMOCAB_south_ammocabinet",
+			"HEALTHCAB_south_healthcabinet_1",
+		});
+
+		SetAvailableMapGoals( 0, false, ".*_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"REPAIRMG42_Airfield_Base",
+			"MOUNTMG42_Airfield_Base",
+			"AMMOCAB_north_ammocabinet",
+			"HEALTHCAB_south_healthcabinet",
+			".*_Axis_AboveHydroPower_.*",
+			"DEFEND_Axis_SideEntrance_.*",
+			".*_Axis_FrontEntrance_.*",
+		});
+
+		if ( !Map.East_Sewer_Gate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_EastSewerGate_.*.*" );
+		}
+
+		if ( Map.East_Sewer_Gate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_EastSewerGate_.*" );
+		}
+
+		if ( !Map.Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideEntranceWay_.*" );
+		}
+
+		if ( Map.West_Sewer_Gate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_WestSewerGate_.*" );
+		}
+
+		if ( !Map.East_Truck_Defences_Part_1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_East_Truck_Defences" );
+		}
+
+		if ( !Map.West_Truck_Defences_Part_1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_West_Truck_Defences" );
+		}
+
+		if ( !Map.Hydro_Pole_Power )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Hydro_Box" );
+		}
+
+		if ( Map.East_Depot_MG_Nest )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"MOUNTMG42_East_Depot_MG_Nest",
+				"REPAIRMG42_East_Depot_MG_Nest",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_East_Depot_MG_Nest" );
+		}
+
+		if ( Map.South_Depot_MG_Nest )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_South_Depot_MG_Nest" );
+		}
+
+		sleep(2);
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			".*_Allied_Main_Entrance_.*",
+			"BUILD_Assault_Ramp",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"BUILD_South_Depot_MG_Nest",
+			"AMMOCAB_.*",
+			"HEALTHCAB_.*",
+		});
+
+		if ( Map.Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_Side_Entrance",
+				"ATTACK_Allies_SideEntrance_.*",
+			});
+		}
+
+		if ( Map.East_Sewer_Gate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_East_Sewer_Gate",
+				"ATTACK_Allies_EastSewerGate_.*",
+			});
+		}
+
+		if ( Map.Hydro_Pole_Power )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Hydro_Box" );
+		}
+
+		if ( Map.West_Sewer_Gate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_West_Sewer_Gate",
+				"ATTACK_Allies_WestSewerGate_.*",
+			});
+		}
+
+		if ( !Map.East_Truck_Defences_Part_2 or !Map.West_Truck_Defences_Part_2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_West_Chemical_Truck",
+				"ATTACK_Allies_WestChemicalTruck_.*",
+				"PLANT_East_Chemical_Truck",
+				"ATTACK_Allies_EastChemicalTruck_.*",
+			});
+		}
+
+		if ( Map.East_Truck_Defences_Part_2 and Map.West_Truck_Defences_Part_2 and !Map.Hydro_Pole_Power )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_West_Chemical_Truck",
+				"ATTACK_Allies_WestChemicalTruck_.*",
+				"PLANT_East_Chemical_Truck",
+				"ATTACK_Allies_EastChemicalTruck_.*",
+			});
+		}
+
+		if ( Map.South_Depot_MG_Nest )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"MOUNTMG42_South_Depot_MG_Nest",
+				"REPAIRMG42_South_Depot_MG_Nest",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_South_Depot_MG_Nest" );
+		}
+
+		if ( Map.East_Truck_Defences_Part_2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Truck_Defences" );
+		}
+
+		if ( Map.West_Truck_Defences_Part_2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_West_Truck_Defences" );
+		}
+
+		if ( Map.East_Depot_MG_Nest )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Depot_MG_Nest" );
+		}
+
+		if ( Map.West_Chemical_Truck )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_WestTrigger_Attacker2_.*" );
+		}
+
+		if ( Map.East_Chemical_Truck )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_EastTrigger_Attacker1_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Main_Entrance_Destroyed" );
+	},
+
+	MainEntranceDestroyed = function( trigger )
+	{
+
+		Util.MapDebugPrint( "^5MainEntranceDestroyed" );
+
+		if ( Server.Team[ TEAM.ALLIES ].NumPlayers > 2 and Server.Team[ TEAM.ALLIES ].NumPlayers <= 8 )
+		{
+			Util.ChangeCrucialClassForRole(TEAM.ALLIES, ROLE.ATTACKER, CLASS.ENGINEER);
+
+			Util.MapDebugPrint( "^5Changing crucial class" );
+		}
+
+		foreach ( bot in BotTable )
+		{
+			if ( bot.GetTeam()==TEAM.AXIS )
+			{
+				if ( bot.GetReinforceTime() < 23 )
+				{
+					Util.MapDebugPrint( "^5Reinforcetime is: " + bot.GetReinforceTime() );
+
+					while ( bot.GetReinforceTime() > 2 )
+					{
+						sleep(0.2);
+					}
+
+					Util.MapDebugPrint( "^5Kill team axis" );
+
+					Util.KillTeam(TEAM.AXIS);
+
+					return;
+				}
+			}
+		}
+	},
+
+	Hydro_Pole_Power_Enabled = function( trigger )
+	{
+
+		Map.Hydro_Pole_Power = true;
+
+		DynamicPathsUpdated( TEAM.AXIS, TEAM.ALLIES );
+
+		Wp.SetWaypointFlag( "Cables", "closed", true );
+		Wp.SetWaypointFlag( "Cables_1", "closed", true );
+		Wp.SetWaypointFlag( "Cables_2", "closed", true );
+		Wp.SetWaypointFlag( "Cables_3", "closed", true );
+		Wp.SetWaypointFlag( "Cables_4", "closed", true );
+
+		Util.DisableGoal( "ROUTE_WestSewerGate" );
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_Hydro_Box" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Hydro_Box" );
+
+			if ( Map.West_Chemical_Truck )
+			{
+				if ( Map.West_Truck_Defences_Part_2 and Map.Allied_Engs_At_West_Chemical_Truck == 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, {
+						"PLANT_West_Chemical_Truck",
+						"ATTACK_Allies_WestChemicalTruck_.*",
+					});
+				}
+			}
+
+			if ( Map.East_Chemical_Truck )
+			{
+				if ( Map.East_Truck_Defences_Part_2 and Map.Allied_Engs_At_East_Chemical_Truck == 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, {
+						"PLANT_East_Chemical_Truck",
+						"ATTACK_Allies_EastChemicalTruck_.*",
+					});
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Hydro_Pole_Power_Enabled" );
+	},
+
+	Hydro_Pole_Power_Disabled = function( trigger )
+	{
+
+		Map.Hydro_Pole_Power = false;
+
+		DynamicPathsUpdated( TEAM.AXIS, TEAM.ALLIES );
+
+		Wp.SetWaypointFlag( "Cables_1", "closed", false );
+		Wp.SetWaypointFlag( "Cables_2", "closed", false );
+		Wp.SetWaypointFlag( "Cables_3", "closed", false );
+		Wp.SetWaypointFlag( "Cables_4", "closed", false );
+		Wp.SetWaypointFlag( "Cables", "closed", false );
+
+		if ( !Map.West_Sewer_Gate )
+		{
+			Util.EnableGoal( "ROUTE_WestSewerGate" );
+		}
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Hydro_Box" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_Hydro_Box" );
+
+			if ( Map.West_Chemical_Truck )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_West_Chemical_Truck",
+					"ATTACK_Allies_WestChemicalTruck_.*",
+				});
+			}
+
+			if ( Map.East_Chemical_Truck )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_East_Chemical_Truck",
+					"ATTACK_Allies_EastChemicalTruck_.*",
+				});
+			}
+		}
+
+		Util.MapDebugPrint( "^5Hydro_Pole_Power_Disabled" );
+	},
+
+	East_Depot_MG_Nest_Built = function( trigger )
+	{
+
+		Map.East_Depot_MG_Nest = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_East_Depot_MG_Nest" );
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"MOUNTMG42_East_Depot_MG_Nest",
+				"REPAIRMG42_East_Depot_MG_Nest",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Depot_MG_Nest" );
+		}
+
+		Util.MapDebugPrint( "^5East_Depot_MG_Nest_Built" );
+	},
+
+	East_Depot_MG_Nest_Planted = function( trigger )
+	{
+
+		Map.East_Depot_MG_Nest_Dyno += 1;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_East_Depot_MG_Nest_.*" );
+
+		Util.MapDebugPrint( "^5East_Depot_MG_Nest_Planted" );
+	},
+
+	East_Depot_MG_Nest_Defused = function( trigger )
+	{
+
+		Map.East_Depot_MG_Nest_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5East_Depot_MG_Nest_Defused" );
+	},
+
+	East_Depot_MG_Nest_Destroyed = function( trigger )
+	{
+
+		Map.East_Depot_MG_Nest = false;
+		Map.East_Depot_MG_Nest_Dyno = 0;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"MOUNTMG42_East_Depot_MG_Nest",
+			"REPAIRMG42_East_Depot_MG_Nest",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_East_Depot_MG_Nest" );
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_East_Depot_MG_Nest" );
+		}
+
+		Util.MapDebugPrint( "^5East_Depot_MG_Nest_Destroyed" );
+	},
+
+	South_Depot_MG_Nest_Built = function( trigger )
+	{
+
+		Map.South_Depot_MG_Nest = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_South_Depot_MG_Nest" );
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"MOUNTMG42_South_Depot_MG_Nest",
+				"REPAIRMG42_South_Depot_MG_Nest",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_South_Depot_MG_Nest" );
+		}
+
+		Util.MapDebugPrint( "^5South_Depot_MG_Nest_Built" );
+	},
+
+	South_Depot_MG_Nest_Planted = function( trigger )
+	{
+
+		Map.South_Depot_MG_Nest_Dyno += 1;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_South_Depot_MG_Nest_.*" );
+
+		Util.MapDebugPrint( "^5South_Depot_MG_Nest_Planted" );
+	},
+
+	South_Depot_MG_Nest_Defused = function( trigger )
+	{
+
+		Map.South_Depot_MG_Nest_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5South_Depot_MG_Nest_Defused" );
+	},
+
+	South_Depot_MG_Nest_Destroyed = function( trigger )
+	{
+
+		Map.South_Depot_MG_Nest = false;
+		Map.South_Depot_MG_Nest_Dyno = 0;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"MOUNTMG42_South_Depot_MG_Nest",
+			"REPAIRMG42_South_Depot_MG_Nest",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_South_Depot_MG_Nest" );
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_South_Depot_MG_Nest" );
+		}
+
+		Util.MapDebugPrint( "^5South_Depot_MG_Nest_Destroyed" );
+	},
+
+	Side_Entrance_Planted = function( trigger )
+	{
+
+		Map.Side_Entrance_Dyno += 1;
+
+		Util.SetRoleForGoals( "DEFUSE_Side_Entrance_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+		if ( !Map.East_Truck_Defences_Part_2 )	//I think more important is build defences
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Side_Entrance_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Side_Entrance_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Side_Entrance_Planted" );
+	},
+
+	Side_Entrance_Defused = function( trigger )
+	{
+
+		Map.Side_Entrance_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Side_Entrance_Defused" );
+	},
+
+	Side_Entrance_Destroyed = function( trigger )
+	{
+
+		Map.Side_Entrance = false;
+
+		if ( Map.Side_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Side_Entrance_.*" );
+		}
+
+		Map.Side_Entrance_Dyno = 0;
+
+		Util.EnableGoal( "ROUTE_SideEntrance" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntrance_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_Side_Entrance",
+			"ATTACK_Allies_SideEntrance_.*",
+		});
+
+		if ( !Map.Main_Entrance )
+		{
+			if ( Map.AlliesEngInside == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideEntranceWay_.*" );
+			}
+
+			if ( Map.East_Chemical_Truck )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_EastTrigger_Attacker3_.*" );
+			}
+		}
+
+		if ( Map.East_Chemical_Truck )
+		{
+			if ( Map.West_Chemical_Truck )
+			{
+				Util.SetRoleForGoals( "PLANT_East_Truck_Defences", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_East_Chemical_Truck", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_EastChemicalTruck_.*", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+			}
+			else
+			{
+				Util.SetRoleForGoals( "PLANT_East_Truck_Defences", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_East_Chemical_Truck", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_EastChemicalTruck_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Side_Entrance_Destroyed" );
+	},
+
+	East_Sewer_Gate_Planted = function( trigger )
+	{
+
+		Map.East_Sewer_Gate_Dyno += 1;
+
+		Util.SetMaxUsers( 2, "DEFUSE_East_Sewer_Gate_.*" );
+
+		Util.SetRoleForGoals( "DEFUSE_East_Sewer_Gate_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+		if ( !Map.East_Truck_Defences_Part_2  )	//I think more important is build defences
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_East_Sewer_Gate_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_East_Sewer_Gate_.*" );
+		}
+
+		Util.MapDebugPrint( "^5East_Sewer_Gate_Planted" );
+	},
+
+	East_Sewer_Gate_Defused = function( trigger )
+	{
+
+		Map.East_Sewer_Gate_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5East_Sewer_Gate_Defused" );
+	},
+
+	East_Sewer_Gate_Destroyed = function( trigger )
+	{
+
+		Map.East_Sewer_Gate = false;
+
+		if ( Map.East_Sewer_Gate_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_East_Sewer_Gate_.*" );
+		}
+
+		Map.East_Sewer_Gate_Dyno = 0;
+
+		Wp.SetWaypointFlag( "EastSewerGateInside", "axis", false );
+		Wp.SetWaypointFlag( "EastSewerGateInside", "closed", true );
+		Wp.SetWaypointFlag( "ESG1", "axis", false );
+
+		Util.EnableGoal( "ROUTE_SewerEntrance" );
+		Util.EnableGoal( "ROUTE_EastGate" );
+
+		GetGoal("DEFEND_Axis_FrontEntrance_01").AimVectors = { Vec3(-0.993, 0.109, -0.051), Vec3(-0.271, 0.956, -0.111) };
+		GetGoal("DEFEND_Axis_FrontEntrance_02").AimVectors = { Vec3(0.998, -0.013, -0.060), Vec3(0.991, 0.130, -0.023) };
+		GetGoal("DEFEND_Axis_FrontEntrance_03").AimVectors = { Vec3(0.901, -0.057, -0.429), Vec3(0.983, 0.089, -0.161) };
+		GetGoal("DEFEND_Axis_FrontEntrance_04").AimVectors = { Vec3(0.007, -0.987, -0.160), Vec3(0.832, -0.467, -0.300) };
+		GetGoal("DEFEND_Axis_FrontEntrance_05").AimVectors = { Vec3(-0.906, -0.359, -0.223), Vec3(-0.825, -0.040, -0.563) };
+		GetGoal("DEFEND_Axis_FrontEntrance_06").AimVectors = { Vec3(0.893, -0.449, -0.027), Vec3(1.000, 0.007, -0.010) };
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_EastSewerGate_.*" );
+
+		if ( Map.AlliesInsideWest == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_EastSewerGate_.*.*" );
+		}
+
+		Util.MapDebugPrint( "^5East_Sewer_Gate_Destroyed" );
+	},
+
+	East_Gate_Door = function( trigger )
+	{
+
+		if ( trigger.Action == "opened" )
+		{
+			Map.EastGateDoor_Opened = true;
+			Util.MapDebugPrint( "^5East_Gate_Door Opened" );
+
+			sleep(1.8);
+
+			Map.EastGateDoor_Closing = true;
+			Util.MapDebugPrint( "^5East_Gate_Door Closing" );
+		}
+		else
+		{
+			Map.EastGateDoor_Opened = false;
+			Map.EastGateDoor_Closing = false;
+
+			Util.MapDebugPrint( "^5East_Gate_Door Closed" );
+		}
+	},
+
+	West_Sewer_Gate_Planted = function( trigger )
+	{
+
+		Map.West_Sewer_Gate_Dyno += 1;
+
+		Util.SetRoleForGoals( "DEFUSE_West_Sewer_Gate_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+
+		if ( !Map.West_Truck_Defences_Part_2 )	//I think more important is build defences
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_West_Sewer_Gate_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_West_Sewer_Gate_.*" );
+		}
+
+		Util.MapDebugPrint( "^5West_Sewer_Gate_Planted" );
+	},
+
+	West_Sewer_Gate_Defused = function( trigger )
+	{
+
+		Map.West_Sewer_Gate_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5West_Sewer_Gate_Defused" );
+	},
+
+	West_Sewer_Gate_Destroyed = function( trigger )
+	{
+
+		Map.West_Sewer_Gate = false;
+
+		if ( Map.West_Sewer_Gate_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_West_Sewer_Gate_.*" );
+		}
+
+		Map.West_Sewer_Gate_Dyno = 0;
+
+		if ( !Map.Hydro_Pole_Power )
+		{
+			Util.EnableGoal( "ROUTE_WestSewerGate" );
+		}
+
+		Util.EnableGoal( "ROUTE_Sewer_Stairs" );
+		Util.EnableGoal( "ROUTE_West_Sewer_Gate" );
+		Util.EnableGoal( "ROUTE_Tunnel_Exit_1" );
+		Wp.SetWaypointFlag( "WSG1", "axis", false );
+		Wp.SetWaypointFlag( "WestSewerGateInside", "axis", false );
+		Wp.SetWaypointFlag( "WestSewerGateInside", "closed", true );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_WestSewerGate_.*" );
+
+		if ( !Map.Main_Entrance )
+		{
+			if ( Map.Hydro_Pole_Power )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Hydro_Box" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Hydro_Box" );
+
+				if ( Map.West_Chemical_Truck )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"PLANT_West_Chemical_Truck",
+						"ATTACK_Allies_WestChemicalTruck_.*",
+					});
+				}
+
+				if ( Map.East_Chemical_Truck )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"PLANT_East_Chemical_Truck",
+						"ATTACK_Allies_EastChemicalTruck_.*",
+					});
+				}
+			}
+
+			if ( Map.West_Chemical_Truck )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_WestTrigger_Attacker_.*" );
+			}
+		}
+
+		if ( Map.East_Chemical_Truck )
+		{
+			Util.SetRoleForGoals( "PLANT_West_Truck_Defences", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+			Util.SetRoleForGoals( "PLANT_West_Chemical_Truck", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+			Util.SetRoleForGoals( "ATTACK_Allies_WestChemicalTruck_.*", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+		}
+		else
+		{
+			Util.SetRoleForGoals( "PLANT_West_Truck_Defences", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			Util.SetRoleForGoals( "PLANT_West_Chemical_Truck", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			Util.SetRoleForGoals( "ATTACK_Allies_WestChemicalTruck_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		}
+
+		Util.MapDebugPrint( "^5West_Sewer_Gate_Destroyed" );
+	},
+
+	West_Gate_Door = function( trigger )
+	{
+
+		if ( trigger.Action == "opened" )
+		{
+			Map.WestGateDoor_Opened = true;
+			Util.MapDebugPrint( "^5West_Gate_Door Opened" );
+
+			sleep(1.8);
+
+			Map.WestGateDoor_Closing = true;
+			Util.MapDebugPrint( "^5West_Gate_Door Closing" );
+		}
+		else
+		{
+			Map.WestGateDoor_Opened = false;
+			Map.WestGateDoor_Closing = false;
+
+			Util.MapDebugPrint( "^5West_Gate_Door Closed" );
+		}
+	},
+
+	East_Truck_Defences_Built = function( trigger )
+	{
+
+		Map.East_Truck_Defences_Part_2 = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_East_Truck_Defences" );
+
+		if ( !Map.Main_Entrance )
+		{
+			if ( Map.Hydro_Pole_Power and  Map.Allied_Engs_At_East_Chemical_Truck == 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, {
+					"PLANT_East_Chemical_Truck",
+					"ATTACK_Allies_EastChemicalTruck_.*",
+				});
+			}
+
+			if ( Map.East_Truck_Defences_Part_2 )
+			{
+				SetGoalPriority( "PLANT_East_Truck_Defences", 0.81, TEAM.ALLIES, CLASS.ENGINEER );	//default
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Truck_Defences" );
+			}
+
+			if ( Map.Side_Entrance_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Side_Entrance_.*" );
+			}
+
+
+			if ( Map.East_Sewer_Gate_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_East_Sewer_Gate_.*" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5East_Truck_Defences_Part_2_Built" );
+	},
+
+	East_Truck_Defences_Planted = function( trigger )
+	{
+
+		Map.East_Truck_Defences_Dyno += 1;
+
+		Util.MapDebugPrint( "^5East_Truck_Defences_Planted" );
+	},
+
+	East_Truck_Defences_Defused = function( trigger )
+	{
+
+		Map.East_Truck_Defences_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5East_Truck_Defences_Defused" );
+	},
+
+	East_Truck_Defences_Destroyed = function( trigger )
+	{
+
+		Map.East_Truck_Defences_Part_2 = false;
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_East_Truck_Defences" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_East_Truck_Defences" );
+
+			SetGoalPriority( "PLANT_East_Truck_Defences", 0.7, TEAM.ALLIES, CLASS.ENGINEER );
+
+			if ( Map.East_Chemical_Truck )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_East_Chemical_Truck",
+					"ATTACK_Allies_EastChemicalTruck_.*",
+				});
+			}
+
+			yield();
+
+			if ( Map.East_Truck_Defences_Part_1 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Truck_Defences" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5East_Truck_Defences_Part_2_Destroyed" );
+	},
+
+	East_Chemical_Truck_Planted = function( trigger )
+	{
+
+		Map.East_Chemical_Truck_Dyno += 1;
+
+		Util.MapDebugPrint( "^5East_Chemical_Truck_Planted" );
+	},
+
+	East_Chemical_Truck_Defused = function( trigger )
+	{
+
+		Map.East_Chemical_Truck_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5East_Chemical_Truck_Defused" );
+	},
+
+	East_Chemical_Truck_Destroyed = function( trigger )
+	{
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_East_Truck_Defences",
+			"ATTACK_Allies_EastChemicalTruck_.*",
+			"ATTACK_Allies_EastTrigger_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"BUILD_East_Truck_Defences",
+			"DEFEND_Axis_EastChemicalTruck_.*",
+			"DEFEND_Axis_EastTrigger_.*",
+		});
+
+		Map.East_Chemical_Truck = false;
+
+		if ( Map.East_Chemical_Truck_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_East_Chemical_Truck_.*" );
+		}
+
+		Map.East_Chemical_Truck_Dyno = 0;
+		Map.East_Truck_Defences_Part_1 = false;
+		Map.East_Truck_Defences_Part_2 = false;
+		Map.Allied_Engs_At_East_Chemical_Truck = 0;
+
+		Wp.SetWaypointFlag( "East_1", "closed", true );
+		Wp.SetWaypointFlag( "East_2", "closed", true );
+		Wp.SetWaypointFlag( "East_3", "closed", true );
+		Wp.SetWaypointFlag( "East_4", "closed", true );
+		Wp.SetWaypointFlag( "East_5", "closed", true );
+		Wp.SetWaypointFlag( "East_6", "closed", true );
+		Wp.SetWaypointFlag( "East_7", "closed", true );
+
+		DeleteTriggerRegion("East_Chemical_Truck_Zone");
+
+		if ( Map.West_Chemical_Truck )
+		{
+			Util.SetRoleForGoals( "DEFEND_Axis_West.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			Util.SetMaxUsers( 2, "DEFEND_Axis_West.*" );
+
+			if ( Map.West_Sewer_Gate )
+			{
+				Util.SetRoleForGoals( "ATTACK_Allies_West.*", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_West_Truck_Defences", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_West_Chemical_Truck", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+			else
+			{
+				Util.SetRoleForGoals( "ATTACK_Allies_West.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_West_Truck_Defences", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_West_Chemical_Truck", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+
+			Util.SetMaxUsers( 2, "ATTACK_Allies_West.*" );
+		}
+		else
+		{
+			Map.Allies_Win = true;
+
+			sleep(1);
+			ETUtil.WinningChat( TEAM.ALLIES );
+			sleep(1.5);
+			ETUtil.LosingChat( TEAM.AXIS );
+
+			Util.MapDebugPrint( "^5Allies win" );
+		}
+
+		Util.MapDebugPrint( "^5East_Chemical_Truck_Destroyed" );
+	},
+
+	EastTruckDefences_Thread = function()
+	{
+		start = Vector3(84.974, 2272.125, 208.318);
+		end = Vector3(84.974, 2227.875, 208.318);
+		Util.MapDebugPrint("^5East Truck Defences thread started");
+		while (1)
+		{
+			tr = TraceLine(start, end, null, TRACE.SOLID, 0, false);
+			if(tr.fraction < 1)
+			{
+				//DrawDebugLine(start, end, COLOR.RED, 2);
+
+				if ( !Map.East_Truck_Defences_Part_1 )
+				{
+					if ( !Map.Main_Entrance )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Truck_Defences" );
+					}
+
+					Util.MapDebugPrint( "^5East_Truck_Defences_Part_1_Built" );
+				}
+
+				Map.East_Truck_Defences_Part_1 = true;
+			}
+			else
+			{
+				//DrawDebugLine(start, end, COLOR.GREEN, 2);
+
+				if ( Map.East_Truck_Defences_Part_1 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_East_Truck_Defences" );
+
+					Util.MapDebugPrint( "^5East_Truck_Defences_Part_1_Destroyed" );
+				}
+
+				Map.East_Truck_Defences_Part_1 = false;
+			}
+			yield();
+		}
+	},
+
+	West_Truck_Defences_Built = function( trigger )
+	{
+
+		Map.West_Truck_Defences_Part_2 = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_West_Truck_Defences" );
+
+		if ( !Map.Main_Entrance )
+		{
+			if ( Map.Hydro_Pole_Power and Map.Allied_Engs_At_West_Chemical_Truck == 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, {
+					"PLANT_West_Chemical_Truck",
+					"ATTACK_Allies_WestChemicalTruck_.*",
+				});
+			}
+
+			if ( Map.West_Truck_Defences_Part_2 )
+			{
+				SetGoalPriority( "PLANT_West_Truck_Defences", 0.81, TEAM.ALLIES, CLASS.ENGINEER );	//default
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_West_Truck_Defences" );
+			}
+
+			if ( Map.West_Sewer_Gate_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_West_Sewer_Gate_.*" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5West_Truck_Defences_Part_2_Built" );
+	},
+
+	West_Truck_Defences_Planted = function( trigger )
+	{
+
+		Map.West_Truck_Defences_Dyno += 1;
+
+		Util.MapDebugPrint( "^5West_Truck_Defences_Planted" );
+	},
+
+	West_Truck_Defences_Defused = function( trigger )
+	{
+
+		Map.West_Truck_Defences_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5West_Truck_Defences_Defused" );
+	},
+
+	West_Truck_Defences_Destroyed = function( trigger )
+	{
+
+		Map.West_Truck_Defences_Part_2 = false;
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_West_Truck_Defences" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_West_Truck_Defences" );
+
+			SetGoalPriority( "PLANT_West_Truck_Defences", 0.7, TEAM.ALLIES, CLASS.ENGINEER );
+
+			if ( Map.West_Chemical_Truck )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_West_Chemical_Truck",
+					"ATTACK_Allies_WestChemicalTruck_.*",
+				});
+			}
+
+			yield();
+
+			if ( Map.West_Truck_Defences_Part_1 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_West_Truck_Defences" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5West_Truck_Defences_Part_2_Destroyed" );
+	},
+
+	West_Chemical_Truck_Planted = function( trigger )
+	{
+
+		Map.West_Chemical_Truck_Dyno += 1;
+
+		Util.MapDebugPrint( "^5West_Chemical_Truck_Planted" );
+	},
+
+	West_Chemical_Truck_Defused = function( trigger )
+	{
+
+		Map.West_Chemical_Truck_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5West_Chemical_Truck_Defused" );
+	},
+
+	West_Chemical_Truck_Destroyed = function( trigger )
+	{
+
+		Map.West_Chemical_Truck = false;
+
+		if ( Map.West_Chemical_Truck_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_West_Chemical_Truck_.*" );
+		}
+
+		Map.West_Chemical_Truck_Dyno = 0;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_West_Truck_Defences",
+			"ATTACK_Allies_WestTrigger_.*",
+			"ATTACK_Allies_WestChemicalTruck_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"BUILD_West_Truck_Defences",
+			"DEFEND_Axis_WestTrigger_.*",
+			"DEFEND_Axis_WestChemicalTruck_.*",
+		});
+
+		Map.West_Truck_Defences_Part_1 = false;
+		Map.West_Truck_Defences_Part_2 = false;
+		Map.Allied_Engs_At_West_Chemical_Truck = 0;
+
+		DeleteTriggerRegion("West_Chemical_Truck_Zone");
+
+		Wp.SetWaypointFlag( "West_1", "closed", true );
+		Wp.SetWaypointFlag( "West_2", "closed", true );
+		Wp.SetWaypointFlag( "West_3", "closed", true );
+		Wp.SetWaypointFlag( "West_4", "closed", true );
+		Wp.SetWaypointFlag( "West_6", "closed", true );
+		Wp.SetWaypointFlag( "West_7", "closed", true );
+		Wp.SetWaypointFlag( "West_8", "closed", true );
+		Wp.SetWaypointFlag( "West_9", "closed", true );
+
+		if ( Map.East_Chemical_Truck )
+		{
+			Util.SetRoleForGoals( "DEFEND_Axis_East.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			Util.SetMaxUsers( 2, "DEFEND_Axis_East.*" );
+
+			if ( Map.Side_Entrance )
+			{
+				Util.SetRoleForGoals( "ATTACK_Allies_East.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+				Util.SetRoleForGoals( "PLANT_East_Truck_Defences", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+				Util.SetRoleForGoals( "PLANT_East_Chemical_Truck", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+			}
+			else
+			{
+				Util.SetRoleForGoals( "ATTACK_Allies_East.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_East_Truck_Defences", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_East_Chemical_Truck", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+
+			Util.SetMaxUsers( 2, "ATTACK_Allies_East.*" );
+		}
+		else
+		{
+			Map.Allies_Win = true;
+
+			sleep(1);
+			ETUtil.WinningChat( TEAM.ALLIES );
+			sleep(1.5);
+			ETUtil.LosingChat( TEAM.AXIS );
+
+			Util.MapDebugPrint( "^5Allies win" );
+		}
+
+		Util.MapDebugPrint( "^5West_Chemical_Truck_Destroyed" );
+	},
+
+	WestTruckDefences_Thread = function()
+	{
+		start = Vector3(-2964.125, 2727.997, 208.125);
+		end = Vector3(-2919.875, 2727.997, 208.125);
+		Util.MapDebugPrint("^5West Truck Defences thread started");
+		while (1)
+		{
+			tr = TraceLine(start, end, null, TRACE.SOLID, 0, false);
+			if(tr.fraction < 1)
+			{
+				//DrawDebugLine(start, end, COLOR.RED, 2);
+
+				if ( !Map.West_Truck_Defences_Part_1 )
+				{
+					if ( !Map.Main_Entrance )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_West_Truck_Defences" );
+					}
+
+					Util.MapDebugPrint( "^5West_Truck_Defences_Part_1_Built" );
+				}
+
+				Map.West_Truck_Defences_Part_1 = true;
+			}
+			else
+			{
+				//DrawDebugLine(start, end, COLOR.GREEN, 2);
+
+				if ( Map.West_Truck_Defences_Part_1 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_West_Truck_Defences" );
+
+					Util.MapDebugPrint( "^5West_Truck_Defences_Part_1_Destroyed" );
+				}
+
+				Map.West_Truck_Defences_Part_1 = false;
+			}
+			yield();
+		}
+	},
+
+	East_Chemical_Truck_Zone =
+	{
+		Name = "East_Chemical_Truck_Zone",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Allied_Engs_At_East_Chemical_Truck +=1;
+
+					if ( Map.East_Truck_Defences_Part_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_East_Chemical_Truck" );
+					}
+
+					if ( Map.East_Chemical_Truck )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_EastChemicalTruck_.*" );
+					}
+
+					Util.MapDebugPrint( "^1East Truck is not safe!" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Allied_Engs_At_East_Chemical_Truck -=1;
+
+					if ( Map.Allied_Engs_At_East_Chemical_Truck == 0 )
+					{
+						Util.MapDebugPrint( "^5East Truck is safe!" );
+
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_EastChemicalTruck_.*" );
+
+						if ( Map.East_Truck_Defences_Part_2 and Map.Hydro_Pole_Power )
+						{
+							SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_East_Chemical_Truck" );
+						}
+					}
+				}
+			}
+		},
+	},
+
+	West_Chemical_Truck_Zone =
+	{
+		Name = "West_Chemical_Truck_Zone",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Allied_Engs_At_West_Chemical_Truck +=1;
+
+					if ( Map.West_Truck_Defences_Part_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, {
+							"PLANT_West_Chemical_Truck",
+							"ATTACK_Allies_WestChemicalTruck_.*",
+						});
+					}
+
+					if ( Map.West_Chemical_Truck )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WestChemicalTruck_.*" );
+					}
+
+					Util.MapDebugPrint( "^1West Truck is not safe!" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Allied_Engs_At_West_Chemical_Truck -=1;
+
+					if ( Map.Allied_Engs_At_West_Chemical_Truck == 0 )
+					{
+						Util.MapDebugPrint( "^5West Truck is safe!" );
+
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WestChemicalTruck_.*" );
+
+						if ( Map.West_Truck_Defences_Part_2 and Map.Hydro_Pole_Power )
+						{
+							SetAvailableMapGoals( TEAM.ALLIES, false, {
+								"PLANT_West_Chemical_Truck",
+								"ATTACK_Allies_WestChemicalTruck_.*",
+							});
+						}
+					}
+				}
+			}
+		},
+	},
+
+	A = function()
+	{
+		Server.MinClassCount[TEAM.AXIS][CLASS.SOLDIER] = 0;
+
+		Util.MapDebugPrint( "^5Disabling CLASS.SOLDIER for axis team" );
+	},
+
+	Allies_Eng_Inside =
+	{
+		Name = "Allies_Eng_Inside",
+		TriggerOnClass = CLASS.ANYPLAYER,
+
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES and GetEntClass(ent) == CLASS.ENGINEER )
+			{
+				Map.AlliesEngInside += 1;
+
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					".*_Axis_WestSewerGate_.*",
+					".*_Axis_AboveHydroPower_.*",
+				});
+
+				if ( Map.West_Chemical_Truck )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WestTrigger_Defender_.*" );
+				}
+
+				if ( Map.East_Chemical_Truck )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_EastTrigger_Defender2_.*" );
+				}
+
+				Util.MapDebugPrint( "^5Allied Eng entered" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES and GetEntClass(ent) == CLASS.ENGINEER )
+			{
+				Map.AlliesEngInside -= 1;
+
+				if ( Map.AlliesEngInside == 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, {
+						"DEFEND_Axis_WestTrigger_Defender_.*",
+						"DEFEND_Axis_EastTrigger_Defender2_.*",
+					});
+
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						".*_Axis_WestSewerGate_.*",
+						".*_Axis_AboveHydroPower_.*",
+					});
+
+					Util.MapDebugPrint( "^5Allied Engs in trigger = 0" );
+				}
+			}
+		},
+	},
+
+	Allies_Inside_West =
+	{
+		Name = "Allies_Inside_West",
+		TriggerOnClass = CLASS.ANYPLAYER,
+
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AlliesInsideWest += 1;
+
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					".*_Axis_FrontEntrance_.*",
+					"DEFEND_Axis_EastSewerGate_.*",
+					"TRIPMINE_Axis_EastSewerGate_.*.*",
+				});
+
+				if ( Map.West_Chemical_Truck )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WestTrigger_Defender1_.*" );
+				}
+
+				Util.MapDebugPrint( "^5Allies entered into west trigger" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AlliesInsideWest -= 1;
+
+				if ( Map.AlliesInsideWest == 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WestTrigger_Defender1_.*" );
+
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						".*_Axis_FrontEntrance_.*",
+						"DEFEND_Axis_EastSewerGate_.*",
+					});
+
+					if ( !Map.East_Sewer_Gate )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_EastSewerGate_.*.*" );
+					}
+
+					Util.MapDebugPrint( "^5Allies in west trigger = 0" );
+				}
+			}
+		},
+	},
+
+	Allies_Inside_East =
+	{
+		Name = "Allies_Inside_East",
+		TriggerOnClass = CLASS.ANYPLAYER,
+
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AlliesInsideEast += 1;
+
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"DEFEND_Axis_SideEntrance_.*",
+					".*_Axis_SideEntranceWay_.*",
+				});
+
+				if ( Map.East_Chemical_Truck )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_EastTrigger_Defender3_.*" );
+				}
+
+				Util.MapDebugPrint( "^5Allies entered into east trigger" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AlliesInsideEast -= 1;
+
+				if ( Map.AlliesInsideEast == 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_EastTrigger_Defender3_.*" );
+
+					if ( !Map.Side_Entrance )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideEntranceWay_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntrance_.*" );
+					}
+
+					Util.MapDebugPrint( "^5Allies in east trigger = 0" );
+				}
+			}
+		},
+	},
+
+	Thirty_second = function( trigger )
+	{
+
+		Util.MapDebugPrint( "^5Thirty_second" );
+
+		sleep(30);
+
+		if ( !Map.Allies_Win )
+		{
+			Util.MapDebugPrint( "^5Axis_Win" );
+
+			sleep(1);
+			ETUtil.WinningChat( TEAM.AXIS );
+			sleep(1.5);
+			ETUtil.LosingChat( TEAM.ALLIES );
+		}
+	},
+
+};
+/*
+Commands["botsgoals"] = function(_params)	//only for testing roles (thx. Palota) => called at the end of OnMapLoad
+{
+	foreach (team in TEAM)
+	{
+		foreach (class in Util.PlayerClassTable)
+		{
+			foreach ( bot in BotTable )
+			{
+				if(bot.GetClass()==class && bot.GetTeam()==team)
+				{
+					s="";
+					foreach ( id and role in ROLE )
+					{
+						if(bot.HasRole(role))
+						{
+							s= s + " " + id;
+						}
+					}
+					goal=bot.GetMapGoalName();
+					if(!goal)
+					{
+						goal=bot.GetHighLevelGoalName();
+					}
+					if(!goal)
+					{
+						goal = "";
+					}
+					print(Util.TeamName(team) + " " + Util.ClassName(class) + s + ": " + goal);
+				}
+			}
+		}
+	}
+};
+*/
+global OnMapLoad = function(trigger)
+{
+
+	OnTrigger( "The Allies have constructed the Assault Ramp!", Map.Assault_Ramp_Built );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_CP_Built );
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_CP_Built );
+	OnTrigger( "The Axis East Depot MG Nest has been constructed.", Map.East_Depot_MG_Nest_Built );
+	OnTrigger( "Axis team has constructed the East Truck Defences!", Map.East_Truck_Defences_Built );
+	OnTrigger( "The Allies South Depot MG Nest has been constructed.", Map.South_Depot_MG_Nest_Built );
+	OnTrigger( "Axis team has constructed the West Truck Defences!", Map.West_Truck_Defences_Built );
+
+	OnTrigger( "The Axis have destroyed the Assault Ramp!", Map.Assault_Ramp_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_CP_Destroyed );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_CP_Destroyed );
+	OnTrigger( "Allies have blown up the East Truck!", Map.East_Chemical_Truck_Destroyed );
+	OnTrigger( "The Axis East Depot MG Nest has been destroyed.", Map.East_Depot_MG_Nest_Destroyed );
+	OnTrigger( "Allies have blown up the East Sewer Gate!", Map.East_Sewer_Gate_Destroyed );
+	OnTrigger( "Allied team has damaged the East Truck Defences!", Map.East_Truck_Defences_Destroyed );
+	OnTrigger( "Allies have blown up the Main Entrance!", Map.Main_Entrance_Destroyed );
+	OnTrigger( "Allies have blown up the Main Entrance!", Map.MainEntranceDestroyed );
+	OnTrigger( "Allies have blown up the Side Entrance!", Map.Side_Entrance_Destroyed );
+	OnTrigger( "The Allies South Depot MG Nest has been destroyed.", Map.South_Depot_MG_Nest_Destroyed );
+	OnTrigger( "Allies have blown up the West Truck!", Map.West_Chemical_Truck_Destroyed );
+	OnTrigger( "Allies have blown up the West Sewer Gate!", Map.West_Sewer_Gate_Destroyed );
+	OnTrigger( "Allied team has damaged the West Truck Defences!", Map.West_Truck_Defences_Destroyed );
+
+	OnTrigger( "Planted at the Main Entrance.", Map.Main_Entrance_Planted );
+	OnTrigger( "Planted at Main Entrance.", Map.Main_Entrance_Planted );	//Nitmod
+	OnTrigger( "Defused at the Main Entrance.", Map.Main_Entrance_Defused );
+	OnTrigger( "Defused at Main Entrance.", Map.Main_Entrance_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the Side Entrance.", Map.Side_Entrance_Planted );
+	OnTrigger( "Planted at Side Entrance.", Map.Side_Entrance_Planted );	//Nitmod
+	OnTrigger( "Defused at the Side Entrance.", Map.Side_Entrance_Defused );
+	OnTrigger( "Defused at Side Entrance.", Map.Side_Entrance_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the East Sewer Gate.", Map.East_Sewer_Gate_Planted );
+	OnTrigger( "Planted at East Sewer Gate.", Map.East_Sewer_Gate_Planted );	//Nitmod
+	OnTrigger( "Defused at the East Sewer Gate.", Map.East_Sewer_Gate_Defused );
+	OnTrigger( "Defused at East Sewer Gate.", Map.East_Sewer_Gate_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the West Sewer Gate.", Map.West_Sewer_Gate_Planted );
+	OnTrigger( "Planted at West Sewer Gate.", Map.West_Sewer_Gate_Planted );	//Nitmod
+	OnTrigger( "Defused at the West Sewer Gate.", Map.West_Sewer_Gate_Defused );
+	OnTrigger( "Defused at West Sewer Gate.", Map.West_Sewer_Gate_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the West Truck Defences.", Map.West_Truck_Defences_Planted );
+	OnTrigger( "Planted at West Truck Defences.", Map.West_Truck_Defences_Planted );	//Nitmod
+	OnTrigger( "Defused at the West Truck Defences.", Map.West_Truck_Defences_Defused );
+	OnTrigger( "Defused at West Truck Defences.", Map.West_Truck_Defences_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the East Truck Defences.", Map.East_Truck_Defences_Planted );
+	OnTrigger( "Planted at East Truck Defences.", Map.East_Truck_Defences_Planted );	//Nitmod
+	OnTrigger( "Defused at the East Truck Defences.", Map.East_Truck_Defences_Defused );
+	OnTrigger( "Defused at East Truck Defences.", Map.East_Truck_Defences_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the West Chemical Truck.", Map.West_Chemical_Truck_Planted );
+	OnTrigger( "Planted at West Chemical Truck.", Map.West_Chemical_Truck_Planted );	//Nitmod
+	OnTrigger( "Defused at the West Chemical Truck.", Map.West_Chemical_Truck_Defused );
+	OnTrigger( "Defused at West Chemical Truck.", Map.West_Chemical_Truck_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the East Chemical Truck.", Map.East_Chemical_Truck_Planted );
+	OnTrigger( "Planted at East Chemical Truck.", Map.East_Chemical_Truck_Planted );	//Nitmod
+	OnTrigger( "Defused at the East Chemical Truck.", Map.East_Chemical_Truck_Defused );
+	OnTrigger( "Defused at East Chemical Truck.", Map.East_Chemical_Truck_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the Command Post.", Map.Command_Post_Planted );
+	OnTrigger( "Planted at Command Post.", Map.Command_Post_Planted );	//Nitmod
+	OnTrigger( "Defused at the Command Post.", Map.Command_Post_Defused );
+	OnTrigger( "Defused at Command Post.", Map.Command_Post_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the East Depot MG Nest.", Map.East_Depot_MG_Nest_Planted );
+	OnTrigger( "Planted at East Depot MG Nest.", Map.East_Depot_MG_Nest_Planted );	//Nitmod
+	OnTrigger( "Defused at the East Depot MG Nest.", Map.East_Depot_MG_Nest_Defused );
+	OnTrigger( "Defused at East Depot MG Nest.", Map.East_Depot_MG_Nest_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the South Depot MG Nest.", Map.South_Depot_MG_Nest_Planted );
+	OnTrigger( "Planted at South Depot MG Nest.", Map.South_Depot_MG_Nest_Planted );	//Nitmod
+	OnTrigger( "Defused at the South Depot MG Nest.", Map.South_Depot_MG_Nest_Defused );
+	OnTrigger( "Defused at South Depot MG Nest.", Map.South_Depot_MG_Nest_Defused );	//Nitmod
+
+	OnTrigger( "Planted at the Assault Ramp.", Map.Assault_Ramp_Planted );
+	OnTrigger( "Planted at Assault Ramp.", Map.Assault_Ramp_Planted );	//Nitmod
+	OnTrigger( "Defused at the Assault Ramp.", Map.Assault_Ramp_Defused );
+	OnTrigger( "Defused at Assault Ramp.", Map.Assault_Ramp_Defused );	//Nitmod
+
+	OnTrigger( "The Hydro Pole Power is Enabled!", Map.Hydro_Pole_Power_Enabled );
+	OnTrigger( "The Hydro Pole Power is Disabled!", Map.Hydro_Pole_Power_Disabled );
+
+	OnTrigger( "eastgate_door_Moving", Map.East_Gate_Door );
+	OnTrigger( "westgate_door_Moving", Map.West_Gate_Door );
+
+	OnTrigger( "thirty second warning.", Map.Thirty_second );
+
+	thread(Map.EastTruckDefences_Thread);
+	thread(Map.WestTruckDefences_Thread);
+
+	Util.DisableGoal( ".*", true );
+
+	SetGoalPriority( "BUILD_South_Depot_MG_Nest", 0.81, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_East_Chemical_Truck", 0.85, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_West_Chemical_Truck", 0.85, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Side_Entrance", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_West_Sewer_Gate", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_East_Sewer_Gate", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Command_Post", 0.81, TEAM.ALLIES, CLASS.ENGINEER );
+
+	SetGoalPriority( "DEFUSE_Command_Post_.*", 0.8, 0, CLASS.ENGINEER, true );
+
+	SetGoalPriority( "ATTACK_Allies_WestChemicalTruck_.*", 0.55, TEAM.ALLIES, 0 );
+	SetGoalPriority( "ATTACK_Allies_EastChemicalTruck_.*", 0.55, TEAM.ALLIES, 0 );
+	SetGoalPriority( "ATTACK_Allies_EastSewerGate_.*", 0.48, TEAM.ALLIES, 0 );
+
+	SetGoalPriority( "DEFEND_Axis_SideEntrance_.*", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_WestChemicalTruck_.*", 0.55, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_EastChemicalTruck_.*", 0.55, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_EastSewerGate_.*", 0.48, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_EastSewerGate_01", 0.5, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_FrontEntrance_.*", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "BUILD_East_Depot_MG_Nest", 0.89, TEAM.AXIS, CLASS.ENGINEER );
+
+	SetGoalPriority( "DEFUSE_East_Chemical_Truck_.*", 1.4, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_West_Chemical_Truck_.*", 1.4, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_East_Truck_Defences_.*", 1.2, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_West_Truck_Defences_.*", 1.2, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_Side_Entrance_.*", 1.1, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_West_Sewer_Gate_.*", 1.0, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFUSE_East_Sewer_Gate_.*", 0.95, TEAM.AXIS, CLASS.ENGINEER, true );
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		".*_Axis_Main_Entrance_.*",
+		"BUILD_Command_Post",
+		"AMMOCAB_south_ammocabinet",
+		"HEALTHCAB_south_healthcabinet_1",
+	});
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		".*_Allied_Main_Entrance_.*",
+		"PLANT_Main_Entrance",
+		"BUILD_Assault_Ramp",
+		"BUILD_Command_Post",
+	});
+
+	GetGoal("DEFEND_Axis_FrontEntrance_01").AimVectors = { Vec3(-0.993, 0.109, -0.051) };
+	GetGoal("DEFEND_Axis_FrontEntrance_02").AimVectors = { Vec3(0.998, -0.013, -0.060) };
+	GetGoal("DEFEND_Axis_FrontEntrance_03").AimVectors = { Vec3(0.901, -0.057, -0.429) };
+	GetGoal("DEFEND_Axis_FrontEntrance_04").AimVectors = { Vec3(0.007, -0.987, -0.160) };
+	GetGoal("DEFEND_Axis_FrontEntrance_05").AimVectors = { Vec3(-0.906, -0.359, -0.223) };
+	GetGoal("DEFEND_Axis_FrontEntrance_06").AimVectors = { Vec3(0.893, -0.449, -0.027) };
+
+	Wp.SetWaypointFlag( "Cables", "closed", true );
+	Wp.SetWaypointFlag( "Cables_1", "closed", true );
+	Wp.SetWaypointFlag( "Cables_2", "closed", true );
+	Wp.SetWaypointFlag( "Cables_3", "closed", true );
+	Wp.SetWaypointFlag( "Cables_4", "closed", true );
+	Wp.SetWaypointFlag( "East_1", "closed", false );
+	Wp.SetWaypointFlag( "East_2", "closed", false );
+	Wp.SetWaypointFlag( "East_3", "closed", false );
+	Wp.SetWaypointFlag( "East_4", "closed", false );
+	Wp.SetWaypointFlag( "East_5", "closed", false );
+	Wp.SetWaypointFlag( "East_6", "closed", false );
+	Wp.SetWaypointFlag( "East_7", "closed", false );
+	Wp.SetWaypointFlag( "West_1", "closed", false );
+	Wp.SetWaypointFlag( "West_2", "closed", false );
+	Wp.SetWaypointFlag( "West_3", "closed", false );
+	Wp.SetWaypointFlag( "West_4", "closed", false );
+	Wp.SetWaypointFlag( "West_6", "closed", false );
+	Wp.SetWaypointFlag( "West_7", "closed", false );
+	Wp.SetWaypointFlag( "West_8", "closed", false );
+	Wp.SetWaypointFlag( "West_9", "closed", false );
+	Wp.SetWaypointFlag( "WSG1", "axis", true );
+	Wp.SetWaypointFlag( "ESG1", "axis", true );
+	Wp.SetWaypointFlag( "WestSewerGateInside", "axis", true );
+	Wp.SetWaypointFlag( "WestSewerGateInside", "closed", false );
+	Wp.SetWaypointFlag( "EastSewerGateInside", "axis", true );
+	Wp.SetWaypointFlag( "EastSewerGateInside", "closed", false );
+
+	Util.AddUseWp( "BUILD_South_Depot_MG_Nest", "SDMGN" );
+	Util.AddUseWp( "PLANT_East_Chemical_Truck", "East_Chemical_Truck_Plant_WP" );
+	Util.AddUseWp( "PLANT_East_Sewer_Gate", "East_Sewer_Gate_Plant_WP_1" );
+	Util.AddUseWp( "PLANT_East_Sewer_Gate", "East_Sewer_Gate_Plant_WP_2" );
+	Util.AddUseWp( "MOUNTMG42_East_Depot_MG_Nest", "East_Depot_MG_Nest" );
+	Util.AddUseWp( "REPAIRMG42_East_Depot_MG_Nest", "East_Depot_MG_Nest" );
+
+	Util.SetGoalPosition(-965.564, -7186.983, 220.283, "PLANT_Assault_Ramp");
+	Util.SetGoalPosition(-1506.610, -5950.125, 216.362, "PLANT_Main_Entrance");
+	Util.AddUsePoint( "PLANT_East_Truck_Defences", { Vec3(199,2202,208), Vec3(290,2211,208),  Vec3(119,2207,208) });
+	Util.AddUsePoint( "PLANT_West_Truck_Defences", { Vec3(-2972,2626,208), Vec3(-2976,2529,208),  Vec3(-2982,2719,208) });
+	Util.AddUsePoint( "PLANT_West_Chemical_Truck", { Vec3(-2550,2717,208), Vec3(-2635,2726,208) });
+	Util.AddUsePoint( "PLANT_Main_Entrance", { Vec3(-1505, -5950, 216), Vec3(-1370, -5956, 217), Vec3(-1589, -5957, 215) });
+
+	Util.LimitToClass("PLANT_Assault_Ramp", TEAM.AXIS, CLASS.COVERTOPS);
+	Util.LimitToClass("PLANT_South_Depot_MG_Nest", TEAM.AXIS, CLASS.COVERTOPS);
+	Util.LimitToClass("PLANT_Command_Post", 0, CLASS.COVERTOPS);
+	Util.LimitToClass("PLANT_East_Depot_MG_Nest", TEAM.ALLIES, CLASS.COVERTOPS);
+
+	Util.SetRoleForGoals( "DEFEND_Axis_WestSewerGate_.*", ROLE.DEFENDER );
+	Util.SetRoleForGoals( "DEFEND_Axis_WestTrigger_Defender_.*", ROLE.DEFENDER );
+
+	Util.SetRoleForGoals( "DEFEND_Axis_EastSewerGate_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "DEFEND_Axis_FrontEntrance_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "DEFEND_Axis_WestTrigger_Defender1_.*", ROLE.DEFENDER1 );
+
+	Util.SetRoleForGoals( "DEFEND_Axis_AboveHydroPower_.*", ROLE.DEFENDER2 );
+	Util.SetRoleForGoals( "DEFEND_Axis_EastTrigger_Defender2_.*", ROLE.DEFENDER2 );
+	Util.SetRoleForGoals( "MOUNTMG42_Airfield_Base", ROLE.DEFENDER2 );
+
+	Util.SetRoleForGoals( "BUILD_East_Depot_MG_Nest", ROLE.DEFENDER3 );
+	Util.SetRoleForGoals( "MOUNTMG42_East_Depot_MG_Nest", ROLE.DEFENDER3 );
+	Util.SetRoleForGoals( "REPAIRMG42_East_Depot_MG_Nest", ROLE.DEFENDER3 );
+	Util.SetRoleForGoals( "DEFEND_Axis_SideEntrance_.*", ROLE.DEFENDER3 );
+	Util.SetRoleForGoals( ".*_Axis_SideEntranceWay_.*", ROLE.DEFENDER3 );
+	Util.SetRoleForGoals( "DEFEND_Axis_EastTrigger_Defender3_.*", ROLE.DEFENDER3 );
+
+	Util.SetRoleForGoals( "REPAIRMG42_Airfield_Base", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	Util.SetRoleForGoals( "DEFEND_Axis_WestChemicalTruck_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	Util.SetRoleForGoals( "BUILD_West_Truck_Defences", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	Util.SetRoleForGoals( "DEFEND_Axis_EastChemicalTruck_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	Util.SetRoleForGoals( "BUILD_East_Truck_Defences", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+	if ( (GetModName() == "nitmod") or (GetModName() == "silEnT" ))
+	{
+		Util.SetRoleForGoals( "TRIPMINE_Axis_WestSewerGate_.*", ROLE.DEFENDER );
+		Util.SetRoleForGoals( "TRIPMINE_Axis_EastSewerGate_.*", ROLE.DEFENDER1 );
+		Util.SetRoleForGoals( "TRIPMINE_Axis_SideEntranceWay_.*", ROLE.DEFENDER3 );
+
+		Util.MapDebugPrint( "^3Nitmod or Silent" );
+	}
+
+	Util.SetRoleForGoals( "PLANT_West_Sewer_Gate", ROLE.ATTACKER );
+	Util.SetRoleForGoals( "ATTACK_Allies_WestSewerGate_.*", ROLE.ATTACKER );
+	Util.SetRoleForGoals( "ATTACK_Allies_WestTrigger_Attacker_.*", ROLE.ATTACKER );
+
+	Util.SetRoleForGoals( "PLANT_East_Sewer_Gate", ROLE.ATTACKER1 );
+	Util.SetRoleForGoals( "ATTACK_Allies_EastSewerGate_.*", ROLE.ATTACKER1 );
+	Util.SetRoleForGoals( "PLANT_East_Truck_Defences", ROLE.ATTACKER1 );
+	Util.SetRoleForGoals( "PLANT_East_Chemical_Truck", ROLE.ATTACKER1 );
+	Util.SetRoleForGoals( "ATTACK_Allies_EastTrigger_Attacker1_.*", ROLE.ATTACKER1 );
+	Util.SetRoleForGoals( "ATTACK_Allies_EastChemicalTruck_.*", ROLE.ATTACKER1 );
+
+	Util.SetRoleForGoals( "PLANT_West_Truck_Defences", ROLE.ATTACKER2 );
+	Util.SetRoleForGoals( "PLANT_West_Chemical_Truck", ROLE.ATTACKER2 );
+	Util.SetRoleForGoals( "ATTACK_Allies_WestTrigger_Attacker2_.*", ROLE.ATTACKER2 );
+	Util.SetRoleForGoals( "ATTACK_Allies_WestChemicalTruck_.*.*", ROLE.ATTACKER2 );
+
+	Util.SetRoleForGoals( "PLANT_Side_Entrance", ROLE.ATTACKER3 );
+	Util.SetRoleForGoals( "ATTACK_Allies_SideEntrance_.*", ROLE.ATTACKER3 );
+	Util.SetRoleForGoals( "ATTACK_Allies_EastTrigger_Attacker3_.*", ROLE.ATTACKER3 );
+
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "REPAIRMG42_.*" );
+	Util.SetMaxUsers( 2, "BUILD_.*" );
+	Util.SetMaxUsers( 1, "BUILD_Assault_Ramp" );
+	Util.SetMaxUsers( 1, "PLANT_Command_Post" );
+	Util.SetMaxUsers( 1, "BUILD_East_Depot_MG_Nest" );
+	Util.SetMaxUsers( 1, "SWITCH_.*" );
+
+	EChTZ = OnTriggerRegion(AABB(-128.875,2249.125,185.125,504.875,2992.875,425.330), Map.East_Chemical_Truck_Zone);
+	WChTZ = OnTriggerRegion(AABB(-2942.875,2255.125,185.125,-2303.125,2992.875,452.570), Map.West_Chemical_Truck_Zone);
+
+	RegionTrigger.Create(AABB(-1764.939,-5968.870,462.055,-1217.977,-5858.517,579.125), "DisableCombatMovement", "Main_Entrance");
+	RegionTrigger.Create(AABB(-1764.939,-5968.870,462.055,-1217.977,-5858.517,579.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-3157.576,35.274,625.898,-2289.982,2381.145,771.319), "DisableCombatMovement", "Wiring");
+	RegionTrigger.Create(AABB(-3157.576,35.274,625.898,-2289.982,2381.145,771.319), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-1345.490,2272.504,364.689,-1105.344,2382.794,635.634), "DisableCombatMovement", "Wiring_1");
+	RegionTrigger.Create(AABB(-1345.490,2272.504,364.689,-1105.344,2382.794,635.634), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-2833.832,-1499.487,553.158,-2731.406,-538.037,711.832), "DisableCombatMovement", "Wiring_2");
+	RegionTrigger.Create(AABB(-2833.832,-1499.487,553.158,-2731.406,-538.037,711.832), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-2833.832,-1499.487,553.158,-2731.406,-538.037,711.832), "DisableCombatMovement", "Wiring_2");
+	RegionTrigger.Create(AABB(-2833.832,-1499.487,553.158,-2731.406,-538.037,711.832), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-570.744,-202.557,-207.350,-454.245,-57.776,267.125), "DisableCombatMovement", "East_Sewer_Gate_Ladder");
+	RegionTrigger.Create(AABB(-570.744,-202.557,-207.350,-454.245,-57.776,267.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1010.703,-739.394,417.127,1161.328,-583.126,491.131), "DisableCombatMovement", "East_Depot_MG_Nest");
+	RegionTrigger.Create(AABB(1010.703,-739.394,417.127,1161.328,-583.126,491.131), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-859.617,-6605.422,206.125,-667.097,-6485.125,350.707), "DisableCombatMovement", "Hole_In_Wall");
+	RegionTrigger.Create(AABB(-859.617,-6605.422,206.125,-667.097,-6485.125,350.707), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-985.403,-7279.646,241.867,-606.886,-7077.932,545.461), "DisableCombatMovement", "Assault_Ramp");
+	RegionTrigger.Create(AABB(-985.403,-7279.646,241.867,-606.886,-7077.932,545.461), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-2437.125,2231.919,245.125,-2303.125,2400.889,476.542), "DisableCombatMovement", "WChT_Boxes");
+	RegionTrigger.Create(AABB(-2437.125,2231.919,245.125,-2303.125,2400.889,476.542), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-128.875,2869.157,245.133,29.583,3019.636,423.125), "DisableCombatMovement", "EChT_Boxes");
+	RegionTrigger.Create(AABB(-128.875,2869.157,245.133,29.583,3019.636,423.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-1322.564,83.349,193.125,-1187.663,212.956,491.125), "DisableCombatMovement", "Ladder_front_entrance");
+	RegionTrigger.Create(AABB(-3320.875,-2288.639,-208.045,-3202.760,-2063.474,311.492), "DisableCombatMovement", "Outside_Ladder_DCM");
+	RegionTrigger.Create(AABB(-3291.572,-2251.904,193.125,-3201.890,-2166.984,267.125), "DisableBotPush", "Outside_Ladder_Push");
+	RegionTrigger.Create(AABB(-3579.203,82.723,-208.307,-3381.257,178.875,312.423), "DisableCombatMovement", "Ladder_near_switch");
+	RegionTrigger.Create(AABB(-3579.203,82.723,-208.307,-3381.257,178.875,312.423), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-2967.676,416.761,449.125,-2883.908,566.757,567.577), "DisableCombatMovement", "Jump_To_Hydro_Power");
+	RegionTrigger.Create(AABB(-2967.676,416.761,449.125,-2883.908,566.757,567.577), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-1233.868,-871.161,393.986,1240.122,158.377,731.584), "DisableCombatMovement", "Roof");
+	RegionTrigger.Create(AABB(-1233.868,-871.161,393.986,1240.122,158.377,731.584), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-712.874,-664.875,-192.170,-586.369,-487.125,-86.313), "DisableCombatMovement", "EastSewerGate");
+	RegionTrigger.Create(AABB(-712.874,-664.875,-192.170,-586.369,-487.125,-86.313), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-2938.049,-664.875,-202.969,-2767.125,-487.125,-78.033), "DisableCombatMovement", "WestSewerGate");
+	RegionTrigger.Create(AABB(-2938.049,-664.875,-202.969,-2767.125,-487.125,-78.033), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-3856.271,-610.661,613.125,-2080.057,22.942,730.484), "DisableCombatMovement", "AboveBunkerNearHydroPower");
+	RegionTrigger.Create(AABB(-3856.271,-610.661,613.125,-2080.057,22.942,730.484), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-1732.377,-379.898,193.125,-1594.359,125.332,483.125), "DisableCombatMovement", "StairsToBalconyAboveFrontEntrance");
+	RegionTrigger.Create(AABB(-2085.015,-511.760,409.125,-1215.623,-365.128,518.420), "DisableCombatMovement", "BalconyAboveFrontEntrance");
+	RegionTrigger.Create(AABB(-2117.574,-19.553,385.125,-826.921,657.943,530.914), "DisableCombatMovement", "AboveFrontEntranceTunnel");
+	RegionTrigger.Create(AABB(-2117.574,-19.553,385.125,-826.921,657.943,530.914), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-3150.258,-148.922,193.125,-2943.125,-6.075,328.228), "DisableCombatMovement", "Hydrobox_switch");
+
+	RegionTrigger.Create(AABB(-632.845,-544.108,-190.875,-540.560,-475.291,-72.431), "DisableBotPush", "Axis_EastSewerGate_04");
+	RegionTrigger.Create(AABB(-3848.439,3255.151,215.887,-3552.433,3387.888,454.422), "DisableBotPush", "Axis_WestTrigger_Defender_04");
+	RegionTrigger.Create(AABB(-3848.439,3255.151,215.887,-3552.433,3387.888,454.422), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(1388.983,510.146,215.888,1597.410,1090.719,584.948), "DisableBotPush", "Axis_EastTrigger_Defender2_04");
+	RegionTrigger.Create(AABB(1388.983,510.146,215.888,1597.410,1090.719,584.948), "DisableCombatMovement", "");
+
+	Util.DisableGoal( "ROUTE_SideEntrance" );
+	Util.DisableGoal( "ROUTE_WestSewerGate" );
+	Util.DisableGoal( "ROUTE_SewerEntrance" );
+	Util.DisableGoal( "ROUTE_EastGate" );
+	Util.DisableGoal( "ROUTE_West_Sewer_Gate" );
+	Util.DisableGoal( "ROUTE_Sewer_Stairs" );
+	Util.DisableGoal( "ROUTE_Tunnel_Exit_1" );
+	Util.DisableGoal( "ROUTE_Assault_Ramp" );
+
+	print( "^3Omni-bot map script by ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3 ^3for map: ^7" + GetMapName() );
+
+	sleep(1);
+
+	if ( Server.Team[ TEAM.ALLIES ].NumPlayers > 2 and Server.Team[ TEAM.ALLIES ].NumPlayers <= 8 )
+	{
+		Util.ChangeCrucialClassForRole(TEAM.ALLIES, ROLE.ATTACKER, CLASS.SOLDIER);
+
+		Util.MapDebugPrint( "^5Changing crucial class" );
+	}
+
+	Map.A();
+
+	/*
+	while (1)	//for testing roles
+	{
+		foreach ( id and bot in BotTable )
+		{
+			print( "^3=========================Test Roles & Goals=========================" );
+			Commands["botsgoals"](_params);
+			print( "^3============================End of Test=============================" );
+			sleep(5);
+		}
+		yield();
+		yield();
+	}*/
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 110.0;
+
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MORTAR, false );
+
+	Util.ChangeSpawn( TEAM.AXIS, 0 );
+
+	if ( Map.Main_Entrance )
+	{
+		if ( Server.Team[ TEAM.ALLIES ].NumPlayers > 2 and Server.Team[ TEAM.ALLIES ].NumPlayers <= 8 )
+		{
+			Util.ChangeCrucialClassForRole(TEAM.ALLIES, ROLE.ATTACKER, CLASS.SOLDIER);
+
+			Util.MapDebugPrint( "^5Changing crucial class" );
+		}
+	}
+
+	while ( Map.Main_Entrance )
+	{
+		Util.MapDebugPrint( "^5Watching NumPlayers of Axis" );
+
+		if ( Server.Team[ TEAM.AXIS ].NumPlayers < 6 )
+		{
+			GetGoal("MOBILEMORTAR_Allied_Main_Entrance_12").MortarAim =
+			{ Vec3(-0.853, 0.500, 0.149), Vec3(-0.948, 0.317, 0.008), Vec3(-0.965, 0.258, 0.045), Vec3(-0.913, 0.374, 0.165) };
+
+			Util.MapDebugPrint( "^5NumPlayers of Axis < 6" );
+
+			while ( Server.Team[ TEAM.AXIS ].NumPlayers < 6 )
+			{
+				yield();
+			}
+		}
+		else
+		{
+			GetGoal("MOBILEMORTAR_Allied_Main_Entrance_12").MortarAim =
+			{ Vec3(-0.960, 0.262, -0.096), Vec3(-0.962, 0.273, -0.015), Vec3(-0.944, 0.320, 0.086), Vec3(-0.931, 0.345, 0.124), Vec3(-0.965, 0.258, 0.045), Vec3(-0.913, 0.374, 0.165) };
+
+			Util.MapDebugPrint( "^5NumPlayers of Axis > 5" );
+
+			while ( Server.Team[ TEAM.AXIS ].NumPlayers > 5 )
+			{
+				yield();
+			}
+		}
+
+		sleep(1);
+	}
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_Main_Entrance =
+		{
+			ROUTE_Train_Spawn =
+			{
+				ROUTE_Assault_Ramp =
+				{
+
+				},
+
+				ROUTE_Main_Path =
+				{
+
+				},
+			},
+		},
+
+		SWITCH_Hydro_Box =
+		{
+			ROUTE_Base_Barracks =
+			{
+				ROUTE_Sewer_Stairs =
+				{
+					ROUTE_West_Sewer_Gate =
+					{
+
+					},
+				},
+
+				ROUTE_Tunnel_Exit_1 =
+				{
+					ROUTE_West_Sewer_Gate =
+					{
+
+					},
+				},
+			},
+		},
+
+		PLANT_East_Truck_Defences =
+		{
+			ROUTE_Left_AirfieldBase_Spawn =
+			{
+				ROUTE_FrontEntrance_R =
+				{
+
+				},
+
+				ROUTE_SideEntrance =
+				{
+
+				},
+				ROUTE_SewerEntrance =
+				{
+					ROUTE_EastGate =
+					{
+
+					},
+				},
+			},
+			ROUTE_Right_AirfieldBase_Spawn =
+			{
+				ROUTE_FrontEntrance_R =
+				{
+
+				},
+
+				ROUTE_SideEntrance =
+				{
+
+				},
+				ROUTE_SewerEntrance =
+				{
+					ROUTE_EastGate =
+					{
+
+					},
+				},
+			},
+		},
+
+		PLANT_West_Truck_Defences =
+		{
+			ROUTE_Left_AirfieldBase_Spawn =
+			{
+				ROUTE_FrontEntrance_L =
+				{
+
+				},
+
+				ROUTE_WestSewerGate =
+				{
+
+				},
+				ROUTE_SewerEntrance =
+				{
+					ROUTE_EastGate =
+					{
+
+					},
+				},
+			},
+			ROUTE_Right_AirfieldBase_Spawn =
+			{
+				ROUTE_FrontEntrance_L =
+				{
+
+				},
+
+				ROUTE_WestSewerGate =
+				{
+
+				},
+				ROUTE_SewerEntrance =
+				{
+					ROUTE_EastGate =
+					{
+
+					},
+				},
+			},
+		},
+	};
+
+	MapRoutes[".*_Axis_Main_Entrance_.*"] =
+	{
+		ROUTE_CP_1 =
+		{
+			ROUTE_Stairs =
+			{
+				ROUTE_AxisDoor =
+				{
+
+				},
+			},
+		},
+		ROUTE_CP_2 =
+		{
+			ROUTE_Stairs =
+			{
+				ROUTE_AxisDoor =
+				{
+
+				},
+			},
+		},
+	};
+
+	MapRoutes.PLANT_East_Chemical_Truck = MapRoutes.PLANT_East_Truck_Defences;
+	MapRoutes["ATTACK_Allies_EastChemicalTruck_.*"] = MapRoutes.PLANT_East_Truck_Defences;
+	MapRoutes["ATTACK_Allies_EastTrigger_.*"] = MapRoutes.PLANT_East_Truck_Defences;
+	MapRoutes.PLANT_West_Chemical_Truck = MapRoutes.PLANT_West_Truck_Defences;
+	MapRoutes["ATTACK_Allies_WestChemicalTruck_.*"] = MapRoutes.PLANT_West_Truck_Defences;
+	MapRoutes["ATTACK_Allies_WestTrigger_.*"] = MapRoutes.PLANT_West_Truck_Defences;
+
+	Util.Routes(MapRoutes);
+};

@@ -1,0 +1,298 @@
+//==========================================================================================
+//
+//	storage_facility_fp.gm
+//
+//	Who          	When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Niek 25 March 2015	Initial Script basic
+//  ^1[UJE]^3Captain 28 September 2015 Add Attack,Defense,Improved waypoints
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+	ShowMovers = false,
+	
+	Generator_Dyno = 0,
+	Main_Generator_Dyno = 0,
+
+	Generator_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Generator_Built" );
+	},
+
+	Generator_Planted = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Map.Generator_Dyno += 1;
+		Util.MapDebugPrint( "Generator_Planted" );
+	},
+
+	Main_Generator_Planted = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+    SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Storage.*" );
+    SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_main.*" );
+		Map.Main_Generator_Dyno += 1;
+		Util.MapDebugPrint( "Main_Generator_Planted" );
+	},
+
+	Generator_Defused = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Map.Generator_Dyno -= 1;
+		Util.MapDebugPrint( "Generator_Defused" );
+	},
+
+	Main_Generator_Defused = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+			
+	Map.Main_Generator_Dyno -= 1;
+    SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Storage.*" );
+    SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_main.*" );
+
+		Util.MapDebugPrint( "Main_Generator_Defused" );
+	},
+
+	Generator_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Map.Generator_Dyno = 0;
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Generator" );
+		Util.MapDebugPrint( "Generator_Destroyed" );
+	},
+
+	Main_Generator_Destroyed = function( trigger )
+	{
+		Map.Main_Generator_Dyno = 0;
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Storage_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_main.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_flag_radio.*" );
+		
+
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_Radio.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allied_radio_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allied_main.*" );
+        Util.MapDebugPrint( "Main_Generator_Destroyed" );
+	},
+
+	docs_Taken = function( trigger )
+	{
+	if ( TestMap )
+			{ return; }
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_radio.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Safe.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Allied_radio.*" );
+        SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_Docs.*" );
+
+        Util.MapDebugPrint( "docs_Taken" );
+	},
+
+	radio_Taken = function( trigger )
+	{
+	if ( TestMap )
+			{ return; }
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_radio.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_flag_radio.*" );
+
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Allied_radio.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_Radio.*" );
+		
+
+		Util.MapDebugPrint( "radio_Taken" );
+	},
+
+	docs_Returned = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Safe.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_radio.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Allied_radio.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_docs.*" );
+		Util.MapDebugPrint( "docs_Returned" );
+	},
+
+	radio_Returned = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_flag_radio.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_radio.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Allied_radio.*" );
+        SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_Radio.*" );
+		Util.MapDebugPrint( "radio_Returned" );
+	},
+
+	docs_Secured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+		Util.MapDebugPrint( "docs_Secured" );
+	},
+
+	radio_Secured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Safe.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_flag_radio.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_radio.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Allied_radio.*" );
+        SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_Radio.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_docs.*" );
+		Util.MapDebugPrint( "radio_Secured" );
+	},
+
+	storageflag_Axis_Captured = function( trigger )
+	{
+	    SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allied_main.*" );
+	
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_main.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Storage.*" );
+		Util.MapDebugPrint( "storageflag_Axis_Captured" );
+	},
+
+	storageflag_Allies_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allied_main.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Storage.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_main.*" );
+		Util.MapDebugPrint( "storageflag_Allies_Captured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	if ( TestMapOn )
+		{ Util.AutoTestMap(); }
+
+	// Register callback functions
+	OnTrigger( "Axis have rebuilt the Generator!", Map.Generator_Built );
+	OnTrigger( "Planted at Generator.", Map.Generator_Planted );
+	OnTrigger( "Planted at Main Generator.", Map.Main_Generator_Planted );
+	OnTrigger( "Defused at Generator.", Map.Generator_Defused );
+	OnTrigger( "Defused at Main Generator.", Map.Main_Generator_Defused );
+	OnTrigger( "Allies have damaged the Generator!", Map.Generator_Destroyed );
+	OnTrigger( "Allies have destoryed the Main Generator!", Map.Main_Generator_Destroyed );
+	OnTrigger( "Allies have stolen The Secret Documents!", Map.docs_Taken );
+	OnTrigger( "Allies have stolen The Radio Part!", Map.radio_Taken );
+	OnTrigger( "The Axis have retrieved the Documents", Map.docs_Returned );
+	OnTrigger( "The Axis have retrieved the Radio Part", Map.radio_Returned );
+	OnTrigger( "Allied team has transmitted the documents!", Map.docs_Secured );
+	OnTrigger( "The Allies have secured the Radio Part", Map.radio_Secured );
+	OnTrigger( "Axis reclaimed the Storage Room!", Map.storageflag_Axis_Captured );
+	OnTrigger( "Allies captured the Storage Room!", Map.storageflag_Allies_Captured );
+
+	//Util.DisableGoal( ".*", true ); // all but routes
+	
+    
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main.*" );
+	
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_STORAGE.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_main.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_radio.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_flag_radio.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Safe.*" );
+
+
+
+	// Max users per goal
+    Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "MOBILEMG42_.*" );
+	Util.SetMaxUsers( 4, "FLAG_.*" );
+	Util.SetMaxUsers( 2, "CHECKPOINT_.*" );
+
+	SetGoalPriority( "PLANT_Main_Generator", 0.91, TEAM.ALLIES, CLASS.ENGINEER );
+	// Camp times
+    //SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+    //SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=10, MaxCampTime=60} );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Generator =
+		{
+		},
+		PLANT_Generator =
+		{
+		},
+		PLANT_Main_Generator =
+		{
+		},
+		FLAG_docs =
+		{
+		},
+		FLAG_radio =
+		{
+		},
+		CHECKPOINT_storageflag =
+		{
+		ROUTE_Allied_spawn_1  = 
+			{
+				ROUTE_Center_storage  = 
+				{
+				},
+				ROUTE_Left_storage  = 
+				{
+				},
+				ROUTE_Right_storage  = 
+				{
+				},	
+				ROUTE_Storage_room  = 
+				{	
+				},
+				},
+			},
+};
+    MapRoutes.Allied_spawn_1 = MapRoutes.CHECKPOINT_storage;
+	MapRoutes.Center_storage = MapRoutes.CHECKPOINT_storage;
+	MapRoutes.Left_storage = MapRoutes.CHECKPOINT_storage;
+	MapRoutes.Right_storage = MapRoutes.CHECKPOINT_storage;
+	MapRoutes.Storage_room = MapRoutes.CHECKPOINT_storage;
+	Util.Routes(MapRoutes);
+
+};

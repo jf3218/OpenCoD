@@ -1,0 +1,471 @@
+//==========================================================================================
+//
+//	ctf_maat_final.gm
+//
+//	Who          	When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Captain	21 March 2017	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+	
+	Axis_Command_Post_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+	
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+	
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+	
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+	
+	Allied_Command_Post_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+	
+        SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+        SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+
+	allied_flag_Taken = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "FLAG_allied_flag" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_Allies_flag" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_cp_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_axis.*" );
+	
+		Util.MapDebugPrint( "allied_flag_Taken" );
+	},
+
+	axis_flag_Taken = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_axis_flag" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Axis_flag" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cp_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_allies.*" );
+	
+		Util.MapDebugPrint( "axis_flag_Taken" );
+	},
+
+	allied_flag_Returned = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_allied_flag" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_Allies_flag" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_cp_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis.*" );
+	
+		Util.MapDebugPrint( "allied_flag_Returned" );
+	},
+
+	axis_flag_Returned = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_axis_flag" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Axis_flag" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cp_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_allies.*" );
+	
+		Util.MapDebugPrint( "axis_flag_Returned" );
+	},
+
+	allied_flag_Secured = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_allied_flag" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_Allies_flag" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_cp_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis.*" );
+	
+		Util.MapDebugPrint( "allied_flag_Secured" );
+	},
+
+	axis_flag_Secured = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_axis_flag" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Axis_flag" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cp_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_allies.*" );
+	
+		Util.MapDebugPrint( "axis_flag_Secured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_Command_Post_Built );
+	OnTrigger( "^4Blue flag taken!", Map.allied_flag_Taken );
+	OnTrigger( "^1Red flag taken!", Map.axis_flag_Taken );
+	OnTrigger( "^4Blue flag returned!", Map.allied_flag_Returned );
+	OnTrigger( "^1Red flag returned!", Map.axis_flag_Returned );
+	OnTrigger( "^1The Axis have Captured the Flag!!!", Map.allied_flag_Secured );
+	OnTrigger( "^4The Allies have Captured the Flag!!!", Map.axis_flag_Secured );
+	
+	Util.DisableGoal( ".*", true ); // all but routes
+	//~SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_.*" );
+	//~SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_.*" );
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+        Util.SetMaxUsers( 1, ".*MG42.*" );
+	Util.SetMaxUsers( 2, "FLAG.*" );
+	Util.SetMaxUsers( 1, "CAPPOINT.*" );
+	Util.SetMaxUsers( 1, "PLANT.*" );
+	Util.SetMaxUsers( 1, "BUILD.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+	SetMapGoalProperties( "DEFEND.*", {MinCampTime=30, MaxCampTime=90} );
+	
+        // Goal Priority
+	SetGoalPriority( "DEFEND.*", 0.91 );
+	SetGoalPriority( "FLAG.*", 0.93 );
+	SetGoalPriority( "CAPPOINT.*", 0.93 );
+	SetGoalPriority( ".*MG42.*", 0.91 );
+	SetGoalPriority( "BUILD.*", 0.92 );
+	SetGoalPriority( "PLANT.*", 0.90 );
+	
+	//activation ALLIES
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+	"FLAG_axis_flag",
+	"DEFEND_cp_.*",
+	"BUILD.*",
+	".*MG42.*",
+	".*CAB.*",
+	});
+	
+	//activation AXIS
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+	"FLAG_allied_flag",
+	"DEFEND_cp_.*",
+	"BUILD.*",
+	".*MG42.*",
+	".*CAB.*",
+	});
+	
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	   bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		FLAG_axis_flag = 
+		{
+			ROUTE_allies_spawn  = 
+			{
+				ROUTE_split_cp_back  = 
+				{
+					ROUTE_cata_front  = 
+					{
+						ROUTE_stair_right  = 
+						{
+						},
+						ROUTE_stair_left  = 
+						{
+						},
+					},
+				},
+				ROUTE_split_cp_right  = 
+				{
+					ROUTE_cata_front  = 
+					{
+						ROUTE_stair_left  = 
+						{
+						},
+						ROUTE_stair_right  = 
+						{
+						},
+						ROUTE_cata_front_left  = 
+						{
+						},
+						ROUTE_cata_front_right  = 
+						{
+						},
+					},
+					ROUTE_split_back_right  = 
+					{
+						ROUTE_back_right  = 
+						{
+							ROUTE_cata_rear_right  = 
+							{
+							},
+							ROUTE_cata_front_right  = 
+							{
+							},
+							ROUTE_stair_right  = 
+							{
+							},
+						},
+						ROUTE_back_middle_right  = 
+						{
+							ROUTE_cata_front_right  = 
+							{
+							},
+							ROUTE_cata_rear_right  = 
+							{
+							},
+							ROUTE_stair_right  = 
+							{
+							},
+						},
+					},
+				},
+				ROUTE_teleport_allies  = 
+				{
+					ROUTE_back_right  = {Weight = 2,
+						ROUTE_cata_rear_right  = 
+						{
+						},
+						ROUTE_cata_front_right  = 
+						{
+						},
+						ROUTE_stair_right  = 
+						{
+						},
+					},
+				},
+			},
+		},
+		FLAG_allied_flag = 
+		{
+			ROUTE_axis_spawn  = 
+			{
+				ROUTE_split_cp_back  = 
+				{
+					ROUTE_cata_front  = 
+					{
+						ROUTE_stair_left  = 
+						{
+						},
+						ROUTE_stair_right  = 
+						{
+						},
+						ROUTE_cata_front_right  = 
+						{
+						},
+						ROUTE_cata_front_left  = 
+						{
+						},
+					},
+				},
+				ROUTE_split_cp_left  = 
+				{
+					ROUTE_cata_front  = 
+					{
+						ROUTE_stair_right  = 
+						{
+						},
+						ROUTE_stair_left  = 
+						{
+						},
+						ROUTE_cata_front_left  = 
+						{
+						},
+						ROUTE_cata_front_right  = 
+						{
+						},
+					},
+					ROUTE_split_back_left  = 
+					{
+						ROUTE_back_left  = 
+						{
+							ROUTE_cata_rear_left  = 
+							{
+							},
+							ROUTE_cata_front_left  = 
+							{
+							},
+							ROUTE_stair_left  = 
+							{
+							},
+						},
+						ROUTE_back_middle_left  = 
+						{
+							ROUTE_cata_front_left  = 
+							{
+							},
+							ROUTE_cata_rear_left  = 
+							{
+							},
+							ROUTE_stair_left  = 
+							{
+							},
+					            },
+		                                },
+		                            },		
+				ROUTE_teleport_axis  = 
+				{
+					ROUTE_back_left  = {Weight = 2,
+						ROUTE_cata_rear_left  = 
+						{
+						},
+						ROUTE_cata_front_left  = 
+						{
+						},
+						ROUTE_stair_left  = 
+						{
+						},
+					},
+				},
+			},
+		},
+		CAPPOINT_Allies_flag = 
+		{
+			ROUTE_flag  = 
+			{
+				ROUTE_teleport_front  = 
+				{
+					ROUTE_split_cp_left  = 
+					{
+						ROUTE_cap_axis  = 
+						{
+						},
+					},
+					ROUTE_split_cp_back  = 
+					{
+						ROUTE_cap_axis  = 
+						{
+						},
+					},
+				},
+				ROUTE_stair_left  = 
+				{
+					ROUTE_back_left  = 
+					{
+						ROUTE_split_back_left  = 
+						{
+							ROUTE_cap_axis  = 
+							{
+							},
+							ROUTE_split_cp_left  = 
+							{
+								ROUTE_cap_axis  = 
+								{
+								},
+							},
+						},
+					},
+					ROUTE_back_middle_left  = 
+					{
+						ROUTE_split_back_left  = 
+						{
+							ROUTE_split_cp_left  = 
+							{
+								ROUTE_cap_axis  = 
+								{
+								},
+							},
+							ROUTE_cap_axis  = 
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+		CAPPOINT_Axis_flag = 
+		{
+			ROUTE_flag  = 
+			{
+				ROUTE_teleport_front  = 
+				{
+					ROUTE_split_cp_right  = 
+					{
+						ROUTE_cap_allies  = 
+						{
+						},
+					},
+					ROUTE_split_cp_back  = 
+					{
+						ROUTE_cap_allies  = 
+						{
+						},
+					},
+				},
+				ROUTE_stair_right  = 
+				{
+					ROUTE_back_right  = 
+					{
+						ROUTE_split_back_right  = 
+						{
+							ROUTE_cap_allies  = 
+							{
+							},
+							ROUTE_split_cp_right  = 
+							{
+								ROUTE_cap_allies  = 
+								{
+								},
+							},
+						},
+					},
+					ROUTE_back_middle_right  = 
+					{
+						ROUTE_split_back_right  = 
+						{
+							ROUTE_split_cp_right  = 
+							{
+								ROUTE_cap_allies  = 
+								{
+								},
+							},
+							ROUTE_cap_allies  = 
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	Util.Routes(MapRoutes);
+};

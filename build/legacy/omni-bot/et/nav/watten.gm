@@ -1,0 +1,477 @@
+//==========================================================================================
+//
+//	watten.gm
+//
+//	Who       	When				What
+//------------------------------------------------------------------------------------------
+//	MickyP		20 May 2009		Initial Waypoints
+//	MickyP		29 December 2013	Full Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+	ShowMovers = false,
+
+	grate1 = false,
+	grate2 = false,
+	grate3 = false,
+	missile_destroyed = false,
+	
+	Navigation =
+	{
+		grate1 =
+		{
+			navigate = function(_this)
+			{
+				if ( !Map.grate1 )
+				{
+					_this.AddWeaponRequest(Priority.High, WEAPON.KNIFE );
+					_this.BlockForWeaponChange( WEAPON.KNIFE );
+
+					while( !Map.grate1 )
+					{
+						_this.Bot.HoldButton(BTN.ATTACK1, 0.25);
+ 						yield();
+					}
+				}
+				sleep(1);
+			},
+		},
+		grate2 =
+		{
+			navigate = function(_this)
+			{
+				if ( !Map.grate2 )
+				{
+					_this.AddWeaponRequest(Priority.High, WEAPON.KNIFE );
+					_this.BlockForWeaponChange( WEAPON.KNIFE );
+
+					while( !Map.grate2 )
+					{
+						_this.Bot.HoldButton(BTN.ATTACK1, 0.25);
+ 						yield();
+					}
+				}
+				sleep(1);
+			},
+		},
+		grate3 =
+		{
+			navigate = function(_this)
+			{
+				if ( !Map.grate3 )
+				{
+					_this.AddWeaponRequest(Priority.High, WEAPON.KNIFE );
+					_this.BlockForWeaponChange( WEAPON.KNIFE );
+
+					while( !Map.grate3 )
+					{
+						_this.Bot.HoldButton(BTN.ATTACK1, 0.25);
+ 						yield();
+					}
+				}
+				sleep(1);
+			},
+		},
+	},
+	Command_Post_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Command_Post_Built" );
+	},
+
+	Command_Post_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Command_Post_Destroyed" );
+	},
+
+	cityflag_Axis_Captured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Base_Entrance.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_base_entrance" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_coach_access" );
+		Util.MapDebugPrint( "cityflag_Axis_Captured" );
+	},
+
+	cityflag_Allies_Captured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "cityflag_Allies_Captured" );
+	},
+
+	coach_access_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.DisableGoal( "ROUTE_Coach_Access" );
+		Util.MapDebugPrint( "coach_access_Built" );
+	},
+
+	coach_access_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.EnableGoal( "ROUTE_Coach_Access" );
+		Util.MapDebugPrint( "coach_access_Destroyed" );
+	},
+
+	base_entrance_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		if ( Map.missile_destroyed == true )
+			{ return; }
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Flag.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAMP_Missile.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Base_Entrance.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_Missile.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_missile" );
+		Util.MapDebugPrint( "base_entrance_Destroyed" );
+	},
+
+	missile_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.EnableGoal( "AMMOCAB.*" );
+		Util.EnableGoal( "HEALTHCAB." );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Flag.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_coach_access" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_Missile.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_cityflag" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Docs.*" );
+				
+		SetAvailableMapGoals( TEAM.AXIS, false, "CAMP_Missile.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Base_Entrance.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_water_wall" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "FLAG__maps" );
+		
+		Map.missile_destroyed = true;
+		Util.MapDebugPrint( "missile_Destroyed" );
+	},
+
+	water_wall_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.EnableGoal( "ROUTE_Water_Wall" );
+		Util.MapDebugPrint( "water_wall_Destroyed" );
+	},
+
+	maps_Taken = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.EnableGoal( "CAMP_Truck.*" );
+		Util.MapDebugPrint( "maps_Taken" );
+	},
+
+	maps_Returned = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.DisableGoal( "CAMP_Truck.*" );
+		Util.MapDebugPrint( "maps_Returned" );
+	},
+
+	maps_Secured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "maps_Secured" );
+	},
+
+	Grate_1_Broken = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Map.grate1 = true;
+		//Util.MapDebugPrint( "Grate_1_Broken" );
+	},
+
+	Grate_2_Broken = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Map.grate2 = true;
+		//Util.MapDebugPrint( "Grate_1_Broken" );
+	},
+	
+	Grate_3_Broken = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Map.grate3 = true;
+		//Util.MapDebugPrint( "Grate_3_Broken" );
+	},
+};
+
+global OnMapLoad = function()
+{
+	if ( TestMapOn )
+		{ Util.AutoTestMap(); }
+
+	// Register callback functions
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Command_Post_Built );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Command_Post_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Command_Post_Destroyed );
+	OnTrigger( "Axis captured the town!", Map.cityflag_Axis_Captured );
+	OnTrigger( "Allies reclaim the town!", Map.cityflag_Allies_Captured );
+	OnTrigger( "Coach access has been constructed.", Map.coach_access_Built );
+	OnTrigger( "Coach access has been destroyed.", Map.coach_access_Destroyed );
+	OnTrigger( "Axis have breached the Main Entrance and secured the Town!", Map.base_entrance_Destroyed );
+	OnTrigger( "The missile has been destroyed!", Map.missile_Destroyed );
+	OnTrigger( "The Waterwall has been destroyed!", Map.water_wall_Destroyed );
+	OnTrigger( "Axis have stolen The Project Maps!", Map.maps_Taken );
+	OnTrigger( "Flag returned  maps!", Map.maps_Returned );
+	OnTrigger( "Axis escape with Documents!", Map.maps_Secured );
+
+	OnTrigger( "GRENADE_Grate_1 Exploded.", Map.Grate_1_Broken );
+	OnTrigger( "GRENADE_Grate_2 Exploded.", Map.Grate_2_Broken );
+	OnTrigger( "GRENADE_Grate_3 Exploded.", Map.Grate_3_Broken );
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	Util.DisableGoal( "ROUTE_Coach_Access" );
+	Util.DisableGoal( "ROUTE_Water_Wall" );
+	
+	Util.EnableGoal( "CHECKPOINT_cityflag" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Flag.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_coach_access" );
+	
+	SetGoalPriority( "CAMP_Truck.*", 0.59, 0, 0 ); // High incase of sneeky player
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	// bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CHECKPOINT_cityflag = 
+		{
+			ROUTE_Axis_1st  = 
+			{
+				ROUTE_Axis_Front_Exit  = 
+				{
+					ROUTE_Bridge  = 
+					{
+						ROUTE_Left_Barrier  = 
+						{
+						},
+						ROUTE_Right_Barrier  = 
+						{
+						},
+					},
+					ROUTE_East_Path  = 
+					{
+					},
+					ROUTE_East_Path  = 
+					{
+						ROUTE_East_Path_Corner  = 
+						{
+						},
+					},
+					ROUTE_East_Path  = 
+					{
+						ROUTE_East_Path_Corner  = 
+						{
+							ROUTE_Rear_Flag  = 
+							{
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Side_Exit  = 
+				{
+					ROUTE_Bridge  = 
+					{
+						ROUTE_Left_Barrier  = 
+						{
+						},
+						ROUTE_Right_Barrier  = 
+						{
+						},
+					},
+					ROUTE_Upper_Path  = 
+					{
+					},
+				},
+			},
+			ROUTE_Allied_2nd_Spawn  = 
+			{
+				ROUTE_Allied_Side_Door  = 
+				{
+				},
+				ROUTE_Coach_Access  = 
+				{
+				},
+				ROUTE_Water_Exit  = 
+				{
+				},
+			},
+		},
+		CAPPOINT_Truck = 
+		{
+			ROUTE_Documents  = 
+			{
+				ROUTE_Water_Wall  = 
+				{
+					ROUTE_Truck_Long  = 
+					{
+					},
+					ROUTE_Truck_Short  = 
+					{
+					},
+					ROUTE_Lower_Truck  = 
+					{
+					},
+				},
+				ROUTE_Main_Door  = 
+				{
+					ROUTE_Truck_Short  = 
+					{
+					},
+					ROUTE_Truck_Long  = 
+					{
+					},
+					ROUTE_Lower_Truck  = 
+					{
+					},
+				},
+			},
+		},
+		FLAG__maps = 
+		{
+			ROUTE_Spawn_Flag  = 
+			{
+				ROUTE_Main_Door  = 
+				{
+					ROUTE_Left_CP  = 
+					{
+						ROUTE_Short_Path  = 
+						{
+						},
+						ROUTE_Beds  = 
+						{
+							ROUTE_Long_Path  = 
+							{
+							},
+						},
+					},
+					ROUTE_Right_CP  = 
+					{
+						ROUTE_Grate_1  = 
+						{
+							ROUTE_Grate_2  = 
+							{
+							},
+							ROUTE_Grate_3  = 
+							{
+							},
+						},
+						ROUTE_Rear_CP  = 
+						{
+							ROUTE_Short_Path  = 
+							{
+							},
+							ROUTE_Beds  = 
+							{
+								ROUTE_Long_Path  = 
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_Coach_Access  = 
+				{
+					ROUTE_Left_CP  = 
+					{
+						ROUTE_Short_Path  = 
+						{
+						},
+						ROUTE_Beds  = 
+						{
+							ROUTE_Long_Path  = 
+							{
+							},
+						},
+					},
+					ROUTE_Right_CP  = 
+					{
+						ROUTE_Grate_1  = 
+						{
+							ROUTE_Grate_2  = 
+							{
+							},
+							ROUTE_Grate_3  = 
+							{
+							},
+						},
+						ROUTE_Rear_CP  = 
+						{
+							ROUTE_Short_Path  = 
+							{
+							},
+							ROUTE_Beds  = 
+							{
+								ROUTE_Long_Path  = 
+								{
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		PLANT_missile = 
+		{
+			ROUTE_Main_Door  = 
+			{
+			},
+			ROUTE_Coach_Access  = 
+			{
+			},
+		},
+	};
+	MapRoutes["CAMP_Missile.*"] = MapRoutes.PLANT_missile;
+	Util.Routes(MapRoutes);
+};

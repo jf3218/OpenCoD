@@ -1,0 +1,168 @@
+this.GoalType = "CALLARTILLERY";
+this.Version = 1;
+this.DefaultPriority = 0.8;
+this.DefaultMinCampTime = 2.0;
+this.DefaultMaxCampTime = 6.0;
+this.RolePriorityBonus = 0.1;
+this.MaxUsers_InUse(1);
+this.MaxUsers_InProgress(1);
+
+//////////////////////////////////////////////////////////////////////////
+// Couple callbacks to enforce additional constraints on property values.
+CheckMinCamp = function(var)
+{
+	if(var <= this.MaxCampTime)
+	{
+		return true;
+	}
+	// returning any string is an error string
+	return "MinCampTime must be <= MaxCampTime";
+};
+CheckMaxCamp = function(var)
+{
+	if(var >= this.MinCampTime)
+	{
+		return true;
+	}
+	// returning any string is an error string
+	return "MaxCampTime must be >= MinCampTime";
+};
+
+this.Schema = Schema();
+this.Schema.Stance = Validate.Enum("stand","crouch","prone").Default("stand");
+this.Schema.MinCampTime = Validate.NumRange(0,90).Default(this.DefaultMinCampTime).CheckCallback(CheckMinCamp);
+this.Schema.MaxCampTime = Validate.NumRange(0,90).Default(this.DefaultMaxCampTime).CheckCallback(CheckMaxCamp);
+
+//////////////////////////////////////////////////////////////////////////
+
+this.InitNewGoal = function()
+{
+	this.Schema.Check(this);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.UpgradeVersion = function(Props)
+{
+	// version 0 is string,string key/values from the old waypoint format
+	if(Props.Version==0)
+	{
+		// Version 1 Schema, upgrade from waypoint format
+		this.Schema.Check(Props);
+		Props.Version = 1;
+		Props.MinCampTime = this.DefaultMinCampTime;
+		Props.MaxCampTime = this.DefaultMaxCampTime;
+
+		this.SetPosition(this.GetPosition() + Util.WaypointGoalOffset);
+		this.SetBounds(Vec3(-5,-5,0),Vec3(5,5,96));
+	}
+	else if(Props.Version == this.Version)
+	{
+		this.Schema.Check(Props);
+		this.Stance = Props.Stance;
+		this.MinCampTime = Props.MinCampTime;
+		this.MaxCampTime = Props.MaxCampTime;
+
+		if(!this.Schema.Check(this))
+		{
+			this.DisableGoal(true);
+		}
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.Render = function(editMode)
+{
+	offset2 = Vector3(0,0,64);
+
+	while(this.RenderGoal == true)
+	{
+		goalBasePos = this.GetPosition();
+		goalPos = goalBasePos + offset2;
+
+		if(this.ExtraDebugText==null)
+		{
+			this.ExtraDebugText = "";
+			this.ExtraDebugText += format("Stance: %s\n",this.Stance);
+			this.ExtraDebugText += format("CampTime: %g to %g secs.",ToFloat(this.MinCampTime),ToFloat(this.MaxCampTime));
+		}
+
+		this.RenderDefault();
+
+		if(this.IsDisabled())
+		{
+			DrawLine(goalPos,goalBasePos,COLOR.RED,2);
+		}
+		else
+		{
+			DrawLine(goalPos,goalBasePos,COLOR.GREEN,2);
+		}
+
+		sleep(2);
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.SaveToTable = function(SaveTable)
+{
+	// save the goal specific properties
+	if(this.MaxCampTime != this.DefaultMaxCampTime){ SaveTable.MaxCampTime = this.MaxCampTime; }
+	if(this.MinCampTime != this.DefaultMinCampTime){ SaveTable.MinCampTime = this.MinCampTime; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.Help = function()
+{
+	print(this.GoalType,"goal, version",this.Version);
+	print("Optional:");
+	print("		mincamptime - minimum time a bot should camp at the goal");
+	print("		maxcamptime - maximum time a bot should camp at the goal");
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.SetProperty = function(property, value)
+{
+	switch(property)
+	{
+		case "stance": // crouch, stand, default stand
+		{
+			this.Stance = value;
+		}
+		case "mincamptime":
+		{
+			v = ToFloat(value);
+			if(this.Schema.MinCampTime.CheckPrintErrors(this,v))
+			{
+				this.MinCampTime = v;
+			}
+		}
+		case "maxcamptime":
+		{
+			v = ToFloat(value);
+			if(this.Schema.MaxCampTime.CheckPrintErrors(this,v))
+			{
+				this.MaxCampTime = v;
+			}
+		}
+		default:
+		{
+			print(this.GoalType, ": Invalid property:", property);
+		}
+	}
+
+	this.ExtraDebugText = null;
+};
+
+//////////////////////////////////////////////////////////////////////////
+global CreateGui = function(object, guidef)
+{
+};
+//////////////////////////////////////////////////////////////////////////
+this.HudDisplay = function(window)
+{
+	this.CreateGuiFromSchema(this.Schema);
+};

@@ -1,0 +1,301 @@
+//==========================================================================================
+//
+//	overheat_b1.gm
+//
+//	Who  	When		What
+//------------------------------------------------------------------------------------------
+//	jcfgonc@gmail.com	05 May 2016	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+
+	axis_tb1_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "ARTILLERY_S.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY.*" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_defend_parts.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_allies_get_parts.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_allies_defend_parts.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_allies_defend_parts.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_defend_cappoint.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_axis_defend_cappoint.*" );
+		Util.MapDebugPrint( "axis_tb1_Taken" );
+	},
+
+	axis_tb1_Returned = function( trigger )
+	{
+		Util.MapDebugPrint( "axis_tb1_Returned" );
+	},
+
+	axis_tb1_Secured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "ARTILLERY_S.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY.*" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_defend_parts.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_allies_get_parts.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_allies_defend_parts.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_allies_defend_parts.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_defend_cappoint.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis_defend_cappoint.*" );
+		Util.MapDebugPrint( "axis_tb1_Secured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allies have stolen Radar Parts!", Map.axis_tb1_Taken );
+	OnTrigger( "Flag returned axis_tb1!", Map.axis_tb1_Secured );
+	OnTrigger( "Allies have secured a box of radar Parts!!!", Map.axis_tb1_Secured );
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	Util.EnableGoal( "ROUTE.*", true );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_allies_get_parts.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_allies_get_parts.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_436.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_436.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_allies_defend_parts.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_allies_defend_parts.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_axis_defend_cappoint.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis_defend_cappoint.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_axis_defend_parts.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_axis_defend_parts.*" );
+	//SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_axis_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_axis_.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "ARTILLERY_S.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ARTILLERY_S.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CALLARTILLERY.*" );
+	
+	// Max users per goal
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 2, "DEFEND_axis_defend_cappoint.*" );
+	Util.SetMaxUsers( 2, "CAPPOINT_436.*" );
+	Util.SetMaxUsers( 3, "FLAG_axis_.*" );
+	
+	SetMapGoalProperties( "ATTACK_.*", {MinCampTime=5, MaxCampTime=20} );
+	SetMapGoalProperties( "DEFEND_.*", {MinCampTime=5, MaxCampTime=20} );
+	SetMapGoalProperties( "DEFEND_axis_defend_cappoint.*", {MinCampTime=10, MaxCampTime=30} );
+
+	// Camp times
+	//SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+	SetGoalPriority( "DEFEND_axis_defend_cappoint.*", 0.55, TEAM.ALLIES);
+	SetGoalPriority( "DEFEND_axis_defend_cappoint.*", 0.55, TEAM.AXIS);
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executeddddddddddd." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	//~bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_axis_tb1 =	{
+			ROUTE_allied_spawn = {
+				ROUTE_asl = {
+					ROUTE_r2 = {
+						ROUTE_r5 = {
+							ROUTE_r6 = {
+							},
+							ROUTE_r7 = {
+							},
+						},
+						ROUTE_r8 = {
+							ROUTE_xsl = {
+								ROUTE_xsf = {
+								},
+								ROUTE_xsr = {
+								},
+							},
+							ROUTE_r6 = {
+							},
+						},
+					},
+					ROUTE_r1_leftdoor = {
+						ROUTE_r5 = {
+							ROUTE_r6 = {
+							},
+							ROUTE_r7 = {
+							},
+						},
+						ROUTE_r8 = {
+							ROUTE_xsl = {
+								ROUTE_xsf = {
+								},
+								ROUTE_xsr = {
+								},
+							},
+							ROUTE_r6 = {
+							},
+						},
+					},
+					ROUTE_r1_rightdoor = {
+						ROUTE_r5 = {
+							ROUTE_r6 = {
+							},
+							ROUTE_r7 = {
+							},
+						},
+						ROUTE_r8 = {
+							ROUTE_xsl = {
+								ROUTE_xsf = {
+								},
+								ROUTE_xsr = {
+								},
+							},
+							ROUTE_r6 = {
+							},
+						},
+					},
+					ROUTE_r3 = {
+						ROUTE_r6 = {
+						},
+						ROUTE_r7 = {
+						},
+					},
+					ROUTE_r4 = {
+						ROUTE_r6 = {
+						},
+						ROUTE_r7 = {
+						},
+					},
+				},
+				ROUTE_asr = {
+					ROUTE_r2 = {
+						ROUTE_r5 = {
+							ROUTE_r6 = {
+							},
+							ROUTE_r7 = {
+							},
+						},
+						ROUTE_r8 = {
+							ROUTE_xsl = {
+								ROUTE_xsf = {
+								},
+								ROUTE_xsr = {
+								},
+							},
+							ROUTE_r6 = {
+							},
+						},
+					},
+					ROUTE_r3 = {
+						ROUTE_r6 = {
+						},
+						ROUTE_r7 = {
+						},
+					},
+					ROUTE_r4 = {
+						ROUTE_r6 = {
+						},
+						ROUTE_r7 = {
+						},
+					},
+				},
+			},
+		},
+		DEFEND_axis_defend_parts = {
+			ROUTE_axis_spawn = {
+				ROUTE_xsl = {
+				},
+				ROUTE_xsf = {
+				},
+				ROUTE_xsr = {
+					ROUTE_axbox_l = {},
+					ROUTE_axbox_r = {},
+				},
+			},
+		},
+		DEFEND_axis_defend_cappoint = {
+			ROUTE_axis_spawn = {
+				ROUTE_xsl = {
+					ROUTE_r6 = {
+						ROUTE_r2 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+						ROUTE_r4 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+					},
+					ROUTE_r7 = {
+						ROUTE_r2 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+						ROUTE_r4 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+					},
+				},
+				ROUTE_xsr = {
+					ROUTE_r6 = {
+						ROUTE_r2 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+						ROUTE_r4 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+					},
+					ROUTE_r7 = {
+						ROUTE_r2 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+						ROUTE_r4 = {
+							ROUTE_asl = {
+							},
+							ROUTE_asr = {
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	MapRoutes.FLAG_axis_tb2 = MapRoutes.FLAG_axis_tb1;
+	MapRoutes["ATTACK_allies_get_parts.*"] = MapRoutes.FLAG_axis_tb1;
+	MapRoutes["DEFEND_axis_defend_parts.*"] = MapRoutes.DEFEND_axis_defend_parts;
+	MapRoutes["DEFEND_axis_defend_cappoint.*"] = MapRoutes.DEFEND_axis_defend_cappoint;
+	Util.Routes(MapRoutes);
+};

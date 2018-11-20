@@ -1,0 +1,1726 @@
+//==========================================================================================
+//
+//	siwa_teuthonia.gm
+//
+//	Who      	When			What
+//------------------------------------------------------------------------------------------
+//	Qiki		06 March 2016		Initial Script
+//	Native12	01.06.2016		Script for incomplete version of map
+//	Native12	06.08.2016		Released for the current version of the map, fixed stuckages
+//
+//	Bugs and suggestions: PM on http://omni-bot.invisionzone.com/index.php?/index
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	
+	DontDispenseAmmo = true,
+	
+	WaterPump_Dyno = 0,
+	Siwa_Wall_Dyno = 0,
+	Siwa_Side_Entrance_Dyno = 0,
+	DropzoneFenceLowered = false,
+	SiwaSideEntranceDestroyed = false,
+	SiwaWallDestroyed = false,
+	AmmoLanded = false,
+	AmmoTaken = false,
+	WaterTunnelReady = false,
+	Water_Level = 1,
+	ArtilleryGunDestroyed = true,
+	AlliedCPBuilt = false,
+	AmmoSecured = false,
+	AlliesDestroyedGate = false,
+	
+	Roles =
+	{
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.FIELDOPS,
+			},
+			DEFENDER2 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER3 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.FIELDOPS,
+			},
+		},
+		
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			ATTACKER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER2 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER3 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+	
+	Navigation =
+	{
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+	},
+	
+	SetSpawn1 = function(bot)
+	{
+		if (bot.GetTeam() == TEAM.ALLIES)
+		{
+			if ( Map.AlliedCPBuilt )
+			{
+				bot.ChangeSpawnPoint(4);
+			}
+			else
+			{
+				bot.ChangeSpawnPoint(0);
+			}
+		}
+		if (bot.GetTeam() == TEAM.AXIS)
+		{
+			if ( !Map.SiwaWallDestroyed and Map.SiwaSideEntranceDestroyed )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER1) )
+				{
+					bot.ChangeSpawnPoint(5);
+				}
+			}
+		}
+	},
+	
+	SetSpawn = function()
+	{
+		foreach(bot in BotTable)
+		{
+			Map.SetSpawn1(bot);
+		}
+	},
+	
+	oldcityflag_Allies_Captured = function( trigger )
+	{
+		if ( !Map.SiwaWallDestroyed and Map.SiwaSideEntranceDestroyed )
+		{
+			SetGoalRole( "CHECKPOINT_oldcityflag", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_oldcityflag" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_oldcityflag" );
+		
+		Util.MapDebugPrint( "oldcityflag_Allies_Captured" );
+	},
+	
+	oldcityflag_Axis_Captured = function( trigger )
+	{
+		if ( !Map.SiwaWallDestroyed and Map.SiwaSideEntranceDestroyed )
+		{
+			SetGoalRole( "CHECKPOINT_oldcityflag", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		}
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_oldcityflag" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_oldcityflag" );
+		
+		Util.MapDebugPrint( "oldcityflag_Axis_Captured" );
+	},
+	
+	Dropzone_fence_lowered = function( trigger )
+	{
+		Map.DropzoneFenceLowered = true;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_Dropzone_Fence" );
+		
+		Wp.SetWaypointFlag( "Drop_Zone_0", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_1", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_2", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_3", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_4", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_5", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_6", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_7", "closed", false );
+		Wp.SetWaypointFlag( "Drop_Zone_8", "closed", false );
+		Wp.SetWaypointFlag( "Drop-Zone_9", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_10", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_11", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_12", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_13", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_14", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_15", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_16", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_17", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_18", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_19", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_20", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_21", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_22", "blockwall", false );
+		Wp.SetWaypointFlag( "Drop-Zone_23", "blockwall", false );
+		
+		if ( ( Map.SiwaWallDestroyed or Map.SiwaSideEntranceDestroyed ) and !Map.AmmoLanded )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_DropZonePlace" );
+		}
+		
+		Util.MapDebugPrint( "Dropzone_fence_lowered" );
+	},
+	
+	Water_Pump_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Water_Pump" );
+		
+		if ( !Map.AmmoSecured )		//Focus on defend
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Water_Pump" );
+		}
+		
+		Util.MapDebugPrint( "Water_Pump_Built" );
+	},
+	
+	Water_Pump_Planted = function( trigger )
+	{
+		Map.WaterPump_Dyno += 1;
+		
+		Util.SetMaxUsers( 1, "DEFUSE_Water_Pump_.*" );
+		
+		if ( Map.AmmoSecured )		//Focus on attack
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Water_Pump_.*" );
+		}
+		
+		Util.MapDebugPrint( "Water_Pump_Planted" );
+	},
+	
+	Water_Pump_Defused = function( trigger )
+	{
+		Map.WaterPump_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Water_Pump_Defused" );
+	},
+	
+	Water_Pump_Destroyed = function( trigger )
+	{
+		Map.WaterPump_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Water_Pump" );
+		
+		if ( !Map.AmmoSecured )		//Focus on attack
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Water_Pump" );
+		}
+		
+		Util.MapDebugPrint( "Water_Pump_Destroyed" );
+	},
+	
+	Siwa_Wall_Planted = function( trigger )
+	{
+		Map.Siwa_Wall_Dyno += 1;
+		
+		SetGoalPriority( "DEFUSE_Siwa_Wall_.*", 1.05, TEAM.AXIS, CLASS.ENGINEER );
+		
+		Util.MapDebugPrint( "Siwa_Wall_Planted" );
+	},
+	
+	Siwa_Wall_Defused = function( trigger )
+	{
+		Map.Siwa_Wall_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Siwa_Wall_Defused" );
+	},
+	
+	Siwa_Wall_Destroyed = function( trigger )
+	{
+		if ( Map.Siwa_Wall_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Siwa_Wall_.*" );
+		}
+		
+		Map.Siwa_Wall_Dyno = 0;
+		
+		Map.SiwaWallDestroyed = true;
+		
+		Util.EnableGoal( "ROUTE_SiwaWall_1" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Siwa_Wall" );
+		
+		//Setting Axis autospawn to Axis Siwa
+		SetAvailableMapGoals( 0, false, "CHECKPOINT_oldcityflag" );
+		SetAvailableMapGoals( 0, false, ".*_OldCity_.*" );
+		
+		SetGoalPriority( "DEFEND_Axis_DropZone_.*", 0.51, TEAM.AXIS, 0 );
+		ClearGoalRole( "MOBILEMG42_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		ClearGoalRole( "CALLARTILLERY_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		ClearGoalRole( "ARTILLERY_S_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		ClearGoalRole( "PLANTMINE_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_CP" );
+		
+		if ( !Map.AmmoTaken )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_DropZone_.*" );
+		}
+		
+		Util.MapDebugPrint( "Siwa_Wall_Destroyed" );
+		
+		sleep(2);
+		
+		ClearGoalRole( "FLAG_box_obj2", { ROLE.ATTACKER, ROLE.ATTACKER1} );
+		ClearGoalRole( "ATTACK_Allies_DropZonePlace", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+		ClearGoalRole( "BUILD_artillery_gun", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+		ClearGoalRole( "BUILD_Allied_CP", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+		
+		Util.SetMaxUsers( 4, "BUILD_artillery_gun" );
+		
+		if ( Map.DropzoneFenceLowered and !Map.AmmoLanded )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_DropZonePlace" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_DropZone_.*" );
+		}
+		
+		if ( Map.AmmoLanded and !Map.AmmoTaken )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_box_obj2" );
+		}
+		
+		if ( Map.ArtilleryGunDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_artillery_gun" );
+		}
+		
+		if ( !Map.AlliedCPBuilt )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_CP" );
+		}
+	},
+	
+	siwa_side_entrance_Planted = function( trigger )
+	{
+		Map.Siwa_Side_Entrance_Dyno += 1;
+		
+		Util.MapDebugPrint( "siwa_side_entrance_Planted" );
+	},
+	
+	siwa_side_entrance_Defused = function( trigger )
+	{
+		Map.Siwa_Side_Entrance_Dyno -= 1;
+		
+		Util.MapDebugPrint( "siwa_side_entrance_Defused" );
+	},
+	
+	siwa_side_entrance_Destroyed = function( trigger )
+	{
+		if ( Map.Siwa_Side_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_siwa_side_entrance_.*" );
+		}
+		
+		Map.Siwa_Side_Entrance_Dyno = 0;
+		
+		Map.SiwaSideEntranceDestroyed = true;
+		
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_siwa_side_entrance" );
+		
+		Util.EnableGoal( "ROUTE_SiwaSideEntrance" );
+		
+		if ( !Map.SiwaWallDestroyed )
+		{
+			ClearGoalRole( "DEFEND_Axis_OldCity_1.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+			SetGoalRole( "DEFEND_Axis_OldCity_1.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			SetGoalRole( "CALLARTILLERY_Axis_OldCity_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			SetGoalRole( "ARTILLERY_S_Axis_OldCity_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			SetGoalRole( "MOBILEMG42_Axis_OldCity_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			SetGoalRole( "PLANTMINE_Axis_OldCity_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			
+			SetGoalPriority( "DEFEND_Axis_DropZone_.*", 0.6, TEAM.AXIS, 0 );
+			SetGoalRole( "MOBILEMG42_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+			SetGoalRole( "CALLARTILLERY_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+			SetGoalRole( "ARTILLERY_S_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+			SetGoalRole( "PLANTMINE_Axis_DropZone_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_DropZone_2.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_DropZone_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_Axis_DropZone_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "ARTILLERY_S_Axis_DropZone_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Axis_DropZone_.*" );
+		}
+		
+		Util.MapDebugPrint( "siwa_side_entrance_Destroyed" );
+		
+		sleep(2);
+		
+		if ( !Map.SiwaWallDestroyed )
+		{
+			SetGoalRole( "ATTACK_Allies_DropZonePlace", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			SetGoalRole( "FLAG_box_obj2", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			SetGoalRole( "BUILD_artillery_gun", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			SetGoalRole( "BUILD_Allied_CP", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+			
+			if ( Map.DropzoneFenceLowered and !Map.AmmoLanded )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_DropZonePlace" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_DropZone_0.*" );
+			}
+			
+			if ( Map.AmmoLanded and !Map.AmmoTaken )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_box_obj2" );
+			}
+			
+			if ( Map.ArtilleryGunDestroyed )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_artillery_gun" );
+			}
+			
+			if ( !Map.AlliedCPBuilt )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_CP" );
+			}
+		}
+	},
+	
+	Allied_CP_Built = function( trigger )
+	{
+		Map.AlliedCPBuilt = true;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_CP" );
+		Map.SetSpawn();
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allied_CP" );
+		
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+	
+	Allied_CP_Planted = function( trigger )
+	{
+		Util.MapDebugPrint( "Allied_CP_Planted" );
+	},
+	
+	Allied_CP_Defused = function( trigger )
+	{
+		Util.MapDebugPrint( "Allied_CP_Defused" );
+	},
+	
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.AlliedCPBuilt = false;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_CP" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_CP" );
+		Map.SetSpawn();
+		
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+	
+	Axis_CP_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_CP" );
+		
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+	
+	Axis_CP_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_CP_.*" );
+		
+		Util.MapDebugPrint( "Axis_CP_Planted" );
+	},
+	
+	Axis_CP_Defused = function( trigger )
+	{
+		Util.MapDebugPrint( "Axis_CP_Defused" );
+	},
+	
+	Axis_CP_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_CP" );
+		
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+	
+	artillery_gun_Built = function( trigger )
+	{
+		Map.ArtilleryGunDestroyed = false;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_artillery_gun" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_artillery_gun" );
+		
+		Wp.SetWaypointFlag( "GRC_WP", "closed", false );
+		
+		if ( Map.AmmoSecured )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_GunRotateControl" );
+		}
+		
+		Util.MapDebugPrint( "artillery_gun_Built" );
+	},
+	
+	artillery_gun_Planted = function( trigger )
+	{
+		Util.SetMaxUsers( 2, "DEFUSE_artillery_gun_.*" );
+		
+		Util.MapDebugPrint( "artillery_gun_Planted" );
+	},
+	
+	artillery_gun_Defused = function( trigger )
+	{
+		Util.MapDebugPrint( "artillery_gun_Defused" );
+	},
+	
+	artillery_gun_Destroyed = function( trigger )
+	{
+		Map.ArtilleryGunDestroyed = true;
+		
+		Wp.SetWaypointFlag( "GRC_WP", "closed", true );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_artillery_gun" );
+		
+		if ( Map.AmmoSecured )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_GunRotateControl" );
+		}
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_artillery_gun" );
+		
+		Util.MapDebugPrint( "artillery_gun_Destroyed" );
+	},
+	
+	Ammo_landed = function( trigger )
+	{
+		Map.AmmoLanded = true;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_DropZonePlace" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_box_obj2" );
+		
+		Util.MapDebugPrint( "Ammo_landed" );
+	},
+	
+	box_obj2_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_DropZone_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANTMINE_Axis_DropZone_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_Axis_DropZone_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_DropZone_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_box_obj2" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gun_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Artillery_Gun" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_Gun_.*" );
+		
+		if ( !Map.AmmoTaken )
+		{
+			Map.AmmoTaken = true;
+			
+			Util.MapDebugPrint( "box_obj2_Taken" );
+			
+			sleep(4);
+			
+			if ( Map.AmmoTaken )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_DropZone_.*" );
+			}
+		}
+	},
+	
+	box_obj2_Returned = function( trigger )
+	{
+		Map.AmmoTaken = false;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Gun_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Artillery_Gun" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_Gun_.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_DropZone_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_DropZone_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_box_obj2" );
+		
+		Util.MapDebugPrint( "box_obj2_Returned" );
+	},
+	
+	box_obj2_Secured = function( trigger )
+	{
+		Map.AmmoSecured = true;
+		
+		Util.SetMaxUsers( 1, "PLANT_Water_Pump" );
+		SetGoalPriority( "PLANT_Water_Pump", 0.78, TEAM.AXIS, 0 );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Artillery_Gun" );
+		
+		if ( !Map.ArtilleryGunDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_GunRotateControl" );
+		}
+		
+		Util.MapDebugPrint( "box_obj2_Secured" );
+	},
+	
+	Gun_Ready = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_artillery_gun" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_GunRotateControl" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_GunFireControl" );
+		
+		Util.MapDebugPrint( "Gun_Ready" );
+	},
+	
+	Allies_win = function( trigger )
+	{
+		Map.AlliesDestroyedGate = true;
+		
+		ETUtil.WinningChat( TEAM.ALLIES );
+		ETUtil.LosingChat( TEAM.AXIS );
+		
+		Util.MapDebugPrint( "Allies_win" );
+	},
+	
+	Thirty_second = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+		
+		Util.MapDebugPrint( "^5Thirty_second" );
+		
+		sleep(30);
+		
+		if ( !Map.AlliesDestroyedGate )
+		{
+			Util.MapDebugPrint( "^5Axis_Win" );
+			
+			ETUtil.WinningChat( TEAM.AXIS );
+			ETUtil.LosingChat( TEAM.ALLIES );
+		}
+	},
+	
+	Water_Level_Thread = function()
+	{
+		start = Vector3(4542.152, -1894.459, -80);
+		end = Vector3(4544.021, -1830.742, -80);
+		Util.MapDebugPrint("^5Water_Level_Thread started");
+		while (1)
+		{
+			tr = TraceLine(start, end, null, TRACE.ALL, 0, false);
+			if(tr.fraction < 1)
+			{
+				if ( Map.Water_Level == 1 )
+				{
+					Map.Water_Level = 0;
+					
+					Wp.SetWaypointFlag( "Water_Tunnel_1", "closed", true );
+					Wp.SetWaypointFlag( "Water_Tunnel_2", "closed", true );
+					
+					Util.DisableGoal( "ROUTE_WaterTunnel_1" );
+					Util.DisableGoal( "ROUTE_WaterTunnel_2" );
+					Util.DisableGoal( "ROUTE_WaterTunnel_3" );
+					
+					Util.MapDebugPrint("THREAD - Tunnel flooded");
+				}
+				
+				Map.WaterTunnelReady = false;
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.RED, 1 );
+				}
+			}
+			else
+			{
+				if ( Map.Water_Level == 0 )
+				{
+					Map.Water_Level = 1;
+					
+					Wp.SetWaypointFlag( "Water_Tunnel_1", "closed", false );
+					Wp.SetWaypointFlag( "Water_Tunnel_2", "closed", false );
+					
+					Util.EnableGoal( "ROUTE_WaterTunnel_1" );
+					Util.EnableGoal( "ROUTE_WaterTunnel_2" );
+					Util.EnableGoal( "ROUTE_WaterTunnel_3" );
+					
+					Util.MapDebugPrint("THREAD - Tunnel drained");
+				}
+				
+				Map.WaterTunnelReady = true;
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.GREEN, 1 );
+				}
+			}
+			yield();
+		}
+	},
+	
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "^2Allied Command Post constructed. Alternative Spawn created!", Map.Allied_CP_Built );
+	OnTrigger( "Planted at the Allied CP.", Map.Allied_CP_Planted );
+	OnTrigger( "Planted at Allied CP.", Map.Allied_CP_Planted );	//Nitmod
+	OnTrigger( "Defused at the Allied CP.", Map.Allied_CP_Defused );
+	OnTrigger( "Defused at Allied CP.", Map.Allied_CP_Defused );	//Nitmod
+	OnTrigger( "^1 The Axis have destroyed the Allied Command Post!", Map.Allied_CP_Destroyed );
+	OnTrigger( "axis_hq_compost_constructed", Map.Axis_CP_Built );
+	OnTrigger( "Planted at the Axis CP.", Map.Axis_CP_Planted );
+	OnTrigger( "Planted at Axis CP.", Map.Axis_CP_Planted );	//Nitmod
+	OnTrigger( "Defused at the Axis CP.", Map.Axis_CP_Defused );
+	OnTrigger( "Defused at Axis CP.", Map.Axis_CP_Defused );	//Nitmod
+	OnTrigger( "^2Allies have destroyed the Axis Command Post!", Map.Axis_CP_Destroyed );
+	OnTrigger( "^2Water Pump constructed", Map.Water_Pump_Built );
+	OnTrigger( "Planted at the Water Pump.", Map.Water_Pump_Planted );
+	OnTrigger( "Planted at Water Pump.", Map.Water_Pump_Planted );	//Nitmod
+	OnTrigger( "Defused at the Water Pump.", Map.Water_Pump_Defused );
+	OnTrigger( "Defused at Water Pump.", Map.Water_Pump_Defused );	//Nitmod
+	OnTrigger( "^1Water Pump destroyed!", Map.Water_Pump_Destroyed );
+	OnTrigger( "^2the gun has been repaired", Map.artillery_gun_Built );
+	OnTrigger( "Planted at the artillery gun.", Map.artillery_gun_Planted );
+	OnTrigger( "Planted at artillery gun.", Map.artillery_gun_Planted );	//Nitmod
+	OnTrigger( "Defused at the artillery gun.", Map.artillery_gun_Defused );
+	OnTrigger( "Defused at artillery gun.", Map.artillery_gun_Defused );	//Nitmod
+	OnTrigger( "^1the gun has been destroyed", Map.artillery_gun_Destroyed );
+	OnTrigger( "Planted at the Siwa Wall.", Map.Siwa_Wall_Planted );
+	OnTrigger( "Planted at Siwa Wall.", Map.Siwa_Wall_Planted );	//Nitmod
+	OnTrigger( "Defused at the Siwa Wall.", Map.Siwa_Wall_Defused );
+	OnTrigger( "Defused at Siwa Wall.", Map.Siwa_Wall_Defused );	//Nitmod
+	OnTrigger( "^2Allies have breached the Siwa wall", Map.Siwa_Wall_Destroyed );
+	OnTrigger( "Planted at the siwa side entrance.", Map.siwa_side_entrance_Planted );
+	OnTrigger( "Planted at siwa side entrance.", Map.siwa_side_entrance_Planted );	//Nitmod
+	OnTrigger( "Defused at the siwa side entrance.", Map.siwa_side_entrance_Defused );
+	OnTrigger( "Defused at siwa side entrance.", Map.siwa_side_entrance_Defused );	//Nitmod
+	OnTrigger( "^2Allies have breached the siwa side entrance", Map.siwa_side_entrance_Destroyed );
+	OnTrigger( "teuthonia_allies_ammo_ld", Map.Ammo_landed );
+	OnTrigger( "^2Allies picked up the ammo box", Map.box_obj2_Taken );
+	OnTrigger( "^1Axis returned the ammo box", Map.box_obj2_Returned );
+	OnTrigger( "^2Ammo box delivered - Gun has been loaded", Map.box_obj2_Secured );
+	OnTrigger( "^1Axis re-captured siwa spawn", Map.oldcityflag_Axis_Captured );
+	OnTrigger( "^2Allies captured the siwa spawn", Map.oldcityflag_Allies_Captured );
+	OnTrigger( "^2Dropzone fence lowered", Map.Dropzone_fence_lowered );
+	OnTrigger( "^2the gun is ready to be fired", Map.Gun_Ready );
+	OnTrigger( "^1Allies destroyed the gate to Teuthonia", Map.Allies_win );
+	OnTrigger( "thirty second warning.", Map.Thirty_second );
+	
+	Util.DisableGoal( ".*", true );
+	
+	Util.DisableGoal( "ROUTE_WaterTunnel_1" );
+	Util.DisableGoal( "ROUTE_WaterTunnel_2" );
+	Util.DisableGoal( "ROUTE_WaterTunnel_3" );
+	Util.DisableGoal( "ROUTE_SiwaSideEntrance" );
+	Util.DisableGoal( "ROUTE_SiwaWall_1" );
+	
+	ETUtil.SetCabinets();
+	
+	Util.SetGoalRange("HEALTHCAB_south_healthcabinet", 2000);
+	Util.SetGoalRange("HEALTHCAB_south_healthcabinet2", 2000);
+	Util.SetGoalRange("AMMOCAB_south_ammocabinet", 2000);
+	Util.SetGoalRange("AMMOCAB_south_ammocabinet2", 2000);
+	
+	SetAvailableMapGoals( 0, true, "HEALTHCAB_.*" );
+	SetAvailableMapGoals( 0, true, "AMMOCAB_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_oldcityflag" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Dropzone_Fence" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Water_Pump" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Siwa_Wall" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_siwa_side_entrance" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_OldCity_.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_OldCity_.*" );
+	
+	Wp.SetWaypointFlag( "GRC_WP", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_0", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_1", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_2", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_3", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_4", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_5", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_6", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_7", "closed", true );
+	Wp.SetWaypointFlag( "Drop_Zone_8", "closed", true );
+	Wp.SetWaypointFlag( "Drop-Zone_9", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_10", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_11", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_12", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_13", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_14", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_15", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_16", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_17", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_18", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_19", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_20", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_21", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_22", "blockwall", true );
+	Wp.SetWaypointFlag( "Drop-Zone_23", "blockwall", true );
+	
+	SetGoalRole( "PLANT_.*_CP", ROLE.INFILTRATOR );
+	
+	SetGoalRole( "DEFEND_Axis_OldCity_1.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_OldCity_2.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFEND_Axis_DropZone_2.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_DropZone_3.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFEND_Axis_Gun_2.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_Gun_3.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	
+	SetGoalRole( "ATTACK_Allies_DropZone_0.*", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	SetGoalRole( "FLAG_box_obj2", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	SetGoalRole( "ATTACK_Allies_DropZone_1.*", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	
+	SetGoalPriority( "DEFEND_Axis_DropZone_.*", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Gun_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "CALLARTILLERY_Axis_.*", 0.69, TEAM.AXIS, 0 );
+	SetGoalPriority( "ARTILLERY_S_Axis_.*", 0.69, TEAM.AXIS, 0 );
+	
+	SetGoalPriority( "BUILD_Water_Pump", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_siwa_side_entrance", 0.83, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Siwa_Wall", 0.84, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "ATTACK_Allies_DropZone_.*", 0.51, TEAM.ALLIES, 0 );
+	SetGoalPriority( "ATTACK_Allies_DropZonePlace", 0.55, TEAM.ALLIES, 0 );
+	
+	Util.AddUseWp( "PLANT_Water_Pump", "Plant_WaterPump_WP" );
+	Util.AddUseWp( "BUILD_Water_Pump", "Water_Pump_Build_WP" );
+	Util.AddUseWp( "PLANT_Siwa_Wall", "SiwaWallFront_WP" );
+	Util.AddUseWp( "PLANT_Siwa_Wall", "SiwaWallBack_WP" );
+	Util.AddUseWp( "PLANT_siwa_side_entrance", "SiwaSideEntranceFront_WP" );
+	Util.AddUseWp( "PLANT_siwa_side_entrance", "SiwaSideEntranceBack_WP" );
+	Util.AddUseWp( "PLANT_artillery_gun", "Plant_Gun_WP1" );
+	Util.AddUseWp( "PLANT_artillery_gun", "Plant_Gun_WP2" );
+	
+	Util.AddUseWp( "BUILD_artillery_gun", "Plant_Gun_WP1" );
+	Util.AddUseWp( "BUILD_artillery_gun", "Plant_Gun_WP2" );
+	
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "SWITCH_Dropzone_Fence" );
+	Util.SetMaxUsers( 1, "BUILD_.*_CP" );
+	Util.SetMaxUsers( 4, "SWITCH_Gun.*" );
+	Util.SetMaxUsers( 2, "BUILD_Water_Pump" );
+	Util.SetMaxUsers( 2, "PLANT_Siwa_Wall" );
+	Util.SetMaxUsers( 2, "PLANT_Water_Pump" );
+	Util.SetMaxUsers( 2, "PLANT_siwa_side_entrance" );
+	Util.SetMaxUsers( 2, "BUILD_artillery_gun" );
+	Util.SetMaxUsers( 4, "CHECKPOINT_oldcityflag" );
+	Util.SetMaxUsers( 4, "ATTACK_Allies_DropZonePlace" );
+	
+	RegionTrigger.Create(AABB(783.137,-4078.442,245.128,830.512,-3863.130,320.495 ), "DisableCombatMovement", "Window_1");
+	RegionTrigger.Create(AABB(216.963,-3632.867,245.125,413.727,-3580.708,331.249 ), "DisableCombatMovement", "Window_2");
+	RegionTrigger.Create(AABB(-190.597,-4087.271,245.126,-143.131,-3866.306,326.037 ), "DisableCombatMovement", "Window_3");
+	RegionTrigger.Create(AABB(-188.129,-4836.604,245.126,-143.126,-4631.304,321.167 ), "DisableCombatMovement", "Window_4");
+	RegionTrigger.Create(AABB(-165.133,-5623.069,353.127,38.451,-5584.476,427.157 ), "DisableCombatMovement", "Window_5");
+	RegionTrigger.Create(AABB(-3141.415,-4474.750,65.125,-3007.371,-4342.874,232.255 ), "DisableCombatMovement", "Jump_On_Truck");
+	RegionTrigger.Create(AABB(4628.393,-2808.835,169.125,5201.651,-2675.202,575.017 ), "DisableCombatMovement", "Siwa_Wall");
+	RegionTrigger.Create(AABB(5035.125,-583.194,425.314,5162.856,-417.212,608.547 ), "DisableCombatMovement", "Wooden_Crates");
+	
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+	
+	thread(Map.Water_Level_Thread);
+	
+	print( "^3Omni-bot map script by ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3 ^3for map: ^7" + GetMapName() );
+	
+	Util.BotChat( 0, "say", "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12 ^3for ^3map ^7" + GetMapName(), 1 );
+};
+
+global OnBotJoin = function( bot )
+{
+	Map.SetSpawn1(bot);
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_box_obj2 =
+		{
+			ROUTE_OldCity_Spawn =
+			{
+				ROUTE_WaterTunnel_3 =
+				{
+					ROUTE_WaterTunnel_2 =
+					{
+						ROUTE_WaterTunnel_1 =
+						{
+						},
+					},
+				},
+				ROUTE_SiwaSideEntrance =
+				{
+					ROUTE_AlliedCP =
+					{
+						ROUTE_SideWay_2 =
+						{
+							ROUTE_SideWay_1 =
+							{
+							},
+						},
+						ROUTE_FrontWay =
+						{
+						},
+						ROUTE_SideWayLeft_1 =
+						{
+							ROUTE_SideWayLeft_2 =
+							{
+							},
+						},
+					},
+				},
+				ROUTE_SiwaWall_1 =
+				{
+					ROUTE_AroundCabinets_3 =
+					{
+						ROUTE_AroundCabinets_2 =
+						{
+							ROUTE_AroundCabinets_1 =
+							{
+								ROUTE_SideWay_2 =
+								{
+									ROUTE_SideWay_1 =
+									{
+									},
+								},
+								ROUTE_FrontWay =
+								{
+								},
+								ROUTE_SideWayLeft_1 =
+								{
+									ROUTE_SideWayLeft_2 =
+									{
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCP_Spawn =
+			{
+				ROUTE_AlliedCP =
+				{
+					ROUTE_SideWay_2 =
+					{
+						ROUTE_SideWay_1 =
+						{
+						},
+					},
+					ROUTE_FrontWay =
+					{
+					},
+					ROUTE_SideWayLeft_1 =
+					{
+						ROUTE_SideWayLeft_2 =
+						{
+						},
+					},
+				},
+			},
+		},
+		BUILD_artillery_gun =
+		{
+		},
+		PLANT_artillery_gun =
+		{
+		},
+		SWITCH_GunFireControl =
+		{
+			ROUTE_OldCity_Spawn =
+			{
+				ROUTE_SideWay_2 =
+				{
+					ROUTE_CappointWay_1 =
+					{
+					},
+				},
+				ROUTE_SideWayLeft_1 =
+				{
+					ROUTE_SideWayLeft_2 =
+					{
+						ROUTE_CappointWay_9 =
+						{
+							ROUTE_CappointWay_10 =
+							{
+							},
+						},
+					},
+					ROUTE_FireSwitch_1 =
+					{
+						ROUTE_FireSwitch_2 =
+						{
+							ROUTE_CappointWay_10 =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCP_Spawn =
+			{
+				ROUTE_SideWay_2 =
+				{
+					ROUTE_CappointWay_1 =
+					{
+					},
+				},
+				ROUTE_SideWayLeft_1 =
+				{
+					ROUTE_SideWayLeft_2 =
+					{
+						ROUTE_CappointWay_9 =
+						{
+							ROUTE_CappointWay_10 =
+							{
+							},
+						},
+					},
+					ROUTE_FireSwitch_1 =
+					{
+						ROUTE_FireSwitch_2 =
+						{
+							ROUTE_CappointWay_10 =
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+		CHECKPOINT_oldcityflag =
+		{
+			ROUTE_AlliedCamp_1 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_OldCitySpawn1 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCamp_2 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_OldCitySpawn1 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCamp_3 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_OldCitySpawn1 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCamp_4 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_OldCitySpawn1 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+		PLANT_Siwa_Wall =
+		{
+			ROUTE_AlliedCamp_1 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_LeftUpperWay_5 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCamp_2 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_LeftUpperWay_5 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCamp_3 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_LeftUpperWay_5 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_AlliedCamp_4 =
+			{
+				ROUTE_LowerWay_1 =
+				{
+					ROUTE_LowerWay_2 =
+					{
+						ROUTE_OldCitySpawn =
+						{
+						},
+					},
+					ROUTE_LowerRuins_1 =
+					{
+					},
+				},
+				ROUTE_LeftUpperWay_1 =
+				{
+					ROUTE_LeftUpperWay_2 =
+					{
+						ROUTE_LeftUpperWay_3 =
+						{
+							ROUTE_LeftUpperWay_4 =
+							{
+								ROUTE_LeftUpperWay_5 =
+								{
+								},
+							},
+						},
+					},
+				},
+				ROUTE_RightUpperWay_1 =
+				{
+					ROUTE_RightUpperWay_2 =
+					{
+						ROUTE_RightUpperWay_3 =
+						{
+							ROUTE_OldCitySpawn =
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+		BUILD_Axis_CP =
+		{
+		},
+		PLANT_Axis_CP =
+		{
+		},
+		BUILD_Allied_CP =
+		{
+		},
+		PLANT_Allied_CP =
+		{
+		},
+		CAPPOINT_Artillery_Gun =
+		{
+			ROUTE_DropzoneArea =
+			{
+				ROUTE_SideWay_1 =
+				{
+					ROUTE_CappointWay_1 =
+					{
+						ROUTE_CappointWay_2 =
+						{
+						},
+					},
+					ROUTE_CappointWay_3 =
+					{
+						ROUTE_CappointWay_4 =
+						{
+						},
+					},
+				},
+				ROUTE_CappointWay_5 =
+				{
+					ROUTE_CappointWay_6 =
+					{
+						ROUTE_CappointWay_7 =
+						{
+						},
+					},
+				},
+				ROUTE_CappointWay_8 =
+				{
+					ROUTE_CappointWay_9 =
+					{
+						ROUTE_CappointWay_10 =
+						{
+							ROUTE_CappointWay_11 =
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+		BUILD_Water_Pump =
+		{
+		},
+		PLANT_Water_Pump =
+		{
+			ROUTE_AxisSiwa =
+			{
+				ROUTE_SideWay_1 =
+				{
+					ROUTE_SideWay_2 =
+					{
+						ROUTE_WaterTunnel_1 =
+						{
+							ROUTE_WaterTunnel_2 =
+							{
+								ROUTE_WaterTunnel_3 =
+								{
+								},
+							},
+						},
+						ROUTE_AroundCabinets_1 =
+						{
+							ROUTE_AroundCabinets_2 =
+							{
+								ROUTE_AroundCabinets_3 =
+								{
+								},
+							},
+						},
+					},
+				},
+			},
+			ROUTE_DropzoneArea =
+			{
+				ROUTE_SideWay_1 =
+				{
+					ROUTE_SideWay_2 =
+					{
+						ROUTE_WaterTunnel_1 =
+						{
+							ROUTE_WaterTunnel_2 =
+							{
+								ROUTE_WaterTunnel_3 =
+								{
+								},
+							},
+						},
+						ROUTE_AroundCabinets_1 =
+						{
+							ROUTE_AroundCabinets_2 =
+							{
+								ROUTE_AroundCabinets_3 =
+								{
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	
+	MapRoutes[".*_Axis_OldCity_.*"] =
+	{
+		ROUTE_AxisGarrison =
+		{
+			ROUTE_SiwaSideEntrance =
+			{
+				
+			},
+			ROUTE_AroundSiwaWall =
+			{
+				ROUTE_SiwaWallDoor =
+				{
+					
+				},
+			},
+		},
+	};
+	
+	MapRoutes["ATTACK_Allies_Gun_.*"] =
+	{
+		ROUTE_OldCity_Spawn =
+		{
+			ROUTE_SiwaSideEntrance =
+			{
+				ROUTE_SideWay_2 =
+				{
+					ROUTE_CappointWay_1 =
+					{
+						ROUTE_CappointWay_2 =
+						{
+						},
+					},
+				},
+				ROUTE_CappointWay_3 =
+				{
+					ROUTE_CappointWay_4 =
+					{
+					},
+				},
+				ROUTE_CappointWay_5 =
+				{
+					ROUTE_CappointWay_6 =
+					{
+						ROUTE_CappointWay_7 =
+						{
+						},
+					},
+				},
+				ROUTE_SideWayLeft_1 =
+				{
+					ROUTE_CappointWay_9 =
+					{
+						ROUTE_CappointWay_10 =
+						{
+							ROUTE_CappointWay_11 =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_SiwaWall_1 =
+			{
+				ROUTE_SideWay_2 =
+				{
+					ROUTE_CappointWay_1 =
+					{
+						ROUTE_CappointWay_2 =
+						{
+						},
+					},
+				},
+				ROUTE_CappointWay_3 =
+				{
+					ROUTE_CappointWay_4 =
+					{
+					},
+				},
+				ROUTE_CappointWay_5 =
+				{
+					ROUTE_CappointWay_6 =
+					{
+						ROUTE_CappointWay_7 =
+						{
+						},
+					},
+				},
+				ROUTE_SideWayLeft_1 =
+				{
+					ROUTE_CappointWay_9 =
+					{
+						ROUTE_CappointWay_10 =
+						{
+							ROUTE_CappointWay_11 =
+							{
+							},
+						},
+					},
+				},
+			},
+			ROUTE_WaterTunnel_3 =
+			{
+				ROUTE_WaterTunnel_2 =
+				{
+					ROUTE_WaterTunnel_1 =
+					{
+						ROUTE_SideWay_2 =
+						{
+							ROUTE_CappointWay_1 =
+							{
+								ROUTE_CappointWay_2 =
+								{
+								},
+							},
+						},
+						ROUTE_CappointWay_3 =
+						{
+							ROUTE_CappointWay_4 =
+							{
+							},
+						},
+						ROUTE_CappointWay_5 =
+						{
+							ROUTE_CappointWay_6 =
+							{
+								ROUTE_CappointWay_7 =
+								{
+								},
+							},
+						},
+						ROUTE_SideWayLeft_1 =
+						{
+							ROUTE_CappointWay_9 =
+							{
+								ROUTE_CappointWay_10 =
+								{
+									ROUTE_CappointWay_11 =
+									{
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		ROUTE_AlliedCP_Spawn =
+		{
+			ROUTE_AlliedCP =
+			{
+				ROUTE_SideWay_2 =
+				{
+					ROUTE_CappointWay_1 =
+					{
+						ROUTE_CappointWay_2 =
+						{
+						},
+					},
+				},
+				ROUTE_CappointWay_3 =
+				{
+					ROUTE_CappointWay_4 =
+					{
+					},
+				},
+				ROUTE_CappointWay_5 =
+				{
+					ROUTE_CappointWay_6 =
+					{
+						ROUTE_CappointWay_7 =
+						{
+						},
+					},
+				},
+				ROUTE_SideWayLeft_1 =
+				{
+					ROUTE_CappointWay_9 =
+					{
+						ROUTE_CappointWay_10 =
+						{
+							ROUTE_CappointWay_11 =
+							{
+							},
+						},
+					},
+				},
+			},
+		},
+		ROUTE_DropzoneArea =
+		{
+			ROUTE_SideWay_1 =
+			{
+				ROUTE_CappointWay_1 =
+				{
+					ROUTE_CappointWay_2 =
+					{
+					},
+				},
+				ROUTE_CappointWay_3 =
+				{
+					ROUTE_CappointWay_4 =
+					{
+					},
+				},
+			},
+			ROUTE_CappointWay_5 =
+			{
+				ROUTE_CappointWay_6 =
+				{
+					ROUTE_CappointWay_7 =
+					{
+					},
+				},
+			},
+			ROUTE_CappointWay_8 =
+			{
+				ROUTE_CappointWay_9 =
+				{
+					ROUTE_CappointWay_10 =
+					{
+						ROUTE_CappointWay_11 =
+						{
+						},
+					},
+				},
+			},
+		},
+	};
+	
+	MapRoutes["DEFEND_Allies_OldCity_.*"] = MapRoutes.PLANT_Siwa_Wall;
+	MapRoutes["ATTACK_Allies_DropZone_.*"] = MapRoutes.FLAG_box_obj2;
+	MapRoutes.PLANT_siwa_side_entrance = MapRoutes.PLANT_Siwa_Wall;
+	MapRoutes.BUILD_Water_Pump = MapRoutes.PLANT_Siwa_Wall;
+	MapRoutes.ATTACK_Allies_DropZonePlace = MapRoutes.FLAG_box_obj2;
+	MapRoutes.BUILD_artillery_gun = MapRoutes["ATTACK_Allies_Gun_.*"];
+	MapRoutes.SWITCH_GunRotateControl = MapRoutes["ATTACK_Allies_Gun_.*"];
+	
+	Util.Routes(MapRoutes);
+};

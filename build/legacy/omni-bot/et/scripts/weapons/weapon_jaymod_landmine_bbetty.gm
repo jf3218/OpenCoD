@@ -1,0 +1,8 @@
+if (GetModName()!="Jaymod") { return; }
+
+WEAPON.MINE_BOUNCINGBETTY = 79;
+this.Name = "Bouncing Betty Mine";
+this.WeaponId = WEAPON.MINE_BOUNCINGBETTY;
+
+this.PrimaryFire.WeaponType = "item";
+this.PrimaryFire.WaterProof = true;

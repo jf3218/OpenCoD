@@ -1,0 +1,73 @@
+// DYNAMITE goal is same as PLANT goal with IgnoreEntity = true
+
+this.SetBaseGoalType("mapgoal_blowuptarget.gm");
+
+this.GoalType = "DYNAMITE";
+this.CreateOnLoad = true;
+this.MinRadius = 30;
+this.IgnoreEntity = true;
+
+//////////////////////////////////////////////////////////////////////////
+
+this.UpgradeVersion = function(Props)
+{
+	// version 0 is string,string key/values from the old waypoint format
+	if(Props.Version==0)
+	{
+		// Version 1 Schema, upgrade from waypoint format
+		Props.Version = 1;
+		Props.IgnoreTargets = ToBool(Props.IgnoreTargets,false);
+	}
+	else if(Props.Version == this.Version)
+	{
+		this.IgnoreTargets = Props.IgnoreTargets;
+		this.CoverSpots = Props.CoverSpots;
+		this.CoverSplit = Props.CoverSplit;
+
+		if ( this.CoverSpots )
+		{
+			// clear any occupied slots
+			foreach ( spot in this.CoverSpots ) {
+				spot.occupied = null;
+			}
+			// delete empty table
+			if (tableCount(this.CoverSpots)==0) {
+				this.CoverSpots = null;
+			}
+		}
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.SaveToTable = function(SaveTable)
+{
+	SaveTable.CoverSpots = this.CoverSpots;
+	SaveTable.CoverSplit = this.CoverSplit;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.Help = function()
+{
+	print(this.GoalType,"goal, version",this.Version);
+	print("Optional:");
+	print("     coverspot - location to go to after planting dynamite, supports multiple");
+	print("     coverfacing - Direction the bot should face at cover spot");
+	print("     coverstance - stand, crouch, prone");
+	print("     covertimeout - how long to stay on cover spot, default value is 25 seconds");
+	print("     coverdisablecm - disable combat movement at this cover spot");
+	print("     coversplit - facing from use point to goal center, only if goal has 2 use points and multiple cover spots");
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.BaseSetProperty = this.SetProperty;
+this.SetProperty = function(property, value)
+{
+	if (property.Left(5) != "cover") {
+		print(this.GoalType, ": Invalid property:", property);
+	} else {
+		this.BaseSetProperty(property,value);
+	}
+};

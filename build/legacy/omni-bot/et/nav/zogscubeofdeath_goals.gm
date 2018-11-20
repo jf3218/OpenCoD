@@ -1,0 +1,112 @@
+global _MG = 
+{
+	CAPPOINT_EGG = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(33.254, -6.051, 129.134),
+	},
+	CAPPOINT_EGG_1 = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(31.119, 1.051, 128.125),
+	},
+	DEFEND_AXIS_EGG = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.109, -0.911, -0.398),
+			[1] = Vec3(0.268, -0.886, -0.378),
+			[2] = Vec3(0.553, -0.765, -0.330),
+			[3] = Vec3(0.726, -0.632, -0.271),
+			[4] = Vec3(0.818, -0.527, -0.228),
+			[5] = Vec3(-0.864, -0.504, -0.004),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(99.643, 1104.281, 385.251),
+	},
+	DEFEND_AXIS_EGG_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.200, -0.899, -0.389),
+			[1] = Vec3(-0.182, -0.902, -0.392),
+			[2] = Vec3(-0.489, -0.799, -0.350),
+			[3] = Vec3(-0.686, -0.666, -0.293),
+			[4] = Vec3(-0.799, -0.553, -0.236),
+			[5] = Vec3(0.736, -0.677, -0.006),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-97.388, 1105.502, 385.251),
+		TagName = "AXIS_EGG",
+	},
+	DEFEND_ALLIES_EGG = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.087, 0.913, -0.400),
+			[1] = Vec3(0.289, 0.878, -0.382),
+			[2] = Vec3(0.564, 0.757, -0.330),
+			[3] = Vec3(0.730, 0.625, -0.275),
+			[4] = Vec3(0.825, 0.519, -0.223),
+			[5] = Vec3(-0.944, 0.331, -0.006),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(91.732, -1091.752, 385.125),
+	},
+	DEFEND_ALLIES_EGG_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.200, 0.895, -0.400),
+			[1] = Vec3(-0.183, 0.901, -0.392),
+			[2] = Vec3(-0.495, 0.797, -0.346),
+			[3] = Vec3(-0.697, 0.656, -0.290),
+			[4] = Vec3(-0.805, 0.542, -0.240),
+			[5] = Vec3(0.902, 0.432, -0.012),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-96.835, -1081.203, 385.125),
+	},
+	FLAG_Egg = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(0.000, 1088.000, 389.125),
+		TeamAvailability = 4,
+	},
+	FLAG_Egg_1 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(0.000, -1088.000, 389.125),
+		TagName = "Egg",
+		TeamAvailability = 2,
+	},
+	ROUTE_EGG = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(35.178, 251.368, 129.125),
+		Radius = 125,
+	},
+	ROUTE_EGG_1 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(31.857, -247.932, 129.125),
+		Radius = 125,
+	},
+	Version = 1,
+};

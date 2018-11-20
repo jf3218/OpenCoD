@@ -1,0 +1,123 @@
+// New module format
+global Util = import("utilities");
+global ETUtil = import("et_utilities");
+
+// Load any other scripts that we will need.
+ExecScript("et_navconfig.gm");
+ExecScript("commands.gm");
+ExecScript("et_commands.gm");
+ExecScript("server_manager.gm");
+ExecScript("et_weapontables.gm");
+//ExecScript("autowaypoint.gm");
+
+global RegionTrigger = import("et_regiontriggers");
+global ClassManager = import("et_classmanager");
+
+ExecScript("et_botnames_ext.gm"); // note: must be loaded after et_classmanager
+
+// global debug flags
+global DEBUG_MAP_SCRIPTS = false;
+global DEBUG_GOAL_AVAILABILITY = false;
+
+global DEBUG_SCRIPT_GOALS = false;
+global DEBUG_SCRIPT_GOALS_FILTER = {};
+DEBUG_SCRIPT_GOALS_FILTER["pathfailed"] = 1;
+DEBUG_SCRIPT_GOALS_FILTER["timedout"] = 1;
+DEBUG_SCRIPT_GOALS_FILTER["disabled"] = 1;
+DEBUG_SCRIPT_GOALS_FILTER["regiontrigger"] = 1;
+DEBUG_SCRIPT_GOALS_FILTER["initialized"] = 1;
+
+
+// global flag to turn off bot chat in supported maps
+global MAP_TALK = true;
+
+// enable / disable the class manager
+global DisableClassManager = 0;
+
+// set up the class counts
+Util.InitializeClassTables();
+countAxis = Server.MinClassCount[TEAM.AXIS];
+countAllies = Server.MinClassCount[TEAM.ALLIES];
+if ( Server.MaxBots < 10 && Server.MaxBots > 0 )
+{
+	countAxis[CLASS.SOLDIER] = 0;
+	countAxis[CLASS.MEDIC] = 2;
+	countAxis[CLASS.ENGINEER] = 2;
+	countAxis[CLASS.COVERTOPS] = 1;
+	countAxis[CLASS.FIELDOPS] = 1;
+
+	countAllies[CLASS.SOLDIER] = 0;
+	countAllies[CLASS.MEDIC] = 2;
+	countAllies[CLASS.ENGINEER] = 2;
+	countAllies[CLASS.COVERTOPS] = 1;
+	countAllies[CLASS.FIELDOPS] = 1;
+}
+else
+{
+	countAxis[CLASS.SOLDIER] = 1;
+	countAxis[CLASS.MEDIC] = 2;
+	countAxis[CLASS.ENGINEER] = 2;
+	countAxis[CLASS.COVERTOPS] = 1;
+	countAxis[CLASS.FIELDOPS] = 2;
+
+	countAllies[CLASS.SOLDIER] = 1;
+	countAllies[CLASS.MEDIC] = 2;
+	countAllies[CLASS.ENGINEER] = 2;
+	countAllies[CLASS.COVERTOPS] = 1;
+	countAllies[CLASS.FIELDOPS] = 2;
+
+	if (CLASS.SCIENTIST)
+	{
+		countAxis[CLASS.SCIENTIST] = 1;
+		countAllies[CLASS.SCIENTIST] = 1;
+	}
+	if (CLASS.SUPER_SOLDIER)
+	{
+		countAxis[CLASS.SUPER_SOLDIER] = 1;
+		countAllies[CLASS.SUPER_SOLDIER] = 1;
+	}
+}
+
+
+global PostMapLoad = function()
+{
+	ETUtil.MapStartTime = GetTime() - 1.75; // seems to be a bit of a delay
+	Util.ProcessMovers();
+
+	if ( Map.SnipeMap
+		|| GetModName()=="Jaymod" && GetCvar("g_sniperwar")==1
+		|| GetModName()=="nitmod" && GetCvar("g_war")==2 )
+	{
+		Util.SnipeMap();
+	}
+	else if ( Map.PanzerMap
+		|| GetModName()=="Jaymod" && GetCvar("g_panzerwar")==1
+		|| GetModName()=="nitmod" && GetCvar("g_war")==1 )
+	{
+		ETUtil.PanzerMap();
+	}
+
+	if ( GetGameType() == 5 ) // last man standing
+	{
+		foreach(goal in Util.GoalTable())
+		{
+			if(goal.GoalType!="AMMOCAB" && goal.GoalType!="HEALTHCAB") {
+				goal.DisableGoal(true);
+			} else {
+				goal.SetAvailable(0,true);
+			}
+		}
+		Util.MapDebugPrint( "Running " + GetMapName() + " in LMS mode." );
+	}
+
+	if ( GetModName() == "infected" )
+	{
+		foreach(goal in Util.GoalTable()) {
+			goal.DisableGoal(true);
+		}
+		Map.DontDispenseAmmo = true;
+	}
+
+};
+
+print("ET autoexec script executed.");

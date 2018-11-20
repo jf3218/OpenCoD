@@ -1,0 +1,776 @@
+//==========================================================================================
+//
+//	uje_clv.gm
+//
+//	Who       	            When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Niek	        12 March 2017	Initial Script
+//    ^1[UJE]^3Captain	20 March 2017	Defense/ATTACK/ROUTE and......more
+//    ^1[UJE]^3Captain	25 May 2017	      Fixed some errors and change spawn 
+//     You must play with this map script so that the bots play well!!
+//     https://1drv.ms/u/s!AkNXNlNQc-xmhyHaRAS1ML_KiCUy
+//
+//
+//==========================================================================================
+//
+// phase 1, Escort the Churchill tank.
+// phase 2, Steal the dynamite and take it to the drop-off zone.
+// phase 3, Steal 2 fuelcans and deliver them to the JagdPanther tank.
+// phase 4, Escort the JagdPanther tank.
+// phase 5, Dynamite the goldbars-storage.
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+        ShowMovers = false,
+
+//     set status' for conditionals
+	phase = 1,
+	tankatwire = false,
+	tankatTTK = false,
+	goldbars = false,
+	fuelcans = false,
+	
+	Movers =
+    {
+	"MOVER_tank1",
+	"MOVER_tank2",
+    },
+    SetSpawnAxis = function(bot)
+	{
+		if (bot.GetTeam() == TEAM.AXIS) {
+			if ( Map.goldbars == true && RandInt(0,9) < 7) {
+				bot.ChangeSpawnPoint(5);
+			}
+		}
+	},	
+    SetSpawnAllies = function(bot)
+	{
+		if (bot.GetTeam() == TEAM.ALLIES) {
+			if ( Map.goldbars == true && RandInt(0,9) < 7) {
+				bot.ChangeSpawnPoint(6);
+			}
+		}
+	},
+	SetSpawn = function()
+	{
+		foreach(bot in BotTable)
+		{
+		 Map.SetSpawnAxis(bot);
+	       Map.SetSpawnAllies(bot);
+		}
+	},
+ 	DoorStatus = 0, //door is closed initially
+	Switches =
+	{
+		piano_door =
+		{
+			WaypointName = "piano",
+			Enabled = false,
+			LimitTeam = (1<<TEAM.AXIS),
+			LimitClass = Util.AllClasses,
+			LimitDistance = 1500,
+			LimitBots = 2,
+			Priority = 0.91,
+			Wait = function()
+			{
+				if ( Map.DoorStatus == 1 )
+				{
+					sleep(1.5);
+					return true;
+				}
+				return false;
+			},
+		},
+           },
+	  church_door = function( trigger )
+	  {
+		vel = ToVector(trigger.Action);
+		if ( vel[0] > 0 )
+		{
+		 Map.DoorStatus = 1;
+		 Wp.SetWaypointFlag("church_door", "closed", false);
+	         Map.Switches.piano_door.Enabled = false;
+			    print("church door open");
+		}
+		else if ( vel[0] < 0 )
+		{
+		Map.DoorStatus = 0;
+		Wp.SetWaypointFlag("church_door", "closed", true);
+		Map.Switches.piano_door.Enabled = true;
+		            print("church door closed");		
+		}
+
+	 },
+	 Navigation =
+	 {
+		//  /bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("jump", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.6);
+					_this.Bot.HoldButton(BTN.FORWARD, 1);
+					_this.Bot.HoldButton(BTN.JUMP, 0.5);
+					_this.Bot.HoldButton(BTN.SPRINT, 1);
+				}
+			},
+		},
+	        //  /bot waypoint_setproperty paththrough Navigation_PT:church_door	
+	        church_door = 
+		{
+			navigate = function(_this)
+			{
+			wpTable = {};
+			Wp.GetWaypointByName("church_door", wpTable);
+			_this.AddAimRequest(Priority.High, "facing", wpinfo.facing);
+			_this.Bot.HoldButton(BTN.FORWARD, 1);
+		        _this.Bot.HoldButton(BTN.SPRINT, 1);
+				}
+			},
+		},
+	Churchill_tank_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Churchill_tank" );
+	if ( Map.phase < 2 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, {"ESCORT_Churchill","MOUNT_Churchill"} );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, {"ESCORT_Churchill","MOUNT_Churchill"} );
+	}
+		Util.MapDebugPrint( "Churchill_tank_Built" );
+	},
+	
+	Churchill_tank_Damaged = function( trigger )
+	{
+	if ( Map.phase < 2 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Churchill_tank" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Churchill_tank" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, {"ESCORT_Churchill","MOUNT_Churchill"} );
+	
+		Util.MapDebugPrint( "Churchill_tank_Damaged" );
+	},
+	
+	Jagdpanther_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Jagdpanther" );
+	
+	if ( Map.fuelcans == false or Map.goldbars == false )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_Jagdpanther" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_Jagdpanther" );
+	}
+		Util.MapDebugPrint( "Jagdpanther_Built" );
+	},
+
+	Jagdpanther_Damaged = function( trigger )
+	{
+	if ( Map.fuelcans == true or Map.goldbars == true )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Jagdpanther" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Jagdpanther" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_Jagdpanther" );
+	
+		Util.MapDebugPrint( "Jagdpanther_Damaged" );
+	},
+	
+	Allied_CP_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_CP" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_CP" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allied_CP" );;
+	}
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+	
+	Allied_CP_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_CP" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_CP" );;
+		
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+
+	Axis_CP_Built = function( trigger )
+	{
+        SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_CP" );
+	if ( Map.phase > 3 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Allied_CP" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_CP" );;
+	}
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+
+	Axis_CP_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_CP" );
+	if ( Map.phase > 3 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_CP" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_CP" );
+	}
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+	
+	Axis_Command_Post_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+	}
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+	
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+	
+        SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+	}
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+	
+	Allied_Command_Post_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+	
+        SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+        SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+	}
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+	
+	Churchill_at_TTK = function( trigger )
+	{
+	Map.phase = 2;
+	SetAvailableMapGoals( TEAM.AXIS, false, {"ESCORT_Churchill","MOUNT_Churchill","DEFEND_fly.*"} );
+	SetAvailableMapGoals( TEAM.AXIS, true, {"FLAG_dyna.*","BUILD_Command_Post",".*MG42_61","BUILD_front_rope","BUILD_back_rope"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"DEFEND_dyna.*","CHECKPOINT_spawnflag2","BUILD_Command_Post"} );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_fly.*" );
+	
+		Util.MapDebugPrint( "Churchill_at_TTK" );
+	},
+	
+	Fly_Over_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Fly_Over" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "EXPLODE_Fly_Over" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXOLODE_Fly_Over" );
+	}
+	Wp.SetWaypointFlag("fly_jump", "closed", true);
+		Util.MapDebugPrint( "Fly_Over_Built" );
+	},
+	
+	Fly_Over_Damaged = function( trigger )
+	{
+	
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Fly_Over" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "EXPODE_Fly_Over" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Fly_Over" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_Fly_Over" );
+	}
+		Wp.SetWaypointFlag("fly_jump", "closed", false);
+		Util.MapDebugPrint( "Fly_Over_Damaged" );
+	},
+	
+	Fly_Over_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_Fly_Over" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Fly_Over" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Fly_Over" );
+	}
+	Wp.SetWaypointFlag("fly_jump", "closed", false);
+		Util.MapDebugPrint( "Fly_Over_Destroyed" );
+	},
+	
+	ttk_destroyed = function( trigger )
+	{
+	Map.phase = 3;
+	SetAvailableMapGoals( TEAM.AXIS, true, {"FLAG_fuelcans.*","BUILD_Axis_CP"} );
+	
+		Util.MapDebugPrint( "ttk_destroyed" );
+	},
+	
+	dyna_objective_Taken = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, {"FLAG_dyna.*",".*MG42_61","ATTACK_fly.*"} );
+	SetAvailableMapGoals( TEAM.AXIS, true, {"CAPPOINT_dynamite","ATTACK_fuel.*"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_dyna.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_fuel.*" );
+	
+		Util.MapDebugPrint( "dyna_objective_Taken" );
+	},
+
+	dyna_objective_Returned = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, {"FLAG_dyna.*","ATTACK_fly.*",".*MG42_61"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_dynamite" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_fuel.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_dyna.*" );
+	
+		Util.MapDebugPrint( "dyna_objective_Returned" );
+	},
+	
+	dyna_objective_Secured = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_dynamite" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_fuel.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"DEFEND_fly.*",".*MG42_1051","DEFEND_steal_jag.*"} );
+	
+		Util.MapDebugPrint( "dyna_objective_Secured" );
+	},
+	
+	front_rope_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_front_rope" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "EXPLODE_front_rope" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_front_rope" );
+	}
+		Util.MapDebugPrint( "front_rope_Built" );
+	},
+	
+	front_rope_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_front_rope" );
+	if ( Map.phase > 1 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_front_rope" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_front_rope" );
+	}
+		Util.MapDebugPrint( "front_rope_Destroyed" );
+	},
+	
+	back_rope_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_back_rope" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "EXPLODE_back_rope" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_back_rope" );
+	}
+		Util.MapDebugPrint( "back_rope_Built" );
+	},
+	
+	back_rope_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_back_rope" );
+	if ( Map.phase < 4 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_back_rope" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_back_rope" );
+	}
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "EXPLODE_back_rope" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "EXPLODE_back_rope" );
+	}
+		Util.MapDebugPrint( "back_rope_Destroyed" );
+	},
+
+	fuelcan_objective_Taken = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_fuel1" );
+	
+		Util.MapDebugPrint( "fuelcan_objective_Taken" );
+	},
+	
+	fuelcan_objective_Secured = function( trigger )
+	{
+	Map.phase = 4;
+	Map.fuelcans = true;
+	SetAvailableMapGoals( TEAM.AXIS, true, {"BUILD_Jagdpanther","ATTACK_steal_jag.*"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, {"CAPPOINT_fuel1","ATTACK_fuel.*"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_fuel.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_steal_jag.*" );
+	
+		Util.MapDebugPrint( "fuelcan_objective_Secured" );
+	},
+	
+	spawnflag2_Axis_Captured = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_spawnflag2" );
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_spawnflag2" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_spawnflag2" );
+	}
+	
+		Util.MapDebugPrint( "spawnflag2_Axis_Captured" );
+	},
+
+	spawnflag2_Allies_Captured = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_spawnflag2" );
+
+	if ( Map.phase < 5 )
+	{	
+	SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_spawnflag2" );
+	}
+	else
+	{
+        SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_spawnflag2" );
+	}
+		Util.MapDebugPrint( "spawnflag2_Allies_Captured" );
+	},
+
+	tank1_at_wire = function( trigger )
+	{
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_steal_chur.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, {"ATTACK_fly.*","PLANT_Weak.*","BUILD_Fly_Over","CHECKPOINT_spawnflag2"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"DEFEND_steal_chur.*",".*MG42_741"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"DEFEND_fly.*",".*MG42_1051"} );
+		
+		Util.MapDebugPrint( "tank1_at_wire" );
+	},
+	
+	tank2_at_wire1 = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_steal_jag.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_steal_chur.*" );
+		
+		Util.MapDebugPrint( "tank2_at_wire1" );
+	},
+	
+	tank2_at_wire = function( trigger )
+	{
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_steal_jag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_fly.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"DEFEND_steal_jag.*","DEFEND_steal_chur.*"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"DEFEND_fly.*",".*MG42_1051"} );
+		
+		Util.MapDebugPrint( "tank2_at_wire" );
+	},
+	
+	goldbars = function( trigger )
+	{
+	Map.phase = 5;
+	Map.goldbars = true;
+	SetAvailableMapGoals( TEAM.AXIS, false, {"ESCORT_Jagdpanther","ATTACK_fly.*"} );
+	SetAvailableMapGoals( TEAM.AXIS, true, {"PLANT_goldbars","ATTACK_gold.*"} );
+		
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"DEFEND_fly.*",".*MG42_1051"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_gold.*" );
+	Map.Switches.piano_door.Enabled = true;
+	Map.SetSpawn();
+		Util.MapDebugPrint( "goldbars" );
+	},
+	
+        vehicle_at_location = function( trigger )
+	{
+		switch(Map.VehicleLocation)
+		{
+		case 1: 
+		{
+                Map.tank1_at_wire();
+		}
+		case 2: 
+		{
+                Map.tank2_at_wire1();
+		}
+		case 3: 
+		{
+                Map.tank2_at_wire();
+		}
+	}
+		Util.MapDebugPrint("vehicle at location " + Map.VehicleLocation, true);
+	},
+};
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allies CP constructed.", Map.Allied_CP_Built );
+	OnTrigger( "Allies CP destroyed.", Map.Allied_CP_Destroyed );
+	OnTrigger( "Axis CP constructed.", Map.Axis_CP_Built );
+	OnTrigger( "Axis CP destroyed.", Map.Axis_CP_Destroyed );
+	OnTrigger( "The Axis have constructed the Command Post.", Map.Axis_Command_Post_Built );
+	OnTrigger( "The Axis have destroyed the Command Post.", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "The Allies have destroyed the Command Post.", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "The Allies have constructed the Command Post.", Map.Allied_Command_Post_Built );
+
+
+	OnTrigger( "The Churchill tank has been repaired.", Map.Churchill_tank_Built );
+	OnTrigger( "The Churchill tank has been damaged.", Map.Churchill_tank_Damaged );
+	OnTrigger( "The Jagdpanther tank has been repaired.", Map.Jagdpanther_Built );
+	OnTrigger( "The Jagdpanther tank has been damaged.", Map.Jagdpanther_Damaged );
+	
+        OnTrigger( "^2Churchill tank has been escorted. Get the dynamite to TTK.", Map.Churchill_at_TTK );
+	OnTrigger( "^1The Fly-Over has been destroyed.", Map.Fly_Over_Destroyed );
+	OnTrigger( "the Fly-Over Destroyed.", Map.Fly_Over_Damaged );
+	OnTrigger( "^2The fly-over has been repaired.", Map.Fly_Over_Built );
+	OnTrigger( "The Axis captured the Studie Huis.", Map.spawnflag2_Axis_Captured );
+	OnTrigger( "The Allies captured the Studie Huis.", Map.spawnflag2_Allies_Captured );
+	OnTrigger( "^3Axis Team have built the Back Rope!!", Map.back_rope_Built );
+	OnTrigger( "^1Allied Team have destroyed the Back Rope!!", Map.back_rope_Destroyed );
+	OnTrigger( "^3Axis Team have built the Front Rope!!", Map.front_rope_Built );
+	OnTrigger( "^1Allied Team have destroyed the Front Rope!!", Map.front_rope_Destroyed );
+	
+	OnTrigger( "The dynamite has been planted at TTK.", Map.dyna_objective_Secured );
+	OnTrigger( "^2TTK has been dynamited. Get two fuelcans from TTK to the Jagdpanther.", Map.ttk_destroyed );
+	OnTrigger( "Axis have stolen the dynamite!", Map.dyna_objective_Taken );
+	OnTrigger( "^1Allied team has returned the Dynamite!", Map.dyna_objective_Returned );
+	OnTrigger( "Axis have stolen a fuelcan!", Map.fuelcan_objective_Taken );
+        OnTrigger( "^22 fuelcans have been stolen. Axis, escort the Jagpanzer.", Map.fuelcan_objective_Secured );
+	OnTrigger( "^2The Jagpanzer has provided access to the gold. Now blow up the Gold!!", Map.goldbars );
+	OnTrigger( "church_door_goto", Map.church_door );
+	
+
+
+	
+	tank1atwire = OnTriggerRegion(AABB(-904.684,-1023.189,-126.875,-843.748,-675.876,-52.870), RegionTrigger.VehicleTrigger);
+	tank2atwire = OnTriggerRegion(AABB(-1835.702,-559.564,-126.875,-1387.792,-517.212,-52.872), RegionTrigger.VehicleTrigger);
+	OnTrigger( "tank1 at location", Map.vehicle_at_location );
+	OnTrigger( "tank2 at location", Map.vehicle_at_location );
+	
+
+	
+	Util.DisableGoal( ".*", true ); // all but routes
+	//SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_.*" );
+	//SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_.*" );
+
+	//activation ALLIES
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+	"DEFEND_steal_chur.*",
+	"BUILD_Allied_CP",
+	".*MG42_741",
+	".*CAB.*",
+	});
+	
+	//activation AXIS
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+	"ATTACK_steal_chur.*",
+	".*CAB.*",
+	//"MOVER_church_door",
+	//"BUILD_Churchill_tank",
+	});
+	
+	// All Team goals
+	
+	// Max users per goal
+	Util.SetMaxUsers( 1, ".*MG42.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "MOUNT_Churchill" );
+	Util.SetMaxUsers( 1, "CHECKPOINT.*" );
+	Util.SetMaxUsers( 1, "ESCORT.*" );
+	Util.SetMaxUsers( 2, "FLAG.*" );
+	Util.SetMaxUsers( 1, "CAPPOINT.*" );
+	Util.SetMaxUsers( 2, "PLANT.*" );
+        Wp.SetWaypointFlag("fly_jump", "closed", false);
+	Wp.SetWaypointFlag("church_door", "closed", true);
+	//SwitchData
+	Util.UpdateSwitchData();
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=40, MaxCampTime=90} );
+	SetMapGoalProperties( "DEFEND.*", {MinCampTime=30, MaxCampTime=45} );
+        SetMapGoalProperties( "ATTACK.*", {MinCampTime=30, MaxCampTime=45} );
+	SetGoalPriority( "BUILD_Churchill_tank", 0.93 );
+	SetGoalPriority( "BUILD_Jagdpanther", 0.93 );
+	
+	Util.LimitToClass("ESCORT.*", TEAM.AXIS, CLASS.FIELDOPS, CLASS.COVERTOPS, CLASS.ENGINEER);
+	Util.LimitToClass("MOUNT_Churchill", TEAM.AXIS, CLASS.SOLDIER, CLASS.MEDIC, CLASS.FIELDOPS, CLASS.COVERTOPS);
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+	Map.SetSpawnAxis(bot);
+	Map.SetSpawnAllies(bot);
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_fuelcans_objective =
+		{
+		},
+		BUILD_Weak_Path =
+		{
+		},
+		BUILD_Fly_Over =
+		{
+		},
+		BUILD_Churchill_tank =
+		{
+		},
+		FLAG_dyna_objective =
+		{
+		},
+		CHECKPOINT_spawnflag2 =
+		{
+		},
+		BUILD_Jagdpanther =
+		{
+		},
+		BUILD_goldbars =
+		{
+	        },	
+		PLANT_goldbars =
+		{
+			ROUTE_axis_spawn  = 
+			{
+				ROUTE_rope_back  = {Weight=3},
+				ROUTE_rope_front  = {Weight=2},
+				ROUTE_stairs  = {Weight=3},
+			},
+			ROUTE_spawn_flag  = 
+			{
+				ROUTE_rope_back  = {Weight=3},
+				ROUTE_rope_front  = {Weight=2},
+				ROUTE_stairs  = {Weight=3},
+		    },
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		BUILD_Axis_CP =
+		{
+		},
+		PLANT_Axis_CP =
+		{
+		},
+		BUILD_Allied_CP =
+		{
+		},
+		PLANT_Allied_CP =
+		{
+		},
+		BUILD_front_rope =
+		{
+		},
+		BUILD_back_rope =
+		{
+		},
+		CAPPOINT_dynamite = 
+		{
+			ROUTE_axis_spawn  = 
+			{
+				ROUTE_rope_back  = {Weight=3},
+				ROUTE_rope_front  = {Weight=2},
+				ROUTE_stairs  = {Weight=3},
+			},
+			ROUTE_spawn_flag  = 
+			{
+				ROUTE_rope_back  = {Weight=3},
+				ROUTE_rope_front  = {Weight=2},
+				ROUTE_stairs  = {Weight=3},
+			},
+		},
+	};
+	MapRoutes.FLAG_fuelcans_objective = MapRoutes.CAPPOINT_dynamite;
+	MapRoutes["ATTACK_fuel.*"] = MapRoutes.CAPPOINT_dynamite ;
+	MapRoutes["ATTACK_gold.*"] = MapRoutes.PLANT_goldbars ;
+	Util.Routes(MapRoutes);
+};

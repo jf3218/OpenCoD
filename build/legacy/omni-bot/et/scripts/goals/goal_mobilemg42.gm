@@ -1,0 +1,128 @@
+// This script contains functionality to allow soldiers to use mobile MG42 at given position
+this.Name = "MOBILEMG42";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+
+this.LimitToWeapon( WEAPON.MOBILE_MG42 );
+
+this.Initialize = function()
+{
+	this.FeelPainLocked = false; // throttle for the event
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0xbe8488ed /* MOBILEMG42 */, 0, WEAPON.MOBILE_MG42);
+};
+
+this.OnSpawn = function()
+{
+	this.RevivedTime = GetTime();
+};
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	// finish it once they run out of ammo
+	this.AddFinishCriteria(this.Bot.GetGameEntity(),"not weaponhasammo", WEAPON.MOBILE_MG42_SET, 0);
+};
+
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	// disable combat movement. note: if it is too late here,
+	// there is no other choice but to move this to the Enter function
+	if (!this.Bot.DisableCombatMovement)
+	{
+		this.CombatMovementDisabled = true;
+		this.Bot.DisableCombatMovement = true;
+	}
+
+	// note: they can only select one randomly each time they activate the goal
+	// this is because there is no guarantee that they are able to cycle through each one
+	// given the limits of the weapon while it is set.
+	this.AimVector = Util.GetRandomTableValue( this.MapGoal.AimVectors );
+	this.AddAimRequest(Priority.High, "facing", this.AimVector);
+
+	// wait until bot stands up after revive
+	t = this.RevivedTime - GetTime() + 2;
+	if (t > 0) { sleep(t); }
+
+	this.AddWeaponRequest(Priority.High, WEAPON.MOBILE_MG42 );
+	this.BlockForWeaponChange( WEAPON.MOBILE_MG42 );
+
+	this.Bot.HoldButton(BTN.PRONE, 9999);
+
+	this.AddWeaponRequest(Priority.High, WEAPON.MOBILE_MG42_SET );
+	this.BlockForWeaponChange( WEAPON.MOBILE_MG42_SET );
+
+	// replace the aim request with a low priority one so the targeting system can take over
+	this.AddAimRequest(Priority.Low, "facing", this.AimVector);
+
+	timeout = RandFloat(this.MapGoal.MinCampTime, this.MapGoal.MaxCampTime);
+	while( timeout > 0 )
+	{
+		timeout -= 1;
+		sleep(1);
+	}
+
+	this.BlackboardDelay(5);
+	this.Finished();
+};
+
+this.IsOutOfRange = function(ent)
+{
+	if (!this.AimVector)
+	{
+		return true;
+	}
+
+	entPos = GetEntPosition(ent);
+	botPos = this.Bot.GetPosition();
+
+	if ( !entPos || !botPos )
+	{
+		return true;
+	}
+
+	v1 = (entPos - botPos).Normalize();
+	v2 = this.AimVector.Normalize();
+	return v1.DotProduct(v2) < 0.65;
+};
+
+this.Events[EVENT.FEEL_PAIN] = function(ent)
+{
+	// ignore non-player ents
+	if (!ent || this.FeelPainLocked || GetGameIdFromEntity(ent) > 63)
+	{
+		return;
+	}
+
+	if (!this.Bot.IsAllied(ent) && this.IsOutOfRange(ent))
+	{
+		this.Bot.HoldButton(BTN.JUMP, 2);
+		this.BlackboardDelay(7);
+		this.Finished();
+	}
+
+	// throttle it since this event can be fired in rapid succession
+	// we'll lose some precision, but this isn't critical functionality
+	this.FeelPainLocked = true;
+	sleep(1);
+	this.FeelPainLocked = false;
+};
+
+this.Exit = function()
+{
+	if (this.CombatMovementDisabled) {
+		this.Bot.DisableCombatMovement = false;
+		this.CombatMovementDisabled = false;
+	}
+	this.Bot.ReleaseButton(BTN.PRONE);
+	this.ReleaseWeaponRequest();
+
+	this.FeelPainLocked = false;
+};

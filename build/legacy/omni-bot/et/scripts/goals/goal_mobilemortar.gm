@@ -1,0 +1,110 @@
+// This script contains functionality to allow soldiers to use mobile mortar at given position
+this.Name = "MOBILEMORTAR";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+this.LimitToWeapon( WEAPON.MORTAR );
+
+this.Initialize = function()
+{
+	this.UsedIndex = {};
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0x74708d7a /* MOBILEMORTAR */, 0, WEAPON.MORTAR);
+};
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	// finish it once bot runs out of ammo
+	this.AddFinishCriteria(this.Bot.GetGameEntity(),"not weaponhasammo", WEAPON.MORTAR_SET, 0);
+};
+
+
+this.ChooseAimVector = function()
+{
+	//choose random index from MortarAim which was not used yet
+	tbl = this.MapGoal.MortarAim;
+	n = tableCount(tbl) - 1;
+	if(tableCount(this.UsedIndex) > n){
+		tableClear(this.UsedIndex);
+	}
+	dowhile(this.UsedIndex[index]){
+		index = RandInt(0, n);
+	}
+	this.UsedIndex[index] = true;
+	this.AimVector = tbl[index];
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	if(this.Bot.HasTarget())
+	{
+		this.BlackboardDelay(5);
+		this.Finished();
+	}
+
+	this.AddAimRequest(Priority.High, "facing");
+	this.AimVector = this.MapGoal.GetFacing();
+	block(EVENT.AIM_SUCCESS);
+
+	this.AddWeaponRequest(Priority.High, WEAPON.MORTAR );
+	this.BlockForWeaponChange( WEAPON.MORTAR );
+
+	this.AddWeaponRequest(Priority.High, WEAPON.MORTAR_SET );
+	this.BlockForWeaponChange( WEAPON.MORTAR_SET );
+
+	this.ChooseAimVector();
+
+	while(1)
+	{
+		sleep(2);
+
+		//don't shoot if another player is standing in front of soldier (usually fieldops giving ammo)
+		nearestPlayer = this.Bot.GetNearestAlly(CAT.PLAYER);
+		if ( !nearestPlayer || this.Bot.DistanceTo(nearestPlayer) > 150 || !this.Bot.InFieldOfView(GetEntPosition(nearestPlayer), 160.0) )
+		{
+			this.Bot.FireWeapon();
+		}
+	}
+
+	this.Finished();
+};
+
+this.Exit = function()
+{
+	this.FeelPainLocked = false;
+};
+
+this.Events[EVENT.WEAPON_FIRE] = function(weaponId, projectileEntity)
+{
+	if (weaponId == WEAPON.MORTAR_SET && this.MapGoal)
+	{
+		this.ChooseAimVector();
+	}
+};
+
+this.Events[EVENT.FEEL_PAIN] = function(ent)
+{
+	// ignore non-player ents
+	if (this.FeelPainLocked || !ent || GetGameIdFromEntity(ent) > 63)
+	{
+		return;
+	}
+
+	if (!this.Bot.IsAllied(ent) && this.Bot.DistanceTo(ent) < 1500)
+	{
+		this.Bot.HoldButton(BTN.JUMP, 2);
+		this.BlackboardDelay(9);
+		this.Finished();
+	}
+
+	// throttle it since this event can be fired in rapid succession
+	this.FeelPainLocked = true;
+	sleep(1);
+	this.FeelPainLocked = false;
+};

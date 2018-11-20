@@ -1,0 +1,70 @@
+//==========================================================================================
+//
+//	ctf_temple_b1.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	MickyP	30 October 2012	Initial Script
+//	palota	12 September 2015	greater ROUTE radius at spawn
+//
+//==========================================================================================
+//
+
+global Map =
+{
+};
+
+global OnMapLoad = function()
+{
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CHECKPOINT_Flag =
+		{
+			ROUTE_Allies_Spawn  =
+			{
+				ROUTE_South  =
+				{
+				},
+				ROUTE_East_Allies  =
+				{
+					ROUTE_East  =
+					{
+					},
+				},
+				ROUTE_West_Allies  =
+				{
+					ROUTE_West  =
+					{
+					},
+				},
+			},
+			ROUTE_Axis_Spawn  =
+			{
+				ROUTE_North  =
+				{
+				},
+				ROUTE_West_Axis  =
+				{
+					ROUTE_West  =
+					{
+					},
+				},
+				ROUTE_East_Axis  =
+				{
+					ROUTE_East  =
+					{
+					},
+				},
+			},
+		},
+	};
+
+	MapRoutes["CAMP_Flag_.*"] = MapRoutes.CHECKPOINT_Flag;
+
+	Util.Routes(MapRoutes);
+};

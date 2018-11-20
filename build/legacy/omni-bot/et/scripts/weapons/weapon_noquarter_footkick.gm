@@ -1,0 +1,10 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.FOOTKICK = 100;
+this.Name = "Footkick";
+this.WeaponId = WEAPON.FOOTKICK;
+
+this.PrimaryFire.WeaponType = "melee";
+this.PrimaryFire.RequiresAmmo = false;
+this.PrimaryFire.DelayAfterFiring = 1.5;
+this.PrimaryFire.SetDesirabilityRange(0, 48, 0.1);

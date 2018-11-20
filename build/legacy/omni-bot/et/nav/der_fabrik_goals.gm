@@ -1,0 +1,258 @@
+global _MG =
+{
+	AMMOCAB_ammocabinet1 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(40.000, 976.000, 292.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	ATTACK_Stage1_Allies_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.992, 0.078, 0.099),
+		},
+		GoalType = "Attack",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(127.893, -55.169, -14.875),
+		Radius = 32,
+	},
+	ATTACK_Stage1_Allies_2 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.943, -0.327, 0.066),
+		},
+		GoalType = "Attack",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(130.941, 448.714, -14.875),
+		Radius = 32,
+	},
+	ATTACK_Stage1_Allies_3 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.892, 0.443, 0.088),
+		},
+		GoalType = "Attack",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(570.743, -232.905, -14.875),
+		Radius = 32,
+	},
+	BUILD_Command_Post =
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Position = Vec3(92.000, 572.000, 332.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	BUILD_Gate_to_the_Lower_Corridor =
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Position = Vec3(1052.000, 8.000, 92.000),
+		TagName = "Gate to the Lower Corridor",
+		TeamAvailability = 2,
+	},
+	CHECKPOINT_forward_spawn =
+	{
+		CreateOnLoad = 0,
+		GoalType = "CHECKPOINT",
+		Position = Vec3(1246.000, 160.000, 120.000),
+	},
+	DEFEND_Stage1_Axis_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.999, 0.020, -0.030),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(1669.986, 246.958, 89.339),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	DEFEND_Stage1_Axis_2 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.983, 0.175, -0.055),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(1581.874, -167.074, 97.125),
+		Radius = 32,
+	},
+	DEFEND_Stage1_Axis_3 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(-0.849, 0.527, -0.031),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(837.815, -159.376, -14.875),
+		Radius = 32,
+	},
+	HEALTHCAB_healthcabinet1 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(136.000, 976.000, 292.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	MOUNTMG42_216 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 60,
+		MinCampTime = 15,
+		Name = "MOUNTMG42_216",
+		Position = Vec3(-864.000, 8.000, 380.000),
+		TagName = "",
+		TeamAvailability = 6,
+		Version = 1,
+	},
+	MOUNTMG42_286 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 90,
+		MinCampTime = 30,
+		Position = Vec3(-864.000, 8.000, 380.000),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	PLANT_Command_Post =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		Position = Vec3(95.003, 542.500, 332.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	PLANT_Gate_to_the_Lower_Corridor =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(1040.000, 8.000, 148.000),
+		TagName = "Gate to the Lower Corridor",
+		TeamAvailability = 4,
+	},
+	PLANT_Generator_Hub_1 =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(-1036.000, 128.000, -1060.500),
+		TagName = "Generator Hub 1",
+		TeamAvailability = 4,
+	},
+	PLANT_Generator_Hub_2 =
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(-1036.000, -136.000, -1060.500),
+		TagName = "Generator Hub 2",
+		TeamAvailability = 4,
+	},
+	REPAIRMG42_216 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Name = "REPAIRMG42_216",
+		Position = Vec3(-864.000, 8.000, 380.000),
+		TagName = "",
+		TeamAvailability = 6,
+		Version = 1,
+	},
+	REPAIRMG42_286 =
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(-864.000, 8.000, 380.000),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	REPAIRMG42_Command_Post =
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(16.000, 488.000, -547.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	REPAIRMG42_Gate_to_the_Lower_Corridor =
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(976.000, 0.000, 388.000),
+		TagName = "Gate to the Lower Corridor",
+		TeamAvailability = 6,
+	},
+	SNIPE_Stage1_Allies_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.968, -0.247, 0.050),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-688.371, 466.806, -14.875),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_Stage1_Allies_1_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.974, -0.218, 0.063),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-698.946, 469.601, -14.875),
+		Radius = 32,
+		Stance = "crouch",
+		TagName = "Stage1_Allies_1",
+	},
+	SNIPE_Stage1_Allies_2 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.991, 0.047, -0.121),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-911.616, -114.389, 313.125),
+		Radius = 32,
+	},
+	SNIPE_Stage1_Axis_1 =
+	{
+		AimVectors =
+		{
+			[0] = Vec3(0.993, -0.044, -0.112),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-938.875, 118.095, 313.125),
+		Radius = 32,
+	},
+	Version = 1,
+};

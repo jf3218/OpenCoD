@@ -1,0 +1,4417 @@
+//==========================================================================================
+//
+//	etsbay.gm
+//
+//	Who      	When			What
+//------------------------------------------------------------------------------------------
+//	Qiki		22 December 2015	Initial Script
+//	Native12	02.04.2016		Done; ToDo: maybe more improvements with lift?
+//
+//	Bugs and suggestions: PM on http://omni-bot.invisionzone.com/index.php?/index
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	ShowMovers = false,
+	
+	DontDispenseAmmo = true,
+	
+	Allied_CP = false,
+	Axis_CP = false,
+	Axis_Bunker_MG_1 = false,
+	Axis_Bunker_MG_2 = false,
+	Axis_Command_Bunker_MG = false,
+	Bridge = false,
+	East_Ramp = false,
+	West_Ramp = false,
+	Water_Pump = false,
+	Bank_Door = true,
+	Main_Entrance = true,
+	Side_Entrance = true,
+	Gold_Bars_1_Taken = false,
+	Gold_Bars_2_Taken = false,
+	Gold_Bars_1_Secured = false,
+	Gold_Bars_2_Secured = false,
+	Depot_Flag_Axis = true,
+	Depot_Flag_Allies = false,
+	Allied_CP_Dyno = 0,
+	Axis_CP_Dyno = 0,
+	Axis_Bunker_MG_1_Dyno = 0,
+	Axis_Bunker_MG_2_Dyno = 0,
+	Axis_Command_Bunker_MG = 0,
+	Bridge_Dyno = 0,
+	East_Ramp_Dyno = 0,
+	West_Ramp_Dyno = 0,
+	Water_Pump_Dyno = 0,
+	Bank_Door_Dyno = 0,
+	Main_Entrance_Dyno = 0,
+	Side_Entrance_Dyno = 0,
+	DoorClosed = true,
+	DoorOpened = false,
+	DoorMoving = false,
+	DoorMoving2 = false,
+	LowerLiftMoving = false,
+	LowerLiftStopped = true,
+	LowerLiftIsUp = false,
+	LowerLiftIsDown = true,
+	LowerLiftBoardBlocked = false,
+	LowerPushButtonActivated = false,
+	AllyIns = 0,
+	AllyAmbReg = 0,
+	AllyNearBank = 0,
+	AllyGetRB1 = 0,
+	AllyGetRB2 = 0,
+	WaterTunnelReady = false,
+	Water_Level = 1,
+	Kill_BotsInLift = 0,
+	
+	Roles =
+	{
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.FIELDOPS,
+			},
+			DEFENDER2 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER3 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.FIELDOPS,
+			},
+		},
+		
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			ATTACKER =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.COVERTOPS,
+			},
+			ATTACKER2 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER3 =	
+			{
+				numbots = 5,
+				crucialClass = CLASS.COVERTOPS,
+			},
+		},
+	},
+	
+	Movers =
+	{
+		"MOVER_aufzug",
+		"MOVER_aufzug1",
+	},
+	
+	Switches =
+	{
+		//	/bot waypoint_setproperty paththrough UseSwitch_PT:big_door
+		big_door =
+		{
+			AimPosition = Vec3(1193.509, 2721.125, 522.492),	// /bot aim_pos
+			Enabled = true,
+			Priority = 0.0,
+			WaypointName = "big_door_switch",
+			LimitBots = 1,
+			Timeout = 2500,
+			
+			Wait = function()
+			{
+				if ( Map.DoorMoving )
+				{
+					while ( Map.DoorMoving )
+					{
+						yield();
+					}
+					yield();
+					return true;
+				}
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough UseSwitch_PT:lower_lift
+		lower_lift =
+		{
+			AimPosition = Vec3(465.875, 2971.693, 215.755),	// /bot aim_pos
+			Enabled = true,
+			Priority = 0.0,
+			WaypointName = "lower_lift_switch",
+			LimitBots = 1,
+			Timeout = 2500,
+			
+			Wait = function()
+			{
+				if ( !Map.LowerLiftIsDown )
+				{
+					while ( !Map.LowerLiftIsDown )
+					{
+						yield();
+					}
+					yield();
+					return true;
+				}
+				else
+				{
+					return true;
+				}
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough UseSwitch_PT:lower_liftup
+		lower_liftup =
+		{
+			AimPosition = Vec3(465.875, 2969.943, 528.529),	// /bot aim_pos
+			Enabled = true,
+			Priority = 0.0,
+			WaypointName = "lower_liftup_switch",
+			LimitBots = 1,
+			Timeout = 2500,
+			
+			Wait = function()
+			{
+				if ( !Map.LowerLiftIsUp )
+				{
+					while ( !Map.LowerLiftIsUp )
+					{
+						yield();
+					}
+					yield();
+					return true;
+				}
+			},
+		},
+	},
+	
+	RideMovers =
+	{
+		//	/bot waypoint_setproperty paththrough RideMover_PT:lowerlift_lower_board
+		lowerlift_lower_board =
+		{
+			Enabled = true,
+			movergoal = "MOVER_aufzug",
+			rideposition = Vector3(-37.875, 4.863, -60.375),	// /bot sgn 100 o
+			startwp = "lowerboardstartWP",
+			exitwp = "lowerboardexitWP",
+			board = function(_this)
+			{
+				if ( Map.LowerPushButtonActivated )
+				{
+					return true;
+				}
+				return false;
+			},
+ 			leave = function(_this)
+			{
+				if ( Map.LowerLiftIsUp )
+				{
+					return true;
+				}
+				return false;
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough RideMover_PT:lowerlift_upper_board
+		lowerlift_upper_board =
+		{
+			Enabled = true,
+			movergoal = "MOVER_aufzug",
+			rideposition = Vector3(33.200, 9.765, -60.375),	// /bot sgn 100 o
+			startwp = "upperboardstartWP",
+			exitwp = "upperboardexitWP",
+			board = function(_this)
+			{
+				if ( Map.LowerLiftIsUp )
+				{
+					return true;
+				}
+				
+				return false;
+			},
+ 			leave = function(_this)
+			{
+				if ( Map.LowerLiftIsDown )
+				{
+					return true;
+				}
+				
+				return false;
+			},
+		},
+	},
+	
+	Navigation =
+	{
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough Navigation_PT:wait
+		wait =
+		{
+			navigate = function(_this)
+			{
+				if ( Map.DoorMoving )
+				{
+					while ( Map.DoorMoving )
+					{
+						yield();
+					}
+					
+					yield();
+					_this.Bot.HoldButton(BTN.FORWARD, 0.1);
+					sleep(0.1);
+				}
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough Navigation_PT:wait_liftdown
+		wait_liftdown =
+		{
+			navigate = function(_this)
+			{
+				if ( Map.LowerPushButtonActivated )
+				{
+					Util.MapDebugPrint( "NAVIGATE1 - Lower lift button activated" );
+					
+					wpTable = {};
+					Wp.GetWaypointByName("GoOutWP", wpTable);
+					_this.Goto(wpTable.position);
+					
+					dowhile ( !Map.LowerLiftIsDown )
+					{
+						sleep(0.1);
+					}
+					
+					yield();
+				}
+				if ( !Map.LowerLiftIsDown )
+				{
+					Util.MapDebugPrint( "NAVIGATE1 - Lower lift isn't down" );
+					
+					wpTable = {};
+					Wp.GetWaypointByName("GoOutWP", wpTable);
+					_this.Goto(wpTable.position);
+					
+					dowhile ( !Map.LowerLiftIsDown )
+					{
+						sleep(0.1);
+					}
+					
+					yield();
+				}
+				else
+				{
+					Util.MapDebugPrint( "NAVIGATE1 - Lower lift is down" );
+				}
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough Navigation_PT:wait_liftdown_in
+		wait_liftdown_in =
+		{
+			navigate = function(_this)
+			{
+				if ( Map.LowerLiftBoardBlocked )
+				{
+					Util.MapDebugPrint( "NAVIGATE2 - Board disabled" );
+					
+					wpTable = {};
+					Wp.GetWaypointByName("GoOutWP", wpTable);
+					_this.Goto(wpTable.position);
+				}
+				else
+				{
+					Util.MapDebugPrint( "NAVIGATE2 - Board enabled" );
+				}
+			},
+		},
+		
+		//	/bot waypoint_setproperty paththrough Navigation_PT:wait_liftupp
+		wait_liftupp =
+		{
+			navigate = function(_this)
+			{
+				if ( Map.LowerLiftMoving )
+				{
+					Util.MapDebugPrint( "NAVIGATE1 - Lower lift upper position - Lift moving" );
+					
+					wpTable = {};
+					Wp.GetWaypointByName("GoOutWPupp", wpTable);
+					_this.Goto(wpTable.position);
+					
+					dowhile ( Map.LowerLiftMoving )
+					{
+						yield();
+					}
+					
+					yield();
+				}
+				else
+				{
+					Util.MapDebugPrint( "NAVIGATE1 - Lower lift upper position - Lift stopped" );
+				}
+			},
+		},
+		
+	},
+
+	Allied_CP_Built = function( trigger )
+	{
+		Map.Allied_CP = true;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+		
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+	
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.Allied_CP = false;
+		Map.Allied_CP_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+		
+		if ( Map.AllyIns > 0 or !Map.Depot_Flag_Axis or Map.AllyAmbReg > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		}
+		
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+	
+	Axis_CP_Built = function( trigger )
+	{
+		Map.Axis_CP = true;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+		
+		if ( Map.AllyIns > 0 or !Map.Depot_Flag_Axis or Map.AllyAmbReg > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+		
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+	
+	Axis_CP_Destroyed = function( trigger )
+	{
+		Map.Axis_CP = false;
+		Map.Axis_CP_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+		
+		if ( Map.AllyIns > 0 or !Map.Depot_Flag_Axis or Map.AllyAmbReg > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		}
+		
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+	
+	Command_Post_Planted = function( trigger )
+	{
+		if ( Map.Allied_CP )
+		{
+			Map.Allied_CP_Dyno += 1;
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Command_Post_.*" );
+			
+			Util.MapDebugPrint( "Allied_CP_Planted" );
+		}
+		else
+		{
+			Map.Axis_CP_Dyno += 1;
+			
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Command_Post_.*" );
+			
+			Util.MapDebugPrint( "Axis_CP_Planted" );
+		}
+	},
+	
+	Command_Post_Defused = function( trigger )
+	{
+		if ( Map.Allied_CP )
+		{
+			Map.Allied_CP_Dyno -= 1;
+			
+			Util.MapDebugPrint( "Allied_CP_Defused" );
+		}
+		else
+		{
+			Map.Axis_CP_Dyno -= 1;
+			
+			Util.MapDebugPrint( "Axis_CP_Defused" );
+		}
+	},
+	
+	Axis_Bunker_MG_1_Built = function( trigger )
+	{
+		Map.Axis_Bunker_MG_1 = true;
+		
+		if ( Map.AllyIns == 0 and Map.Depot_Flag_Axis and Map.AllyAmbReg == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_1" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_1" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_1" );
+		}
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_1_Built" );
+	},
+	
+	Axis_Bunker_MG_1_Planted = function( trigger )
+	{
+		Map.Axis_Bunker_MG_1_Dyno += 1;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Bunker_MG_1_.*" );
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_1_Planted" );
+	},
+	
+	Axis_Bunker_MG_1_Defused = function( trigger )
+	{
+		Map.Axis_Bunker_MG_1_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_1_Defused" );
+	},
+
+	Axis_Bunker_MG_1_Destroyed = function( trigger )
+	{
+		Map.Axis_Bunker_MG_1 = false;
+		Map.Axis_Bunker_MG_1_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+		
+		if ( Map.AllyIns == 0 and Map.Depot_Flag_Axis and Map.AllyAmbReg == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_1" );
+		}
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_1_Destroyed" );
+	},
+
+	Axis_Bunker_MG_2_Built = function( trigger )
+	{
+		Map.Axis_Bunker_MG_2 = true;
+		
+		if ( Map.AllyIns == 0 and Map.Depot_Flag_Axis and Map.AllyAmbReg == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_2" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_2" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_2" );
+		}
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_2_Built" );
+	},
+	
+	Axis_Bunker_MG_2_Planted = function( trigger )
+	{
+		Map.Axis_Bunker_MG_2_Dyno += 1;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Bunker_MG_2_.*" );
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_2_Planted" );
+	},
+	
+	Axis_Bunker_MG_2_Defused = function( trigger )
+	{
+		Map.Axis_Bunker_MG_2_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_2_Defused" );
+	},
+	
+	Axis_Bunker_MG_2_Destroyed = function( trigger )
+	{
+		Map.Axis_Bunker_MG_2 = false;
+		Map.Axis_Bunker_MG_2_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+		
+		if ( Map.AllyIns == 0 and Map.Depot_Flag_Axis and Map.AllyAmbReg == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_2" );
+		}
+		
+		Util.MapDebugPrint( "Axis_Bunker_MG_2_Destroyed" );
+	},
+	
+	Axis_Command_Bunker_MG_Built = function( trigger )
+	{
+		Map.Axis_Command_Bunker_MG = true;
+		
+		if ( Map.AllyIns > 0 or !Map.Depot_Flag_Axis or Map.AllyAmbReg > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Bunker_MG" );
+		}
+		
+		Util.MapDebugPrint( "Axis_Command_Bunker_MG_Built" );
+	},
+	
+	Axis_Command_Bunker_MG_Planted = function( trigger )
+	{
+		Map.Axis_Command_Bunker_MG += 1;
+		
+		Util.MapDebugPrint( "Axis_Command_Bunker_MG_Planted" );
+	},
+	
+	Axis_Command_Bunker_MG_Defused = function( trigger )
+	{
+		Map.Axis_Command_Bunker_MG -= 1;
+		
+		Util.MapDebugPrint( "Axis_Command_Bunker_MG_Defused" );
+	},
+
+	Axis_Command_Bunker_MG_Destroyed = function( trigger )
+	{
+		Map.Axis_Command_Bunker_MG = false;
+		Map.Axis_Command_Bunker_MG = 0;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+		
+		Util.MapDebugPrint( "Axis_Command_Bunker_MG_Destroyed" );
+	},
+
+	Bridge_Built = function( trigger )
+	{
+		Map.Bridge = true;
+		
+		Wp.SetWaypointFlag( "Bridge_1", "closed", false );
+		Wp.SetWaypointFlag( "Bridge_2", "closed", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Bridge" );
+		
+		Util.MapDebugPrint( "Bridge_Built" );
+		
+		sleep(2);
+		
+		if ( !Map.Bank_Door )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Secret_Area" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Bridge_Destroyed.*" );
+		}
+	},
+	
+	Bridge_Planted = function( trigger )
+	{
+		Map.Bridge_Dyno += 1;
+		
+		Util.SetMaxUsers( 1, "DEFUSE_Bridge_.*" );
+		
+		Util.MapDebugPrint( "Bridge_Planted" );
+	},
+	
+	Bridge_Defused = function( trigger )
+	{
+		Map.Bridge_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Bridge_Defused" );
+	},
+
+	Bridge_Destroyed = function( trigger )
+	{
+		Map.Bridge = false;
+		Map.Bridge_Dyno = 0;
+		
+		Wp.SetWaypointFlag( "Bridge_1", "closed", true );
+		Wp.SetWaypointFlag( "Bridge_2", "closed", true );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Bridge" );
+		
+		if ( !Map.Bank_Door )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Secret_Area" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Bridge_Destroyed.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Bridge" );
+		}
+		
+		Util.MapDebugPrint( "Bridge_Destroyed" );
+	},
+
+	East_Ramp_Built = function( trigger )
+	{
+		Map.East_Ramp = true;
+		
+		Wp.SetWaypointFlag( "ER_1", "crouch", true );
+		Wp.SetWaypointFlag( "ER_2", "crouch", true );
+		Wp.SetWaypointFlag( "ER_3", "crouch", true );
+		Wp.SetWaypointFlag( "ER_4", "crouch", true );
+		Wp.SetWaypointFlag( "ER_5", "crouch", true );
+		Wp.SetWaypointFlag( "ER_6", "crouch", true );
+		Wp.SetWaypointFlag( "ER_7", "closed", true );
+		Wp.SetWaypointFlag( "ER_8", "crouch", true );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_East_Ramp" );
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if ( !Map.Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_L_.*" );
+				
+				SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_ForwardBunker_.*" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_East_Ramp" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceDestr_.*" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_ER_Build_01" );
+			}
+		}
+		
+		if ( Map.Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Side_Entrance" );
+		}
+		
+		Util.MapDebugPrint( "East_Ramp_Built" );
+	},
+	
+	East_Ramp_Planted = function( trigger )
+	{
+		Map.East_Ramp_Dyno += 1;
+		
+		Util.SetMaxUsers( 1, "DEFUSE_East_Ramp_.*" );
+		
+		Util.MapDebugPrint( "East_Ramp_Planted" );
+	},
+	
+	East_Ramp_Defused = function( trigger )
+	{
+		Map.East_Ramp_Dyno -= 1;
+		
+		Util.MapDebugPrint( "East_Ramp_Defused" );
+	},
+
+	East_Ramp_Destroyed = function( trigger )
+	{
+		Map.East_Ramp = false;
+		Map.East_Ramp_Dyno = 0;
+		
+		Wp.SetWaypointFlag( "ER_1", "crouch", false );
+		Wp.SetWaypointFlag( "ER_2", "crouch", false );
+		Wp.SetWaypointFlag( "ER_3", "crouch", false );
+		Wp.SetWaypointFlag( "ER_4", "crouch", false );
+		Wp.SetWaypointFlag( "ER_5", "crouch", false );
+		Wp.SetWaypointFlag( "ER_6", "crouch", false );
+		Wp.SetWaypointFlag( "ER_7", "closed", false );
+		Wp.SetWaypointFlag( "ER_8", "crouch", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_East_Ramp" );
+		
+		if ( Map.Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Side_Entrance" );
+		}
+		else
+		{
+			if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntranceDestr_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_ER_Build_01" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_L_.*" );
+				
+				if ( Map.Main_Entrance or !Map.West_Ramp)
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_R_.*" );
+				}
+			}
+		}
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_East_Ramp" );
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if (( !Map.West_Ramp or Map.Main_Entrance ) and !Map.WaterTunnelReady )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+			}
+		}
+		
+		Util.MapDebugPrint( "East_Ramp_Destroyed" );
+	},
+
+	West_Ramp_Built = function( trigger )
+	{
+		Map.West_Ramp = true;
+		
+		Wp.SetWaypointFlag( "WR_1", "closed", false );
+		Wp.SetWaypointFlag( "WR_4", "closed", true );
+		Wp.SetWaypointFlag( "WR_5", "crouch", true );
+		Wp.SetWaypointFlag( "WR_6", "crouch", true );
+		Wp.SetWaypointFlag( "WR_7", "crouch", true );
+		Wp.SetWaypointFlag( "WR_8", "crouch", true );
+		Wp.SetWaypointFlag( "WR_9", "crouch", true );
+		Wp.SetWaypointFlag( "WR_10", "crouch", true );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_West_Ramp" );
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if ( !Map.Main_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_R_.*" );
+				
+				SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_ForwardBunker_.*" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_West_Ramp" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceDestr_.*" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WR_Build_01" );
+			}
+		}
+		
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main_Entrance" );
+		}
+		
+		Util.MapDebugPrint( "West_Ramp_Built" );
+	},
+	
+	West_Ramp_Planted = function( trigger )
+	{
+		Map.West_Ramp_Dyno += 1;
+		
+		Util.SetMaxUsers( 1, "DEFUSE_West_Ramp_.*" );
+		
+		Util.MapDebugPrint( "West_Ramp_Planted" );
+	},
+	
+	West_Ramp_Defused = function( trigger )
+	{
+		Map.West_Ramp_Dyno -= 1;
+		
+		Util.MapDebugPrint( "West_Ramp_Defused" );
+	},
+
+	West_Ramp_Destroyed = function( trigger )
+	{
+		Map.West_Ramp = false;
+		Map.West_Ramp_Dyno = 0;
+		
+		Wp.SetWaypointFlag( "WR_1", "closed", true );
+		Wp.SetWaypointFlag( "WR_4", "closed", false );
+		Wp.SetWaypointFlag( "WR_5", "crouch", false );
+		Wp.SetWaypointFlag( "WR_6", "crouch", false );
+		Wp.SetWaypointFlag( "WR_7", "crouch", false );
+		Wp.SetWaypointFlag( "WR_8", "crouch", false );
+		Wp.SetWaypointFlag( "WR_9", "crouch", false );
+		Wp.SetWaypointFlag( "WR_10", "crouch", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_West_Ramp" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WR_Build_.*" );
+		
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Main_Entrance" );
+		}
+		else
+		{
+			if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainEntranceDestr_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WR_Build_01" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_R_.*" );
+				
+				if ( Map.Side_Entrance or !Map.East_Ramp)
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_L_.*" );
+				}
+			}
+		}
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_West_Ramp" );
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if (( !Map.East_Ramp or Map.Side_Entrance ) and !Map.WaterTunnelReady )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+			}
+		}
+		
+		Util.MapDebugPrint( "West_Ramp_Destroyed" );
+	},
+
+	Water_Pump_Built = function( trigger )
+	{
+		Map.Water_Pump = true;
+		
+		Wp.SetWaypointFlag( "Water_Surface_1", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_2", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_3", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_4", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_5", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_6", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_7", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_8", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_9", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_10", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_11", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_12", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_13", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_14", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_15", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_16", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_17", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_18", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_19", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_20", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_21", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_22", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_23", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_24", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_25", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_26", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_27", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_28", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_29", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_30", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_31", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_32", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_33", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_34", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_35", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_36", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_37", "closed", true );
+		Wp.SetWaypointFlag( "Water_Surface_0", "inwater", false );
+		Wp.SetWaypointFlag( "Water_Surface_0", "underwater", false );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Water_Pump" );
+		
+		if ( !Map.Side_Entrance or !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Water_Pump" );
+		}
+		
+		Util.MapDebugPrint( "Water_Pump_Built" );
+		
+		while ( !Map.WaterTunnelReady )
+		{
+			sleep(0.5);
+		}
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+		
+		if ( !Map.Depot_Flag_Allies )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+		}
+		
+		if ( Map.Bank_Door )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Bank_Door" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_Bank_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox.*" );
+		}
+		
+		Util.MapDebugPrint("TRIGGER - Tunnel drained");
+	},
+	
+	Water_Pump_Planted = function( trigger )
+	{
+		Map.Water_Pump_Dyno += 1;
+		
+		Util.SetMaxUsers( 1, "DEFUSE_Water_Pump_.*" );
+		
+		Util.SetGoalRange("DEFUSE_Water_Pump_.*", 2000);
+		
+		Util.MapDebugPrint( "Water_Pump_Planted" );
+	},
+	
+	Water_Pump_Defused = function( trigger )
+	{
+		Map.Water_Pump_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Water_Pump_Defused" );
+	},
+
+	Water_Pump_Destroyed = function( trigger )
+	{
+		Map.Water_Pump = false;
+		Map.Water_Pump_Dyno = 0;
+		
+		Wp.SetWaypointFlag( "Water_Surface_1", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_2", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_3", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_4", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_5", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_6", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_7", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_8", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_9", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_10", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_11", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_12", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_13", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_14", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_15", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_16", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_17", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_18", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_19", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_20", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_21", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_22", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_23", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_24", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_25", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_26", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_27", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_28", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_29", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_30", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_31", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_32", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_33", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_34", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_35", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_36", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_37", "closed", false );
+		Wp.SetWaypointFlag( "Water_Surface_0", "inwater", true );
+		Wp.SetWaypointFlag( "Water_Surface_0", "underwater", true );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Water_Pump" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Water_Pump" );
+		
+		Util.MapDebugPrint( "Water_Pump_Destroyed" );
+		
+		while ( Map.WaterTunnelReady )
+		{
+			sleep(0.5);
+		}
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if ( !Map.East_Ramp and !Map.West_Ramp and !Map.DoorOpened )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+				
+				if ( Map.Bank_Door )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+				}
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+			}
+			else if ( Map.East_Ramp and Map.Side_Entrance and !Map.West_Ramp and !Map.DoorOpened )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+				
+				if ( Map.Bank_Door )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+				}
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+			}
+			else if  ( !Map.East_Ramp and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+				
+				if ( Map.Bank_Door )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+				}
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+			}
+			else if ( Map.East_Ramp and Map.Side_Entrance and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+				
+				if ( Map.Bank_Door )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+				}
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+			}
+		}
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+		
+		Util.MapDebugPrint("TRIGGER - Tunnel flooded");
+	},
+
+	Bank_Door_Planted = function( trigger )
+	{
+		Map.Bank_Door_Dyno += 1;
+		
+		Util.MapDebugPrint( "Bank_Door_Planted" );
+	},
+	
+	Bank_Door_Defused = function( trigger )
+	{
+		Map.Bank_Door_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Bank_Door_Defused" );
+	},
+	
+	Bank_Door_Destroyed = function( trigger )
+	{
+		if ( Map.Bank_Door_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Bank_Door_.*" );
+		}
+		
+		Map.Bank_Door = false;
+		Map.Bank_Door_Dyno = 0;
+		
+		Util.MapDebugPrint( "Bank_Door_Destroyed" );
+		
+		sleep(2);
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_BankIns_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox.*" );
+		
+		if ( !Map.Bridge )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Bridge_Destroyed.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Bridge" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Secret_Area" );
+		}
+		
+		SetGoalPriority( "BUILD_Bridge", 0.91, TEAM.ALLIES, CLASS.ENGINEER );
+	},
+	
+	Main_Entrance_Planted = function( trigger )
+	{
+		Map.Main_Entrance_Dyno += 1;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Main_Entrance_.*" );
+		
+		Util.MapDebugPrint( "Main_Entrance_Planted" );
+	},
+	
+	Main_Entrance_Defused = function( trigger )
+	{
+		Map.Main_Entrance_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Main_Entrance_Defused" );
+	},
+	
+	Main_Entrance_Destroyed = function( trigger )
+	{
+		if ( Map.Main_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Main_Entrance_.*" );
+		}
+		
+		Map.Main_Entrance = false;
+		Map.Main_Entrance_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Main_Entrance" );
+		
+		Util.SetGoalPosition(-395.577, 2640.467, 822.127, "PLANT_West_Ramp");
+		cover = GetGoal("PLANT_West_Ramp").CoverSpots[0];
+		cover.position = Vec3(172.097, 2994.271, 760.125);
+		cover.stance= "crouch";
+		cover.AimVectors= { Vec3(-0.845, -0.534, -0.010) };
+		GetGoal("PLANT_West_Ramp").DetonateSpots = { Vec3(160.847, 2845.477, 760.125) };
+		
+		if ( Map.Side_Entrance )
+		{
+			if ( !Map.Depot_Flag_Allies and Map.West_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+			}
+			
+			if ( Map.Water_Pump )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Water_Pump" );
+			}
+		}
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if ( Map.West_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_R_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WR_Build_01" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceDestr_.*" );
+			}
+		}
+		
+		if ( Map.West_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_West_Ramp" );
+		}
+		
+		Util.MapDebugPrint( "Main_Entrance_Destroyed" );
+	},
+	
+	Side_Entrance_Planted = function( trigger )
+	{
+		Map.Side_Entrance_Dyno += 1;
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Side_Entrance_.*" );
+		
+		Util.MapDebugPrint( "Side_Entrance_Planted" );
+	},
+	
+	Side_Entrance_Defused = function( trigger )
+	{
+		Map.Side_Entrance_Dyno -= 1;
+		
+		Util.MapDebugPrint( "Side_Entrance_Defused" );
+	},
+	
+	Side_Entrance_Destroyed = function( trigger )
+	{
+		if ( Map.Side_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Side_Entrance_.*" );
+		}
+		
+		Map.Side_Entrance = false;
+		Map.Side_Entrance_Dyno = 0;
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Side_Entrance" );
+		
+		Util.SetGoalPosition(1951.106, 2637.287, 752.125, "PLANT_East_Ramp");
+		cover = GetGoal("PLANT_East_Ramp").CoverSpots[0];
+		cover.position = Vec3(1698.127, 3005.875, 752.125);
+		cover.stance= "crouch";
+		cover.AimVectors= { Vec3(0.507, -0.862, -0.021) };
+		GetGoal("PLANT_East_Ramp").DetonateSpots = { Vec3(1845.875, 2869.462, 488.126) };
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "HEALTHCAB_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "AMMOCAB_.*" );
+		
+		if ( Map.Main_Entrance )
+		{
+			if ( !Map.Depot_Flag_Allies and Map.East_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+			}
+			
+			if ( Map.Water_Pump )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Water_Pump" );
+			}
+		}
+		
+		if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+		{
+			if ( Map.East_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_L_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_ER_Build_01" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceDestr_.*" );
+			}
+		}
+		
+		if ( Map.East_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_East_Ramp" );
+		}
+		
+		Util.MapDebugPrint( "Side_Entrance_Destroyed" );
+	},
+
+	First_Gold_Bars_Taken = function( trigger )
+	{
+		Map.Gold_Bars_1_Taken = true;
+		
+		ClearGoalRole( "DEFEND_Axis_Bank_.*", ROLE.DEFENDER3 );
+		
+		if ( !Map.Gold_Bars_2_Taken )
+		{
+			SetGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+		}
+		
+		if ( Map.Gold_Bars_2_Taken or Map.Gold_Bars_2_Secured )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+			
+			SetGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		
+		Util.MapDebugPrint( "First_Gold_Bars_Taken" );
+	},
+
+	First_Gold_Bars_Returned = function( trigger )
+	{
+		Map.Gold_Bars_1_Taken = false;
+		
+		ClearGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+		
+		Map.AllyGetRB1 = 0;
+		
+		Util.MapDebugPrint( "Number of golds out: " + ( Map.AllyGetRB1 + Map.AllyGetRB2 ) );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank.*" );
+		
+		if ( !Map.Gold_Bars_2_Taken )
+		{
+			SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		else
+		{
+			SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+		}
+		
+		Util.MapDebugPrint( "First_Gold_Bars_Returned" );
+		
+		sleep(0.5);
+		
+		if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+		}
+		else if ( Map.AllyGetRB1 == 0 and Map.Gold_Bars_2_Secured )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+		}
+		else if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_13_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_01_.*" );
+		}
+	},
+
+	First_Gold_Bars_Secured = function( trigger )
+	{
+		Map.Gold_Bars_1_Taken = false;
+		Map.Gold_Bars_1_Secured = true;
+		
+		Map.AllyGetRB1 = 0;
+		
+		if ( !Map.Gold_Bars_2_Secured )
+		{
+			if ( Map.AllyGetRB2 == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_13_.*" );
+				
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_01_.*" );
+			}
+			else
+			{
+				SetGoalRole( "ATTACK_Axis_SecretArea_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				
+				SetGoalRole( "DEFEND_Allies_SecretArea_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_.*" );
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_.*" );
+			}
+			
+			SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			SetGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		
+		Util.MapDebugPrint( "First_Gold_Bars_Secured" );
+	},
+
+	Second_Gold_Bars_Taken = function( trigger )
+	{
+		Map.Gold_Bars_2_Taken = true;
+		
+		if ( !Map.Gold_Bars_1_Taken )
+		{
+			SetGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER, ROLE.DEFENDER2 } );
+		}
+		
+		if ( Map.Gold_Bars_1_Taken or Map.Gold_Bars_1_Secured )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+			
+			SetGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		
+		Util.MapDebugPrint( "Second_Gold_Bars_Taken" );
+	},
+
+	Second_Gold_Bars_Returned = function( trigger )
+	{
+		Map.Gold_Bars_2_Taken = false;
+		
+		ClearGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER, ROLE.DEFENDER2 } );
+		
+		Map.AllyGetRB2 = 0;
+		
+		Util.MapDebugPrint( "Number of golds out: " + ( Map.AllyGetRB1 + Map.AllyGetRB2 ) );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank.*" );
+		
+		if ( !Map.Gold_Bars_1_Taken )
+		{
+			SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		else
+		{
+			SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER, ROLE.DEFENDER2 } );
+		}
+		
+		Util.MapDebugPrint( "Second_Gold_Bars_Returned" );
+		
+		sleep(0.5);
+		
+		if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+		}
+		else if ( Map.AllyGetRB2 == 0 and Map.Gold_Bars_1_Secured )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+		}
+		else if ( Map.AllyGetRB2 == 0 and Map.AllyGetRB1 > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_02_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_23.*" );
+		}
+	},
+
+	Second_Gold_Bars_Secured = function( trigger )
+	{
+		Map.Gold_Bars_2_Taken = false;
+		Map.Gold_Bars_2_Secured = true;
+		
+		Map.AllyGetRB2 = 0;
+		
+		if ( !Map.Gold_Bars_1_Secured )
+		{
+			if ( Map.AllyGetRB1 == 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_02_.*" );
+				
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_23.*" );
+			}
+			else
+			{
+				SetGoalRole( "ATTACK_Axis_SecretArea_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				
+				SetGoalRole( "DEFEND_Allies_SecretArea_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_.*" );
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_.*" );
+			}
+			
+			SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			SetGoalRole( "DEFEND_Axis_Outside_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		
+		Util.MapDebugPrint( "Second_Gold_Bars_Secured" );
+	},
+	
+	SetSpawn = function()
+	{
+		foreach(bot in BotTable)
+		{
+			Map.SetSpawn1(bot);
+		}
+	},
+	
+	SetSpawn1 = function(bot)
+	{
+		if ( Map.Depot_Flag_Axis )
+		{
+			if ( bot.GetTeam() == TEAM.AXIS )
+			{
+				if ( RandInt(0,1) < 1 )
+				{
+					bot.ChangeSpawnPoint(4);
+				}
+				else
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+			else
+			{
+				bot.ChangeSpawnPoint(1);
+			}
+		}
+		else
+		{
+			bot.ChangeSpawnPoint(0);
+		}
+	},
+	
+	depot_flag_Axis_Captured = function( trigger )
+	{
+		Map.Depot_Flag_Axis = true;
+		Map.Depot_Flag_Allies = false;
+		
+		if ( Map.Bank_Door )
+		{
+			SetGoalRole( "PLANT_Bank_Door", ROLE.AMBUSHER );
+		}
+		
+		SetGoalRole( "FLAG_radarbox1", ROLE.AMBUSHER );
+		SetGoalRole( "FLAG_radarbox2", ROLE.AMBUSHER );
+		SetGoalRole( "ATTACK_Allies_Bank_.*", ROLE.AMBUSHER );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_depot_flag" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+		
+		Util.SetMaxUsers( 10, "CHECKPOINT_depot_flag" );
+		
+		Map.SetSpawn();
+		
+		if ( Map.AllyIns == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Axis_Command_Bunker_MG.*" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Axis_Command_Bunker_MG.*" );
+			
+			if ( Map.Axis_Bunker_MG_1 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_1" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_1" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_1" );
+			}
+			
+			if ( Map.Axis_Bunker_MG_2 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_2" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_2" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_2" );
+			}
+			
+			SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_Axis_Start_.*" );
+			
+			if ( !Map.Side_Entrance )
+			{
+				if ( Map.East_Ramp )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_L_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceDestr_.*" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntranceDestr_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_L_.*" );
+				}
+			}
+			
+			if ( Map.Side_Entrance and Map.East_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_ER_Build_01" );
+			}
+			
+			if ( !Map.Main_Entrance )
+			{
+				if ( Map.West_Ramp )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_R_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceDestr_.*" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainEntranceDestr_.*" );
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_R_.*" );
+				}
+			}
+			
+			if ( Map.Main_Entrance and Map.West_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WR_Build_01" );
+			}
+			
+			if ( Map.Water_Pump )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+			}
+			
+			if ( Map.AllyAmbReg == 0 )
+			{
+				if ( !Map.East_Ramp and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+					
+					if ( Map.Axis_Bunker_MG_1 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+					}
+					if ( Map.Axis_Bunker_MG_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+					}
+					if ( Map.Axis_Command_Bunker_MG )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+					}
+					if ( Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+					}
+					if ( !Map.Allied_CP and !Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+					}
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+				}
+				else if ( Map.East_Ramp and Map.Side_Entrance and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+					
+					if ( Map.Axis_Bunker_MG_1 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+					}
+					if ( Map.Axis_Bunker_MG_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+					}
+					if ( Map.Axis_Command_Bunker_MG )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+					}
+					if ( Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+					}
+					if ( !Map.Allied_CP and !Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+					}
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+				}
+				else if  ( !Map.East_Ramp and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+					
+					if ( Map.Axis_Bunker_MG_1 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+					}
+					if ( Map.Axis_Bunker_MG_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+					}
+					if ( Map.Axis_Command_Bunker_MG )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+					}
+					if ( Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+					}
+					if ( !Map.Allied_CP and !Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+					}
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+				}
+				else if ( Map.East_Ramp and Map.Side_Entrance and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+					
+					if ( Map.Axis_Bunker_MG_1 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+					}
+					if ( Map.Axis_Bunker_MG_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+					}
+					if ( Map.Axis_Command_Bunker_MG )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+					}
+					if ( Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+					}
+					if ( !Map.Allied_CP and !Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+					}
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+				}
+			}
+		}
+		
+		Util.MapDebugPrint( "depot_flag_Axis_Captured" );
+	},
+
+	depot_flag_Allies_Captured = function( trigger )
+	{
+		Map.Depot_Flag_Axis = false;
+		Map.Depot_Flag_Allies = true;
+		
+		Util.SetMaxUsers( 2, "CHECKPOINT_depot_flag" );
+		
+		Map.SetSpawn();
+		
+		if ( Map.Bank_Door )
+		{
+			ClearGoalRole( "PLANT_Bank_Door", ROLE.AMBUSHER );
+		}
+		
+		ClearGoalRole( "FLAG_radarbox1", ROLE.AMBUSHER );
+		ClearGoalRole( "FLAG_radarbox2", ROLE.AMBUSHER );
+		ClearGoalRole( "ATTACK_Allies_Bank_.*", ROLE.AMBUSHER );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_depot_flag" );
+		
+		Util.MapDebugPrint( "depot_flag_Allies_Captured" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Start_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Bunker_MG_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Axis_Bunker_MG_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Axis_Bunker_MG_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainEntranceDestr_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WR_Build_01" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntranceDestr_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_ER_Build_01" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_ForwardBunker_.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Outside_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Command_Bunker_MG.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Command_Bunker_MG.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_Bank_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG.*" );
+		
+		if ( Map.Bank_Door )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Bank_Door" );
+		}
+		
+		if ( Map.Axis_Bunker_MG_1 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_1" );
+		}
+		if ( Map.Axis_Bunker_MG_2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_2" );
+		}
+		if ( Map.Axis_Command_Bunker_MG )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Bunker_MG" );
+		}
+		if ( Map.Axis_CP )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+		if ( !Map.Allied_CP and !Map.Axis_CP )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		}
+		
+		sleep(10);
+		
+		if ( Map.Depot_Flag_Allies )
+		{
+			Util.SetMaxUsers( 1, "PLANT_Water_Pump" );
+			
+			WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MORTAR, false );
+		
+			WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MOBILE_MG42, true );
+		}
+	},
+
+	Roamer_Region = 
+	{
+		Name = "Roamer_Region",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.AXIS )
+			{
+				bot = Util.IsBot(ent);
+				if (bot)
+				{
+					bot.SetRoles(ROLE.ROAMER);
+					
+					Util.MapDebugPrint( "Setting role Roamer" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.AXIS )
+			{
+				bot = Util.IsBot(ent);
+				if (bot)
+				{
+					bot.ClearRoles(ROLE.ROAMER);
+					
+					Util.MapDebugPrint( "Clearing role Roamer" );
+				}
+			}
+		},
+	},
+
+	Amb_Region = 
+	{
+		Name = "Amb_Region",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( Map.AllyAmbReg == 0 )
+				{
+					Util.MapDebugPrint( "TRIGGER Amb_Region: Ally entered" );
+				}
+				
+				Map.AllyAmbReg += 1;
+				
+				bot = Util.IsBot(ent);
+				if (bot)
+				{
+					bot.SetRoles(ROLE.AMBUSHER);
+					
+					Util.MapDebugPrint( "Setting role AMBUSHER" );
+				}
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_Bank_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_.*" );
+				
+				if ( Map.Bank_Door )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Bank_Door" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox.*" );
+				}
+				
+				if ( Map.Depot_Flag_Axis )
+				{
+					if ( !Map.Side_Entrance )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_L_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_ER_Build_01" );
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceDestr_.*" );
+					}
+					
+					if ( !Map.Main_Entrance )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_R_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WR_Build_01" );
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceDestr_.*" );
+					}
+					if ( Map.Axis_Bunker_MG_1 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_1" );
+					}
+					if ( Map.Axis_Bunker_MG_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_2" );
+					}
+					if ( Map.Axis_Command_Bunker_MG )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Bunker_MG" );
+					}
+					if ( Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+					}
+					if ( !Map.Allied_CP and !Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+					}
+				}
+			}
+			
+			if ( GetEntFlags(ent,ENTFLAG.CARRYINGGOAL) )
+			{
+				if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+				{
+					Util.MapDebugPrint( "Ally runs away with gold" );
+				}
+				
+				ent2 = GetEntOwner(GetGoal("FLAG_radarbox1").GetEntity());
+				ent1 = GetEntOwner(GetGoal("FLAG_radarbox2").GetEntity());
+				
+				if (ent!=ent1 && ent!=ent2)
+				{
+					if (IsNull(ent1))
+					{
+						ent2 = ent;
+					}
+					else if (IsNull(ent2))
+					{
+						ent1 = ent;
+					}
+					else if (EntityIsValid(ent1) && !EntityIsValid(ent2))
+					{
+						ent2 = ent;
+					}
+					else if (!EntityIsValid(ent1) && EntityIsValid(ent2))
+					{
+						ent1 = ent;
+					}
+				}
+				if ( ent == ent1)
+				{
+					Map.AllyGetRB1 += 1;
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_13_.*" );
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_01_.*" );
+					
+					if ( Map.Gold_Bars_2_Secured )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						
+						SetGoalRole( "ATTACK_Axis_SecretArea_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+						
+						SetGoalRole( "DEFEND_Allies_SecretArea_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_02_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_23_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+						sleep(0.5);
+						if ( Map.AllyIns > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Outside_.*" );
+						}
+						if ( Map.AllyNearBank > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank.*" );
+						}
+						if ( Map.WaterTunnelReady )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+					}
+					
+					Util.MapDebugPrint( "Ally runs away with radarbox1" );
+				}
+				else if ( ent == ent2)
+				{
+					Map.AllyGetRB2 +=1;
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_02_.*" );
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_23_.*" );
+					
+					if ( Map.Gold_Bars_1_Secured )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						
+						SetGoalRole( "ATTACK_Axis_SecretArea_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+						
+						SetGoalRole( "DEFEND_Allies_SecretArea_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_13_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_01_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+						sleep(0.5);
+						if ( Map.AllyIns > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Outside_.*" );
+						}
+						if ( Map.AllyNearBank > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank.*" );
+						}
+						if ( Map.WaterTunnelReady )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+					}
+					
+					Util.MapDebugPrint( "Ally runs away with radarbox2" );
+				}
+				
+				Util.MapDebugPrint( "Number of golds out: " + ( Map.AllyGetRB1 + Map.AllyGetRB2 ) );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AllyAmbReg -= 1;
+				
+				bot = Util.IsBot(ent);
+				if (bot)
+				{
+					bot.ClearRoles(ROLE.AMBUSHER);
+				}
+				
+				if ( Map.AllyIns == 0 )
+				{
+					if ( Map.Depot_Flag_Axis )
+					{
+						Util.SetMaxUsers( 10, "CHECKPOINT_depot_flag" );
+						
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Axis_Command_Bunker_MG.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Axis_Command_Bunker_MG.*" );
+						
+						if ( Map.Axis_Bunker_MG_1 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_1" );
+							SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_1" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_1" );
+						}
+						
+						if ( Map.Axis_Bunker_MG_2 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_2" );
+							SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_2" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_2" );
+						}
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_Axis_Start_.*" );
+						
+						if ( !Map.Side_Entrance )
+						{
+							if ( Map.East_Ramp )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_L_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceDestr_.*" );
+							}
+							else
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntranceDestr_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_L_.*" );
+							}
+						}
+						
+						if ( Map.Side_Entrance and Map.East_Ramp )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_ER_Build_01" );
+						}
+						
+						if ( !Map.Main_Entrance )
+						{
+							if ( Map.West_Ramp )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_R_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceDestr_.*" );
+							}
+							else
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainEntranceDestr_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_R_.*" );
+							}
+						}
+						
+						if ( Map.Main_Entrance and Map.West_Ramp )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WR_Build_01" );
+						}
+						
+						if ( Map.Water_Pump )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+						
+						if ( Map.AllyAmbReg == 0 )
+						{
+							if ( !Map.East_Ramp and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+							else if ( Map.East_Ramp and Map.Side_Entrance and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+							else if  ( !Map.East_Ramp and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+							else if ( Map.East_Ramp and Map.Side_Entrance and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+						}
+					}
+				}
+				if ( Map.AllyAmbReg == 0 )
+				{
+					Util.MapDebugPrint( "Trigger region - AllyAmbReg = 0" );
+				}
+			}
+			
+			if ( GetEntFlags(ent,ENTFLAG.CARRYINGGOAL) )
+			{
+				ent2 = GetEntOwner(GetGoal("FLAG_radarbox1").GetEntity());
+				ent1 = GetEntOwner(GetGoal("FLAG_radarbox2").GetEntity());
+				
+				if (ent!=ent1 && ent!=ent2)
+				{
+					if (IsNull(ent1))
+					{
+						ent2 = ent;
+					}
+					else if (IsNull(ent2))
+					{
+						ent1 = ent;
+					}
+					else if (EntityIsValid(ent1) && !EntityIsValid(ent2))
+					{
+						ent2 = ent;
+					}
+					else if (!EntityIsValid(ent1) && EntityIsValid(ent2))
+					{
+						ent1 = ent;
+					}
+				}
+				if ( ent == ent1)
+				{
+					Map.AllyGetRB1 -= 1;
+					
+					if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+						
+						Util.MapDebugPrint( "ent1 AllyGetGold == 0" );
+					}
+					else if ( Map.AllyGetRB1 == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_13_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_01_.*" );
+						
+						Util.MapDebugPrint( "ent1 == 0" );
+					}
+				}
+				else if ( ent == ent2)
+				{
+					Map.AllyGetRB2 -= 1;
+					
+					if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+					{
+						
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+						
+						Util.MapDebugPrint( "ent2 AllyGetGold == 0" );
+					}
+					else if ( Map.AllyGetRB2 == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_02_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_23_.*" );
+						
+						Util.MapDebugPrint( "ent2 == 0" );
+					}
+				}
+				
+				Util.MapDebugPrint( "Number of golds out: " + ( Map.AllyGetRB1 + Map.AllyGetRB2 ) );
+			}
+		},
+	},
+
+	Ally_Ins = 
+	{
+		Name = "Ally_Ins",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( Map.AllyIns == 0 )
+				{
+					Util.MapDebugPrint( "Trigger region - AllyIns entered" );
+				}
+				
+				Map.AllyIns += 1;
+				
+				bot = Util.IsBot(ent);
+				if (bot)
+				{
+					bot.SetRoles(ROLE.AMBUSHER);
+				}
+				
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Start_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Bunker_MG_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Axis_Bunker_MG_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Axis_Bunker_MG_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainEntranceDestr_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WR_Build_01" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntranceDestr_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_ER_Build_01" );
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Outside_.*" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Command_Bunker_MG" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Command_Bunker_MG" );
+				
+				if (( !Map.Gold_Bars_1_Taken and !Map.Gold_Bars_1_Secured ) or ( !Map.Gold_Bars_2_Taken and !Map.Gold_Bars_2_Secured ))
+				{
+					if ( !Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_BankIns_01" );
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_BankIns_02" );
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_01" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_01" );
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_02" );
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_04" );
+					}
+				}
+				
+				SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_.*" );
+				
+				if ( Map.Depot_Flag_Axis )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+					
+					if ( Map.Axis_Bunker_MG_1 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_1" );
+					}
+					if ( Map.Axis_Bunker_MG_2 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Bunker_MG_2" );
+					}
+					if ( Map.Axis_Command_Bunker_MG )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Bunker_MG" );
+					}
+					if ( Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+					}
+					if ( !Map.Allied_CP and !Map.Axis_CP )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+					}
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AllyIns -= 1;
+				
+				bot = Util.IsBot(ent);
+				if (bot)
+				{
+					bot.ClearRoles(ROLE.AMBUSHER);
+				}
+				
+				if ( Map.AllyIns == 0 )
+				{
+					if ( Map.Depot_Flag_Axis )
+					{
+						Util.SetMaxUsers( 10, "CHECKPOINT_depot_flag" );
+						
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Axis_Command_Bunker_MG.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Axis_Command_Bunker_MG.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_BankIns_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank_.*" );
+						
+						if ( Map.Axis_Bunker_MG_1 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_1" );
+							SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_1" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_1" );
+						}
+						
+						if ( Map.Axis_Bunker_MG_2 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Axis_Bunker_MG_2" );
+							SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Axis_Bunker_MG_2" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_2" );
+						}
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_Axis_Start_.*" );
+						
+						if ( !Map.Side_Entrance )
+						{
+							if ( Map.East_Ramp )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_L_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceDestr_.*" );
+							}
+							else
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntranceDestr_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_L_.*" );
+							}
+						}
+						
+						if ( Map.Side_Entrance and Map.East_Ramp )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_ER_Build_01" );
+						}
+						
+						if ( !Map.Main_Entrance )
+						{
+							if ( Map.West_Ramp )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Start_R_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceDestr_.*" );
+							}
+							else
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MainEntranceDestr_.*" );
+								
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Start_R_.*" );
+							}
+						}
+						
+						if ( Map.Main_Entrance and Map.West_Ramp )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WR_Build_01" );
+						}
+						
+						if ( Map.Water_Pump )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+						else
+						{
+							SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+						
+						if ( Map.AllyAmbReg == 0 )
+						{
+							if ( !Map.East_Ramp and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+							else if ( Map.East_Ramp and Map.Side_Entrance and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+							else if  ( !Map.East_Ramp and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+							else if ( Map.East_Ramp and Map.Side_Entrance and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+								SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+								
+								if ( Map.Bank_Door )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+								}
+								else
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+								}
+								
+								if ( Map.Axis_Bunker_MG_1 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_1" );
+								}
+								if ( Map.Axis_Bunker_MG_2 )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Bunker_MG_2" );
+								}
+								if ( Map.Axis_Command_Bunker_MG )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Bunker_MG" );
+								}
+								if ( Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+								}
+								if ( !Map.Allied_CP and !Map.Axis_CP )
+								{
+									SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+								}
+								
+								SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+							}
+						}
+					}
+					
+					Util.MapDebugPrint( "Trigger region - AllyIns is safe" );
+				}
+			}
+		},
+	},
+
+	Bank_underground = 
+	{
+		Name = "Bank_underground",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( Map.AllyNearBank == 0 )
+				{
+					Util.MapDebugPrint( "Allies entered into bank underground" );
+				}
+				Map.AllyNearBank += 1;
+				
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Outside_.*" );
+				
+				if (( !Map.Gold_Bars_1_Taken and !Map.Gold_Bars_1_Secured ) or ( !Map.Gold_Bars_2_Taken and !Map.Gold_Bars_2_Secured ))
+				{
+					if ( !Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_BankIns_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_.*" );
+					}
+				}
+				
+				sleep(0.5);
+				
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Outside_.*" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				Map.AllyNearBank -= 1;
+				
+				if ( Map.AllyNearBank == 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+					
+					Util.MapDebugPrint( "Bank underground is safe" );
+					
+					if ( Map.AllyIns > 0 and Map.AllyNearBank == 0 )
+					{
+						if (( !Map.Gold_Bars_1_Taken and !Map.Gold_Bars_1_Secured ) or ( !Map.Gold_Bars_2_Taken and !Map.Gold_Bars_2_Secured ))
+						{
+							if ( !Map.Bank_Door )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_BankIns_01" );
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_BankIns_02" );
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_01" );
+							}
+							else
+							{
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_01" );
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_02" );
+								SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank_04" );
+							}
+						}
+					}
+				}
+			}
+		},
+	},
+
+	Gold_Region = 		//Thx Palota
+	{
+		Name = "Gold_Region",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if ( GetEntFlags(ent,ENTFLAG.CARRYINGGOAL) )
+			{
+				if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+				{
+					Util.MapDebugPrint( "Ally runs away with gold" );
+				}
+				
+				ent2 = GetEntOwner(GetGoal("FLAG_radarbox1").GetEntity());
+				ent1 = GetEntOwner(GetGoal("FLAG_radarbox2").GetEntity());
+				
+				if (ent!=ent1 && ent!=ent2)
+				{
+					if (IsNull(ent1))
+					{
+						ent2 = ent;
+					}
+					else if (IsNull(ent2))
+					{
+						ent1 = ent;
+					}
+					else if (EntityIsValid(ent1) && !EntityIsValid(ent2))
+					{
+						ent2 = ent;
+					}
+					else if (!EntityIsValid(ent1) && EntityIsValid(ent2))
+					{
+						ent1 = ent;
+					}
+				}
+				if ( ent == ent1)
+				{
+					Map.AllyGetRB1 += 1;
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_13_.*" );
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_01_.*" );
+					
+					if ( Map.Gold_Bars_2_Secured )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						
+						SetGoalRole( "ATTACK_Axis_SecretArea_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+						
+						SetGoalRole( "DEFEND_Allies_SecretArea_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_02_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_23_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+						sleep(0.5);
+						if ( Map.AllyIns > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Outside_.*" );
+						}
+						if ( Map.AllyNearBank > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank.*" );
+						}
+						if ( Map.WaterTunnelReady )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+					}
+					
+					Util.MapDebugPrint( "Ally runs away with radarbox1" );
+				}
+				else if ( ent == ent2)
+				{
+					Map.AllyGetRB2 +=1;
+					
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_02_.*" );
+					
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_23_.*" );
+					
+					if ( Map.Gold_Bars_1_Secured )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						
+						SetGoalRole( "ATTACK_Axis_SecretArea_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+						
+						SetGoalRole( "DEFEND_Allies_SecretArea_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+						
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_SecretArea_13_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_SecretArea_01_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Outside_.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_Bank.*" );
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_WaterTunnelExit_.*" );
+						sleep(0.5);
+						if ( Map.AllyIns > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Outside_.*" );
+						}
+						if ( Map.AllyNearBank > 0 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Bank.*" );
+						}
+						if ( Map.WaterTunnelReady )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_WaterTunnelExit_.*" );
+						}
+					}
+					
+					Util.MapDebugPrint( "Ally runs away with radarbox2" );
+				}
+				
+				Util.MapDebugPrint( "Number of golds out: " + ( Map.AllyGetRB1 + Map.AllyGetRB2 ) );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( GetEntFlags(ent,ENTFLAG.CARRYINGGOAL) )
+			{
+				ent2 = GetEntOwner(GetGoal("FLAG_radarbox1").GetEntity());
+				ent1 = GetEntOwner(GetGoal("FLAG_radarbox2").GetEntity());
+				
+				if (ent!=ent1 && ent!=ent2)
+				{
+					if (IsNull(ent1))
+					{
+						ent2 = ent;
+					}
+					else if (IsNull(ent2))
+					{
+						ent1 = ent;
+					}
+					else if (EntityIsValid(ent1) && !EntityIsValid(ent2))
+					{
+						ent2 = ent;
+					}
+					else if (!EntityIsValid(ent1) && EntityIsValid(ent2))
+					{
+						ent1 = ent;
+					}
+				}
+				if ( ent == ent1)
+				{
+					Map.AllyGetRB1 -= 1;
+					
+					if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+						
+						Util.MapDebugPrint( "ent1 AllyGetGold == 0" );
+					}
+					else if ( Map.AllyGetRB1 == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_13_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_01_.*" );
+						
+						Util.MapDebugPrint( "ent1 == 0" );
+					}
+				}
+				else if ( ent == ent2)
+				{
+					Map.AllyGetRB2 -= 1;
+					
+					if ( Map.AllyGetRB1 == 0 and Map.AllyGetRB2 == 0 )
+					{
+						
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_.*" );
+						
+						Util.MapDebugPrint( "ent2 AllyGetGold == 0" );
+					}
+					else if ( Map.AllyGetRB2 == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_SecretArea_02_.*" );
+						
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_SecretArea_23_.*" );
+						
+						Util.MapDebugPrint( "ent2 == 0" );
+					}
+				}
+				
+				Util.MapDebugPrint( "Number of golds out: " + ( Map.AllyGetRB1 + Map.AllyGetRB2 ) );
+			}
+		},
+	},
+
+	Spawn_Door_Moving = function( trigger )
+	{
+		if ( trigger.Action == "opening" )
+		{
+			Map.Switches.big_door.Enabled = false;
+			
+			Map.DoorMoving = true;
+			Map.DoorMoving2 = true;
+			Util.MapDebugPrint( "variables DoorMoving & DoorMoving2 = true" );
+			
+			sleep(1);
+			
+			Map.DoorOpened = true;
+			
+			if ( !Map.Depot_Flag_Allies )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_depot_flag" );
+			}
+			
+			if ( Map.Bank_Door )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Bank_Door" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_Bank_.*" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox.*" );
+			}
+			
+			if ( Map.Main_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main_Entrance" );
+			}
+			
+			if ( Map.Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Side_Entrance" );
+			}
+			
+			Util.MapDebugPrint( "Spawn_Door_Opening" );
+			
+			sleep(3);
+			
+			Map.DoorClosed = false;
+			Map.DoorMoving = false;
+			Util.MapDebugPrint( "variable DoorMoving = false" );
+			
+			sleep(2);
+			
+			Map.DoorMoving2 = false;
+			
+			Util.MapDebugPrint( "variable DoorMoving2 = false" );
+			Util.MapDebugPrint( "Spawn_Door_Opened" );
+		}
+		
+		if ( trigger.Action == "closing" )
+		{
+			Util.MapDebugPrint( "Spawn_Door_Closing" );
+			Map.DoorMoving2 = true;
+			Util.MapDebugPrint( "variable DoorMoving2 = true" );
+			
+			sleep(2);
+			
+			Map.DoorMoving = true;
+			Map.DoorOpened = false;
+			Util.MapDebugPrint( "variable DoorMoving = true" );
+			
+			if ( !Map.Depot_Flag_Allies and Map.AllyIns == 0 and Map.AllyAmbReg == 0 )
+			{
+				if ( !Map.East_Ramp and !Map.West_Ramp and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+				}
+				else if ( Map.East_Ramp and Map.Side_Entrance and !Map.West_Ramp and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+				}
+				else if  ( !Map.East_Ramp and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+				}
+				else if ( Map.East_Ramp and Map.Side_Entrance and Map.West_Ramp and Map.Main_Entrance and !Map.DoorOpened and !Map.WaterTunnelReady )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_depot_flag" );
+					SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Bank_.*" );
+					
+					if ( Map.Bank_Door )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Bank_Door" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox.*" );
+					}
+				}
+				
+				if ( Map.Main_Entrance and !Map.West_Ramp )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Main_Entrance" );
+				}
+				
+				if ( Map.Side_Entrance and !Map.East_Ramp )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Side_Entrance" );
+				}
+			}
+			
+			sleep(6);
+			
+			Map.DoorMoving2 = false;
+			Map.DoorMoving = false;
+			Util.MapDebugPrint( "variables DoorMoving & DoorMoving2 = false" );
+			
+			Map.DoorClosed = true;
+			Map.Switches.big_door.Enabled = true;
+			
+			Util.MapDebugPrint( "Spawn_Door_Closed" );
+		}
+	},
+	
+	Lower_Lift_Moving = function( trigger )
+	{
+		vel = ToVector(trigger.Action);
+		
+		if ( vel[ 2 ] > -0.05 )
+		{
+			if ( vel[ 2 ] < 1 )
+			{
+				Map.LowerLiftStopped = false;
+				Map.Switches.lower_liftup.Enabled = false;
+				
+				Map.LowerLiftMoving = true;
+				Util.MapDebugPrint( "Lift goes up" );
+				
+				sleep(0.5);
+				Map.LowerLiftIsDown = false;
+				sleep(0.5);
+				
+				Map.LowerLiftBoardBlocked = true;
+				
+				sleep(1);
+				
+				Map.LowerPushButtonActivated = false;
+				
+				while ( !Map.LowerLiftStopped )
+				{
+					yield();
+				}
+				
+				Map.LowerLiftIsUp = true;
+				
+				Util.MapDebugPrint( "Lift is up" );
+			}
+			
+		}
+		if ( vel[ 2 ] < -1 )
+		{
+			Map.LowerLiftStopped = false;
+			Map.LowerLiftIsUp = false;
+			
+			Map.LowerLiftMoving = true;
+			Util.MapDebugPrint( "Lift goes down" );
+			
+			while ( !Map.LowerLiftStopped )
+			{
+				yield();
+			}
+			
+			Map.LowerLiftIsDown = true;
+			Map.Switches.lower_lift.Enabled = true;
+			Map.Switches.lower_liftup.Enabled = true;
+			Map.LowerLiftBoardBlocked = false;
+			
+			Util.MapDebugPrint( "Lift is down" );
+			
+			sleep(5);
+			
+			if ( !Map.LowerLiftMoving )
+			{
+				Map.Kill_BotsInLift = OnTriggerRegion(AABB(472.989,2836.321,153.125,594.869,2948.065,227.125), RegionTrigger.KillTrigger );
+				sleep(0.2);
+				DeleteTriggerRegion( Map.Kill_BotsInLift );
+			}
+		}
+	},
+	
+	Lower_Lift_Stopped = function( trigger )
+	{
+		Map.LowerLiftMoving = false;
+		Map.LowerLiftStopped = true;
+		
+		Util.MapDebugPrint( "Lower_Lift_Stopped" );
+	},
+	
+	LowerPushButton_Activated = function( trigger )
+	{
+		if ( Map.LowerLiftStopped and !Map.LowerLiftIsUp )
+		{
+			Map.LowerPushButtonActivated = true;
+			
+			Map.Switches.lower_lift.Enabled = false;
+			
+			Util.MapDebugPrint( "LowerPushButton_Activated" );
+		}
+	},
+	
+	Water_Level_Thread = function()
+	{
+		start = Vector3(1659.517, 1199.646, -10);
+		end = Vector3(1659.586, 1226.952, -10);
+		Util.MapDebugPrint("^5Water_Level_Thread started");
+		while (1)
+		{
+			tr = TraceLine(start, end, null, TRACE.ALL, 0, false);
+			if(tr.fraction < 1)
+			{
+				if ( Map.Water_Level == 1 )
+				{
+					Map.Water_Level = 0;
+					
+					Wp.SetWaypointFlag( "Water_Tunnel_Entrance_1", "closed", true );
+					Wp.SetWaypointFlag( "Water_Tunnel_Entrance_2", "closed", true );
+					Wp.SetWaypointFlag( "Water_Tunnel_Entrance_3", "closed", true );
+					
+					Util.MapDebugPrint("THREAD - Tunnel flooded");
+				}
+				
+				Map.WaterTunnelReady = false;
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.RED, 1 );
+				}
+			}
+			else
+			{
+				if ( Map.Water_Level == 0 )
+				{
+					Map.Water_Level = 1;
+					
+					Wp.SetWaypointFlag( "Water_Tunnel_Entrance_1", "closed", false );
+					Wp.SetWaypointFlag( "Water_Tunnel_Entrance_2", "closed", false );
+					Wp.SetWaypointFlag( "Water_Tunnel_Entrance_3", "closed", false );
+									
+					Util.MapDebugPrint("THREAD - Tunnel drained");
+				}
+				
+				Map.WaterTunnelReady = true;
+				
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.GREEN, 1 );
+				}
+			}
+			yield();
+		}
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_CP_Built );
+	OnTrigger( "The Axis Main Bunker MG Nest1 constructed.", Map.Axis_Bunker_MG_1_Built );
+	OnTrigger( "The Axis Main Bunker MG Nest2 constructed.", Map.Axis_Bunker_MG_2_Built );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_CP_Built );
+	OnTrigger( "The Axis Command Bunker MG Nest constructed.", Map.Axis_Command_Bunker_MG_Built );
+	OnTrigger( "The Bridge has been constructed.", Map.Bridge_Built );
+	OnTrigger( "Allies have the East Ramp constructed.", Map.East_Ramp_Built );
+	OnTrigger( "Allies have built the Water Pump!", Map.Water_Pump_Built );
+	OnTrigger( "Allies have the West Ramp constructed.", Map.West_Ramp_Built );
+	
+	OnTrigger( "Planted at the Axis Bunker MG 1.", Map.Axis_Bunker_MG_1_Planted );
+	OnTrigger( "Planted at Axis Bunker MG 1.", Map.Axis_Bunker_MG_1_Planted );	//Nitmod
+	OnTrigger( "Planted at the Axis Bunker MG 2.", Map.Axis_Bunker_MG_2_Planted );
+	OnTrigger( "Planted at Axis Bunker MG 2.", Map.Axis_Bunker_MG_2_Planted );	//Nitmod
+	OnTrigger( "Planted at the Bank Door.", Map.Bank_Door_Planted );
+	OnTrigger( "Planted at Bank Door.", Map.Bank_Door_Planted );	//Nitmod
+	OnTrigger( "Planted at Bridge.", Map.Bridge_Planted );
+	OnTrigger( "Planted at the Axis Command Bunker MG.", Map.Axis_Command_Bunker_MG_Planted );
+	OnTrigger( "Planted at Axis Command Bunker MG.", Map.Axis_Command_Bunker_MG_Planted );	//Nitmod
+	OnTrigger( "Planted at the Command Post.", Map.Command_Post_Planted );
+	OnTrigger( "Planted at Command Post.", Map.Command_Post_Planted );	//Nitmod
+	OnTrigger( "Planted at East Ramp.", Map.East_Ramp_Planted );
+	OnTrigger( "Planted at the Main Entrance.", Map.Main_Entrance_Planted );
+	OnTrigger( "Planted at Main Entrance.", Map.Main_Entrance_Planted );	//Nitmod
+	OnTrigger( "Planted at the Side Entrance.", Map.Side_Entrance_Planted );
+	OnTrigger( "Planted at Side Entrance.", Map.Side_Entrance_Planted );	//Nitmod
+	OnTrigger( "Planted at the Water Pump.", Map.Water_Pump_Planted );
+	OnTrigger( "Planted at Water Pump.", Map.Water_Pump_Planted );	//Nitmod
+	OnTrigger( "Planted at West Ramp.", Map.West_Ramp_Planted );
+	
+	OnTrigger( "Defused at the Axis Bunker MG 1.", Map.Axis_Bunker_MG_1_Defused );
+	OnTrigger( "Defused at Axis Bunker MG 1.", Map.Axis_Bunker_MG_1_Defused );	//Nitmod
+	OnTrigger( "Defused at the Axis Bunker MG 2.", Map.Axis_Bunker_MG_2_Defused );
+	OnTrigger( "Defused at Axis Bunker MG 2.", Map.Axis_Bunker_MG_2_Defused );	//Nitmod
+	OnTrigger( "Defused at the Bank Door.", Map.Bank_Door_Defused );
+	OnTrigger( "Defused at Bank Door.", Map.Bank_Door_Defused );	//Nitmod
+	OnTrigger( "Defused at Bridge.", Map.Bridge_Defused );
+	OnTrigger( "Defused at the Axis Command Bunker MG.", Map.Axis_Command_Bunker_MG_Defused );
+	OnTrigger( "Defused at Axis Command Bunker MG.", Map.Axis_Command_Bunker_MG_Defused );	//Nitmod
+	OnTrigger( "Defused at the Command Post.", Map.Command_Post_Defused );
+	OnTrigger( "Defused at Command Post.", Map.Command_Post_Defused );	//Nitmod
+	OnTrigger( "Defused at East Ramp.", Map.East_Ramp_Defused );
+	OnTrigger( "Defused at the Main Entrance.", Map.Main_Entrance_Defused );
+	OnTrigger( "Defused at Main Entrance.", Map.Main_Entrance_Defused );	//Nitmod
+	OnTrigger( "Defused at the Side Entrance.", Map.Side_Entrance_Defused );
+	OnTrigger( "Defused at Side Entrance.", Map.Side_Entrance_Defused );	//Nitmod
+	OnTrigger( "Defused at the Water Pump.", Map.Water_Pump_Defused );
+	OnTrigger( "Defused at Water Pump.", Map.Water_Pump_Defused );	//Nitmod
+	OnTrigger( "Defused at West Ramp.", Map.West_Ramp_Defused );
+	
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_CP_Destroyed );
+	OnTrigger( "The Axis Main Bunker MG Nest1 destroyed.", Map.Axis_Bunker_MG_1_Destroyed );
+	OnTrigger( "The Axis Main Bunker MG Nest2 destroyed.", Map.Axis_Bunker_MG_2_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_CP_Destroyed );
+	OnTrigger( "The Axis Command Bunker MG Nest destroyed.", Map.Axis_Command_Bunker_MG_Destroyed );
+	OnTrigger( "The Bank Door has been breached!", Map.Bank_Door_Destroyed );
+	OnTrigger( "Axis have destroyed the Bridge.", Map.Bridge_Destroyed );
+	OnTrigger( "Axis have destroyed the East Ramp.", Map.East_Ramp_Destroyed );
+	OnTrigger( "The Main Entrance has been breached!", Map.Main_Entrance_Destroyed );
+	OnTrigger( "The Side Entrance has been breached!", Map.Side_Entrance_Destroyed );
+	OnTrigger( "Axis have damaged the Water Pump!", Map.Water_Pump_Destroyed );
+	OnTrigger( "Axis have destroyed the West Ramp.", Map.West_Ramp_Destroyed );
+	
+	OnTrigger( "Allies have stolen the Gold Bars 1!", Map.First_Gold_Bars_Taken );
+	OnTrigger( "Allies have stolen the Gold Bars 2!", Map.Second_Gold_Bars_Taken );
+	OnTrigger( "sbay_axis_gold1_returned", Map.First_Gold_Bars_Returned );
+	OnTrigger( "sbay_axis_gold2_returned", Map.Second_Gold_Bars_Returned );
+	OnTrigger( "Allied team has secured the first Gold Crate!", Map.First_Gold_Bars_Secured );
+	OnTrigger( "Allied team has secured the second Gold Crate!", Map.Second_Gold_Bars_Secured );
+	
+	OnTrigger( "Axis reclaim the Forward Bunker!", Map.depot_flag_Axis_Captured );
+	OnTrigger( "Allies capture the Forward Bunker!", Map.depot_flag_Allies_Captured );
+	
+	OnTrigger( "alliespawndoor_Moving", Map.Spawn_Door_Moving );
+	OnTrigger( "aufzug_goto", Map.Lower_Lift_Moving );
+	OnTrigger( "aufzug_stop", Map.Lower_Lift_Stopped );
+	OnTrigger( "t7029 activated", Map.LowerPushButton_Activated );
+
+	Util.DisableGoal( ".*", true );
+	Util.ClearRoleForGoals( ".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	ETUtil.SetCabinets();
+	
+	thread(Map.Water_Level_Thread);
+	
+	Wp.SetWaypointFlag( "Bridge_1", "closed", true );
+	Wp.SetWaypointFlag( "Bridge_2", "closed", true );
+	Wp.SetWaypointFlag( "WR_1", "closed", true );
+	Wp.SetWaypointFlag( "WR_4", "closed", false );
+	Wp.SetWaypointFlag( "WR_5", "crouch", false );
+	Wp.SetWaypointFlag( "WR_6", "crouch", false );
+	Wp.SetWaypointFlag( "WR_7", "crouch", false );
+	Wp.SetWaypointFlag( "WR_8", "crouch", false );
+	Wp.SetWaypointFlag( "WR_9", "crouch", false );
+	Wp.SetWaypointFlag( "WR_10", "crouch", false );
+	Wp.SetWaypointFlag( "ER_1", "crouch", false );
+	Wp.SetWaypointFlag( "ER_2", "crouch", false );
+	Wp.SetWaypointFlag( "ER_3", "crouch", false );
+	Wp.SetWaypointFlag( "ER_4", "crouch", false );
+	Wp.SetWaypointFlag( "ER_5", "crouch", false );
+	Wp.SetWaypointFlag( "ER_6", "crouch", false );
+	Wp.SetWaypointFlag( "ER_7", "closed", false );
+	Wp.SetWaypointFlag( "ER_8", "crouch", false );
+	Wp.SetWaypointFlag( "Water_Surface_1", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_2", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_3", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_4", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_5", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_6", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_7", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_8", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_9", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_10", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_11", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_12", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_13", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_14", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_15", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_16", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_17", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_18", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_19", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_20", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_21", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_22", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_23", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_24", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_25", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_26", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_27", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_28", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_29", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_30", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_31", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_32", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_33", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_34", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_35", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_36", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_37", "closed", false );
+	Wp.SetWaypointFlag( "Water_Surface_0", "inwater", true );
+	Wp.SetWaypointFlag( "Water_Surface_0", "underwater", true );
+	Wp.SetWaypointFlag( "Water_Tunnel_Entrance_1", "closed", true );
+	Wp.SetWaypointFlag( "Water_Tunnel_Entrance_2", "closed", true );
+	Wp.SetWaypointFlag( "Water_Tunnel_Entrance_3", "closed", true );
+	
+	Util.AddUseWp( "BUILD_West_Ramp", "WR_2" );
+	Util.AddUseWp( "PLANT_Main_Entrance", "ME_1" );
+	Util.AddUseWp( "PLANT_Main_Entrance", "ME_2" );
+	Util.AddUseWp( "PLANT_Side_Entrance", "SE_1" );
+	Util.AddUseWp( "PLANT_Side_Entrance", "SE_2" );
+	Util.AddUseWp( "BUILD_East_Ramp", "ER_8" );
+	Util.AddUseWp( "BUILD_Axis_Command_Bunker_MG", "ACBMG_1" );
+	
+	Util.SetGoalPosition(249.033, -2583.537, 500.225, "PLANT_Bridge");
+	Util.SetGoalPosition(1781.598, 862.312, 480.125, "PLANT_Water_Pump");
+	Util.SetGoalPosition(-503.284, 2592.919, 480.125, "PLANT_West_Ramp");
+	Util.SetGoalPosition(1856.416, 2582.253, 480.125, "PLANT_East_Ramp");
+	
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MOBILE_BROWNING, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MORTAR, false );
+	
+	Util.LimitToClass( "PLANT_Axis_Bunker_MG_.*", TEAM.ALLIES, CLASS.COVERTOPS );
+	
+	RegionTrigger.Create(AABB(1533.761,996.670,-58.484,1744.318,1173.688,547.994), "DisableCombatMovement", "Water_Tunnel_Ladder");
+	RegionTrigger.Create(AABB(1533.761,996.670,-58.484,1744.318,1173.688,547.994), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-526.557,2317.711,457.306,-173.804,2686.009,803.125), "DisableCombatMovement", "West_Ramp");
+	RegionTrigger.Create(AABB(-526.557,2317.711,457.306,-173.804,2686.009,803.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-559.875,2106.643,835.125,-521.875,2680.875,909.125), "DisableCombatMovement", "West_Ramp_Wall");
+	RegionTrigger.Create(AABB(-559.875,2106.643,835.125,-521.875,2680.875,909.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(-531.276,2673.784,729.125,-381.029,2786.116,867.125), "DisableCombatMovement", "West_Ramp_Crates");
+	RegionTrigger.Create(AABB(-531.276,2673.784,729.125,-381.029,2786.116,867.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(519.317,2626.591,729.125,1400.875,2774.510,803.125), "DisableCombatMovement", "Above_Main_Gate");
+	RegionTrigger.Create(AABB(519.317,2626.591,729.125,1400.875,2774.510,803.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(424.380,2564.832,521.125,631.645,2659.470,803.125), "DisableCombatMovement", "Jump_Down_From_Above_Main_Gate");
+	RegionTrigger.Create(AABB(424.380,2564.832,521.125,631.645,2659.470,803.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1574.715,2266.315,457.125,2051.112,2677.448,803.125), "DisableCombatMovement", "East_Ramp");
+	RegionTrigger.Create(AABB(1574.715,2266.315,457.125,2051.112,2677.448,803.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1738.058,2815.513,466.250,1817.353,2972.875,803.125), "DisableCombatMovement", "Ladder_To_Side_Entrance");
+	RegionTrigger.Create(AABB(1738.058,2815.513,466.250,1817.353,2972.875,803.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1443.937,689.307,585.125,2001.038,1433.797,701.125), "DisableCombatMovement", "Water_Pump_Walls");
+	RegionTrigger.Create(AABB(1443.937,689.307,585.125,2001.038,1433.797,701.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1751.125,5234.875,249.125,1832.489,5356.190,519.125), "DisableCombatMovement", "CP_Ladder");
+	RegionTrigger.Create(AABB(1751.125,5234.875,249.125,1832.489,5356.190,519.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1613.889,3436.125,333.125,1735.620,3506.875,703.125), "DisableCombatMovement", "Balcony_Ladder");
+	RegionTrigger.Create(AABB(1613.889,3436.125,333.125,1735.620,3506.875,703.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1082.563,3665.347,487.125,1176.187,3923.392,571.125), "DisableCombatMovement", "Reservoir");
+	RegionTrigger.Create(AABB(1082.563,3665.347,487.125,1176.187,3923.392,571.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(27.125,3390.207,546.125,130.875,3529.846,620.125), "DisableCombatMovement", "Ladder");
+	RegionTrigger.Create(AABB(27.125,3390.207,546.125,130.875,3529.846,620.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(27.125,2760.125,222.125,130.875,2889.637,620.125), "DisableCombatMovement", "Ladder_1");
+	RegionTrigger.Create(AABB(27.125,2760.125,222.125,130.875,2889.637,620.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(610.755,1879.126,457.125,719.749,1943.667,540.750), "DisableCombatMovement", "ForwardBunker_01");
+	RegionTrigger.Create(AABB(320.670,1714.268,457.125,407.191,1873.456,559.828), "DisableCombatMovement", "ForwardBunker_02");
+	RegionTrigger.Create(AABB(320.670,1714.268,457.125,407.191,1873.456,559.828), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1479.125,1080.552,457.125,1555.001,1228.962,548.200), "DisableCombatMovement", "ForwardBunker_03");
+	RegionTrigger.Create(AABB(1479.125,1080.552,457.125,1555.001,1228.962,548.200), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(617.148,2167.125,457.259,745.875,2221.335,563.440), "DisableCombatMovement", "ForwardBunker_14");
+	RegionTrigger.Create(AABB(617.148,2167.125,457.259,745.875,2221.335,563.440), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1239.805,2167.125,457.125,1451.476,2308.799,601.125), "DisableCombatMovement", "ForwardBunker_18");
+	RegionTrigger.Create(AABB(1239.805,2167.125,457.125,1451.476,2308.799,601.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(461.590,2167.125,463.125,632.633,2331.389,601.125), "DisableCombatMovement", "ForwardBunker_19");
+	RegionTrigger.Create(AABB(461.590,2167.125,463.125,632.633,2331.389,601.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(404.125,2030.125,73.125,523.366,2183.875,211.125), "DisableCombatMovement", "Bank_1");
+	RegionTrigger.Create(AABB(404.125,2030.125,73.125,523.366,2183.875,211.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1163.083,5494.412,226.125,1353.437,5640.014,563.125), "DisableCombatMovement", "Outside_12");
+	RegionTrigger.Create(AABB(1163.083,5494.412,226.125,1353.437,5640.014,563.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1051.127,4226.496,219.246,1194.141,4348.483,366.671), "DisableBotPush", "Enter");
+	
+	Bank = OnTriggerRegion(AABB(404.125,2313.448,73.125,818.624,2504.875,205.125), RegionTrigger.BreakableDistance);
+	RegionTrigger.Create(AABB(404.125,2313.448,73.125,818.624,2504.875,205.125), "DisableCombatMovement", "");
+	Bank_1 = OnTriggerRegion(AABB(1040.552,2407.630,73.125,1388.309,2686.837,195.125), RegionTrigger.BreakableDistance);
+	RegionTrigger.Create(AABB(1040.552,2407.630,73.125,1388.309,2686.837,195.125), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(400.539,2832.125,162.125,586.875,2992.695,539.125), "DisableCombatMovement", "Spawn_Lift");
+	RegionTrigger.Create(AABB(1554.125,4191.131,78.125,2166.856,5634.440,274.248), "DisableCombatMovement", "Water");
+	RegionTrigger.Create(AABB(1746.025,5402.521,78.125,1961.041,5686.330,323.133), "DisableCombatMovement", "Stairs_to_CP");
+	
+	RegRoam = OnTriggerRegion(AABB(-759.462,-3864.298,457.125,2746.875,2648.871,969.875), Map.Roamer_Region);
+	Amb1 = OnTriggerRegion(AABB(23.125,2799.125,705.137,1686.875,3409.875,935.149), Map.Amb_Region);
+	Amb2 = OnTriggerRegion(AABB(1579.261,3231.051,693.681,1809.471,3343.875,911.086), Map.Amb_Region);
+	Amb3 = OnTriggerRegion(AABB(198.125,2719.199,440.125,1686.875,3415.875,731.125), Map.Amb_Region);
+	Ally1 = OnTriggerRegion(AABB(-763.906,3447.137,78.125,2450.081,6559.875,834.875), Map.Ally_Ins);
+	Ally2 = OnTriggerRegion(AABB(-168.875,1480.126,73.125,1497.873,5863.875,226.875), Map.Ally_Ins);
+	Ally3 = OnTriggerRegion(AABB(269.125,3170.024,209.723,355.875,3463.327,392.848), Map.Ally_Ins);
+	Ally4 = OnTriggerRegion(AABB(27.125,2742.829,222.125,130.875,3489.921,623.658), Map.Ally_Ins);
+	Under = OnTriggerRegion(AABB(-168.874,1480.125,73.125,1497.875,5862.875,150.849), Map.Bank_underground);
+	Under1 = OnTriggerRegion(AABB(27.125,2760.135,484.453,130.870,3542.225,641.874), Map.Bank_underground);
+	Under1_1 = OnTriggerRegion(AABB(27.161,2726.955,222.128,130.874,2882.385,641.875), Map.Bank_underground);
+	Under2 = OnTriggerRegion(AABB(27.125,2473.127,222.125,209.388,2772.747,313.875), Map.Bank_underground);
+	Under3 = OnTriggerRegion(AABB(111.294,1664.125,153.125,408.715,2662.875,328.840), Map.Bank_underground);
+	Under4 = OnTriggerRegion(AABB(386.157,1480.125,73.125,762.875,2504.875,312.247), Map.Bank_underground);
+	Gold1 = OnTriggerRegion(AABB(-746.609,237.600,457.125,2238.727,2648.875,969.875), Map.Gold_Region);
+	Gold2 = OnTriggerRegion(AABB(-1037.043,-3887.875,124.095,2746.874,272.846,969.875), Map.Gold_Region);
+	Gold3 = OnTriggerRegion(AABB(1666.593,2622.419,465.125,2233.912,3024.875,969.875), Map.Gold_Region);
+	Gold4 = OnTriggerRegion(AABB(-558.867,2620.499,729.125,136.867,2984.850,969.875), Map.Gold_Region);
+	Gold5 = OnTriggerRegion(AABB(1559.125,1024.127,-125.875,1975.871,5281.133,91.861), Map.Gold_Region);	//water tunnel
+	Gold6 = OnTriggerRegion(AABB(1559.125,1024.125,-49.814,1707.813,1151.869,516.371), Map.Gold_Region);	//water tunnel entry
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "HEALTHCAB_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "HEALTHCAB_north_healthcabinet_1" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "AMMOCAB_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "AMMOCAB_north_ammocabinet_1" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Bunker_MG_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Start_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Command_Bunker_MG" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SideEntranceOut_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntranceOut_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_north_healthcabinet" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_north_ammocabinet" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_north_healthcabinet_1" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_north_ammocabinet_1" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Water_Pump" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_West_Ramp" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_East_Ramp" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_ForwardBunker_.*" );
+	
+	SetGoalPriority( "BUILD_Command_Post", 0.64, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Axis_Command_Bunker_MG", 0.89, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( ".*_Axis_MainEntranceOut_.*", 0.3, TEAM.AXIS, 0 );
+	SetGoalPriority( ".*_Axis_SideEntranceOut_.*", 0.3, TEAM.AXIS, 0 );
+	SetGoalPriority( "AIRSTRIKE_Axis_ForwardBunker_.*", 0.4, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_ER_Build_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_WR_Build_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_SideEntranceDestr_.*", 0.53, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_MainEntranceDestr_.*", 0.53, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_WaterTunnelExit_.*", 0.53, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Bank_.*", 0.55, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Bank_01", 0.59, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Bank_04", 0.59, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_BankIns_.*", 0.61, TEAM.AXIS, 0 );
+	SetGoalPriority( "ATTACK_Axis_SecretArea_13_.*", 0.65, TEAM.AXIS, 0 );
+	SetGoalPriority( "ATTACK_Axis_SecretArea_02_.*", 0.65, TEAM.AXIS, 0 );
+	SetGoalPriority( "MOBILEMG42_Axis_Outside_01", 0.63, TEAM.AXIS, 0 );
+	SetGoalPriority( "MOUNTMG42_Axis_Command_Bunker_MG", 0.62, TEAM.AXIS, 0 );
+	
+	SetGoalPriority( "CHECKPOINT_depot_flag", 0.81, TEAM.ALLIES, CLASS.SOLDIER );
+	SetGoalPriority( "CHECKPOINT_depot_flag", 0.81, TEAM.ALLIES, CLASS.FIELDOPS );
+	SetGoalPriority( "CHECKPOINT_depot_flag", 0.81, TEAM.ALLIES, CLASS.MEDIC );
+	
+	SetGoalPriority( "BUILD_Bridge", 0.80, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Command_Post", 0.79, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "ATTACK_Allies_Bank_.*", 0.51, TEAM.ALLIES, 0 );
+	SetGoalPriority( "DEFEND_Allies_SecretArea_01_.*", 0.6, TEAM.ALLIES, 0 );
+	SetGoalPriority( "DEFEND_Allies_SecretArea_23_.*", 0.6, TEAM.ALLIES, 0 );
+	
+	SetGoalPriority( "MOUNTMG42.*", 0.58, 0, 0 );
+	
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "SMOKEBOMB_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "REPAIRMG42_.*" );
+	Util.SetMaxUsers( 1, "BUILD_Axis_Bunker_MG_.*" );
+	Util.SetMaxUsers( 1, "BUILD_Command_Post" );
+	Util.SetMaxUsers( 1, "PLANT_Command_Post" );
+	Util.SetMaxUsers( 1, "PLANT_West_Ramp" );
+	Util.SetMaxUsers( 1, "PLANT_East_Ramp" );
+	Util.SetMaxUsers( 1, "PLANT_Water_Pump" );
+	Util.SetMaxUsers( 1, "BUILD_Axis_Command_Bunker_MG" );
+	Util.SetMaxUsers( 2, "BUILD_Bridge" );
+	
+	SetGoalRole( "DEFEND_Axis_MainEntrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_MainEntranceOut_.*", ROLE.ROAMER );
+	SetGoalRole( "DEFEND_Axis_SideEntrance_.*", { ROLE.DEFENDER2, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_WR_Build_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 }  );
+	SetGoalRole( "DEFEND_Axis_MainEntranceDestr_.*", ROLE.DEFENDER );
+	SetGoalRole( "DEFEND_Axis_ER_Build_.*", { ROLE.DEFENDER2, ROLE.DEFENDER1 } );
+	SetGoalRole( "DEFEND_Axis_SideEntranceDestr_.*", ROLE.DEFENDER2 );
+	SetGoalRole( "DEFEND_Axis_SideEntranceOut_.*", ROLE.ROAMER );
+	SetGoalRole( "AIRSTRIKE_Axis_ForwardBunker_.*", ROLE.ROAMER );
+	
+	SetGoalRole( "PLANT_Bridge", { ROLE.INFILTRATOR, ROLE.ROAMER }, true );
+	SetGoalRole( "DEFEND_Axis_WaterTunnelExit_.*", ROLE.DEFENDER1 );
+	SetGoalRole( "MOUNTMG42_Axis_Command_Bunker_MG", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFEND_Axis_Bank_.*", { ROLE.DEFENDER, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "ATTACK_Axis_SecretArea_13_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+	SetGoalRole( "ATTACK_Axis_SecretArea_02_.*", { ROLE.DEFENDER, ROLE.DEFENDER2 } );
+	SetGoalRole( "DEFEND_Allies_SecretArea_01_.*", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	SetGoalRole( "DEFEND_Allies_SecretArea_23_.*", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "PLANT_Axis_Command_Bunker_MG", ROLE.INFILTRATOR, true );
+	
+	Util.UpdateSwitchData();
+	
+	print( "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3 ^3for map: ^7" + GetMapName() );
+};
+
+global OnBotJoin = function( bot )
+{
+	
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_Main_Entrance =
+		{
+		},
+		PLANT_Side_Entrance =
+		{
+		},
+		BUILD_West_Ramp =
+		{
+		},
+		PLANT_West_Ramp =
+		{
+		},
+		BUILD_East_Ramp =
+		{
+		},
+		PLANT_East_Ramp =
+		{
+		},
+		PLANT_Bank_Door =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		CHECKPOINT_depot_flag =
+		{
+			ROUTE_FirstAlliedSpawnA =
+			{
+				ROUTE_MainEntrance_1 =
+				{
+					ROUTE_MainEntrance_2 =
+					{
+						
+					},
+					ROUTE_MainEntrance_3 =
+					{
+						
+					},
+				},
+				ROUTE_SideEntrance_1 =
+				{
+					ROUTE_SideEntrance_3 =
+					{
+						
+					},
+				},
+				ROUTE_SideEntrance_4 =
+				{
+					
+				},
+				ROUTE_WaterTunnel_1 =
+				{
+					ROUTE_WaterTunnel_2 =
+					{
+						ROUTE_WaterTunnel_3 =
+						{
+							
+						},
+					},
+				},
+			},
+			ROUTE_FirstAlliedSpawnB =
+			{
+				ROUTE_MainEntrance_4 =
+				{
+					ROUTE_MainEntrance_2 =
+					{
+						
+					},
+					ROUTE_MainEntrance_3 =
+					{
+						
+					},
+				},
+				ROUTE_SideEntrance_2 =
+				{
+					ROUTE_SideEntrance_3 =
+					{
+						
+					},
+				},
+				ROUTE_SideEntrance_4 =
+				{
+					
+				},
+				ROUTE_WaterTunnel_1 =
+				{
+					ROUTE_WaterTunnel_2 =
+					{
+						ROUTE_WaterTunnel_3 =
+						{
+							
+						},
+					},
+				},
+			},
+		},
+		BUILD_Bridge =
+		{
+		},
+		PLANT_Bridge =
+		{
+		},
+		BUILD_Axis_Bunker_MG_2 =
+		{
+		},
+		PLANT_Axis_Bunker_MG_2 =
+		{
+		},
+		BUILD_Axis_Bunker_MG_1 =
+		{
+		},
+		PLANT_Axis_Bunker_MG_1 =
+		{
+		},
+		BUILD_Axis_Command_Bunker_MG =
+		{
+		},
+		PLANT_Axis_Command_Bunker_MG =
+		{
+		},
+		FLAG_radarbox2 =
+		{
+		},
+		FLAG_radarbox1 =
+		{
+		},
+		BUILD_Water_Pump =
+		{
+		},
+		PLANT_Water_Pump =
+		{
+			ROUTE_BunkerSpawn =
+			{
+				ROUTE_SideEntranceIn =
+				{
+					ROUTE_SideEntranceIn1 =
+					{
+						
+					},
+				},
+				ROUTE_MainEntranceIn =
+				{
+					ROUTE_MainEntranceIn1 =
+					{
+						
+					},
+				},
+				ROUTE_WaterTunnel_3 =
+				{
+					ROUTE_WaterTunnel_2 =
+					{
+						ROUTE_WaterTunnel_1 =
+						{
+							
+						},
+					},
+				},
+			},
+			ROUTE_DepotSpawn =
+			{
+				ROUTE_SideEntranceIn =
+				{
+					
+				},
+				ROUTE_MainEntranceIn =
+				{
+					
+				},
+				ROUTE_WaterTunnel_3 =
+				{
+					ROUTE_WaterTunnel_2 =
+					{
+						ROUTE_WaterTunnel_1 =
+						{
+							
+						},
+					},
+				},
+			},
+		},
+	};
+	
+	MapRoutes["ATTACK_Allies_Bank_.*"] =
+	{
+		ROUTE_FirstAlliedSpawnA =
+		{
+			ROUTE_MainEntrance_1 =
+			{
+				ROUTE_MainEntrance_2 =
+				{
+					ROUTE_BunkerExit =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+				ROUTE_MainEntrance_3 =
+				{
+					ROUTE_BunkerExit =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+			ROUTE_SideEntrance_1 =
+			{
+				ROUTE_SideEntrance_3 =
+				{
+					ROUTE_BunkerExit =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+			ROUTE_SideEntrance_4 =
+			{
+				ROUTE_BunkerExit =
+				{
+					ROUTE_UpperWay_1 =
+					{
+						ROUTE_UpperWay_2 =
+						{
+							
+						},
+					},
+					ROUTE_TunnelWay_1 =
+					{
+						ROUTE_TunnelDoor =
+						{
+							
+						},
+					},
+					ROUTE_TunnelWay_2 =
+					{
+						ROUTE_TunnelDoor =
+						{
+							
+						},
+					},
+					ROUTE_TunnelWay_3 =
+					{
+						ROUTE_TunnelDoor =
+						{
+							
+						},
+					},
+				},
+			},
+			ROUTE_WaterTunnel_1 =
+			{
+				ROUTE_WaterTunnel_2 =
+				{
+					ROUTE_WaterTunnel_3 =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+		},
+		ROUTE_FirstAlliedSpawnB =
+		{
+			ROUTE_MainEntrance_4 =
+			{
+				ROUTE_MainEntrance_2 =
+				{
+					ROUTE_BunkerExit =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+				ROUTE_MainEntrance_3 =
+				{
+					ROUTE_BunkerExit =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+			ROUTE_SideEntrance_2 =
+			{
+				ROUTE_SideEntrance_3 =
+				{
+					ROUTE_BunkerExit =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+			ROUTE_SideEntrance_4 =
+			{
+				ROUTE_BunkerExit =
+				{
+					ROUTE_UpperWay_1 =
+					{
+						ROUTE_UpperWay_2 =
+						{
+							
+						},
+					},
+					ROUTE_TunnelWay_1 =
+					{
+						ROUTE_TunnelDoor =
+						{
+							
+						},
+					},
+					ROUTE_TunnelWay_2 =
+					{
+						ROUTE_TunnelDoor =
+						{
+							
+						},
+					},
+					ROUTE_TunnelWay_3 =
+					{
+						ROUTE_TunnelDoor =
+						{
+							
+						},
+					},
+				},
+			},
+			ROUTE_WaterTunnel_1 =
+			{
+				ROUTE_WaterTunnel_2 =
+				{
+					ROUTE_WaterTunnel_3 =
+					{
+						ROUTE_UpperWay_1 =
+						{
+							ROUTE_UpperWay_2 =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_1 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_2 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+						ROUTE_TunnelWay_3 =
+						{
+							ROUTE_TunnelDoor =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+		},
+		ROUTE_BunkerSpawn =
+		{
+			ROUTE_TunnelWay_1 =
+			{
+				ROUTE_TunnelDoor =
+				{
+					
+				},
+			},
+			ROUTE_TunnelWay_5 =
+			{
+				ROUTE_TunnelWay_2 =
+				{
+					ROUTE_TunnelDoor =
+					{
+						
+					},
+				},
+			},
+			ROUTE_UpperWay_1 =
+			{
+				ROUTE_UpperWay_2 =
+				{
+					
+				},
+			},
+		},
+	};
+	
+	MapRoutes["DEFEND_Axis_Bank.*"] =
+	{
+		ROUTE_DepotSpawn =
+		{
+			ROUTE_TunnelWay_3 =
+			{
+				ROUTE_TunnelDoor =
+				{
+					
+				},
+			},
+			ROUTE_TunnelWay_1 =
+			{
+				ROUTE_TunnelDoor =
+				{
+					
+				},
+			},
+			ROUTE_TunnelWay_4 =
+			{
+				ROUTE_TunnelWay_2 =
+				{
+					ROUTE_TunnelDoor =
+					{
+						
+					},
+				},
+			},
+			ROUTE_UpperWay_1 =
+			{
+				ROUTE_UpperWay_2 =
+				{
+					
+				},
+			},
+		},
+		ROUTE_BunkerSpawn =
+		{
+			ROUTE_TunnelWay_3 =
+			{
+				ROUTE_TunnelDoor =
+				{
+					
+				},
+			},
+			ROUTE_TunnelWay_1 =
+			{
+				ROUTE_TunnelDoor =
+				{
+					
+				},
+			},
+			ROUTE_TunnelWay_5 =
+			{
+				ROUTE_TunnelWay_2 =
+				{
+					ROUTE_TunnelDoor =
+					{
+						
+					},
+				},
+			},
+			ROUTE_UpperWay_1 =
+			{
+				ROUTE_UpperWay_2 =
+				{
+					
+				},
+			},
+		},
+	};
+	
+	MapRoutes["CAPPOINT_.*"] =
+	{
+		ROUTE_InsideBank =
+		{
+			ROUTE_TunnelDoor =
+			{
+				ROUTE_TunnelWay_1 =
+				{
+					ROUTE_WaterTunnel_3 =
+					{
+						ROUTE_WaterTunnel_2 =
+						{
+							ROUTE_WaterTunnel_1 =
+							{
+								
+							},
+						},
+					},
+					ROUTE_BunkerExit =
+					{
+						ROUTE_SideEntranceIn =
+						{
+							ROUTE_SideEntranceIn1 =
+							{
+								
+							},
+						},
+						ROUTE_MainEntranceIn =
+						{
+							ROUTE_MainEntrance_3 =
+							{
+								
+							},
+						},
+					},
+				},
+				ROUTE_TunnelWay_2 =
+				{
+					ROUTE_TunnelWay_5 =
+					{
+						ROUTE_BunkerSpawn =
+						{
+							ROUTE_SideEntranceIn =
+							{
+								ROUTE_SideEntranceIn1 =
+								{
+									
+								},
+							},
+							ROUTE_MainEntranceIn =
+							{
+								ROUTE_MainEntrance_3 =
+								{
+									
+								},
+							},
+						},
+						ROUTE_WaterTunnel_3 =
+						{
+							ROUTE_WaterTunnel_2 =
+							{
+								ROUTE_WaterTunnel_1 =
+								{
+									
+								},
+							},
+						},
+					},
+				},
+			},
+			ROUTE_UpperWay_2 =
+			{
+				ROUTE_UpperWay_1 =
+				{
+					ROUTE_BunkerSpawn =
+					{
+						ROUTE_SideEntranceIn =
+						{
+							ROUTE_SideEntranceIn1 =
+							{
+								
+							},
+						},
+						ROUTE_MainEntranceIn =
+						{
+							ROUTE_MainEntrance_3 =
+							{
+								
+							},
+						},
+					},
+					ROUTE_WaterTunnel_3 =
+					{
+						ROUTE_WaterTunnel_2 =
+						{
+							ROUTE_WaterTunnel_1 =
+							{
+								
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	
+	MapRoutes.PLANT_Bank_Door = MapRoutes["ATTACK_Allies_Bank_.*"];
+	MapRoutes["FLAG_radarbox.*"] = MapRoutes["ATTACK_Allies_Bank_.*"];
+	MapRoutes.PLANT_Bridge = MapRoutes.PLANT_Water_Pump;
+	
+	Util.Routes(MapRoutes);
+};

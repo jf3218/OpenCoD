@@ -1,0 +1,9 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.MP34 = 91;
+this.Name = "MP34";
+this.WeaponId = WEAPON.MP34;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 5;
+this.PrimaryFire.LowAmmoPriority = 0.8;

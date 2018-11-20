@@ -1,0 +1,1066 @@
+// This script contains useful game specific utility functions.
+
+///////////////////////////////////////////////////////////////////////////////
+// Set up some core utility module with game specific stuff.
+Util.PlayerClassTable =
+{
+	CLASS.SOLDIER,
+	CLASS.MEDIC,
+	CLASS.ENGINEER,
+	CLASS.FIELDOPS,
+	CLASS.COVERTOPS,
+};
+if (GetModName() == "etblight")
+{
+	Util.PlayerClassTable[5] = CLASS.SCIENTIST;
+	Util.PlayerClassTable[6] = CLASS.SUPER_SOLDIER;
+}
+
+Util.SniperClass = CLASS.COVERTOPS;
+
+// offset for converted waypoint goals
+Util.WaypointGoalOffset = Vector3(0,0,-24);
+
+Util.AllTeams = (1 << TEAM.AXIS) | (1 << TEAM.ALLIES);
+
+Util.PrimaryRouteGoalQuery = "BUILD_.*\nPLANT_.*\nFLAG_.*\nCHECKPOINT_.*";
+
+// debug string color
+Util.DebugColorString = "^b";
+
+
+///////////////////////////////////////////////////////////////////////////////
+// these values are for makegm.gm
+
+Util.FlagCarrier = "CLASS.ENGINEER";
+Util.Sniper = "CLASS.COVERTOPS";
+
+Util.HaveTeam = { false, true, true, false, false };
+
+Util.TeamNames =
+{
+	{ "", "", "" },
+	{ "AXIS", "Axis", "axis" },
+	{ "ALLIES", "Allies", "allies" },
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// these values are for testmap.gm
+
+Util.NoTimeLimit = "timelimit 0";
+Util.TimeLimit1 = "timelimit 1";
+
+Util.BotNames =
+{
+	{
+		"", "", "", "",
+		"", "",
+	},
+	{
+		"", "axis_soldier", "axis_medic", "axis_engineer",
+		"axis_fieldops", "axis_covertops",
+	},
+	{
+		"", "allies_soldier", "allies_medic", "allies_engineer",
+		"allies_fieldops", "allies_covertops",
+	},
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// store time at start of map since GetTime() is server uptime. set in PostMapLoad
+member MapStartTime = 0.0;
+
+member GetTimeElapsed = function()
+{
+	t = GetTime();
+	return t - ETUtil.MapStartTime;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// todo: make generic with a Util.GenericGoals table
+member ClearMainGoals = function()
+{
+	Util.DisableGoal({
+		"BUILD.*",
+		"PLANT.*",
+		"MOUNTMG42.*",
+		"MOVER.*",
+		"CHECKPOINT.*",
+		"FLAG.*",
+		"AMMOCAB.*",
+		"HEALTHCAB.*"
+	});
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// todo: make generic with a Util.SecondaryGoals table
+member ClearSecondaryGoals = function()
+{
+	Util.DisableGoal({
+		"HEALTH.*",
+		"AMMO.*",
+		"REPAIRMG42.*",
+		"PLANTMINE.*",
+		"MOBILEMG42.*",
+		"ARTILLERY.*",
+	});
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member CheatsEnabled = function()
+{
+	if ( CheatsEnabled() ) {
+		return true;
+	}
+	Error("cheats must be enabled to use this command");
+	print("type /devmap", GetMapName(), "in console");
+	return false;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member CheckVehiclePath = function( _params )
+{
+	if (this.CheckVehiclePathFlag)
+	{
+		this.CheckVehiclePathFlag = null;
+		return;
+	}
+
+	if ( !this.CheatsEnabled() ) {
+		return;
+	}
+
+	goalname = _params[ 0 ];
+	goal = Util.GetGoal( goalname, "ETUtil.CheckVehiclePath" );
+	if ( !goal )
+	{
+		return;
+	}
+	if (goal.GoalType != "BUILD")
+	{
+		print( "CheckVehiclePath: goal type is not BUILD" );
+		return;
+	}
+
+	goalname2 = goal.Vehicle;
+	if (!goalname2)
+	{
+		print( "CheckVehiclePath: Goal", goalname, "is not vehicle" );
+		return;
+	}
+	goal2 = Util.GetGoal( goalname2, "ETUtil.CheckVehiclePath" );
+	if ( !goal2 )
+	{
+		return;
+	}
+
+	if ( goal.IsAvailable( TEAM.ALLIES ) )
+	{
+		print("Allies objective");
+		team = TEAM.ALLIES;
+		botname = "allies_engineer";
+	}
+	else if ( goal.IsAvailable( TEAM.AXIS ) )
+	{
+		print("Axis objective");
+		team = TEAM.AXIS;
+		botname = "axis_engineer";
+	}
+	else
+	{
+		print( "CheckVehiclePath: Goal:", goalname, "not available" );
+		return;
+	}
+
+	this.CheckVehiclePathFlag = true;
+	AddBot( team, CLASS.ENGINEER, botname );
+
+	entity = goal2.GetEntity();
+
+	sleeptime = _params[ 1 ];
+	if ( !sleeptime )
+		{ sleeptime = 2; }
+
+	print( "Started checking vehicle path for:", goalname2 );
+
+	while ( this.CheckVehiclePathFlag )
+	{
+		EntityKill( entity );
+
+		yield();
+		SetAvailableMapGoals( team, false, ".*" );
+		SetAvailableMapGoals( team, true, { goalname, goalname2 } );
+
+		while ( Util.GetEntHealth(entity) <= 0 && this.CheckVehiclePathFlag )
+		{
+			yield();
+		}
+
+		if ( !this.CheckVehiclePathFlag )
+			{ break; }
+
+		sleep( sleeptime );
+	}
+
+	print( "Finished checking vehicle path for:", goalname2 );
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member BuildVehiclePath = function( _params )
+{
+	if (this.BuildVehiclePathFlag)
+	{
+		this.BuildVehiclePathFlag = null;
+		return;
+	}
+
+	if ( !this.CheatsEnabled() )
+	{
+		return;
+	}
+
+	goalname = _params[ 0 ];
+	goal = Util.GetGoal( goalname, "ETUtil.BuildVehiclePath" );
+	if ( !goal ) {
+		return;
+	}
+	if (goal.GoalType != "MOVER")
+	{
+		print( "BuildVehiclePath: goal type is not MOVER" );
+		return;
+	}
+
+	entity = goal.GetEntity();
+
+	this.BuildVehiclePathFlag = true;
+
+	sleeptime = _params[ 1 ];
+	if ( !sleeptime )
+		{ sleeptime = 2; }
+
+	print( "Started build vehicle path for:", goalname );
+
+	while ( this.BuildVehiclePathFlag )
+	{
+		EntityKill( entity );
+
+		while ( Util.GetEntHealth(entity) <= 0 && this.BuildVehiclePathFlag )
+		{
+			yield();
+		}
+
+		if ( !this.BuildVehiclePathFlag )
+			{ break; }
+
+		sleep( sleeptime );
+	}
+
+	print( "Finished buidling vehicle path for:", goalname );
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member WarpToPosition = function( pos )
+{
+	if ( this.CheatsEnabled() )
+	{
+		s = "setviewpos " + pos[0] + " " + pos[1] + " " + pos[2] + " " + " 0";
+		print(s);
+		ExecCommandOnClient(GetLocalEntity(), s);
+	}
+};
+///////////////////////////////////////////////////////////////////////////////
+//
+member WarpTo = function( _params )
+{
+	pos = Util.GetPositionFromParam( _params[0] );
+	if ( pos )
+	{
+		this.WarpToPosition(pos + Vector3(0,0,24));
+	}
+	else
+		{ Error( "ETUtil.Warpto: Invalid goal name, waypoint name, waypoint UID or paththrough name!^2" ); }
+};
+///////////////////////////////////////////////////////////////////////////////
+//
+member WarpTestBot = function( _params )
+{
+	if ( !this.CheatsEnabled() )
+	{
+		return;
+	}
+
+	b = Util.GetBotByName("testbot");
+
+	if ( !b )
+	{
+		Error("no testbot found");
+		return;
+	}
+
+	localEnt = GetLocalEntity();
+
+	if ( _params[0] )
+	{
+		wp = Util.WpNameInfo(_params[0], "ETUtil.WarpTestBot");
+		if ( wp )
+		{
+			pos = wp.position + Vector3(0,0,24);
+		}
+	}
+	else
+	{
+		pos = GetEntPosition(localEnt);
+		if ( pos )
+		{
+			pos += Vector3(100,0,24);
+		}
+		else
+		{
+			Error( "ETUtil.WarpTestBot: Unable to get local position^2");
+		}
+	}
+
+	if (pos)
+	{
+		s = "setviewpos " + pos[0] + " " + pos[1] + " " + pos[2] + " " + " 0";
+		print(s);
+		ExecCommandOnClient(localEnt, s);
+		yield();
+		ExecCommandOnClient(b.GetGameEntity(), s);
+		yield();yield();
+		ExecCommandOnClient(localEnt, "say_team bot come");
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member WarpAnyBot = function(_params)
+{
+	if ( !this.CheatsEnabled() )
+	{
+		return;
+	}
+
+	if ( _params[0] ) {
+		foundMatch = null;
+
+		foreach ( bot in BotTable ) {
+			if ( bot.Name.Find(_params[0])!= -1 ) {
+				foundMatch = bot;
+				break;
+			}
+		}
+
+		if (foundMatch) {
+			// can't warp if dead or limbo
+			if ( foundMatch.Health < 1 || foundMatch.HasEntityFlag(ENTFLAG.LIMBO) ) {
+				Error("bot must be alive to warp!");
+				return;
+			}
+
+			pos = GetLocalPosition();
+			if (pos) {
+				pos += Vector3(0,0,24);
+				s = "setviewpos " + pos[0] + " " + pos[1] + " " + pos[2] + " " + " 0";
+
+				// disable the bot while it's getting ready to warp
+				foundMatch.Enable(false);
+				ExecCommandOnClient(foundMatch.GetGameEntity(), s);
+				sleep(2);
+				foundMatch.Enable(true);
+				return;
+			}
+		}
+
+		Error("no bot found with the name ", _params[0]);
+	}
+	else {
+		Error("/bot wab requires a partial or full bot name");
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member WarpToGoalOffset = function( _params )
+{
+	goal = Util.GetGoal( _params[0], "ETUtil.WarpToGoalOffset" );
+	offset = Vector3( _params[ 1 ], _params[ 2 ], _params[ 3 ] );
+
+	if ( goal )
+	{
+		this.WarpToPosition(GetEntityWorldSpace( goal.GetEntity(), offset));
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member CountClass = function( team, class )
+{
+	count = 0;
+	foreach ( bot in BotTable )
+	{
+		if ( bot.GetTeam() == team && bot.GetClass() == class )
+			{ count += 1; }
+	}
+
+	return count;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member NoSnipeWeapons =
+{
+	WEAPON.STEN,
+	WEAPON.FG42,
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member NoSnipe = function( bot )
+{
+	if ( bot.GetClass() != CLASS.COVERTOPS )
+		{ return; }
+
+	if (!Map.DontSelectWeapons) {
+		Util.MapDeprecateMessage( "ETUtil.NoSnipe", "SetAvailableMapGoals" );
+		return;
+	}
+
+	if ( Util.CanBotSnipe(bot) )
+	{
+		bot.ChangePrimaryWeapon( Util.GetRandomTableValue(this.NoSnipeWeapons) );
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member StopSniping = function(team)
+{
+	if (!Map.DontSelectWeapons) {
+		Util.MapDeprecateMessage( "ETUtil.StopSniping", "SetAvailableMapGoals" );
+		return;
+	}
+	foreach ( bot in BotTable )
+	{
+		if ( team && bot.GetTeam() != team )
+			{ continue; }
+
+		this.NoSnipe(bot);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member SetPrimaryGoals = function(priority)
+{
+	SetGoalPriority( "CAPPOINT_.*", priority );
+	SetGoalPriority( "PLANT_.*", priority - 0.08f );
+	SetGoalPriority( "CHECKPOINT_.*", priority - 0.1f );
+	SetGoalPriority( "FLAG_.*", priority - 0.15f, 0, 0, true );
+	SetGoalPriority( "FLAGRETURN_.*", priority - 0.05f, 0, 0, true  );
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// parameter isFog is ignored, goal_zooming sets MaxViewDistance
+member SelectWeapon = function( bot, w, isFog )
+{
+	if (!Map.DontSelectWeapons) {
+		// goal_selectweapons changes weapon every spawn
+		Util.MapDeprecateMessage( "ETUtil.SelectWeapon", "WeaponTable.SetWeaponAvailability" );
+		return;
+	}
+	tbl = WeaponTable.GetPrimaryWeapons( bot.GetTeam(), bot.GetClass() );
+	if (!tbl || !IsNull(tbl[w]))
+	{
+		bot.ChangePrimaryWeapon( w );
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member SwitchWeapon = function( w, team )
+{
+	if (!Map.DontSelectWeapons) {
+		Util.MapDeprecateMessage( "ETUtil.SwitchWeapon", "WeaponTable.SetWeaponAvailability" );
+		return;
+	}
+	foreach ( bot in BotTable )
+	{
+		if ( team && bot.GetTeam() != team )
+		{
+			continue;
+		}
+
+		this.SelectWeapon( bot, w );
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member SetCabinets = function()
+{
+	SetGoalPriority( "HEALTHCAB.*", 0.0, 0, CLASS.MEDIC);
+	SetGoalPriority( "AMMOCAB.*", 0.0, 0, CLASS.FIELDOPS);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member SetDualObjective = function( bot )
+{
+	team = bot.GetTeam();
+
+	if ( !Map.Defend )
+		{ Map.Defend = table(); }
+
+	// counters for number of users
+	if ( !Map.Defend.AlliesDefenders )
+		{ Map.Defend.AlliesDefenders = 0; }
+
+	if ( !Map.Defend.AxisDefenders )
+		{ Map.Defend.AxisDefenders = 0; }
+
+	// some default values
+	if ( !Map.Defend.MaxBots )
+		{ Map.Defend.MaxBots = 4; }
+
+	if ( team == TEAM.ALLIES  )
+	{
+		if (IsNull(this.numallies)) { this.numallies = 0; }
+		this.numallies += 1;
+
+		if ( Map.Defend.AlliesDefenders < Map.Defend.MaxBots ||  Map.Defend.AlliesDefenders < Map.Defend.MaxAlliesDefenders )
+		{
+			if ( this.numallies % 2 == 0 )
+			{
+				bot.SetRoles(ROLE.DEFENDER);
+
+				//first bot defending will switch to crucial class
+				if ( Map.Defend.AlliesDefenders == 0 && Map.Defend.CrucialClass )
+					{ bot.ChangeClass(Map.Defend.CrucialClass); }
+
+				if ( Map.Defend.AlliesSpawnPt )
+					{ bot.ChangeSpawnPoint( Map.Defend.AlliesSpawnPt ); }
+
+				Map.Defend.AlliesDefenders += 1;
+			}
+		}
+	}
+
+	if ( team == TEAM.AXIS  )
+	{
+		if (IsNull(this.numaxis)) { this.numaxis = 0; }
+		this.numaxis += 1;
+
+		if ( Map.Defend.AlliesDefenders < Map.Defend.MaxBots ||  Map.Defend.AlliesDefenders < Map.Defend.MaxAxisDefenders )
+		{
+			if ( this.numaxis % 2 == 0 )
+			{
+				bot.SetRoles(ROLE.DEFENDER);
+
+				//first bot defending will switch to crucial class
+				if ( Map.Defend.AxisDefenders == 0 && Map.Defend.CrucialClass )
+					{ bot.ChangeClass(Map.Defend.CrucialClass); }
+
+				if ( Map.Defend.AxisSpawnPt )
+					{ bot.ChangeSpawnPoint( Map.Defend.AxisSpawnPt ); }
+
+				Map.Defend.AxisDefenders += 1;
+			}
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member TraceArty = function(usePlayer)
+{
+	radius = 200;
+	playerEnt = GetLocalEntity();
+	playerPos = GetEntPosition(playerEnt);
+	foundGoal = null;
+	sourceOffset = Vector3(0,0,60); // 60 is what the goal uses
+
+	if ( !usePlayer )
+	{
+		dist = radius;
+		foreach ( mapgoal in Util.GoalTable("CALLART.*") )
+		{
+			evalDist = DistanceBetween(mapgoal, playerPos);
+			if ( evalDist < dist )
+			{
+				dist = evalDist;
+				foundGoal = mapgoal;
+			}
+		}
+	}
+
+	if (foundGoal || usePlayer)
+	{
+		if ( !usePlayer )
+		{
+			print("ETUtil.TraceArty: Selected", foundGoal.GetName());
+			sourcePos = foundGoal.GetPosition();
+		}
+		else
+		{
+			print("ETUtil.TraceArty: Tracing from", GetEntName(playerEnt), "^2");
+			sourcePos = playerPos - Vector3(0,0,24);
+		}
+
+		targets = Util.GoalTable("ARTILLERY.*");
+		if ( tableCount(targets) > 0 )
+		{
+			foreach ( targetgoal in targets )
+			{
+				targetPos = targetgoal.GetPosition();
+				targetName = targetgoal.GetName();
+
+				tr = TraceLine(sourcePos + sourceOffset, targetPos, null, TRACE.SHOT, playerEnt, false);
+				if ( tr.fraction < 1 )
+				{
+					print("ETUtil.TraceArty: ^1No line of sight to", targetName, "^2");
+					DrawDebugLine(sourcePos + sourceOffset, tr.end, COLOR.PINK, 30);
+					DrawDebugLine(tr.end, targetPos, COLOR.RED, 30);
+				}
+				else
+				{
+					print("ETUtil.TraceArty: ^2Has line of sight to", targetName);
+					DrawDebugLine(sourcePos + sourceOffset, targetPos, COLOR.GREEN, 30);
+				}
+			}
+		}
+		else
+		{
+			Error("ETUtil.TraceArty: No Arty Targets");
+		}
+	}
+	else
+	{
+		Error("ETUtil.TraceArty: No Arty Goal Close Enough");
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member TraceAllArty = function()
+{
+	targets = Util.GoalTable("ARTILLERY.*");
+	sourceOffset = Vector3(0,0,64);
+
+	foreach( mapgoal in Util.GoalTable("CALLART.*") )
+	{
+		sourcePos = mapgoal.GetPosition();
+		found = "";
+		foreach (targetgoal in targets)
+		{
+			targetPos = targetgoal.GetPosition();
+			tr = TraceLine(sourcePos + sourceOffset, targetPos, null, TRACE.SHOT, GetLocalEntity(), false);
+			if ( tr.fraction == 1 )
+			{
+				found += targetgoal.GetName() + " ";
+			}
+		}
+
+		if ( found == "" )
+		{
+			Error( mapgoal.GetName(), "has zero visible targets!, try running /bot fgp" );
+		}
+		else
+		{
+			print( mapgoal.GetName(), "has visible targets", found );
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member DrawObjectiveInfoDisplays = function()
+{
+	for ( i = 64; i < 1024; i += 1 )
+	{
+		if (EntityIsValid(i) && GetEntClass(i) == CLASS.GOAL)
+		{
+			DrawEntityAABB( i, 60, COLOR.RED );
+			center = GetEntWorldAABB(i).CenterPoint();
+			DrawText3d(center, i + " : " + GetEntName(i) ,COLOR.WHITE,60,textDrawRadius);
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member DrawSpawns = function()
+{
+	for ( i = 64; i < 1024; i += 1 )
+	{
+		if (EntityIsValid(i) && GetEntClass(i) == CLASS.PLAYERSTART)
+		{
+			pos = GroundPoint(GetEntPosition(i));
+			DrawLine(pos,pos+Vector3(0,0,64),COLOR.RED,60);
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member IsTeamDead = function(team, minbots, class)
+{
+	numalive = 0;
+	// loop through the reserved player ents since there is no team table stored
+	for ( i = 0; i < 64; i += 1 )
+	{
+		if (EntityIsValid(i) && GetEntTeam(i) == team
+			&& !GetEntFlags(i, ENTFLAG.DEAD, ENTFLAG.LIMBO) && (!class || GetEntClass(i)==class))
+		{
+			numalive += 1;
+			if (!minbots)
+			{
+				return false;
+			}
+		}
+	}
+
+	if ( (minbots && numalive < minbots) || numalive == 0 )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member IsTeamClassDead = function(team, class)
+{
+	return this.IsTeamDead(team, 0, class);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// used for setting start indexes for goals that are pathing to offsets
+member SetStartIndex = function( goalName, startIndex )
+{
+	startIndex = ToInt(startIndex, -1);
+	g = GetGoal(goalName);
+	if (g && g.Offsets) {
+		offsetCount = tableCount(g.Offsets);
+		if ( startIndex > offsetCount -1 ) {
+			startIndex = -1; // random
+		}
+
+		g.StartIndex = startIndex;
+	}
+	else {
+		Util.MapDebugPrint("ETUtil.SetStartIndex: Invalid Goal: " + goalName, 2);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// used for excluding indexes for goals that are pathing to offsets
+// use null or an empty table to re-enable all
+member SetExcludeIndexes = function( goalName, excludeTable )
+{
+	g = GetGoal(goalName);
+	if (g && g.Offsets) {
+		// passing null or an empty table will enable all
+		if ( IsNull(excludeTable) ) {
+			excludeTable = {};
+		}
+
+		if ( IsTable(excludeTable) ) {
+			g.ExcludeIndexes = excludeTable;
+		}
+		else {
+			Util.MapDebugPrint("ETUtil.ExcludeIndexes: Expecting table, got " + typeName(excludeTable), 2);
+		}
+	}
+	else {
+		Util.MapDebugPrint("ETUtil.ExcludeIndexes: Invalid Goal: " + goalName, 2);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// find a usable corpse starting from the body queue
+member FindUsableCorpse = function(bot, range)
+{
+	// search through the body queue entities
+	for ( i = 64; i < 71; i += 1 ) {
+		corpse = GetEntityInSphere(bot.GetPosition(), range, CLASS.CORPSE, i);
+		if ( corpse && bot.GetTeam() != GetEntTeam(corpse) ) {
+			return corpse;
+		}
+		yield();
+	}
+
+	return null;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member SetAimModeForMount = function(goalName, aimType)
+{
+	goal = Util.GetGoal(goalName, "ETUtil.SetAimModeForMount");
+	if ( goal ) {
+		if ( aimType == "opposite"
+			|| IsVec3(aimType)
+			|| IsTable(aimType)
+			|| aimType == "random"
+			|| aimType == "velocity" )
+		{
+			goal.AimMode = aimType;
+			goal.ExtraDebugText = null; // update the render string
+		}
+		else {
+			Util.MapDebugPrint("ETUtil.SetAimModeForMount: invalid aimType: " + aimType, 2 );
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member SuicideSpawn = function( team, spawn, numbots, class )
+{
+	c = 0;
+	b = 0;
+
+	foreach ( bot in BotTable )
+	{
+		if ( bot.GetTeam() == team )
+		{
+			b += 1;
+
+			// every other bot to avoid low bot count numbers spawning all at a point
+			if ( numbots && numbots != -1 && (b % 2 == 0) ) {
+				continue;
+			}
+
+			// is it class limited?
+			if ( class && bot.GetClass() != class ) {
+				continue;
+			}
+
+			c += 1;
+
+			bot.ChangeSpawnPoint( spawn );
+			thread(ETUtil.SuicideNextSpawn, bot);
+
+			if ( numbots && numbots != -1 && c >= numbots )
+				{ return; }
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member GetBotSideArm = function(bot)
+{
+	team = Util.TeamName(bot.GetTeam());
+
+	if ( !Util.TeamSideArms[ team ] ) {
+		return 0;
+	}
+
+	foreach ( id and weap in Util.TeamSideArms[ team ] ) {
+		if ( bot.HasWeapon( weap ) ) {
+			return weap;
+		}
+	}
+
+	// shouldn't get here
+	return 0;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member GetBotPrimaryWeapon = function(bot, params)
+{
+	if (!params){
+		params = { CheckCharged=false, CheckAmmo=false };
+	}
+	tbl = WeaponTable.GetPrimaryWeapons(bot.GetTeam(), bot.GetClass());
+	if (tbl) {
+		 weap = bot.HasAnyWeapon(tbl, params);
+		 if (!weap) {
+			 weap = bot.HasAnyWeapon(Util.IndexedSniperWeapons, params);
+		 }
+		 return weap;
+	}
+	return 0;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// note: this should be called via thread
+member SuicideNextSpawn = function( bot )
+{
+	while( bot.GetReinforceTime() > 2 ) {
+		yield();
+	}
+
+	bot.ExecCommand("kill");
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// some maps are set up for panzer wars
+member PanzerMap = function( )
+{
+	this.IsPanzereMap = true;
+
+	// reset the min class counts
+	Util.InitializeClassTables();
+
+	foreach ( name and teamId in TEAM )
+	{
+		if ( name != "SPECTATOR" )
+		{
+			Server.MinClassCount[teamId][CLASS.SOLDIER] = Server.MaxPlayers;
+		}
+	}
+
+	foreach ( bot in BotTable )
+	{
+		this.ChangeToPanzer(bot); //also add to OnBotJoin
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member ChangeToPanzer = function( bot )
+{
+	if ( bot.GetClass() != CLASS.SOLDIER ) {
+		bot.ChangeClass(CLASS.SOLDIER);
+		yield();
+	}
+	if ( bot.GetTeam() == TEAM.ALLIES ) {
+		bot.ChangePrimaryWeapon(WeaponTable.AlliedPanzer);
+	} else {
+		bot.ChangePrimaryWeapon(WEAPON.PANZERFAUST);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member DisableRifleNade = function( bot, disable )
+{
+	if (!bot ) { return; }
+
+	foreach( weapon in { WEAPON.M7, WEAPON.GPG40 })
+	{
+		// get the weapon object
+		w = bot.GetWeapon(weapon);
+		if (!w) { Util.MapDebugPrint("ETUtil.DisableRifleNade: bot does not have rifle nade weapon", 2); continue; }
+
+		// note: this will do nothing if weapon script sets default to 0.0
+		// this is to avoid scripts like the plant goal stomping on user
+		// defined settings.
+		if ( disable ) {
+			if ( w.PrimaryFire.DefaultDesirability > 0.1 ) {
+				w.PrimaryFire.Bias = 0.0;
+				w.PrimaryFire.SetDesirabilityRange(0, 2600, 0.0);
+			}
+		}
+		else {
+			if ( w.PrimaryFire.Bias < 0.1 ) {
+				w.PrimaryFire.Bias = 1.0;
+				w.PrimaryFire.SetDesirabilityRange(0, 2600, 0.8);
+			}
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// randomly global chat some victory message
+member WinningChat = function( team )
+{
+	Util.RandomChat(team, { VOICE.G_CHEER, VOICE.G_ENEMY_WEAK, VOICE.G_AFFIRMATIVE, VOICE.G_GOODGAME, VOICE.G_GREATSHOT });
+};
+
+// randomly global chat some displeasure about losing
+member LosingChat = function( team )
+{
+	Util.RandomChat(team, { VOICE.G_NEGATIVE, VOICE.G_OOPS, VOICE.G_GOODGAME, VOICE.G_HOLD_FIRE });
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+member CheckTripminePosition = function()
+{
+	// must be within 64 units of wall
+	tr = Util.TraceFromPlayer(64, TRACE.SHOT);
+	if ( tr.fraction >= 1.0 ) {
+		return false;
+	}
+
+	// wire distance is max of 512 units
+	tr2 = Util.TraceFromPlane(tr.end, tr.normal, 512);
+	if ( tr2.fraction >= 1.0 ) {
+		return false;
+	}
+
+	// original trace position is used for the goals aim position
+	return tr.end;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//DEPRECATE
+member RandomSpawn = function( team, spawn )
+{
+	Util.MapDeprecateMessage( "ETUtil.RandomSpawn", "Util.RandomSpawn" );
+	Util.RandomSpawn(team, spawn);
+};
+
+member ChangeSpawn = function( team, spawn, numbots )
+{
+	Util.MapDeprecateMessage( "ETUtil.ChangeSpawn", "Util.ChangeSpawn" );
+	Util.ChangeSpawn(team, spawn, numbots);
+};
+
+member EnableGoal = function( goal )
+{
+	Util.MapDeprecateMessage( "ETUtil.EnableGoal", "Util.EnableGoal" );
+	SetAvailableMapGoals( 0, true, goal );
+};
+
+member LimitGoal = function( team, goal )
+{
+	Util.MapDeprecateMessage( "ETUtil.LimitGoal", "Util.LimitGoal" );
+	Util.LimitGoal(team, goal);
+};
+
+member DisableGoal = function( goal, routes )
+{
+	Util.MapDeprecateMessage( "ETUtil.DisableGoal", "Util.DisableGoal" );
+	Util.DisableGoal(goal, routes);
+};
+
+member CountTeam = function( team )
+{
+	Util.MapDeprecateMessage( "ETUtil.CountTeam", "Server.Team[ teamId ].NumBots" );
+	return Server.Team[team].NumBots;
+};
+
+member ShowActiveGoals = function(routes)
+{
+	Util.MapDeprecateMessage( "ETUtil.ShowActiveGoals", "Util.ShowActiveGoals" );
+};
+
+member ChangeClass = function( team, originalclass, newclass, revert, maxbots )
+{
+	Util.MapDeprecateMessage( "ETUtil.ChangeClass", "Server.MinClassCount" );
+};
+
+member LimitToClass = function( goalname, team, class1, class2, class3, class4 )
+{
+	Util.MapDeprecateMessage( "ETUtil.LimitToClass", "Util.LimitToClass" );
+	Util.LimitToClass(goalname, team, class1, class2, class3, class4);
+};
+
+member ExcludeClass = function( goalname, team, class1, class2, class3, class4 )
+{
+	Util.MapDeprecateMessage( "ETUtil.ExcludeClass", "Util.ExcludeClass" );
+	Util.ExcludeClass(goalname, team, class1, class2, class3, class4);
+};

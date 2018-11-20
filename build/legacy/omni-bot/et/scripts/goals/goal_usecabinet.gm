@@ -1,0 +1,127 @@
+// This script contains functionality to allow bots to take ammo or health from cabinets
+this.Name = "UseCabinet";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+this.AutoAdd = (GetModName() != "infected");
+
+this.CAB_HEALTH = 1;
+this.CAB_AMMO = 2;
+
+this.Initialize = function()
+{
+	// check for current health/ammo and cabinet status so we can finish if cabinet is empty or bot has enough health/ammo
+	this.LimitTo( this.CheckDesire, 2, true );
+};
+
+this.CheckDesire = function()
+{
+	if (!this.MapGoal){ return true; }
+
+	cab = {};
+	ent = this.MapGoal.GetEntity();
+	if (ent && GetCabinetData(ent, cab) && cab.CurrentAmount==0){
+		//cabinet is empty
+		this.BlackboardDelay(20);
+		return false;
+	}
+
+	switch(this.CabinetType)
+	{
+		case this.CAB_HEALTH:
+		{
+			return this.Bot.GetHealthPercent() < 1;
+		}
+		case this.CAB_AMMO:
+		{
+			return !this.Bot.HasAmmo(this.AmmoType, this.AmmoAmount);
+		}
+	}
+};
+
+this.GetPriority = function()
+{
+	ammo = Util.DesireTable;
+
+	while(1)
+	{
+		this.Priority = 0;
+		healthPriority = 1.0 - this.Bot.GetHealthPercent();
+		this.Bot.GetMostDesiredAmmo(ammo);
+		ammoPriority = ammo.Desire;
+
+		if(healthPriority > 0.7)
+		{
+			if ( this.QueryGoals(Util.QueryTable, 0x63217fa7 /* HEALTHCAB */) )
+			{
+				this.DestGoals = Util.QueryTable;
+				Util.QueryTable = {};
+				this.CabinetType = this.CAB_HEALTH;
+				this.Priority = healthPriority;
+			}
+		}
+
+		if(ammoPriority > healthPriority && ammoPriority > 0.7 && ammo.AmmoType>=0)
+		{
+			if ( this.QueryGoals(Util.QueryTable, 0x52ad0a47 /* AMMOCAB */) )
+			{
+				this.DestGoals = Util.QueryTable;
+				Util.QueryTable = {};
+				this.CabinetType = this.CAB_AMMO;
+				this.AmmoType = ammo.AmmoType;
+				this.AmmoAmount = ammo.GetAmmo;
+				this.Priority = ammoPriority;
+			}
+		}
+
+		sleep(2);
+	}
+};
+
+this.Enter = function()
+{
+	//find the nearest cabinet
+	positions = {};
+	foreach(id and goal in this.DestGoals)
+	{
+		 positions[id] = goal.GetPosition();
+	}
+	id = this.Bot.GetNearestDestination(positions);
+	if(typeId(id)==0)
+	{
+		//path not found, delay all available cabinets
+		foreach(goal in this.DestGoals)
+		{
+			this.BlackboardDelay(10, goal);
+		}
+		this.Finished();
+	}
+	this.MapGoal = this.DestGoals[id];
+	this.DestGoals = null;
+
+	if(!this.MarkInProgress()) { this.Finished(); }
+};
+
+this.Exit = function()
+{
+	this.MapGoal = null;
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	pos = this.MapGoal.GetUsePoint(-1);
+
+	for(timeout = 300; this.CheckDesire(); timeout -= 1)
+	{
+		this.Bot.MoveTowards(pos);
+		yield();
+		if ( timeout < 0 ) {
+			this.BlackboardDelay(30);
+			Util.ScriptDebugPrint(this.MapGoal.GetName(), "timedout");
+			break;
+		}
+	}
+
+	this.Finished();
+};

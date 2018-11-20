@@ -1,0 +1,242 @@
+// This script contains functionality to allow engineers to build constructibles
+this.Name = "BUILD";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+this.Debug = false;
+
+this.LimitToWeapon( WEAPON.PLIERS );
+
+this.Stances = { -1, BTN.PRONE, BTN.CROUCH, };
+
+this.Initialize = function()
+{
+	// check every second for constructible status so we can finish if necessary
+	this.LimitTo( this.CheckConstructableState, 1, true );
+};
+
+this.CheckConstructableState = function()
+{
+	// basically this is acting like a custom finish criteria. handles bots
+	// in route to the construction
+	if ( this.TargetEntity && this.Bot.GetConstructableState(this.TargetEntity) < 1 ) {
+
+		if ( this.Debug ) {
+			this.Bot.Say(this.MapGoal.GetName() + " already built, aborting");
+		}
+		return false;
+	}
+
+	return true;
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0xc39bf2a3 /* BUILD */,0,0, function(goal, bot)
+	{
+		if ( !goal.IgnoreEntity )
+		{
+			if( !goal.TraceEntity )
+			{
+				goalEnt = goal.GetEntity();
+				if ( !goalEnt || bot.GetConstructableState(goalEnt) < 1 )
+				{
+					return;
+				}
+			}
+			else if ( goal.TraceEntity && (!EntityIsValid(goal.TraceEntity) || bot.GetConstructableState(goal.TraceEntity) < 1 ) )
+			{
+				return;
+			}
+		}
+		return true;
+	});
+};
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	if ( !this.MapGoal.IgnoreEntity )
+	{
+		if ( this.MapGoal.TraceEntity ) {
+			this.TargetEntity = this.MapGoal.TraceEntity;
+		}
+		else {
+			this.TargetEntity = this.MapGoal.GetEntity();
+		}
+	}
+
+	this.Position = this.MapGoal.GetPosition();
+};
+
+this.Exit = function()
+{
+	this.Bot.ReleaseButton(BTN.CROUCH, BTN.PRONE, BTN.ATTACK1);
+	this.MapGoal = null;
+	this.TargetEntity = null;
+};
+
+this.Update = function()
+{
+	pathSuccess = false;
+	this.VehicleEnt = null;
+	hasEnt = !this.MapGoal.IgnoreEntity;
+
+	// are offsets set up for this goal?
+	if ( !this.MapGoal.ForceRouting && this.MapGoal.Offsets && this.MapGoal.Vehicle ) {
+		offsetCount = tableCount(this.MapGoal.Offsets);
+
+		if ( offsetCount > 0) {
+			vehGoal = GetGoal(this.MapGoal.Vehicle);
+			if ( vehGoal ) {
+				this.VehicleEnt = vehGoal.GetEntity();
+			}
+		}
+
+	}
+
+	// use em if we got em
+	if ( this.VehicleEnt ) {
+		startIndex = this.MapGoal.StartIndex;
+
+		// randomly select a start index if one isn't defined or invalid
+		if ( !IsInt(startIndex) || startIndex < 0 || startIndex >= offsetCount ) {
+			startIndex = RandInt(0, offsetCount - 1);
+			if ( this.Debug ) { print(this.MapGoal.GetName(), "selected random start index of", startIndex); }
+		}
+		else {
+			if ( this.Debug ) { print(this.MapGoal.GetName(), "user defined start index of", startIndex); }
+		}
+
+		// loop through from the start index until we get a good path
+		for ( i = 0; i < offsetCount; i += 1 )
+		{
+			ind = (startIndex + i) % offsetCount;
+
+			// if it's excluded, skip it
+			if ( this.MapGoal.ExcludeIndexes && !IsNull(Util.GetTableKey(this.MapGoal.ExcludeIndexes, ind)) ) {
+				if ( this.Debug ) { print(this.Name, "skipping index", ind); }
+				continue;
+			}
+
+			// and finally check and see if the bot can get there
+			offsetPos = GetEntityWorldSpace(this.VehicleEnt, this.MapGoal.Offsets[ ind ]);
+			if ( this.Goto(offsetPos, 32.0) != EVENT.PATH_FAILED ) {
+				pathSuccess = true;
+				break;
+			}
+		}
+	}
+	else if ( this.RouteTo(this.MapGoal, 128.0) == EVENT.PATH_SUCCESS ) {
+		pathSuccess = true;
+	}
+
+	if ( pathSuccess )
+	{
+		if ( hasEnt && this.Bot.GetConstructableState(this.TargetEntity) < 1 )
+		{
+			this.BlackboardDelay(5);
+			this.Finished();
+		}
+
+		if ( this.MapGoal.GetPosition() != this.Position )
+		{
+			// it's advanced along the spline since we got the goal. so finish and repath
+			this.Finished();
+		}
+
+		if(!this.MarkInUse()) { this.Finished(); }
+
+		if (this.MapGoal.PaththroughFunction){ this.MapGoal.PaththroughFunction(this); }
+
+		if ( this.MapGoal.Stance == "crouch" )
+		{
+			this.Bot.HoldButton(BTN.CROUCH, 99);
+		}
+		else if ( this.MapGoal.Stance == "prone" )
+		{
+			this.Bot.HoldButton(BTN.PRONE, 99);
+		}
+		else if ( this.MapGoal.Stance == "jump" )
+		{
+			this.Bot.HoldButton(BTN.JUMP, 99);
+		}
+		else if ( this.MapGoal.Stance == "random" )
+		{
+			this.Bot.HoldButton(Util.GetRandomTableValue(this.Stances), 99);
+		}
+
+		// for voice chat 'im constructing'
+		signal(this.Bot.Name + "_construct");
+
+		if (hasEnt)
+		{
+			this.AddAimRequest(Priority.High, "position", this.Position);
+		}
+		else
+		{
+			this.AddAimRequest(Priority.High, "facing", this.MapGoal.Facing);
+		}
+		this.AddWeaponRequest(Priority.High, WEAPON.PLIERS);
+		this.BlockForWeaponChange( WEAPON.PLIERS);
+		sleep( .25 );
+
+		botEnt = this.Bot.GetGameEntity();
+
+		frameCounter = 0;
+
+		while ( !hasEnt || this.Bot.GetConstructableState(this.TargetEntity) != 0 )
+		{
+			if (hasEnt)
+			{
+				inBounds = CheckEntityBoundsIntersect(botEnt, this.TargetEntity);
+			}
+			if (frameCounter < 15 || !inBounds)
+			{
+				this.Bot.MoveTowards(this.Position);
+			}
+			else
+			{
+				// hack to get them to stay in place in case previous MoveTowards was blocked
+				// this just makes them look less stupid
+				this.Bot.MoveTowards(this.Bot.GetPosition());
+			}
+
+			this.Bot.HoldButton(BTN.ATTACK1, 99);
+			yield();
+			frameCounter += 1;
+
+			if ( frameCounter > 100 && inBounds == false && hasEnt ) {
+				// if they aren't there by now, they most likely aren't gonna make it
+				break;
+			}
+			if ( frameCounter > 200 && this.Bot.IsWeaponCharged(WEAPON.DYNAMITE) )
+			{
+				// GetConstructableState is unreliable, it can return 1 even if objective can't be built !
+				Util.ScriptDebugPrint(this.MapGoal.GetName(), "timedout");
+				this.BlackboardDelay(45);
+				this.Finished();
+			}
+		}
+
+		wait = this.MapGoal.Wait;
+		if(this.MapGoal.Vehicle && wait == -1) {
+			// wait after vehicle is repaired so that it starts moving
+			wait = 0.5;
+		}
+		if (wait > 0)
+		{
+			this.TargetEntity = null;
+			this.Bot.ReleaseButton(BTN.ATTACK1);
+			this.ReleaseWeaponRequest();
+			this.ReleaseAimRequest();
+			sleep(wait);
+		}
+	}
+	else
+	{
+		Util.PathFailed(this);
+	}
+
+	this.Finished();
+};

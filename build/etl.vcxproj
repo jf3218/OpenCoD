@@ -1,0 +1,897 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{05A1E2F5-1E9D-36B2-85D0-CF3400839C9D}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>etl</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">etl.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">etl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">etl.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">etl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">etl.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">etl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">etl.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">etl</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;LEGACY_DEBUG=1;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LEGACY_DEBUG=1;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>Debug\bundled_ogg_vorbis.lib;Debug\bundled_ogg_vorbis_file.lib;Debug\bundled_ogg.lib;Debug\bundled_theora.lib;libs\curl\lib\Debug\libcurl-d.lib;Debug\bundled_sqlite3.lib;Debug\bundled_zlib.lib;Debug\bundled_minizip.lib;libs\sdl2\lib\SDL2maind.lib;libs\sdl2\lib\SDL2d.lib;wsock32.lib;ws2_32.lib;psapi.lib;winmm.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;Debug\bundled_ogg_vorbis.lib;Debug\bundled_ogg.lib;user32.lib;gdi32.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;Debug\bundled_zlib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>MSVCRT.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/etlegacy_2/build/Debug/etl.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/etlegacy_2/build/etl.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>Release\bundled_ogg_vorbis.lib;Release\bundled_ogg_vorbis_file.lib;Release\bundled_ogg.lib;Release\bundled_theora.lib;libs\curl\lib\Release\libcurl.lib;Release\bundled_sqlite3.lib;Release\bundled_zlib.lib;Release\bundled_minizip.lib;libs\sdl2\lib\SDL2main.lib;libs\sdl2\lib\SDL2.lib;wsock32.lib;ws2_32.lib;psapi.lib;winmm.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;Release\bundled_ogg_vorbis.lib;Release\bundled_ogg.lib;user32.lib;gdi32.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;Release\bundled_zlib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>MSVCRT.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/etlegacy_2/build/Release/etl.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/etlegacy_2/build/etl.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>MinSizeRel\bundled_ogg_vorbis.lib;MinSizeRel\bundled_ogg_vorbis_file.lib;MinSizeRel\bundled_ogg.lib;MinSizeRel\bundled_theora.lib;libs\curl\lib\Release\libcurl.lib;MinSizeRel\bundled_sqlite3.lib;MinSizeRel\bundled_zlib.lib;MinSizeRel\bundled_minizip.lib;libs\sdl2\lib\SDL2main.lib;libs\sdl2\lib\SDL2.lib;wsock32.lib;ws2_32.lib;psapi.lib;winmm.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;MinSizeRel\bundled_ogg_vorbis.lib;MinSizeRel\bundled_ogg.lib;user32.lib;gdi32.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;MinSizeRel\bundled_zlib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>MSVCRT.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/etlegacy_2/build/MinSizeRel/etl.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/etlegacy_2/build/MinSizeRel/etl.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;USE_ICON;USE_WINDOWS_CONSOLE;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>RelWithDebInfo\bundled_ogg_vorbis.lib;RelWithDebInfo\bundled_ogg_vorbis_file.lib;RelWithDebInfo\bundled_ogg.lib;RelWithDebInfo\bundled_theora.lib;libs\curl\lib\Release\libcurl.lib;RelWithDebInfo\bundled_sqlite3.lib;RelWithDebInfo\bundled_zlib.lib;RelWithDebInfo\bundled_minizip.lib;libs\sdl2\lib\SDL2main.lib;libs\sdl2\lib\SDL2.lib;wsock32.lib;ws2_32.lib;psapi.lib;winmm.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;RelWithDebInfo\bundled_ogg_vorbis.lib;RelWithDebInfo\bundled_ogg.lib;user32.lib;gdi32.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;RelWithDebInfo\bundled_zlib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>MSVCRT.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/etlegacy_2/build/RelWithDebInfo/etl.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/etlegacy_2/build/RelWithDebInfo/etl.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cm_load.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cm_patch.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cm_polylib.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cm_test.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cm_trace.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cmd.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\common.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\cvar.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\download.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\files.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\huffman.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\md4.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\md5.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\msg.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\net_chan.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\net_ip.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\puff.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\q_math.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\q_shared.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\q_unicode.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\update.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\vm.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\vm_interpreted.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\cm_local.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\cm_patch.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\cm_polylib.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\cm_public.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\dl_local.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\dl_public.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\json_public.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\puff.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\q_math.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\q_platform.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\q_shared.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\q_unicode.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\qcommon.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\qfiles.h" />
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\vm_local.h" />
+    <ClInclude Include="D:\etlegacy_2\build\include\git_version.h" />
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_bot.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_ccmds.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_client.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_demo.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_demo_ext.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_game.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_init.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_main.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_net_chan.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_snapshot.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_tracker.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_wallhack.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\server\sv_world.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\server\server.h" />
+    <ClInclude Include="D:\etlegacy_2\src\server\sv_tracker.h" />
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_avi.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_cgame.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_cinematic.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_console.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_demo.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_input.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_keys.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_main.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_net_chan.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_ogv.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_parse.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_roq.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_scrn.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\cl_ui.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\qal.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_adpcm.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_codec.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_codec_ogg.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_codec_wav.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_dma.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_main.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_mem.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_mix.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_openal.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\client\snd_wavelet.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\client\client.h" />
+    <ClInclude Include="D:\etlegacy_2\src\client\keys.h" />
+    <ClInclude Include="D:\etlegacy_2\src\client\qal.h" />
+    <ClInclude Include="D:\etlegacy_2\src\client\snd_codec.h" />
+    <ClInclude Include="D:\etlegacy_2\src\client\snd_local.h" />
+    <ClInclude Include="D:\etlegacy_2\src\client\snd_public.h" />
+    <ClCompile Include="D:\etlegacy_2\src\botlib\be_interface.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\botlib\be_interface.h" />
+    <ClCompile Include="D:\etlegacy_2\src\botlib\l_memory.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\botlib\l_precomp.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\botlib\l_script.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\botlib\l_memory.h" />
+    <ClInclude Include="D:\etlegacy_2\src\botlib\l_precomp.h" />
+    <ClInclude Include="D:\etlegacy_2\src\botlib\l_script.h" />
+    <ClCompile Include="D:\etlegacy_2\src\sys\sys_main.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sys\con_log.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sdl\sdl_glimp.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sdl\sdl_input.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sdl\sdl_snd.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\sdl\sdl_defs.h" />
+    <ClInclude Include="D:\etlegacy_2\src\sdl\sdl_icon.h" />
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\json_stubs.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\i18n_main.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\i18n_findlocale.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\qcommon\i18n_findlocale.h" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\dictionary.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\dictionary_manager.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\file_system.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\iconv.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\language.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\log.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\log_stream.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\plural_forms.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\po_parser.hpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\tinygettext.hpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\dictionary.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\dictionary_manager.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\iconv.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\language.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\log.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\plural_forms.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\po_parser.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\tinygettext.cpp" />
+    <ClCompile Include="D:\etlegacy_2\src\tinygettext\windows_file_system.cpp" />
+    <ClInclude Include="D:\etlegacy_2\src\tinygettext\tinygettext\windows_file_system.hpp" />
+    <ClCompile Include="D:\etlegacy_2\src\irc\htable.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\irc\htable.h" />
+    <ClCompile Include="D:\etlegacy_2\src\irc\irc_client.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\qcommon\dl_main_curl.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="D:\etlegacy_2\src\db\db_sql.h" />
+    <ClCompile Include="D:\etlegacy_2\src\db\db_sqlite3.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\db\db_sql_cmds.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sys\sys_win32.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sys\sys_win32_con.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="D:\etlegacy_2\src\sys\con_win32.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile Include="D:\etlegacy_2\src\sys\win_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\etlegacy_2\build\ZERO_CHECK.vcxproj">
+      <Project>{E4AF90D6-A4A7-3753-9581-23F2F000C375}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_curl.vcxproj">
+      <Project>{F6B09682-28A2-3812-A9A3-BE4BAAB3AC51}</Project>
+      <Name>bundled_curl</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_jansson.vcxproj">
+      <Project>{88219942-6F38-3B0D-BAE8-8541B81A5C05}</Project>
+      <Name>bundled_jansson</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_minizip.vcxproj">
+      <Project>{1F63D83D-7AFC-37C7-9936-ECF41C2DB2F9}</Project>
+      <Name>bundled_minizip</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_ogg.vcxproj">
+      <Project>{846B1792-1D37-38B6-BAE3-1DF8DCFEAD03}</Project>
+      <Name>bundled_ogg</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_ogg_vorbis.vcxproj">
+      <Project>{9D02D8B9-270D-3DC9-91D3-4F804F97F52E}</Project>
+      <Name>bundled_ogg_vorbis</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_ogg_vorbis_file.vcxproj">
+      <Project>{379B53B4-4002-335C-A0B9-0B2FF4043C64}</Project>
+      <Name>bundled_ogg_vorbis_file</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_sdl.vcxproj">
+      <Project>{AD7A1C3E-BCEF-3F50-B169-E4018AE73300}</Project>
+      <Name>bundled_sdl</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_sqlite3.vcxproj">
+      <Project>{C48F7D8F-261A-30C1-BE64-EA6E9A835E63}</Project>
+      <Name>bundled_sqlite3</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_theora.vcxproj">
+      <Project>{BD7E2D63-2A3B-3F2A-86B9-C96E9C10AE3F}</Project>
+      <Name>bundled_theora</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_zlib.vcxproj">
+      <Project>{A11DC084-DECE-3ECB-8D07-EA3C8ADA6A41}</Project>
+      <Name>bundled_zlib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

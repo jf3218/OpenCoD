@@ -1,0 +1,6 @@
+this.Name = "Luger";
+this.WeaponId = WEAPON.LUGER;
+
+this.PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 1.0);
+this.PrimaryFire.DefaultDesirability = 0.3;
+this.PrimaryFire.LowAmmoGetAmmoAmount = 16;

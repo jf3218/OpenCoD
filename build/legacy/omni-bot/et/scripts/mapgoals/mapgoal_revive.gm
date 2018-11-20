@@ -1,0 +1,66 @@
+this.GoalType = "REVIVE";
+this.Version = 1;
+this.DefaultPriority = 1.0;
+this.DontSave = true;
+this.Radius = 64;
+this.DynamicPosition = true;
+this.DynamicOrientation = true;
+this.Range = 2000; // this matches value for compass icon in SDK
+
+//////////////////////////////////////////////////////////////////////////
+
+this.UpgradeVersion = function(Props)
+{
+	// version 0 is string,string key/values from the old waypoint format
+	if(Props.Version==0)
+	{
+		// Version 1 Schema, upgrade from waypoint format
+		Props.Version = 1;
+	}
+	else if(Props.Version == this.Version)
+	{
+		// default to disabled, until the entity stops moving.
+		this.DisableGoal(true);
+
+		// store the position. velocity check on injured ents is bad
+		this.EntPosition = GetEntPosition(this.GetEntity());
+
+		//delete goal if body is on ice
+		tr = TraceLine( this.EntPosition, Vec3(this.EntPosition.x, this.EntPosition.y, this.EntPosition.z-90), 0, TRACE.SOLID, -1, false );
+		if(tr.surface & SURFACE.SLICK){
+			this.SetRemoveFlag(true);
+		}
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+this.Update = function()
+{
+	sleep(1); // give it some time to update internally
+	goalEnt = this.GetEntity();
+	if ( (GetPointContents(this.GetPosition()) & CONTENT.WATER)
+			|| (!GetEntFlags(goalEnt, ENTFLAG.DEAD) && Util.GetEntHealth(goalEnt) > 0)  //check health because ENTFLAG.DEAD does not work in ETNam mod
+			|| GetEntFlags(goalEnt, ENTFLAG.LIMBO) )
+	{
+		this.SetAvailable(0, false);
+		this.SetRemoveFlag(true);
+	}
+	else
+	{
+		if(this.IsDisabled())
+		{
+			entPos = GetEntPosition(goalEnt);
+			if(this.EntPosition == entPos)
+			{
+				this.DisableGoal(false);
+				// cs: actually can't block here or the goal will never get removed.
+				//block(0);
+			}
+			else
+			{
+				this.EntPosition = entPos;
+			}
+		}
+	}
+};

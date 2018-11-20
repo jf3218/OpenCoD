@@ -1,0 +1,1715 @@
+//==========================================================================================
+//
+//	golddays_v4.gm
+//
+//	Who              	When		What
+//------------------------------------------------------------------------------------------
+//	^1Varga^7Tom^|_(HUN)	23 April 2017	Initial Script
+//	^1Varga^7Tom^|_(HUN)	07 June	 2017	Axis ATTACK goals
+//	^1Varga^7Tom^|_(HUN)	10 June	 2017	Waypoints
+//	^1Varga^7Tom^|_(HUN)	16 June	 2017	Allied DEFEND goals
+//							18 June	 2017	Waypoinflag setting, goal offset setting
+//	DestroyBreakable script is stolen from et_poker_b2 map, the script is written by palota
+//==========================================================================================
+
+//team: 1 = Axis, 2 = Allies
+//class: 1 = Soldier, 2 = Medic, 3 = Engineer, 4 = Field Ops, 5 = Covert Ops
+
+global Map =
+{
+
+//status settings
+
+	Allied_MG = false,
+	Allied_Command_Post = false,
+	Axis_Command_Post = false,
+	Water_Pump = false,
+	alliedwall = false,
+	ladder = false,
+	tower = false,
+	Allied_Basement_Access = true,
+	RoofTriggerCount = 0,
+	LadderTriggerCount = 0,
+	PillarMG42TriggerCount = 0,
+	ABATriggerCount = 0,
+	stolen_gold = 0,
+	secured_gold = 0,
+	allies_gold = 3,
+	dropped_gold = 0,
+
+	Debug = 0, // please set to zero before distributing your script
+	
+	RoofTrigger =
+	{
+		Name = "RoofTrigger",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.ALLIES)
+			{
+				Map.RoofTriggerCount += 1;
+				if(Map.RoofTriggerCount > 0 && !Map.Allied_Basement_Access)
+				{
+					Wp.SetWaypointFlag ("gold_ladder", "allies", true );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.ALLIES)
+			{
+				Map.RoofTriggerCount -= 1;
+				if(Map.RoofTriggerCount == 0  && !Map.Allied_Basement_Access)
+				{
+					Wp.SetWaypointFlag ("gold_ladder", "allies", false);
+				}
+			}
+		},
+	},
+	LadderTrigger =
+	{
+		Name = "LadderTrigger",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.ALLIES)
+			{
+				Map.LadderTriggerCount += 1;
+				if(Map.LadderTriggerCount > 0)
+				{
+					SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_ladder_.*");
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.ALLIES)
+			{
+				Map.LadderTriggerCount -= 1;
+				if(Map.LadderTriggerCount == 0)
+				{
+					if(Map.ladder)
+					{
+						SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_ladder_.*");
+					}
+					else
+					{
+						SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_ladder_.*");
+					}
+				}
+			}
+		},
+	},
+	ABATrigger =
+	{
+		Name = "ABATrigger",
+		TriggerOnClass = CLASS.ENGINEER,
+		OnEnter = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.AXIS)
+			{
+				Map.ABATriggerCount += 1;
+				if(Map.ABATriggerCount > 0 && Map.Allied_Basement_Access)
+				{
+					SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_yard_.*");
+					SetAvailableMapGoals(TEAM.AXIS, true, "ATTACK_basement_access_.*");
+					Util.MapDebugPrint("Axis engineer is in position and ABA is true");
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.AXIS)
+			{
+				Map.ABATriggerCount -= 1;
+				if(Map.ABATriggerCount == 0)
+				{
+					SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_basement_access_.*");
+					Util.MapDebugPrint("Axis engineer isn't in position");
+				}
+			}
+		},
+	},
+	PillarMG42Trigger =
+	{
+		Name = "PillarMG42Trigger",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.AXIS)
+			{
+				Map.PillarMG42TriggerCount += 1;
+				if(Map.PillarMG42TriggerCount > 0)
+				{
+					SetAvailableMapGoals(TEAM.ALLIES, false, "REPAIRMG42_Allied_MG");
+					SetAvailableMapGoals(TEAM.ALLIES, false, "BUILD_Allied_MG");
+
+					DynamicPathsUpdated();
+					SetAvailableMapGoals(TEAM.ALLIES, true, {
+						"CALLARTILLERY_window",
+						"CALLARTILLERY_ladder",
+						"ARTILLERY_S_pillarmg",
+					});
+				}
+				Util.MapDebugPrint("PillarMG42Trigger = " + Map.PillarMG42TriggerCount);
+			}
+		},
+		OnExit = function(ent)
+		{
+			if(GetEntTeam(ent) == TEAM.AXIS)
+			{
+				Map.PillarMG42TriggerCount -= 1;
+				if(Map.PillarMG42TriggerCount == 0)
+				{
+					SetAvailableMapGoals(TEAM.ALLIES, false, {
+						"CALLARTILLERY_window",
+						"CALLARTILLERY_ladder",
+						"ARTILLERY_S_pillarmg",
+					});
+					DynamicPathsUpdated();
+				}
+				Util.MapDebugPrint("PillarMG42Trigger = " + Map.PillarMG42TriggerCount);
+			}
+		},
+	},
+	DestroyBreakable = function(_this, position, facing)
+	{
+		name = "breakable_" + _this.CurrentNavigation;
+		Map[name] = true;
+		ent = TraceLine( position, position + 200*facing, 0, TRACE.SHOT, _this.Bot.GetGameId(), false ).entity;
+		if(ent)
+		{
+			id = GetGameIdFromEntity(ent);
+			Util.MapDebugPrint("destroying breakable " + id, true);
+			_this.Bot.HoldButton(BTN.FORWARD, 6);
+			_this.AddAimRequest(Priority.High, "facing", facing);
+			_this.AddWeaponRequest(Priority.High, WEAPON.KNIFE);
+			_this.BlockForWeaponChange(WEAPON.KNIFE);
+			for(j=0; j<30; j+=1) {
+				if (!EntityIsValid(id)){ return; }
+				_this.Bot.HoldButton(BTN.ATTACK1, 0.5);
+				if(facing.z < -0.7){ _this.Bot.HoldButton(BTN.CROUCH, 0.4); }
+				sleep(0.5);
+			}
+			Map[name] = null;
+		}
+		sleep(2.5);
+	},
+	Navigation = 
+	{	
+		spawnladder_up = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_spawnladder_up;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(-1101.125, 1558.312, 98.627), Vec3(0.523, -0.011, 0.852));
+			}
+		},
+		spawnladder_top = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_spawnladder_top;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(-1072.925, 1557.717, 202.125), Vec3(-0.352, -0.118, -0.929));
+			}
+		},
+		windows_ladder = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_windows_ladder;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(-3.739, 1852.126, 91.286), Vec3(-0.002, -0.392, 0.920));
+			}
+		},
+		windows_ladder_top = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_windows_ladder_top;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(74.118, 1864.060, 195.125), Vec3(-0.118, 0.009, -0.993));
+			}
+		},
+		undergarage = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_undergarage;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(1371.340, 2408.880, -298.521), Vec3(-0.004, 0.359, 0.933));
+			}
+		},
+		garage_top = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_garage_top;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(1373.150, 2450.010, -189.875), Vec3(-0.035, -0.314, -0.949));
+			}
+		},
+		windows = 
+		{
+			EvalFunc = function(t){
+				return !Map.breakable_windows;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(204.289, 1625.610, 208.593), Vec3(1.000, -0.002, 0.001));
+			}
+		},
+		bigladder_up = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.High, "facing", Vec3(0.991, -0.092, -0.101));
+				_this.Bot.HoldButton(BTN.WALK, 6.0);
+				sleep(6.0);
+			},
+		},
+		bigladder_down = 
+		{	
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(0.364, -0.013, -0.931));
+				_this.Bot.HoldButton(BTN.FORWARD,  4.0);
+				sleep(4.0);
+			},
+		},
+		windows_ladder_2 = 
+		{	
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(-0.084, -0.995, 0.058));
+				_this.Bot.HoldButton(BTN.FORWARD,  1.0);
+				sleep(1.0);
+			},
+		},
+		allied_mg = 
+		{	
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(-0.050, -0.804, 0.593));
+				_this.Bot.HoldButton(BTN.FORWARD,  2.0);
+				sleep(2.0);
+			},
+		},
+		tower_down = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, -0.000));
+				_this.Bot.HoldButton(BTN.BACKWARD, 4.0);
+				sleep(4.0);
+			},
+		},
+		tower_up = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(0.999, -0.053, -0.006 ));
+				_this.Bot.HoldButton(BTN.FORWARD, 4.0);
+				sleep(4.0);
+			},
+		},
+		left_window = {
+			EvalFunc = function(t){
+				return !Map.breakable_left_window;
+			},
+			navigate = function(t){
+				Map.DestroyBreakable(t, Vec3(-371.521, 1976.170, 258.125), Vec3(-116.125, 1954.423, 274.715));
+			}
+		},
+		right_window =
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, -0.000));
+				_this.Bot.HoldButton(BTN.FORWARD, BTN.JUMP, 0.4);
+				sleep(0.4);
+			},
+		},
+		right_window_up =
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(0.995, -0.082, -0.062));
+				_this.Bot.HoldButton(BTN.FORWARD, BTN.CROUCH, 1.0);
+				sleep(1.0);
+			},
+		},
+		right_window_centre =
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(0.766, -0.009, -0.642));
+				_this.Bot.HoldButton(BTN.ATTACK1, 2.0);
+				sleep(2.0);
+			},
+		},
+		waterline =
+		{
+			navigate = function(_this)
+			{
+				_this.AddWeaponRequest(Priority.VeryHigh, WEAPON.KNIFE );
+				_this.BlockForWeaponChange( WEAPON.KNIFE );
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(-0.306, 0.432, -0.848));
+				_this.Bot.HoldButton(BTN.WALK, BTN.CROUCH, 1.0);
+				sleep(1.0);
+			},	
+		},
+		halfladder_l =
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, 0.000));
+				_this.Bot.HoldButton(BTN.STRAFE_R, 0.5);
+				sleep(0.5);
+			},
+		},
+		halfladder_r =
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, 0.000));
+				_this.Bot.HoldButton(BTN.STRAFE_L, 0.5);
+				sleep(0.5);
+			},
+		},
+		towerladder_l = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, 0.000));
+				_this.Bot.HoldButton(BTN.STRAFE_R, 0.5);
+				sleep(0.5);
+			},
+		},
+		towerladder_r = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, 0.000));
+				_this.Bot.HoldButton(BTN.STRAFE_L, 0.5);
+				sleep(0.5);
+			},
+		},
+		towerladder = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(1.000, 0.000, 0.000));
+				_this.Bot.HoldButton(BTN.FORWARD, 1.5);
+				sleep(1.5);
+			},
+		},
+		well = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(-0.204, 0.239, -0.949));
+				_this.Bot.HoldButton(BTN.FORWARD, BTN.CROUCH, 1.0);
+				sleep(1.0);
+			},
+		},
+		well_2 = 
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(-0.468, 0.001, -0.884));
+				_this.Bot.HoldButton(BTN.FORWARD, BTN.CROUCH, 1.0);
+				sleep(1.0);
+			},
+		},
+	},
+	
+	Allied_MG_Built = function( trigger )
+	{
+	
+		Map.Allied_MG = true;
+	
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_alliedwall" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allied_MG" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "MOUNTMG42_Allied_MG" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANTMINE_yard_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_alliedwall_1" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_alliedmg_.*" );
+		if(Map.tower && Map.Allied_MG)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, {
+				"ARTILLERY_S_pillarmg", 
+				"CALLARTILLERY_tower",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, {
+				"ARTILLERY_S_pillarmg", 
+				"CALLARTILLERY_tower",
+			});
+		}
+		Util.MapDebugPrint( "Allied_MG_Built" );
+	},
+	
+	Allied_Command_Post_Built = function( trigger )
+	{
+	
+		Map.Allied_Command_Post = true;
+	
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANTMINE_commandpost_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+
+	Axis_Command_Post_Built = function( trigger )
+	{
+	
+		Map.Axis_Command_Post = true;
+
+		if(!Map.ladder)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, {
+
+				"ATTACK_ladder_.*",
+				"BUILD_ladder",
+			});
+		}
+		if(Map.Allied_MG)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, {
+				"CALLARTILLERY_allied_mg",
+				"ARTILLERY_S_allied_mg",
+			});
+		}
+		SetAvailableMapGoals(TEAM.AXIS, false, {
+			"ATTACK_commandpost_.*",
+			"ARTILLERY_S_pillarmg", 
+			"CALLARTILLERY_tower",
+			"BUILD_Command_Post",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"DEFEND_ladder_.*",
+			"DEFEND_gold_23",
+			"MOBILEMG42_roof",
+		});
+	
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+
+	Water_Pump_Built = function( trigger )
+	{
+	
+		Map.Water_Pump = true;
+	
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"ATTACK_waterpump_.*",
+			"BUILD_Water_Pump",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_mg42_pillar" );
+		if(!Map.Axis_Command_Post)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+
+				"BUILD_Command_Post",
+			});
+			if(Map.ladder)
+			{
+				SetAvailableMapGoals(TEAM.AXIS, true, "PLANT_alliedwall");
+			}
+		}
+	
+		sleep (15);
+		Wp.SetWaypointFlag( "garage_1", "closed", false );
+		Wp.SetWaypointFlag( "garage_2", "closed", false );
+		Wp.SetWaypointFlag( "tunnelx", "closed", false );
+		SetAvailableMapGoals(0, true, "ROUTE_tunnel_undergarage");
+		SetAvailableMapGoals(0, true, "ROUTE_tunnel_underhouse");
+		SetAvailableMapGoals(0, true, "ROUTE_tunnel");
+		if(!alliedwall)
+		{
+			SetGoalPriority( "PLANT_Water_Pump", 1.0, TEAM.ALLIES, CLASS.COVERTOPS );
+		}
+		Util.MapDebugPrint( "Water_Pump_Built" );
+	},
+
+	alliedwall_Built = function( trigger )
+	{
+	
+		Map.alliedwall = true;
+	
+		Wp.SetWaypointFlag( "alliedwall", "closed", true );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_alliedwall_.*" );
+		if(Map.Allied_Basement_Access || !Map.ladder)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, "FLAG_allies_gold_crate");
+		}
+		Util.MapDebugPrint( "alliedwall_Built" );
+	},
+
+	ladder_Built = function( trigger )
+	{
+	
+		Map.ladder = true;
+	
+		Wp.SetWaypointFlag( "bigladder_up", "closed", false );
+		Wp.SetWaypointFlag( "bigladder_bottom", "closed", false );
+		Wp.SetWaypointFlag( "bigladder_top", "closed", false );
+		Wp.SetWaypointFlag( "bigladder_down", "closed", false );
+		Wp.SetWaypointFlag( "ladder", "closed", false );
+		DynamicPathsUpdated();
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_ladder" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_ladder_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_allies_backdoor.*" );
+		if(Map.tower)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SNIPE_tower" );
+		}
+		if(!Map.Allied_Basement_Access || !Map.alliedwall)
+		{
+			SetGoalPriority( "PLANT_Water_Pump", 1.0, TEAM.ALLIES, CLASS.COVERTOPS );
+		}
+
+		
+		if(!Map.Allied_Basement_Access)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, "PLANT_Allied_Basement_Access");
+			SetAvailableMapGoals(TEAM.AXIS, true, "FLAG_allies_gold_crate");
+			SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_basement_access_.*");
+			SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_yard_.*");
+			SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_allied_basement_access_1");
+
+		}
+		else
+		{
+			SetGoalPriority( "PLANT_Allied_Basement_Access", 1.2 );
+			SetAvailableMapGoals(TEAM.AXIS, true, "PLANT_Allied_Basement_Access");
+			SetAvailableMapGoals(TEAM.AXIS, true, "ATTACK_yard_.*");
+			SetGoalPriority( "DEFEND_allied_basement_access_1", 0.9, TEAM.ALLIES );
+			SetGoalPriority( "DEFEND_allied_basement_access_1", 0.0, TEAM.ALLIES, CLASS.ENGINEER);
+			SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_allied_basement_access_1");
+
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+
+			"SNIPE_tower",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"ARTILLERY_S_pillarmg",
+			"CALLARTILLERY_tower",
+			"ATTACK_ladder_.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+
+			"DEFEND_ladder_.*",
+			"MOBILEMG42_roof",
+			"PLANT_ladder",	
+		});
+		Util.MapDebugPrint( "ladder_Built" );
+	},
+
+	tower_Built = function( trigger )
+	{
+	
+		Map.tower = true;
+		
+		Wp.SetWaypointFlag( "tower_bottom", "closed", false );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_tower" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_tower_.*" );
+		
+		if(!Map.Axis_Command_Post)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+			"ATTACK_commandpost_.*",
+			"BUILD_Command_Post",
+			});
+		}
+		
+		if(Map.ladder)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SNIPE_tower" );
+		}
+		if(Map.Allied_MG)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, {
+				"ARTILLERY_S_pillarmg", 
+				"CALLARTILLERY_tower",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, {
+				"ARTILLERY_S_pillarmg", 
+				"CALLARTILLERY_tower",
+			});
+		}
+		Util.MapDebugPrint( "tower_Built" );	
+	},
+
+	Allied_Basement_Access_Destroyed = function( trigger )
+	{
+	
+		Map.Allied_Basement_Access = false;
+	
+
+		SetGoalPriority( "MOBILEMG42_gold", 1.2, TEAM.ALLIES, CLASS.SOLDIER );
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"PLANT_Allied_Basement_Access",
+			"ATTACK_basement_access_.*",
+			"ATTACK_yard_.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"FLAG_allies_gold_crate",
+			"PLANT_alliedwall",
+			"ATTACK_gold_.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, "MOBILEMG42_gold" );
+		SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_gold_1.*");
+		SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_gold_2.*");
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_allied_basement_access_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Basement_Access_.*" );
+		
+		if(Map.ladder || !Map.alliedwall)
+		{
+			SetGoalPriority( "DEFEND_ladder_2", 0.7, TEAM.ALLIES );
+			SetGoalPriority( "DEFEND_.*", 0.0, 0, CLASS.ENGINEER);
+			SetAvailableMapGoals(TEAM.AXIS, true, "FLAG_allies_gold_crate");
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Water_Pump" );
+		DeleteTriggerRegion( Map.ABATrigger );
+		Util.MapDebugPrint( "Allied_Basement_Access_Destroyed" );
+	},
+
+	Allied_MG_Destroyed = function( trigger )
+	{
+	
+		Map.Allied_MG = false;
+	
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_MG" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_allied_mg" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ARTILLERY_S_allied_mg" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ARTILLERY_S_pillarmg" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "REPAIRMG42_Allied_MG" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "MOUNTMG42_Allied_MG" );
+		Util.MapDebugPrint( "Allied_MG_Destroyed" );
+	},
+	
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+	
+		Map.Allied_Command_Post = false;
+	
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		
+		if (!Map.Allied_Basement_Access )
+		{
+			SetAvailableMapGoals(TEAM.ALLIES, false, "BUILD_Command_Post");
+		}
+		
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+	
+		Map.Axis_Command_Post = false;
+	
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+
+	Water_Pump_Destroyed = function( trigger )
+	{
+	
+		Map.Water_Pump = false;
+	
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Water_Pump" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Water_Pump" );
+		Wp.SetWaypointFlag( "garage_1", "closed", true );
+		Wp.SetWaypointFlag( "garage_2", "closed", true );
+		Wp.SetWaypointFlag( "tunnelx", "closed", true );
+		DynamicPathsUpdated();
+		if(Map.Allied_Basement_Access)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, "FLAG_allies_gold_crate");
+		}
+		else
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, "FLAG_allies_gold_crate");
+		}
+		Util.MapDebugPrint( "Water_Pump_Destroyed" );
+	},
+
+	alliedwall_Destroyed = function( trigger )
+	{
+	
+		Map.alliedwall = false;
+	
+		Wp.SetWaypointFlag( "alliedwall", "closed", false );
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_alliedwall" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"DEFEND_alliedwall_1",
+			"BUILD_alliedwall", 
+			"MOBILEMG42_gold",
+		});
+		if(!Map.Allied_Basement_Access)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_basement_access_.*");
+			SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_yard_.*");
+			if(Map.ladder)
+			{
+				SetAvailableMapGoals(TEAM.ALLIES, true, "MOBILEMG42_gol.*");
+			}
+		}	
+		if(Map.Water_Pump)
+		{
+			SetGoalPriority( "PLANT_Water_Pump", 1.0, TEAM.ALLIES, CLASS.COVERTOPS );
+			SetAvailableMapGoals(TEAM.AXIS, true, "FLAG_allies_gold_crate");
+		}
+		Util.MapDebugPrint( "alliedwall_Destroyed" );
+	},
+
+	ladder_Destroyed = function( trigger )
+	{
+	
+		Map.ladder = false;
+	
+		Wp.SetWaypointFlag( "bigladder_up", "closed", true );
+		Wp.SetWaypointFlag( "bigladder_bottom", "closed", true );
+		Wp.SetWaypointFlag( "bigladder_top", "closed", true );
+		Wp.SetWaypointFlag( "bigladder_down", "closed", true );
+		Wp.SetWaypointFlag( "ladder", "closed", true );
+		DynamicPathsUpdated();
+		
+		SetGoalPriority( "PLANT_Allied_Basement_Access", 0.81 );
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+
+			"DEFEND_ladder_.*",
+			"DEFUSE_ladder_.*",
+			"MOBILEMG42_roof",
+			"PLANT_ladder",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"MOUNTMG42_mg42_pillar",
+			"ATTACK_ladder_.*",
+			"BUILD_ladder", 
+		});
+		SetAvailableMapGoals( TEAM.AXIS, false, "SNIPE_tower" );
+		Util.MapDebugPrint( "ladder_Destroyed" );
+	},
+
+	tower_Destroyed = function( trigger )
+	{
+	
+		Map.tower = false;
+	
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_tower" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_tower" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "SNIPE_tower" );
+		Wp.SetWaypointFlag( "tower_bottom", "closed", true );
+		Util.MapDebugPrint( "tower_Destroyed" );
+	},
+
+	allies_gold_crate_Taken = function( trigger )
+	{
+		Map.allies_gold -= 1;
+		Map.stolen_gold += 1;
+		Map.dropped_gold = 0;
+	
+		SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_gold_dropoff" );
+		SetGoalPriority( "MOUNTMG42_Allied_MG", 1.5, TEAM.ALLIES );
+		SetGoalPriority( "DEFEND_.*", 0.0, 0, CLASS.ENGINEER);
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"CALLARTILLERY_spawn_roof",
+			"MOUNTMG42_mg42_pillar",
+			"CALLARTILLERY_ladder",
+			"MOUNTMG42_Allied_MG",
+			"ARTILLERY_S_forest",
+			"CALLARTILLERY_roof",
+			"DEFEND_alliedmg_6",
+			"ARTILLERY_S_yard",
+			"DEFEND_gold_2.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_Command_Post",
+			"PLANT_Water_Pump",
+			"DEFEND_ladder_.*",
+			"DEFEND_gold_1.*",
+			"PLANT_tower",
+		});
+		SetAvailableMapGoals(TEAM.AXIS, false, "ATTACK_gold_.*");
+		if(Map.ladder)
+		{
+			SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_ladder_4");
+		}
+		if((Util.AliveCount(TEAM.ALLIES, CLASS.FIELDOPS)) < 1)
+		{
+			SetGoalPriority( "MOBILEMG42_yard", 1.9, TEAM.ALLIES, CLASS.SOLDIER );
+			SetAvailableMapGoals(TEAM.ALLIES, true, "MOBILEMG42_yard");
+		}
+		else
+		{
+			SetGoalPriority( "MOBILEMG42_yard", 1.0, TEAM.ALLIES, CLASS.SOLDIER );
+			SetAvailableMapGoals(TEAM.ALLIES, true, "MOBILEMG42_yard");
+		}
+		if(Map.secured_gold == 2)
+		{
+			SetAvailableMapGoals(TEAM.ALLIES, false, "MOBILEMG42_gold");
+		}
+		Util.MapDebugPrint( "allies_gold_crate_Taken " );
+		Util.MapDebugPrint( "^3stolen_gold ("+Map.stolen_gold+")" );
+		Util.MapDebugPrint( "^3allies_gold ("+Map.allies_gold+")" );
+		Util.MapDebugPrint( "^3secured_gold ("+Map.secured_gold+")" );
+		sleep (12);
+		SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_gold_21");
+	},
+	
+	allies_gold_crate_Dropped = function( trigger )
+	{
+		Map.dropped_gold += 1;
+		Map.stolen_gold -= 1;
+		Map.allies_gold += 1;
+	
+		SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_allies_gold_crate_dropped" );
+		Util.MapDebugPrint( "allies_gold_crate_Dropped" );
+		Util.MapDebugPrint( "^3stolen_gold ("+Map.stolen_gold+")" );
+		Util.MapDebugPrint( "^3dropped_gold ("+Map.dropped_gold+")" );
+		Util.MapDebugPrint( "^3allies_gold ("+Map.allies_gold+")" );
+		Util.MapDebugPrint( "^3secured_gold ("+Map.secured_gold+")" );
+	},
+
+	allies_gold_crate_Returned = function( trigger )
+	{
+		Map.dropped_gold = 0;
+	
+		SetGoalPriority( "MOBILEMG42_yard", 1.0, TEAM.ALLIES, CLASS.SOLDIER );
+		SetGoalPriority( "MOUNTMG42_Allied_MG", 0.7, TEAM.ALLIES );
+		SetGoalPriority( "MOUNTMG42_Allied_MG", 0.0, 0, CLASS.ENGINEER);
+		SetGoalPriority( "DEFEND_alliedmg_6", 0.5, TEAM.ALLIES );
+		SetGoalPriority( "DEFEND_.*", 0.0, 0, CLASS.ENGINEER);
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+
+			"MOUNTMG42_mg42_pillar",
+			"DEFEND_ladder_4",
+		});
+
+		if(Map.alliedwall && Map.Allied_Basement_Access && Map.ladder)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_ladder_.*" );
+		}
+
+		if((Map.secured_gold + Map.allies_gold == 3) && Map.stolen_gold == 0 && Map.dropped_gold == 0)
+		{
+			Util.MapDebugPrint("^2Allied Gold Is OK!");
+			SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_gold_1.*");
+			SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_gold_2.*");
+		}
+		else
+		{
+			Util.MapDebugPrint("^1Allied Gold Is Not OK!");
+			SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_gold_2.*");
+			SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_gold_1.*");
+		}	
+		Util.MapDebugPrint( "allies_gold_crate_Returned" );
+		Util.MapDebugPrint( "^3stolen_gold ("+Map.stolen_gold+")" );
+		Util.MapDebugPrint( "^3dropped_gold ("+Map.dropped_gold+")" );
+		Util.MapDebugPrint( "^3allies_gold ("+Map.allies_gold+")" );
+		Util.MapDebugPrint( "^3secured_gold ("+Map.secured_gold+")" );
+	},
+
+	allies_gold_crate_Secured = function( trigger )
+	{
+		Map.secured_gold += 1;
+		Map.stolen_gold -= 1;
+		
+		if((Map.secured_gold + Map.allies_gold == 3) && Map.stolen_gold == 0 && Map.dropped_gold == 0)
+		{
+			Util.MapDebugPrint("^2Allied Gold Is OK!");
+			SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_gold_1.*");
+			SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_gold_2.*");
+		}
+		else
+		{
+			Util.MapDebugPrint("^1Allied Gold Is Not OK!");
+			SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_gold_2.*");
+			SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_gold_1.*");
+		}
+		Util.MapDebugPrint( "allies_gold_crate_Secured ^1("+Map.stolen_gold+")" );
+		Util.MapDebugPrint( "^3stolen_gold ("+Map.stolen_gold+")" );
+		Util.MapDebugPrint( "^3dropped_gold ("+Map.dropped_gold+")" );
+		Util.MapDebugPrint( "^3allies_gold ("+Map.allies_gold+")" );
+		Util.MapDebugPrint( "^3secured_gold ("+Map.secured_gold+")" );
+	},
+	
+	planted_basement_access = function( trigger )
+	{
+		SetGoalPriority( "ATTACK_basement_access_.*", 0.71, TEAM.AXIS, CLASS.MEDIC );
+		SetGoalPriority( "ATTACK_basement_access_.*", 1.1, TEAM.AXIS, CLASS.COVERTOPS );
+		SetGoalPriority( "ATTACK_basement_access_.*", 1.1, TEAM.AXIS, CLASS.SOLDIER );
+		SetGoalPriority( "ATTACK_basement_access_.*", 1.1, TEAM.AXIS, CLASS.FIELDOPS );
+		SetAvailableMapGoals(TEAM.ALLIES, false, "DEFEND_allied_basement_access_1");
+		Util.MapDebugPrint( "Planted at Basement Access" );
+	},
+	
+	planted_ladder = function( trigger )
+	{
+		if(Map.TopOfHouseTriggerCount > 0)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, false, "DEFUSE_ladder_.*");
+		}
+		else
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, "DEFUSE_ladder_.*");
+		}
+		Util.MapDebugPrint("Dinamyte planted at ladder");
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allied MG nest constructed!", Map.Allied_MG_Built );
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_Command_Post_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "Axis have built the Water Pump!", Map.Water_Pump_Built );
+	OnTrigger( "The basement wall has been constructed.", Map.alliedwall_Built );
+	OnTrigger( "The Ladder has been constructed.", Map.ladder_Built );
+	OnTrigger( "The axis snipers nest have ben constructed!.", Map.tower_Built );
+	OnTrigger( "Axis forces has breached through the basement door!", Map.Allied_Basement_Access_Destroyed ); 
+	OnTrigger( "Axis team has destroyed the Allied MG nest!", Map.Allied_MG_Destroyed );
+	OnTrigger( "Allis have damaged the Water Pump!", Map.Water_Pump_Destroyed );
+	OnTrigger( "axis have destroyed the Basement wall.", Map.alliedwall_Destroyed );
+	OnTrigger( "Allied have destroyed the Ladder.", Map.ladder_Destroyed );
+	OnTrigger( "allied have destryoed the snipers nest!.", Map.tower_Destroyed );
+	OnTrigger( "Axis have stolen the allied gold!", Map.allies_gold_crate_Taken );
+	OnTrigger( "Flag dropped allies_gold_crate!", Map.allies_gold_crate_Dropped );
+	OnTrigger( "Flag returned allies_gold_crate!", Map.allies_gold_crate_Returned );
+	OnTrigger( "Axis captured axis_gold_flag", Map.allies_gold_crate_Secured );
+	OnTrigger( "Planted at Allied Basement Access..", Map.planted_basement_access );
+	OnTrigger( "Planted at ladder", Map.planted_ladder );
+	
+	
+	OnTriggerRegion(AABB(-1461.220,2570.263,-58.867,-1417.245,2747.185,15.133), RegionTrigger.IntrusionWarning ); // double door
+	OnTriggerRegion(AABB(-787.875,1909.125,8.125,-745.446,2072.875,82.125), RegionTrigger.IntrusionWarning ); // basement access stairs
+	OnTriggerRegion(AABB(-1560.755,3016.062,-58.875,-1392.977,3058.863,15.125), RegionTrigger.IntrusionWarning ); // gold ladder
+	
+
+	break3 = OnTriggerRegion(AABB(-385.125,1805.125,235.125,-347.125,1870.875,285.125), RegionTrigger.BreakableDistance); // allyspawn_right_wimdow
+	break6 = OnTriggerRegion(AABB(304.650,3007.125,-66.875,554.760,3088.615,7.125), RegionTrigger.BreakableDistance); // H & A Cabinets
+	break8 = OnTriggerRegion(AABB(-903.095,1788.125,-245.774,-864.820,1876.875,-171.774), RegionTrigger.BreakableDistance); // near_alliedwall
+
+	
+	Map.RoofTrigger = OnTriggerRegion(AABB(-1856.875,2733.925,171.125,-712.252,3320.875,287.162), Map.RoofTrigger); // Roof
+	Map.PillarMG42Trigger = OnTriggerRegion(AABB(-160.878,-366.002,7.125,-43.461,-263.126,81.125), Map.PillarMG42Trigger);
+	Map.LadderTrigger = OnTriggerRegion(AABB(-936.177,1802.893,507.125,-842.767,1907.342,581.125), Map.LadderTrigger);
+	Map.ABATrigger = OnTriggerRegion(AABB(-380.875,1503.125,-228.875,-106.485,3320.875,-84.345), Map.ABATrigger);   //ABA_2
+	
+	//RegionTrigger.BreakableDistance.MinBreakableDist = 50;
+	//RegionTrigger.BreakableDistance.MaxBreakableDist = 130;		//250, 150
+	
+	Wp.SetWaypointFlag( "ladder", "closed", true );
+	Wp.SetWaypointFlag( "tower_bottom", "closed", true );
+	Wp.SetWaypointFlag( "bigladder_bottom", "closed", true );
+	Wp.SetWaypointFlag( "bigladder_top", "closed", true );
+	Wp.SetWaypointFlag( "bigladder_up", "closed", true );
+	Wp.SetWaypointFlag( "tunnelx", "closed", true );
+	Wp.SetWaypointFlag( "gold_ladder", "allies", false );
+	Wp.SetWaypointFlag( "field_1", "axis", false );
+	Wp.SetWaypointFlag( "field_2", "axis", false );
+	Wp.SetWaypointFlag( "field_3", "axis", false );
+	Wp.SetWaypointFlag( "allied_spawn_door", "axis", false );
+	Wp.SetWaypointFlag( "allied_bigladder_door", "axis", false );
+	Wp.SetWaypointFlag( "allies_door", "axis", false );
+	Wp.SetWaypointFlag( "alliedwall", "closed", false );
+	Wp.SetWaypointFlag( "garage_1", "closed", true );
+	Wp.SetWaypointFlag( "garage_2", "closed", true );
+	
+	
+
+	
+	Util.DisableGoal( ".*", true ); // all but routes
+	ETUtil.SetCabinets();
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANTMINE_ladder_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_tower_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_tower" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_MG" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_alliedmg_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "MOBILEMG42_yard" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_allied_basement_access_2" );
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "BUILD.*");
+	Util.SetMaxUsers( 2, "FLAG_allies_gold_crate");
+	Util.SetMaxUsers( 1, "DEFEND.*");
+	Util.SetMaxUsers( 1, "DEFEND_alliedwall_1" );
+	Util.SetMaxUsersInProgress( 1, "DEFEND.*");
+	Util.SetMaxUsersInProgress( 1, "DEFEND_alliedwall_1.*");
+	Util.SetMaxUsersInProgress( 1, "ATTACK.*");
+	
+	Util.EnableGoal("AMMOCAB.*");
+	Util.EnableGoal("HEALTHCAB.*");
+
+	
+	// Goal offsets
+	Util.SetGoalOffset(0, 100, -70, "PLANT_Command_Post");
+	Util.SetGoalOffset(17, 100, -100, "PLANT_Water_Pump");
+	Util.SetGoalOffset(5, -20, 280, "PLANT_ladder");		//ladder top
+	Util.SetGoalOffset(0, 0, -330, "PLANT_tower");
+	
+
+	Util.AddUsePoint("PLANT_Allied_Basement_Access",{Vec3(-331.803,1586.486,-205.654),Vec3(-451.674,1588.124,-197.875)});
+	Util.AddUsePoint("PLANT_alliedwall",{Vec3(-1137.208,2202.045,-222.875),Vec3(-1299.087,2218.106,-222.875)});
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+	
+	SetGoalPriority( "PLANT_Command_Post", 0.0, 0, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Water_Pump", 0.0, 0, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_tower", 0.0, 0, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Allied_MG", 0.0, 0, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_ladder", 0.0, 0, CLASS.COVERTOPS );
+	SetGoalPriority( "FLAG_allies_gold_crate", 0.8, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_ladder", 0.91, 0, CLASS.ENGINEER );
+	SetGoalPriority( "SNIPE_tower", 0.9, TEAM.AXIS, CLASS.COVERTOPS);
+	SetGoalPriority( "ATTACK_.*", 0.0, TEAM.AXIS, CLASS.ENGINEER);
+	SetGoalPriority( "DEFEND_.*", 0.0, 0, CLASS.ENGINEER);
+	SetGoalPriority( "MOUNTMG42_.*", 0.0, 0, CLASS.ENGINEER);
+	SetGoalPriority( "PLANTMINE_yard_.*", 0.9, TEAM.ALLIES, CLASS.ENGINEER);
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 150.0;		//200  //160
+	//w = bot.GetWeapon(WEAPON.THOMPSON);
+	//w = PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 1.2);
+	//w = bot.GetWeapon(WEAPON.MP40);
+	//w = PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 1.2);
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+	
+	if (Server.NumPlayers >= 12)
+	{
+		WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, true );
+		WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.PANZERFAUST, true );
+		//EchoToScreen(10,"^1PANZERFAUST and FLAMETHROWER enabled for Bots");
+	}
+	else
+	{
+		WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+		WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.PANZERFAUST, false );
+	};
+	
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_allies_gold_crate = 
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_1 = 
+				{
+					ROUTE_truck = 
+					{
+						ROUTE_ladder_top = 
+						{
+							ROUTE_gold_ladder = 
+							{
+								ROUTE_gold = {},
+							},
+						},
+						ROUTE_ladder = 
+						{
+							ROUTE_yard_door = 
+							{
+								ROUTE_ABA_outside = 
+								{
+									ROUTE_ABA_inside = 
+									{
+										ROUTE_stairs = 
+										{
+											ROUTE_gold = {},
+										},
+									},
+								},
+							},
+						},	
+					},
+				},
+				ROUTE_axis_2 = 
+				{
+					ROUTE_walley = 
+					{
+						ROUTE_commandpost = 
+						{
+							ROUTE_field_1 = 
+							{
+								ROUTE_yard_door = 
+								{
+									ROUTE_ABA_outside = 
+									{
+										ROUTE_ABA_inside = 
+										{
+											ROUTE_stairs = 
+											{
+												ROUTE_gold = {},
+											},
+										},	
+									},
+								},
+							},
+						},
+						ROUTE_well = 
+						{
+							ROUTE_tunnel = 
+							{
+								ROUTE_tunnel_underhouse = 
+								{
+									ROUTE_alliedwall_outside = 
+									{
+										ROUTE_allied_wall = 
+										{
+											ROUTE_gold = {},
+										},	
+									},
+								},
+								ROUTE_tunnel_undergarage = 
+								{
+									ROUTE_yard_1 = 
+									{
+										ROUTE_ABA_outside = 
+										{
+											ROUTE_ABA_inside = 
+											{
+												ROUTE_stairs = 
+												{
+													ROUTE_gold = {},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		CAPPOINT_gold_dropoff = 
+		{
+			ROUTE_stairs = 
+			{
+				ROUTE_ABA_inside = 
+				{
+					ROUTE_ABA_outside = 
+					{
+						ROUTE_yard_1 = 
+						{
+
+							ROUTE_tunnel_undergarage = 
+							{
+								ROUTE_tunnel = 
+								{
+									ROUTE_well = 
+									{
+										ROUTE_truck = 
+										{
+											ROUTE_cappoint = {},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ROUTE_yard_door = 
+				{
+					ROUTE_ladder = 
+					{
+						ROUTE_forest_1 = 
+						{
+							ROUTE_cappoint = {},
+						},
+					},
+				},
+			},
+			ROUTE_gold_ladder = 
+			{
+				ROUTE_roof = 
+				{
+					ROUTE_forest_1 = 
+					{
+						ROUTE_cappoint = {},
+					},
+				},
+			},
+			ROUTE_allied_wall = 
+			{
+				ROUTE_alliedwall_outside = 
+				{
+					ROUTE_tunnel_underhouse = 
+					{
+						ROUTE_tunnel = 
+						{
+							ROUTE_well = 
+							{
+								ROUTE_truck = 
+								{
+									ROUTE_cappoint = {},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		BUILD_Allied_MG =
+		{
+		},
+		PLANT_Allied_MG =
+		{
+		},
+		PLANT_Allied_Basement_Access =
+		{
+			ROUTE_axisspawn = 
+			{ 
+				ROUTE_axis_1 = 
+				{ 
+					ROUTE_truck = 
+					{
+						ROUTE_ladder =  
+						{
+							ROUTE_yard_door = 
+							{
+								ROUTE_ABA_outside = {},
+							},
+							ROUTE_ladder_top = 
+							{
+								ROUTE_gold_ladder = 
+								{
+									ROUTE_stairs = 
+									{
+										ROUTE_ABA_inside = {},
+									},
+								},
+							},
+						},
+					},
+					ROUTE_axis_2 = 
+					{
+						Weight = 2,
+						ROUTE_walley = 
+						{
+							ROUTE_commandpost = 
+							{
+								ROUTE_field_1 = 
+								{
+									ROUTE_yard_door = 
+									{
+										ROUTE_ABA_outside = {},
+									},
+								},
+							},
+						},
+					},
+					ROUTE_well = 
+					{
+						Weight = 2,
+						ROUTE_tunnel = 
+						{
+							ROUTE_tunnel_undergarage = 
+							{
+								ROUTE_yard_door = 
+								{
+									ROUTE_ABA_outside = {},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		BUILD_ladder =
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_1 = 
+				{
+					ROUTE_ladder = {},
+				},
+				ROUTE_axis_2 = 
+				{
+					ROUTE_walley = 
+					{
+						ROUTE_pillar_mg = 
+						{
+							ROUTE_ladder = {},
+						},
+					},
+				},
+			},
+		},
+		PLANT_ladder =
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_roof = 
+				{
+					ROUTE_ladder_top = {},
+				},
+			},
+		},
+		BUILD_Command_Post =
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_2 = 
+				{
+					ROUTE_walley = 
+					{
+						ROUTE_commandpost = {},
+					},
+				},
+			},
+		},
+		PLANT_Command_Post =
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_windows = 
+				{
+					ROUTE_yard_door = 
+					{
+						ROUTE_tunnel_undergarage = 
+						{
+							ROUTE_tunnel  = 
+							{
+								ROUTE_well = {},
+							},
+						},
+					},
+				},
+				ROUTE_allyspawn_roof = 
+				{
+					ROUTE_HAC = 
+					{
+						ROUTE_yard_1 = 
+						{
+							ROUTE_tunnel_undergarage = 
+							{
+								ROUTE_tunnel = 
+								{
+									ROUTE_well = 
+									{
+										ROUTE_commandpost = {},
+									},
+								},
+							},
+						},
+					},
+					ROUTE_yard_door = 
+					{
+						ROUTE_field_1 = 
+						{
+							ROUTE_commandpost = {},
+						},
+					},
+				},
+				ROUTE_gold_ladder = 
+				{
+					ROUTE_allied_wall = 
+					{
+						ROUTE_alliedwall_outside = 
+						{
+							ROUTE_tunnel_underhouse = 
+							{	
+								ROUTE_tunnel = 
+								{
+									ROUTE_well = 
+									{
+										ROUTE_commandpost = {},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		BUILD_Water_Pump =
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_3 = 
+				{
+					ROUTE_walley = {},
+				},
+			}, 
+		},
+		PLANT_Water_Pump =
+		{
+		},
+		BUILD_tower =
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_3 = {},
+			}, 
+		},
+		PLANT_tower =
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_windows = 
+				{
+					ROUTE_tunnel_undergarage = 
+					{
+						ROUTE_well = 
+						{
+							ROUTE_tower = {},
+						},
+					},
+				},
+			},
+		},
+		BUILD_alliedwall = 
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_double_ladder = 
+				{
+					ROUTE_alliedwall_outside = 
+					{
+						ROUTE_allied_wall = {},
+					},
+				},
+				ROUTE_gold_ladder = 
+				{
+					ROUTE_allied_wall = {},
+				},
+			},
+		},
+		PLANT_alliedwall =
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_1 = 
+				{
+					ROUTE_axis_2 = 
+					{
+						ROUTE_axis_3 = 
+						{
+							ROUTE_walley = 
+							{
+								ROUTE_well = 
+								{
+									ROUTE_tunnel = 
+									{
+										ROUTE_tunnel_underhouse = 
+										{
+											Weight = 3,
+											ROUTE_alliedwall_outside = {},
+										},
+										ROUTE_tunnel_undergarage = 
+										{
+											ROUTE_yard_1 = 
+											{
+												ROUTE_ABA_outside = 
+												{
+													ROUTE_ABA_inside = 
+													{
+														ROUTE_stairs = 
+														{
+															ROUTE_allied_wall = {},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					ROUTE_truck = 
+					{
+						ROUTE_ladder = 
+						{
+							ROUTE_ladder_top = 
+							{
+								ROUTE_gold_ladder = 
+								{
+									ROUTE_allied_wall = {},
+								},
+							},
+						},
+					},
+					ROUTE_pillar_mg = 
+					{
+						ROUTE_yard_door = 
+						{
+							ROUTE_ABA_outside = 
+							{
+								ROUTE_ABA_inside = 
+								{
+									ROUTE_stairs = 
+									{
+										ROUTE_allied_wall = {},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		MOUNTMG42_mg42_pillar =
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_2 = 
+				{
+					ROUTE_pillar_mg = {},
+				},
+			},
+		},
+		ATTACK_yard_1 = 
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_1 = 
+				{
+					ROUTE_truck = 
+					{
+						ROUTE_ladder = {},
+					},
+				},
+			},
+		},
+		ATTACK_yard_4 = 
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_2 = 
+				{
+					ROUTE_pillar_mg = 
+					{
+						ROUTE_field_1 = {},
+					},
+				},
+			},
+		},
+		ATTACK_yard_3 = 
+		{
+			ROUTE_walley = 
+			{
+				ROUTE_commandpost = 
+				{
+					ROUTE_field_1 = {},
+				},
+			},
+		},
+		ATTACK_yard_2 = 
+		{
+			ROUTE_axisspawn = 
+			{
+				ROUTE_axis_3 = 
+				{
+					ROUTE_walley = 
+					{
+						ROUTE_well = 
+						{
+							ROUTE_tunnel = 
+							{
+								ROUTE_tunnel_undergarage = 
+								{
+									ROUTE_yard_1= {},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		DEFEND_gold_22 = 
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_allyspawn_roof = {},
+			},
+		},
+		DEFEND_alliedmg_6 = 
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_allyspawn_roof = 
+				{
+					ROUTE_HAC = {},
+				},
+			},
+		},
+		MOBILEMG42_roof = 
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_roof = {},
+			},
+		},
+		DEFEND_allied_basement_access_1 = 
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_gold_ladder = 
+				{
+					ROUTE_stairs = {},
+				},
+			},
+		},
+		DEFEND_gold_24 = 
+		{
+			ROUTE_allyspawn_1 = 
+			{
+				ROUTE_allyspawn_roof = 
+				{
+					ROUTE_HAC = 
+					{
+						ROUTE_yard_1 = {},
+					},
+				},
+			},
+		},
+	};
+	
+	//copy some routes
+	MapRoutes["ATTACK_basement_access_.*"] = MapRoutes.PLANT_Allied_Basement_Access;
+	MapRoutes["ATTACK_commandpost_.*"] = MapRoutes.BUILD_Command_Post;
+	MapRoutes["ATTACK_ladder_.*"] = MapRoutes.BUILD_ladder;
+	MapRoutes["ATTACK_waterpump_.*"] = MapRoutes.BUILD_Water_Pump;
+	MapRoutes["PLANTMINE_yard_.*"] = MapRoutes.PLANT_Allied_Basement_Access;
+	MapRoutes.PLANT_Water_Pump = MapRoutes.PLANT_Command_Post;
+	MapRoutes["ATTACK_gold_.*"] = MapRoutes.FLAG_allies_gold_crate;
+	MapRoutes["DEFEND_ladder_.*"] = MapRoutes.PLANT_ladder;
+	MapRoutes.DEFEND_allied_basement_access_2 = MapRoutes.DEFEND_gold_22;
+	
+	Util.Routes(MapRoutes);
+};

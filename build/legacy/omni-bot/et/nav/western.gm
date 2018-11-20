@@ -1,0 +1,1037 @@
+//==========================================================================================
+//
+//	western.gm
+//
+//	Who                    	When		What
+//------------------------------------------------------------------------------------------
+//	^1{WeB}^7*^4GA^1NG$^4TA^7*	23 June 2015	Initial Script
+// palota                     21 September 2015	fixed FLAG and CAPPOINT availability
+// jcfgonc@gmail.com			05 May 2016		Improved action and added routing
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1,
+	Movers =
+	{
+		"MOVER_piano",
+		"MOVER_vulture_1",
+		"MOVER_vulture_2",
+		"MOVER_vulture_3",
+		"MOVER_vulture_4",
+		"MOVER_vulture_5",
+		"MOVER_vulture_6",
+		"MOVER_clay_counter",
+		"MOVER_pistol_counter",
+		"MOVER_pistol_target_1",
+		"MOVER_pistol_target_2",
+		"MOVER_pistol_target_3",
+		"MOVER_pistol_target_4",
+		"MOVER_pistol_target_5",
+		"MOVER_pistol_target_6",
+		"MOVER_pistol_target_7",
+		"MOVER_pistol_target_8",
+		"MOVER_bell_hammer",
+		"MOVER_bell_rope",
+		"MOVER_hang_lever",
+	},
+
+	dynoCount = 0,
+	stolenDyno = 0,
+	
+	game_stage1 = function(trigger) {
+		Util.DisableGoal( "ARTILLERY.*", true );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_part1_axis.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_part2_axis.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_part2_allies.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_part1_allies.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"DEFEND_part2_allies_16",
+			"DEFEND_part2_allies_6",
+			"DEFEND_part2_allies",
+			"DEFEND_part2_allies_1"});
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANTMINE_bank_door.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ARTILLERY_S_axis_incoming_church.*" );
+		
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_part2_axis.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_part2_allies.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_part1_axis.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_part1_allies.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "ARTILLERY_S_allies_incoming_part1_allies.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_part1_allies",
+			"DEFEND_part1_allies_1",
+			"DEFEND_part1_allies_21",
+			"DEFEND_part1_allies_17",
+			"DEFEND_part1_allies_18",
+			"DEFEND_part1_allies_19",
+			"DEFEND_part1_allies"});
+		
+		Util.MapDebugPrint( "game_stage1" );
+	},		
+	
+	game_stage2 = function(trigger) {
+		Util.DisableGoal( "ARTILLERY.*", true );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_part1_axis.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_part1_allies.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_part2_axis.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANTMINE_bank_door.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ARTILLERY_S_axis_incoming_church.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_part1_axis.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_part1_allies.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ARTILLERY_S_allies_incoming_part1_allies.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_part2_allies.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_part2_axis.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_part2_allies.*" ); //useful
+		
+		Util.MapDebugPrint( "game_stage2" );
+	},
+	
+	gun_door_Destroyed = function( trigger )
+	{
+		sleep(1);
+		SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_dyno" );
+		Util.MapDebugPrint( "gun_door_Destroyed" );
+	},
+
+	dyno_Taken = function( trigger )
+	{
+		Map.game_stage2();
+		Map.stolenDyno+=1;
+		Util.MapDebugPrint( "dyno_Taken" );
+	},
+	
+	dyno_Dropped = function( trigger )
+	{
+		Map.stolenDyno-=1;
+		Util.MapDebugPrint( "dyno_Dropped" );
+	},
+	
+	dyno_Returned = function( trigger )
+	{
+		if(Map.stolenDyno==0) {
+			Map.game_stage1();
+			Util.MapDebugPrint( "dyno_Returned" );
+		}
+	},
+	
+	dyno_Secured = function( trigger )
+	{
+		Map.dynoCount += 1;
+		Map.stolenDyno-=1;
+		if(Map.dynoCount == 2) {
+			SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_Jail" );
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"FLAG_detokit",
+				"CAPPOINT_Jail_2",
+			});
+			
+			Map.game_stage1();
+		}
+		Util.MapDebugPrint( "dyno_Secured" );
+	},
+	
+	detokit_Taken = function( trigger )
+	{
+		Map.game_stage2();
+		Util.MapDebugPrint( "detokit_Taken" );
+	},
+
+	detokit_Returned = function( trigger )
+	{
+		Map.game_stage1();
+		Util.MapDebugPrint( "detokit_Returned" );
+	},
+
+	detokit_Secured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_Jail_2" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_deto" );
+
+		Map.game_stage2();
+		Util.MapDebugPrint( "detokit_Secured" );
+	},
+
+	detokit_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_deto" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_jail_1");
+		SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_jail_1" );
+
+		Map.game_stage2();
+		Util.MapDebugPrint( "detokit_Built" );
+	},
+
+	Detonator_Enabled = function( trigger )
+	{
+		Util.LimitToTeam( TEAM.ALLIES, "SWITCH_jail_1" );
+
+		Map.game_stage2();
+		Util.MapDebugPrint( "Detonator_Enabled" );
+	},
+
+	Detonator_Disabled = function( trigger )
+	{
+		Util.LimitToTeam( TEAM.AXIS, "SWITCH_jail_1" );
+
+		Map.game_stage2();
+		Util.MapDebugPrint( "Detonator_Disabled" );
+	},
+};
+
+global saveRoutesGML = function(){
+	
+	// write it out to file for easy copy / paste
+	gmfile = File();
+	fileName = GetMapName() + "_route_positions.gml";
+
+	if ( !System.FileExists(fileName) ) {
+		gmfile.Open(fileName, "text", false);
+	}
+	else {
+		gmfile.Open(fileName, "text", false, false);
+	}
+	
+	gmfile.Write("graph [");
+	gmfile.Write(System.NewLine);
+	gmfile.Write("	directed	1");
+	gmfile.Write(System.NewLine);
+	
+	goals = {};
+	id = 0;
+	GetGoals(goals, TEAM.AXIS, "ROUTE.*", { Sort="priority" });
+	foreach( goal in goals ) {
+		// properties
+		goalPosition = goal.GetPosition();
+		x = goalPosition.x;
+		y = goalPosition.y;
+		z = goalPosition.z;
+		radius = goal.GetRadius();
+		name = goal.GetName();
+		
+		// ---------------------------------------------
+		gmfile.Write("	node [");
+		gmfile.Write(System.NewLine);
+		
+		gmfile.Write("		id ", id);
+		gmfile.Write(System.NewLine);
+		gmfile.Write("		label \"", name, "\"");
+		gmfile.Write(System.NewLine);
+		// ---------------------------------------------
+		gmfile.Write("		graphics [");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			x	", x);
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			y	", y);
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			w	", radius);
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			h	", radius);
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			type	\"ellipse\"");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("		]");
+		gmfile.Write(System.NewLine);
+		// ---------------------------------------------
+		gmfile.Write("		LabelGraphics [");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			text	\"", name, "\"");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			fontSize	12");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			fontName	\"Dialog\"");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("			model	\"null\"");
+		gmfile.Write(System.NewLine);
+		gmfile.Write("		]");
+		gmfile.Write(System.NewLine);
+		// ---------------------------------------------
+		gmfile.Write("	]");
+		gmfile.Write(System.NewLine);
+		
+		id = id+1;
+	}
+
+	gmfile.Write("]");
+	gmfile.Write(System.NewLine);
+	gmfile.Close();
+};
+
+global OnMapLoad = function()
+{
+	//	saveRoutesGML();
+	
+	OnTrigger( "Axis have breached the Gunsmith's door!", Map.gun_door_Destroyed );
+	OnTrigger( "Axis have stolen Detonator kit!", Map.detokit_Taken );
+	OnTrigger( "Axis have stolen Dynamite!", Map.dyno_Taken );
+	OnTrigger( "Allies have returned Detonator kit!", Map.detokit_Returned );
+	OnTrigger( "Allies have returned Dynamite!", Map.dyno_Returned );
+	OnTrigger( "Axis have captured the Detonator kit!", Map.detokit_Secured );
+	OnTrigger( "First Dynamite secured!", Map.dyno_Secured );
+	OnTrigger( "Second Dynamite secured!", Map.dyno_Secured );
+	OnTrigger( "Detonator is prepared!", Map.detokit_Built );
+	OnTrigger( "Detonator turned ^1ON^w", Map.Detonator_Enabled );
+	OnTrigger( "Detonator turned ^1OFF^w", Map.Detonator_Disabled );
+	OnTrigger( "Axis have dropped a Dynamite!", Map.dyno_Dropped);
+
+	Util.DisableGoal( ".*", true );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, {
+		"BUILD_deto",
+		"FLAG.*",
+		"SWITCH_jail_1",
+		"CAPPOINT_Jail",
+		"CAPPOINT_Jail_2",
+		"PLANT_Gunsmiths_Door",
+	});
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Gunsmiths_Door" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "SNIPE_axis.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_Jail" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {
+		"SWITCH_jail_1",
+	});
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CALLARTILLERY.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SNIPE.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "SNIPE_allied_spawn_attic.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_belltower_tw_axis" );
+	SetGoalPriority( "DEFEND_belltower_tw_axis", 0.55 );
+	
+	Map.game_stage1();
+	
+	SetGoalPriority( "BUILD_deto", 0.95 );
+	SetGoalPriority( "SWITCH_jail_1", 0.81 );
+	SetGoalPriority( "PLANT_Gunsmiths_Door", 0.91 );
+	SetGoalPriority( "PLANTMINE_bank_door_.*", 0.91 );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed. 2" );
+};
+
+global OnBotJoin = function( bot )
+{
+	Util.IgnoreTargetGoalTable(bot, Map.Movers);
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_Gunsmiths_Door = {
+			ROUTE_axisspawn = {
+				ROUTE_r13 = {
+					ROUTE_r12 = {
+						ROUTE_r19 = {
+							ROUTE_r18 = {
+								ROUTE_r8 = {
+									ROUTE_r7 = {
+										ROUTE_r24 = {
+											ROUTE_r5 = {
+												ROUTE_r4 = {
+													ROUTE_r23 = {},
+													ROUTE_r3 = {
+														ROUTE_r2 = {},
+													},
+												},
+												ROUTE_r23 = {},
+											},
+										},
+									},
+								},
+								ROUTE_r17 = {
+									ROUTE_r7 = {
+										ROUTE_r24 = {
+											ROUTE_r5 = {
+												ROUTE_r4 = {
+													ROUTE_r23 = {},
+													ROUTE_r3 = {
+														ROUTE_r2 = {},
+													},
+												},
+												ROUTE_r23 = {},
+											},
+										},
+									},
+									ROUTE_r6 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+										ROUTE_r11 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_church = {
+									ROUTE_r22 = {
+										ROUTE_r23 = {},
+									},
+									ROUTE_r1 = {
+										ROUTE_r2 = {},
+									},
+								},
+							},
+							ROUTE_church = {
+								ROUTE_r22 = {
+									ROUTE_r23 = {},
+								},
+								ROUTE_r1 = {
+									ROUTE_r2 = {},
+								},
+							},
+						},
+					},
+					ROUTE_r15 = {
+						ROUTE_r17 = {
+							ROUTE_r7 = {
+								ROUTE_r24 = {
+									ROUTE_r5 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+								},
+							},
+							ROUTE_r6 = {
+								ROUTE_r5 = {
+									ROUTE_r4 = {
+										ROUTE_r23 = {},
+										ROUTE_r3 = {
+											ROUTE_r2 = {},
+										},
+									},
+									ROUTE_r23 = {},
+								},
+								ROUTE_r11 = {
+									ROUTE_r4 = {
+										ROUTE_r23 = {},
+										ROUTE_r3 = {
+											ROUTE_r2 = {},
+										},
+									},
+									ROUTE_r23 = {},
+								},
+							},
+						},
+						ROUTE_r18 = {
+							ROUTE_r8 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+							},
+							ROUTE_r17 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_r6 = {
+									ROUTE_r5 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+									ROUTE_r11 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+								},
+							},
+							ROUTE_church = {
+								ROUTE_r22 = {
+									ROUTE_r23 = {},
+								},
+								ROUTE_r1 = {
+									ROUTE_r2 = {},
+								},
+							},
+						},
+						ROUTE_r16 = {
+							ROUTE_r17 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_r6 = {
+									ROUTE_r5 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+									ROUTE_r11 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+								},
+							},
+							ROUTE_r18 = {
+								ROUTE_r8 = {
+									ROUTE_r7 = {
+										ROUTE_r24 = {
+											ROUTE_r5 = {
+												ROUTE_r4 = {
+													ROUTE_r23 = {},
+													ROUTE_r3 = {
+														ROUTE_r2 = {},
+													},
+												},
+												ROUTE_r23 = {},
+											},
+										},
+									},
+								},
+								ROUTE_r17 = {
+									ROUTE_r7 = {
+										ROUTE_r24 = {
+											ROUTE_r5 = {
+												ROUTE_r4 = {
+													ROUTE_r23 = {},
+													ROUTE_r3 = {
+														ROUTE_r2 = {},
+													},
+												},
+												ROUTE_r23 = {},
+											},
+										},
+									},
+									ROUTE_r6 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+										ROUTE_r11 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_church = {
+									ROUTE_r22 = {
+										ROUTE_r23 = {},
+									},
+									ROUTE_r1 = {
+										ROUTE_r2 = {},
+									},
+								},
+							},
+							ROUTE_church = {
+								ROUTE_r22 = {
+									ROUTE_r23 = {},
+								},
+								ROUTE_r1 = {
+									ROUTE_r2 = {},
+								},
+							},
+						},
+						ROUTE_r19 = {
+							ROUTE_r18 = {
+								ROUTE_r8 = {
+									ROUTE_r7 = {
+										ROUTE_r24 = {
+											ROUTE_r5 = {
+												ROUTE_r4 = {
+													ROUTE_r23 = {},
+													ROUTE_r3 = {
+														ROUTE_r2 = {},
+													},
+												},
+												ROUTE_r23 = {},
+											},
+										},
+									},
+								},
+								ROUTE_r17 = {
+									ROUTE_r7 = {
+										ROUTE_r24 = {
+											ROUTE_r5 = {
+												ROUTE_r4 = {
+													ROUTE_r23 = {},
+													ROUTE_r3 = {
+														ROUTE_r2 = {},
+													},
+												},
+												ROUTE_r23 = {},
+											},
+										},
+									},
+									ROUTE_r6 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+										ROUTE_r11 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_church = {
+									ROUTE_r22 = {
+										ROUTE_r23 = {},
+									},
+									ROUTE_r1 = {
+										ROUTE_r2 = {},
+									},
+								},
+							},
+							ROUTE_church = {
+								ROUTE_r22 = {
+									ROUTE_r23 = {},
+								},
+								ROUTE_r1 = {
+									ROUTE_r2 = {},
+								},
+							},
+						},
+						ROUTE_church = {
+							ROUTE_r22 = {
+								ROUTE_r23 = {},
+							},
+							ROUTE_r1 = {
+								ROUTE_r2 = {},
+							},
+						},
+					},
+					ROUTE_r16 = {
+						ROUTE_r17 = {
+							ROUTE_r7 = {
+								ROUTE_r24 = {
+									ROUTE_r5 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+								},
+							},
+							ROUTE_r6 = {
+								ROUTE_r5 = {
+									ROUTE_r4 = {
+										ROUTE_r23 = {},
+										ROUTE_r3 = {
+											ROUTE_r2 = {},
+										},
+									},
+									ROUTE_r23 = {},
+								},
+								ROUTE_r11 = {
+									ROUTE_r4 = {
+										ROUTE_r23 = {},
+										ROUTE_r3 = {
+											ROUTE_r2 = {},
+										},
+									},
+									ROUTE_r23 = {},
+								},
+							},
+						},
+						ROUTE_r18 = {
+							ROUTE_r8 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+							},
+							ROUTE_r17 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_r6 = {
+									ROUTE_r5 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+									ROUTE_r11 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+								},
+							},
+							ROUTE_church = {
+								ROUTE_r22 = {
+									ROUTE_r23 = {},
+								},
+								ROUTE_r1 = {
+									ROUTE_r2 = {},
+								},
+							},
+						},
+						ROUTE_church = {
+							ROUTE_r22 = {
+								ROUTE_r23 = {},
+							},
+							ROUTE_r1 = {
+								ROUTE_r2 = {},
+							},
+						},
+					},
+				},
+				ROUTE_r14 = {
+					ROUTE_r10 = {
+						ROUTE_r9 = {
+							ROUTE_r8 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ROUTE_r12 = {
+					ROUTE_r19 = {
+						ROUTE_r18 = {
+							ROUTE_r8 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+							},
+							ROUTE_r17 = {
+								ROUTE_r7 = {
+									ROUTE_r24 = {
+										ROUTE_r5 = {
+											ROUTE_r4 = {
+												ROUTE_r23 = {},
+												ROUTE_r3 = {
+													ROUTE_r2 = {},
+												},
+											},
+											ROUTE_r23 = {},
+										},
+									},
+								},
+								ROUTE_r6 = {
+									ROUTE_r5 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+									ROUTE_r11 = {
+										ROUTE_r4 = {
+											ROUTE_r23 = {},
+											ROUTE_r3 = {
+												ROUTE_r2 = {},
+											},
+										},
+										ROUTE_r23 = {},
+									},
+								},
+							},
+							ROUTE_church = {
+								ROUTE_r22 = {
+									ROUTE_r23 = {},
+								},
+								ROUTE_r1 = {
+									ROUTE_r2 = {},
+								},
+							},
+						},
+						ROUTE_church = {
+							ROUTE_r22 = {
+								ROUTE_r23 = {},
+							},
+							ROUTE_r1 = {
+								ROUTE_r2 = {},
+							},
+						},
+					},
+				},
+			},
+			ROUTE_alliedspawn = {
+				ROUTE_r20 = {
+					ROUTE_r5 = {
+						ROUTE_r4 = {
+							ROUTE_r23 = {},
+							ROUTE_r3 = {
+								ROUTE_r2 = {},
+							},
+						},
+						ROUTE_r23 = {},
+					},
+					ROUTE_r11 = {
+						ROUTE_r4 = {
+							ROUTE_r23 = {},
+							ROUTE_r3 = {
+								ROUTE_r2 = {},
+							},
+						},
+						ROUTE_r23 = {},
+					},
+					ROUTE_r23 = {},
+				},
+				ROUTE_r21 = {
+					ROUTE_r5 = {
+						ROUTE_r4 = {
+							ROUTE_r23 = {},
+							ROUTE_r3 = {
+								ROUTE_r2 = {},
+							},
+						},
+						ROUTE_r23 = {},
+					},
+					ROUTE_r23 = {},
+				},
+				ROUTE_r24 = {
+					ROUTE_r5 = {
+						ROUTE_r4 = {
+							ROUTE_r23 = {},
+							ROUTE_r3 = {
+								ROUTE_r2 = {},
+							},
+						},
+						ROUTE_r23 = {},
+					},
+				},
+			},
+		},
+		PLANTMINE_bank_door = {
+			ROUTE_axisspawn = {
+				ROUTE_r10 = {
+					ROUTE_r9 = {
+						ROUTE_r8 = {
+							ROUTE_gallows = {},
+						},
+						ROUTE_r17 = {
+							ROUTE_gallows = {},
+						},
+						ROUTE_r18 = {
+							ROUTE_r8 = {
+								ROUTE_gallows = {},
+							},
+							ROUTE_r17 = {
+								ROUTE_gallows = {},
+							},
+						},
+					},
+				},
+				ROUTE_r13 = {
+					ROUTE_r15 = {
+						ROUTE_gallows = {},
+					},
+					ROUTE_r16 = {
+						ROUTE_gallows = {},
+					},
+					ROUTE_gallows = {},
+				},
+				ROUTE_r12 = {
+					ROUTE_gallows = {},
+					ROUTE_r19 = {
+						ROUTE_r9 = {
+							ROUTE_r8 = {
+								ROUTE_gallows = {},
+							},
+							ROUTE_r17 = {
+								ROUTE_gallows = {},
+							},
+							ROUTE_r18 = {
+								ROUTE_r8 = {
+									ROUTE_gallows = {},
+								},
+								ROUTE_r17 = {
+									ROUTE_gallows = {},
+								},
+							},
+						},
+						ROUTE_r8 = {
+							ROUTE_gallows = {},
+						},
+						ROUTE_r18 = {
+							ROUTE_r8 = {
+								ROUTE_gallows = {},
+							},
+							ROUTE_r17 = {
+								ROUTE_gallows = {},
+							},
+						},
+						ROUTE_gallows = {},
+					},
+				},
+			},
+			ROUTE_alliedspawn = {
+				ROUTE_r20 = {
+					ROUTE_r17 = {
+						ROUTE_r18 = {
+							ROUTE_gallows = {},
+							ROUTE_r19 = {},
+						},
+						ROUTE_gallows = {},
+					},
+				},
+				ROUTE_r21 = {
+					ROUTE_r6 = {
+						ROUTE_r11 = {},
+					},
+				},
+				ROUTE_r7 = {
+					ROUTE_r8 = {
+						ROUTE_r9 = {
+							ROUTE_r19 = {},
+						},
+						ROUTE_r18 = {
+							ROUTE_gallows = {},
+							ROUTE_r19 = {},
+						},
+					},
+				},
+				ROUTE_r22 = {
+					ROUTE_church = {},
+				},
+			},
+		},
+	};
+	//	MapRoutes.FLAG_axis_tb2 = MapRoutes.FLAG_axis_tb1;
+	MapRoutes["FLAG.*"] = MapRoutes.PLANT_Gunsmiths_Door;
+	MapRoutes["DEFEND_part1_axis.*"] = MapRoutes.PLANT_Gunsmiths_Door;
+	MapRoutes["DEFEND_part1_allies.*"] = MapRoutes.PLANT_Gunsmiths_Door;
+	MapRoutes["DEFEND_part2_axis.*"] = MapRoutes.PLANTMINE_bank_door;
+	MapRoutes["DEFEND_part2_allies.*"] = MapRoutes.PLANTMINE_bank_door;
+	
+	//	MapRoutes["DEFEND_axis_defend_parts.*"] = MapRoutes.DEFEND_axis_defend_parts;
+	//	MapRoutes["DEFEND_axis_defend_cappoint.*"] = MapRoutes.DEFEND_axis_defend_cappoint;
+	Util.Routes(MapRoutes);
+};

@@ -1,0 +1,11 @@
+if (GetModName()!="etblight") { return; }
+
+WEAPON.SAW = 73;
+this.Name = "Chainsaw";
+this.WeaponId = WEAPON.SAW;
+
+this.PrimaryFire.WeaponType = "melee";
+this.PrimaryFire.RequiresAmmo = false;
+this.PrimaryFire.DelayAfterFiring = 0.5;
+this.PrimaryFire.DefaultDesirability = 0.1;
+this.PrimaryFire.SetDesirabilityRange(0, 200, 0.8);

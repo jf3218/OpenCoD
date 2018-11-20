@@ -1,0 +1,1001 @@
+﻿//=============================================================================
+//
+//  Neuschwaben (Final 2) - neuschwaben_final2.gm
+//
+//  Who         When            What
+//-----------------------------------------------------------------------------
+//  Native12    21/07/2016      Additional path through scripting (thank you!).
+//  Mateos      28/02/2010      Last edit for OB 0.71.
+//
+//=============================================================================
+
+/****************************************************
+Path mapping and script by Mateos.
+Correspondant WAY file size: 45,4 Ko (46 560 octets)
+Last update: 2nd August 2016
+****************************************************/
+
+/*
+ * TODO:
+ *  - About bots being inside while Guard Wall is built: check if Allies own the flag.
+ *      * TODO: That's not enough: if the whole team is in, they can take the flag... Disabled atm.
+ *  - Case: Obj secured, Reichsflugscheibe 1 destroyed, Toxic Water enabled: no CAMP goals... (FIXED)
+ *    Fight for the SWITCH_ToxicWaterValve then; TODO: Remove MaxUsers limit too(?);
+ *  - Perhaps have a better handling of the SWITCH_ToxicWaterValve (defense/attack)...
+ *  - Path through to let bots get to the Secret Room (don't forget the related health cabinet); (DONE)
+ *  - Teleporters.
+ *
+ * Optional:
+ *  - Add MobileMG42 (optional because can be very nasty in this map, because corridors);
+ *  - Routing upon objective taken -> Air tunnel and Rope seem to be enough.
+ *  - Routing from first Allied spawn to the base (3 ways) -> Path is way longer, so probably no.
+ */
+
+global Map =
+{
+    Debug = 0,  // Please set to zero before distributing your script
+
+    hatch = true,
+
+    isForwardSpawnFlagOwnedByAllies = false,
+    isGroundZeroGuardWallBuilt = false,
+    isKantinaSpawnAvailable = false,
+    isLadderToGroundZeroBuilt = false,
+    isReichsflugscheibe1Destroyed = false,
+    isReichsflugscheibe2Destroyed = false,
+    isReichsflugscheibe2Planted = false,
+    isSafeDoorBuilt = false,
+    isToxicWaterEnabled = true,
+
+    areSecretDocsTaken = false,
+    areSecretDocsSecured = false,
+
+    /**
+     * Elevator moving time.
+     * 8 seconds to move, 1 second to refresh blockbridge status.
+     */
+    elevatorMovingTime = 9,
+
+    /**
+     * Facing to take in order to reach the bottom of the Ladder to Ground Zero.
+     */
+    ladderFacing = null,
+
+    /**
+     * Position of the Secret Documents to help bots picking them up.
+     */
+    secretDocumentsPosition = null,
+
+    /**
+     * One bot at a time going through the Secret Room entrance.
+     */
+    secretRoomLock = false,
+
+    Navigation =
+    {
+        // /bot waypoint_setproperty paththrough Navigation_PT:hatch
+        hatch =
+        {
+            EvalFunc = function()
+            {
+                return Map.hatch;
+            },
+
+            navigate = function(_this)
+            {
+                if ( !Map.hatch )
+                {
+                    yield();
+                    return;
+                }
+
+                _this.AddWeaponRequest( Priority.High, WEAPON.KNIFE );
+                _this.AddAimRequest( Priority.High, "facing", Vector3( -0.112, -0.006, 0.994 ) );
+
+                while( Map.hatch )
+                {
+                    _this.Bot.HoldButton( BTN.ATTACK1, 0.5 );
+                    yield();
+                }
+
+                _this.ReleaseAimRequest();
+                _this.ReleaseWeaponRequest();
+            },
+        },
+
+        // /bot waypoint_setproperty paththrough Navigation_PT:rope
+        rope =
+        {
+            navigate = function(_this)
+            {
+                wpTable = {};
+                yield();
+                Wp.GetWaypointByName( "Rope", wpTable );
+                if ( _this.Goto( wpTable.position ) == EVENT.PATH_SUCCESS )
+                {
+                    _this.AddAimRequest( Priority.VeryHigh, "facing", wpTable.facing );
+                    sleep( 0.55 );
+                    _this.Bot.PressButton( BTN.JUMP );
+                    sleep( 0.15 );
+                    _this.Bot.HoldButton( BTN.FORWARD, 0.5 );
+                    sleep( 0.5 );
+                }
+            },
+        },
+
+        /*
+        elevator_wait =
+        {
+            navigate = function( _this )
+            {
+                _this.Bot.Enable( false );
+                sleep( Map.elevatorMovingTime );
+                _this.Bot.Enable( true );
+            },
+        },
+        */
+
+        /**
+         * Replacement of the elevator' wait.
+         * Reduce bot falling death by forcing them to take the ladder to the bottom.
+         * Works well with up to five bots at once on it.
+         * Issue comes if three at once try to take it ^^'
+         * The waypoint is in the air, so if they come up, they don't take this nav.
+         */
+        elevator_wait =
+        {
+            navigate = function( _this )
+            {
+                // Fall a bit
+                sleep( 1 );
+
+                // Get on the ladder
+                _this.AddAimRequest( Priority.High, "facing", Vec3( 1, 0, 0 ) );
+                _this.Bot.HoldButton( BTN.FORWARD, 0.5 );
+                sleep( 0.5 );
+
+                // Retrieve the facing
+                if ( !Map.ladderFacing )
+                {
+                    wpTable = {};
+                    Wp.GetWaypointByName( "ladder_bottom", wpTable );
+                    Map.ladderFacing = wpTable.facing;
+                }
+
+                // Get to the bottom
+                _this.AddAimRequest( Priority.High, "facing", Map.ladderFacing );
+                _this.Bot.HoldButton( BTN.FORWARD, 15 );
+                sleep( 15 );
+            },
+        },
+
+        secret_room_inside =
+        {
+            navigate = function( _this )
+            {
+                wpTable = {};
+                Wp.GetWaypointByName( "secret_room_inside_switch", wpTable );
+                if ( _this.Goto( wpTable.position ) == EVENT.PATH_SUCCESS )
+                {
+                    while ( Map.secretRoomLock ) { yield(); }
+
+                    Map.secretRoomLock = true;
+
+                    _this.AddAimRequest( Priority.VeryHigh, "facing", Vec3( -0.800, -0.550, -0.137 ) );
+                    sleep( 1 );
+                    _this.Bot.PressButton( BTN.USE );
+                    sleep( 2.5 );
+
+                    Map.secretRoomLock = false;
+                }
+            },
+        },
+
+        secret_room_outside =
+        {
+            navigate = function( _this )
+            {
+                wpTable = {};
+                Wp.GetWaypointByName( "secret_room_outside_switch", wpTable );
+                if ( _this.Goto( wpTable.position ) == EVENT.PATH_SUCCESS )
+                {
+                    while ( Map.secretRoomLock ) { yield(); }
+
+                    Map.secretRoomLock = true;
+
+                    _this.AddAimRequest( Priority.VeryHigh, "facing", Vec3( 0.800, -0.500, -0.246 ) );
+                    sleep( 1 );
+                    _this.Bot.PressButton( BTN.USE );
+                    sleep( 2.5 );
+
+                    Map.secretRoomLock = false;
+                }
+            },
+        },
+
+        // From Chartwell 1.4.0
+        take_secret_docs =
+        {
+            navigate = function( _this )
+            {
+                // cs: cache the position of the plans for aim position
+                if ( !Map.secretDocumentsPosition )
+                {
+                    Map.secretDocumentsPosition = GetGoal( "FLAG_Secret_Documents" ).GetPosition();
+                }
+
+                // cs: don't run it if the safe isn't open, plans are gone, or it's an Axis bot
+                if ( isSafeDoorBuilt || Map.areSecretDocsTaken || _this.Bot.GetTeam() == TEAM.AXIS )
+                {
+                    yield();
+                    return;
+                }
+
+                // cs: aim at the plans
+                _this.AddAimRequest( Priority.High, "position", Map.secretDocumentsPosition );
+
+                // cs: loop until docs are taken, pressing use every other frame
+                frameCounter = 0;
+                while ( !Map.areSecretDocsTaken )
+                {
+                    frameCounter += 1;
+
+                    if ( frameCounter % 2 == 0 )
+                    {
+                        _this.Bot.PressButton( BTN.USE );
+                    }
+
+                    yield();
+                }
+
+                yield();
+            },
+        },
+    },
+
+    ElevatorStatus = 0, // elevator is down initially
+    Switches =
+    {
+        elevator =
+        {
+            Enabled = false,
+            Priority = 0, // always set to 0 when using path through
+            WaypointName = "elevator_switch",
+            Timeout = 2000,
+            AimPosition = Vec3( -1291.875, -1012.249, 185.212 ), // Optional 0.8x only, use /bot aim_pos to get aim vector. Replaces the unreliable waypoint facing.
+            Wait = function() // optional. used to have the bot wait a bit for slow moving doors / elevators
+            {
+                if ( Map.ElevatorStatus == 1 )
+                {
+                    // wait until the elevator is up
+                    sleep( Map.elevatorMovingTime );
+                    Util.MapDebugPrint( "Elevator is up." );
+                    return true;
+                }
+
+                // always return false unless the elevator is up
+                return false;
+            },
+        },
+    },
+
+    /*
+    Elevator_Moving = function ( trigger )
+    {
+        if ( trigger.Action == "opening" )
+        {
+            Map.ElevatorStatus = 1; // up
+            Map.Switches.elevator.Enabled = false;
+            Util.MapDebugPrint("Elevator is going up.");
+        }
+        else
+        {
+            Map.ElevatorStatus = 0; // down
+            Map.Switches.elevator.Enabled = true;
+            Util.MapDebugPrint("Elevator is going down.");
+        }
+    },
+    */
+
+    /**
+     * If the Secret Documents are secured,
+     * and the Kantina Spawn is available,
+     * there's no need to get to the surface again...
+     */
+    DisableSurfaceGoals = function()
+    {
+        if ( Map.isKantinaSpawnAvailable && Map.areSecretDocsSecured )
+        {
+            SetAvailableMapGoals( TEAM.AXIS, false, {
+                "BUILD_Guard_Wall_for_air_tunnel",
+                "BUILD_Guard_Wall_near_Ground_Zero",
+            });
+
+            SetAvailableMapGoals( TEAM.ALLIES, false, {
+                "PLANT_Fence_to_air_tunnel",
+                "PLANT_Guard_Wall_for_air_tunnel",
+                "PLANT_Guard_Wall_near_Ground_Zero",
+            });
+        }
+    },
+
+    Hatch_Exploded = function( trigger )
+    {
+        Map.hatch = false;
+
+        Util.MapDebugPrint( "Hatch_Exploded" );
+    },
+
+    /**
+     * Manages the goals for both teams once the Kantina spawn has been permanently claimed.
+     * Checks Reichsflugscheibes and Secret Documents status.
+     * Is called upon the status changements of the goals above.
+     * Also manages MOUNTMG42 goals for both teams, and REPAIRMG42 for Axis only.
+     */
+    SecondPartCampGoalManager = function()
+    {
+        if ( !Map.isKantinaSpawnAvailable )
+        {
+            return;
+        }
+
+        Util.DisableGoal( "CAMP_.*" );
+        Util.DisableGoal( "DEFEND_.*" );    // Special case
+        Util.DisableGoal( "MOUNTMG42_.*" );
+
+        SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_.*" );
+
+        // Absolute priority
+        if ( Map.areSecretDocsTaken )
+        {
+            Util.EnableGoal( "CAMP_Antenna.*" );
+        }
+        else
+        {
+            if ( !Map.areSecretDocsSecured || !Map.isReichsflugscheibe1Destroyed )
+            {
+                Util.EnableGoal( "CAMP_Bravo.*" );
+                Util.EnableGoal( "MOUNTMG42_ControlCenterRoof.*" );
+                Util.EnableGoal( "MOUNTMG42_Safe_Door" );
+
+                SetAvailableMapGoals( TEAM.AXIS, true, {
+                    "REPAIRMG42_ControlCenterRoof.*",
+                    "REPAIRMG42_Safe_Door",
+                });
+            }
+
+            if ( !Map.areSecretDocsSecured )
+            {
+                Util.EnableGoal( "CAMP_SecretDocs.*" );
+                Util.EnableGoal( "MOUNTMG42_ControlCenterRoof.*" );
+                Util.EnableGoal( "MOUNTMG42_Safe_Door" );
+
+                SetAvailableMapGoals( TEAM.AXIS, true, {
+                    "REPAIRMG42_ControlCenterRoof.*",
+                    "REPAIRMG42_Safe_Door",
+                });
+            }
+            else if ( Map.isReichsflugscheibe1Destroyed )
+            {
+                Util.EnableGoal( "CAMP_FLAG[1-3,8]" );
+                Util.EnableGoal( "DEFEND_Alpha.*" );
+            }
+
+            if ( !Map.isReichsflugscheibe2Destroyed && !Map.isToxicWaterEnabled )
+            {
+                Util.EnableGoal( "CAMP_Reichsflugscheibe.*" );
+                Util.EnableGoal( "MOUNTMG42_Reichsflugscheibe2" );
+
+                SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Reichsflugscheibe2" );
+            }
+        }
+    },
+
+    Allied_Command_Post_Built = function( trigger )
+    {
+        Util.MapDebugPrint( "Allied_Command_Post_Built" );
+    },
+
+    Axis_Command_Post_Built = function( trigger )
+    {
+        Util.MapDebugPrint( "Axis_Command_Post_Built" );
+    },
+
+    Guard_Wall_for_air_tunnel_Built = function( trigger )
+    {
+        Util.MapDebugPrint( "Guard_Wall_for_air_tunnel_Built" );
+    },
+
+    Guard_Wall_near_Ground_Zero_Built = function( trigger )
+    {
+        Map.isGroundZeroGuardWallBuilt = true;
+
+        // TODO: Handle bots being inside (don't enable these goals for them)
+        if ( !Map.isKantinaSpawnAvailable && !Map.isForwardSpawnFlagOwnedByAllies )
+        {
+            if ( Map.isLadderToGroundZeroBuilt )
+            {
+                SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Alpha.*" );
+            }
+
+            Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, false );
+
+            SetAvailableMapGoals( TEAM.ALLIES, false, {
+                "BUILD_Command_Post",
+                "CAMP_Flag.*",
+                "CHECKPOINT_forwardspawn1_flag",
+                "PLANT_Command_Post",
+            });
+        }
+
+        Util.MapDebugPrint( "Guard_Wall_near_Ground_Zero_Built" );
+    },
+
+    Ladder_to_Ground_Zero_Built = function( trigger )
+    {
+        Map.isLadderToGroundZeroBuilt = true;
+
+        Wp.SetWaypointFlag( "Ladder_1", "closed", false );
+        Wp.SetWaypointFlag( "Ladder_2", "closed", false );
+
+        // Blockwall flag refresh
+        sleep( 1 );
+
+        if ( !Map.isKantinaSpawnAvailable )
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Guard_Wall_near_Ground_Zero" );
+
+            if ( Map.isGroundZeroGuardWallBuilt )
+            {
+                // These spots are at the Ground Zero,
+                // so Allies are ready to get inside
+                // when the Guard Wall get destroyed
+                SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Alpha.*" );
+            }
+            else
+            {
+                Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, true );
+
+                SetAvailableMapGoals( TEAM.ALLIES, true, {
+                    "BUILD_Command_Post",
+                    "CAMP_Flag.*",
+                    "CHECKPOINT_forwardspawn1_flag",
+                    "PLANT_Command_Post",
+                });
+            }
+        }
+
+        Util.MapDebugPrint( "Ladder_to_Ground_Zero_Built" );
+    },
+
+    Safe_Door_Built = function( trigger )
+    {
+        Map.isSafeDoorBuilt = true;
+
+        SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_Secret_Documents" );
+
+        Util.MapDebugPrint( "Safe_Door_Built" );
+    },
+
+    mg42_Built = function( trigger )
+    {
+        Util.MapDebugPrint( "mg42_Built" );
+    },
+
+    Allied_Command_Post_Destroyed = function( trigger )
+    {
+        Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+    },
+
+    Axis_Command_Post_Destroyed = function( trigger )
+    {
+        Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+    },
+
+    Fence_to_air_tunnel_Destroyed = function( trigger )
+    {
+        if ( !Map.isKantinaSpawnAvailable && !Map.isToxicWaterEnabled )
+        {
+            Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, true );
+
+            SetAvailableMapGoals( TEAM.ALLIES, true, {
+                "BUILD_Command_Post",
+                "CAMP_Flag.*",
+                "CHECKPOINT_forwardspawn1_flag",
+                "PLANT_Command_Post",
+                "PLANT_Guard_Wall_near_Ground_Zero",
+            });
+        }
+
+        if ( Map.isKantinaSpawnAvailable && Map.isToxicWaterEnabled &&
+                ( !Map.isReichsflugscheibe2Destroyed || !Map.areSecretDocsSecured ) )
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_ToxicWaterValve" );
+        }
+
+        Util.MapDebugPrint( "Fence_to_air_tunnel_Destroyed" );
+    },
+
+    Guard_Wall_for_air_tunnel_Destroyed = function( trigger )
+    {
+        Util.MapDebugPrint( "Guard_Wall_for_air_tunnel_Destroyed" );
+    },
+
+    Guard_Wall_near_Ground_Zero_Destroyed = function( trigger )
+    {
+        Map.isGroundZeroGuardWallBuilt = false;
+
+        // Blockwall flag refresh
+        sleep( 1.25 );
+
+        if ( !Map.isKantinaSpawnAvailable )
+        {
+            Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, true );
+
+            SetAvailableMapGoals( TEAM.ALLIES, true, {
+                "BUILD_Command_Post",
+                "CAMP_Flag.*",
+                "CHECKPOINT_forwardspawn1_flag",
+                "PLANT_Command_Post",
+            });
+
+            SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Alpha.*" );
+        }
+
+        Util.MapDebugPrint( "Guard_Wall_near_Ground_Zero_Destroyed" );
+    },
+
+    Ladder_to_Ground_Zero_Destroyed = function( trigger )
+    {
+        Map.isLadderToGroundZeroBuilt = false;
+
+        Wp.SetWaypointFlag( "Ladder_1", "closed", true );
+        Wp.SetWaypointFlag( "Ladder_2", "closed", true );
+
+        // TODO: Handle bots being inside (don't disable these goals for them)
+        if ( !Map.isKantinaSpawnAvailable )
+        {
+            Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, false );
+
+            SetAvailableMapGoals( TEAM.ALLIES, false, {
+                "BUILD_Command_Post",
+                "CAMP_Flag.*",
+                "CHECKPOINT_forwardspawn1_flag",
+                "PLANT_Command_Post",
+            });
+        }
+
+        Util.MapDebugPrint( "Ladder_to_Ground_Zero_Destroyed" );
+    },
+
+    Reichsflugscheibe_1_Destroyed = function( trigger )
+    {
+        Map.isReichsflugscheibe1Destroyed = true;
+
+        Map.SecondPartCampGoalManager();
+
+        Util.MapDebugPrint( "Reichsflugscheibe_1_Destroyed" );
+    },
+
+    Reichsflugscheibe_2_Destroyed = function( trigger )
+    {
+        Map.isReichsflugscheibe2Destroyed = true;
+        Map.isReichsflugscheibe2Planted = false;
+
+        Map.SecondPartCampGoalManager();
+
+        if ( !Map.areSecretDocsSecured )
+        {
+            // The game around the Toxic Water can resume
+            if ( Map.isToxicWaterEnabled )
+            {
+                SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_ToxicWaterValve" );
+            }
+            else
+            {
+                SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_ToxicWaterValve" );
+            }
+        }
+
+        Util.MapDebugPrint( "Reichsflugscheibe_2_Destroyed" );
+    },
+
+    Safe_Door_Destroyed = function( trigger )
+    {
+        Map.isSafeDoorBuilt = false;
+
+        if ( Map.isKantinaSpawnAvailable && !Map.areSecretDocsSecured )
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_Secret_Documents" );
+        }
+
+        Util.MapDebugPrint( "Safe_Door_Destroyed" );
+    },
+
+    mg42_Destroyed = function( trigger )
+    {
+        Util.MapDebugPrint( "mg42_Destroyed" );
+    },
+
+    Secret_Documents_Taken = function( trigger )
+    {
+        Map.areSecretDocsTaken = true;
+
+        Map.SecondPartCampGoalManager();
+
+        Util.MapDebugPrint( "Secret_Documents_Taken" );
+    },
+
+    Secret_Documents_Returned = function( trigger )
+    {
+        Map.areSecretDocsTaken = false;
+
+        Map.SecondPartCampGoalManager();
+
+        Util.MapDebugPrint( "Secret_Documents_Returned" );
+    },
+
+    Secret_Documents_Secured = function( trigger )
+    {
+        Map.areSecretDocsSecured = true;
+        Map.areSecretDocsTaken = false;
+
+        Map.SecondPartCampGoalManager();
+
+        SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Safe_Door" );
+        SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Safe_Door" );
+
+        Map.DisableSurfaceGoals();
+
+        Util.MapDebugPrint( "Secret_Documents_Secured" );
+    },
+
+    forwardspawn1_flag_Axis_Captured = function( trigger )
+    {
+        Map.isForwardSpawnFlagOwnedByAllies = false;
+
+        // TODO: What happens here if the Guard Wall to Ground Zero is built for Allies? Check (happened once)
+        if ( Map.isGroundZeroGuardWallBuilt )
+        {
+            if ( Map.isLadderToGroundZeroBuilt )
+            {
+                SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Alpha.*" );
+            }
+
+            Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, false );
+
+            SetAvailableMapGoals( TEAM.ALLIES, false, {
+                "BUILD_Command_Post",
+                "CAMP_Flag.*",
+                "CHECKPOINT_forwardspawn1_flag",
+                "PLANT_Command_Post",
+            });
+        }
+
+        Util.MapDebugPrint( "forwardspawn1_flag_Axis_Captured" );
+    },
+
+    forwardspawn1_flag_Allies_Captured = function( trigger )
+    {
+        Map.isForwardSpawnFlagOwnedByAllies = true;
+
+        Util.MapDebugPrint( "forwardspawn1_flag_Allies_Captured" );
+    },
+
+    Toxic_Water_Disabled = function( trigger )
+    {
+        Map.isToxicWaterEnabled = false;
+
+        Wp.SetWaypointFlag( "toxic_water", "closed", false );
+
+        Map.SecondPartCampGoalManager();
+
+        // If the second Reichsflugscheibe is planted,
+        // don't even think about re-enabling the Toxic Water
+        if ( !Map.isReichsflugscheibe2Planted )
+        {
+            SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_ToxicWaterValve" );
+        }
+
+        SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_ToxicWaterValve" );
+
+        if ( Map.isKantinaSpawnAvailable )
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Reichsflugscheibe_2" );
+        }
+
+        Util.MapDebugPrint( "Toxic_Water_Disabled" );
+    },
+
+    Toxic_Water_Enabled = function( trigger )
+    {
+        Map.isToxicWaterEnabled = true;
+
+        Wp.SetWaypointFlag( "toxic_water", "closed", true );
+
+        Map.SecondPartCampGoalManager();
+
+        SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_ToxicWaterValve" );
+
+        SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Reichsflugscheibe_2" );
+
+        if ( !Map.isReichsflugscheibe2Planted )
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_ToxicWaterValve" );
+        }
+
+        Util.MapDebugPrint( "Toxic_Water_Enabled" );
+    },
+
+    Reichsflugscheibe_2_Defused = function( trigger )
+    {
+        Map.isReichsflugscheibe2Planted = false;
+
+        SetAvailableMapGoals( TEAM.AXIS, !Map.isToxicWaterEnabled, "SWITCH_ToxicWaterValve" );
+        SetAvailableMapGoals( TEAM.ALLIES, Map.isToxicWaterEnabled, "SWITCH_ToxicWaterValve" );
+
+        Util.MapDebugPrint( "Reichsflugscheibe_2_Defused" );
+    },
+
+    Reichsflugscheibe_2_Planted = function( trigger )
+    {
+        Map.isReichsflugscheibe2Planted = true;
+
+        Util.DisableGoal( "SWITCH_ToxicWaterValve" );
+
+        Util.MapDebugPrint( "Reichsflugscheibe_2_Planted" );
+    },
+
+    Kantina_Spawn_Available = function( trigger )
+    {
+        Map.isKantinaSpawnAvailable = true;
+
+        Util.DisableGoal( "CHECKPOINT_forwardspawn1_flag" );
+
+        SetAvailableMapGoals( TEAM.AXIS, false, {
+            "BUILD_mg42",
+            "DEFEND_Alpha.*",
+        });
+
+        SetAvailableMapGoals( TEAM.ALLIES, false, ".*" );
+        SetAvailableMapGoals( TEAM.ALLIES, true, {
+            "BUILD_Command_Post",
+            "CAPPOINT_Antenna",
+            //"CAPPOINT_Radio",
+            "PLANT_Command_Post",
+            "PLANT_Guard_Wall_for_air_tunnel",
+            "PLANT_Guard_Wall_near_Ground_Zero",
+            "PLANT_Reichsflugscheibe_1",
+            "PLANT_Safe_Door",
+        });
+
+        Cabinets.Allies_Main_Spawn_Cabinets( true );
+        Cabinets.Secret_Room_Health_Cabinet( TEAM.ALLIES, true );
+        Map.DisableSurfaceGoals();
+        Map.SecondPartCampGoalManager();
+
+        if ( Map.isToxicWaterEnabled )
+        {
+            // If the second Reichsflugscheibe is already planted,
+            // leave the Toxic Water on,
+            // so Axis can't defuse it
+            if ( !Map.isReichsflugscheibe2Planted )
+            {
+                SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_ToxicWaterValve" );
+            }
+        }
+        else
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Reichsflugscheibe_2" );
+        }
+
+        if ( !Map.isSafeDoorBuilt )
+        {
+            SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_Secret_Documents" );
+        }
+
+        Util.MapDebugPrint( "Kantina_Spawn_Available" );
+    },
+
+    Fence_to_air_tunnel_Planted = function( trigger )
+    {
+        // Too far away
+        SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Fence_to_air_tunnel.*" );
+
+        Util.MapDebugPrint( "Fence_to_air_tunnel_Planted" );
+    },
+
+    Guard_Wall_near_Ground_Zero_Planted = function( trigger )
+    {
+        // Too far away
+        SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Guard_Wall_near_Ground_Zero.*" );
+
+        Util.MapDebugPrint( "Guard_Wall_near_Ground_Zero_Planted" );
+    },
+};
+
+global OnMapLoad = function()
+{
+    // *** MAIN OBJECTIVES TRIGGERS ***
+    OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_Command_Post_Built );
+    OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_Command_Post_Built );
+    OnTrigger( "Axis team has built the Guard Wall for air tunnel!", Map.Guard_Wall_for_air_tunnel_Built );
+    OnTrigger( "Axis team has built the Guard Wall near Ground Zero!", Map.Guard_Wall_near_Ground_Zero_Built );
+    OnTrigger( "Allies has constructed the Ladder/Elevator to Ground Zero!", Map.Ladder_to_Ground_Zero_Built );
+    OnTrigger( "Axis team has built the Safe Door for Secret Documents!", Map.Safe_Door_Built );
+    OnTrigger( "Axis team has built the MG42!", Map.mg42_Built );
+    OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_Command_Post_Destroyed );
+    OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_Command_Post_Destroyed );
+    OnTrigger( "Allied team has destroyed the Fence to air duct!", Map.Fence_to_air_tunnel_Destroyed );
+    OnTrigger( "Allied team has destroyed the Guard Wall for air tunnel!", Map.Guard_Wall_for_air_tunnel_Destroyed );
+    OnTrigger( "Allied team has destroyed the Guard Wall near Ground Zero!", Map.Guard_Wall_near_Ground_Zero_Destroyed );
+    OnTrigger( "Axis team has destroyed the ladder/elevator to Ground Zero!", Map.Ladder_to_Ground_Zero_Destroyed );
+    OnTrigger( "Allied team has destroyed Reichsflugscheibe 1!", Map.Reichsflugscheibe_1_Destroyed );
+    OnTrigger( "Allied team has destroyed Reichsflugscheibe 2!", Map.Reichsflugscheibe_2_Destroyed );
+    OnTrigger( "Allied team has destroyed the Safe Door for Secret Documents!", Map.Safe_Door_Destroyed );
+    OnTrigger( "Allies team has destroyed the MG42!", Map.mg42_Destroyed );
+    OnTrigger( "Allies have stolen The Secret Documents!", Map.Secret_Documents_Taken );
+    OnTrigger( "Flag returned Secret Documents!", Map.Secret_Documents_Returned );
+    OnTrigger( "Allied team escaped with the secret documents!", Map.Secret_Documents_Secured );
+    OnTrigger( "^rAxis reclaim the Forward Spawn!", Map.forwardspawn1_flag_Axis_Captured );
+    OnTrigger( "^rAllies capture the Forward Spawn!", Map.forwardspawn1_flag_Allies_Captured );
+
+    // *** TOXIC WATER SWITCH ***
+    OnTrigger( "The Allied Team has deactivated the Toxic Water and build mini ladder", Map.Toxic_Water_Disabled );
+    OnTrigger( "The Axis Team has activated the Toxic Water and remove mini ladder", Map.Toxic_Water_Enabled );
+    OnTrigger( "Defused at the Reichsflugscheibe 2.", Map.Reichsflugscheibe_2_Defused );
+    OnTrigger( "Planted at the Reichsflugscheibe 2.", Map.Reichsflugscheibe_2_Planted );
+
+    OnTrigger( "Planted at the Fence to air tunnel.", Map.Fence_to_air_tunnel_Planted );
+    OnTrigger( "Planted at Guard Wall near Ground Zero.", Map.Guard_Wall_near_Ground_Zero_Planted );
+
+    OnTrigger( "GRENADE_Hatch Exploded.", Map.Hatch_Exploded );
+
+    // *** FLAG FOR KANTINA SPAWN ***
+    OnTrigger( "^1Now Allies have forward spawn in Kantina forever!", Map.Kantina_Spawn_Available );
+
+    // *** ALLIED ELEVATOR ***
+    //OnTrigger( "elev_allies_speed_Moving", Map.Elevator_Moving );
+
+    // *** CLEAR ALL GOALS FOR BOTH TEAMS ***
+    Util.DisableGoal( ".*" );   // There's no ROUTE goal
+
+    // *** AXIS GOALS ***
+    Cabinets.Axis_Main_Spawn_Cabinets( true );
+    Cabinets.Secret_Room_Health_Cabinet( TEAM.AXIS, true );
+
+    SetAvailableMapGoals( TEAM.AXIS, true, {
+        "BUILD_Command_Post",
+        "BUILD_Guard_Wall_for_air_tunnel",
+        "BUILD_Guard_Wall_near_Ground_Zero",
+        "BUILD_mg42",
+        "BUILD_Safe_Door",
+        "CAMP_Flag.*",
+        "CHECKPOINT_forwardspawn1_flag",
+        "DEFEND_Alpha.*",
+        "PLANT_Command_Post",
+    });
+
+    // *** ALLIED GOALS ***
+    SetAvailableMapGoals( TEAM.ALLIES, true, {
+        "BUILD_Ladder_to_Ground_Zero",
+        "PLANT_Fence_to_air_tunnel",
+    });
+
+    // Absolute priority, so no need to disable/enable
+    // a handful of goals upon the Secret Documents robbery
+    // But keep REVIVE goals above
+    // Also exclude Allied Covi so
+    SetGoalPriority( "CAMP_Antenna.*", 0.99 );
+    SetGoalPriority( "CAMP_Antenna.*", 0.50, TEAM.ALLIES, CLASS.ENGINEER );
+    SetGoalPriority( "CAMP_Antenna.*", 0.50, TEAM.ALLIES, CLASS.COVERTOPS );
+    //SetGoalPriority( "FLAG_Secret_Documents", 1.02 );   // TODO: Doesn't affect the _dropped one
+
+    // The ones in the CHECKPOINT_forwardspawn1_flag room
+    // 5 and 6 can be really annoying, so I let them at 0.5
+    SetGoalPriority( "CAMP_Flag[4,7]", 0.51 );
+
+    // *** AXIS GOALS PRIORITIES ***
+    SetGoalPriority( "BUILD_mg42", 0.86 );
+    SetGoalPriority( "BUILD_Command_Post", 0.87, TEAM.AXIS );
+    SetGoalPriority( "BUILD_Safe_Door", 0.88 );
+    SetGoalPriority( "BUILD_Guard_Wall_for_air_tunnel", 0.89 );
+    SetGoalPriority( "BUILD_Guard_Wall_near_Ground_Zero", 0.90 );
+
+    // *** ALLIED GOALS PRIORITIES ***
+    SetGoalPriority( "BUILD_Command_Post" , 0.81, TEAM.ALLIES );
+    SetGoalPriority( "PLANT_Guard_Wall_for_air_tunnel", 0.82, TEAM.ALLIES, CLASS.COVERTOPS );
+    SetGoalPriority( "PLANT_Guard_Wall_near_Ground_Zero", 0.82, TEAM.ALLIES, CLASS.COVERTOPS );
+    SetGoalPriority( "PLANT_Reichsflugscheibe_1", 0.82 );
+    SetGoalPriority( "PLANT_Reichsflugscheibe_2", 0.83 );
+    SetGoalPriority( "PLANT_Safe_Door", 0.82 );
+
+    Util.AddUseWp( "PLANT_Fence_to_air_tunnel", "Fence_1" );
+    Util.AddUseWp( "PLANT_Fence_to_air_tunnel", "Fence_2" );
+
+    Util.AddUseWp( "PLANT_Guard_Wall_near_Ground_Zero", "GuardWall_1" );
+    Util.AddUseWp( "PLANT_Guard_Wall_near_Ground_Zero", "GuardWall_2" );
+
+    // *** GOALS PROPERTIES ***
+    /*
+    //Util.SetMaxUsersInUse( 1, "MOUNTMG42_.*" );
+    Util.SetMaxUsersInProgress( 1, "BUILD.*" );
+    Util.SetMaxUsersInProgress( 1, "PLANT.*" );
+    Util.SetMaxUsersInProgress( 1, "ATTACK_.*" );
+    Util.SetMaxUsersInProgress( 1, "DEFEND_.*" );
+    Util.SetMaxUsersInProgress( 1, "CHECKPOINT_.*" );
+    //Util.SetMaxUsersInProgress( 1, "MOBILEMG42_.*" );
+    Util.SetMaxUsersInProgress( 1, "MOUNTMG42_.*" );
+    Util.SetMaxUsersInProgress( 1, "REPAIRMG42.*" );
+    */
+
+    Util.SetMaxUsers( 2, "SWITCH_ToxicWaterValve" );
+
+    SetMapGoalProperties( "ATTACK_.*",  { mincamptime = 60, maxcamptime = 120 } );
+    SetMapGoalProperties( "CAMP.*",     { mincamptime = 60, maxcamptime = 120 } );
+    SetMapGoalProperties( "DEFEND_.*",  { mincamptime = 60, maxcamptime = 120 } );
+    //SetMapGoalProperties( "MOBILEMG42_.*",  { mincamptime = 60, maxcamptime = 120 } );
+
+    Util.SetGoalOffset( 140,   64, -50, "PLANT_Reichsflugscheibe_1" );
+    Util.SetGoalOffset(   0, -120, -50, "PLANT_Reichsflugscheibe_2" );
+
+    RegionTrigger.Create( AABB( -667.895,   545.358, -1268.626, -323.670,   699.715, -1129.130 ),   "DisableBotPush", "Guard_Wall");
+    RegionTrigger.Create( AABB( -932.163, -1180.590, -2303.875, -741.775, -1039.723,   519.549 ),   "DisableBotPush", "Long_Ladder");
+    RegionTrigger.Create( AABB( -871.015, -1083.076,  -249.875, -698.639,  -866.267,   549.850 ),   "DisableBotPush", "Rope");
+
+    Wp.SetWaypointFlag( "Ladder_1", "closed", true );
+    Wp.SetWaypointFlag( "Ladder_2", "closed", true );
+    Wp.SetWaypointFlag( "toxic_water", "closed", true );
+
+    print( "Omni-bot map script for Neuschwaben (Final 2) by Mateos" );
+};
+
+global OnBotJoin = function( bot )
+{
+    bot.TargetBreakableDist = 120.0;
+    weaps =
+    {
+        WEAPON.THOMPSON, WEAPON.MP40, WEAPON.SHOTGUN, WEAPON.M97,
+        WEAPON.M7, WEAPON.GARAND, WEAPON.K43, WEAPON.BAR, WEAPON.STEN,
+        WEAPON.MP34, WEAPON.BAR, WEAPON.STG44, WEAPON.FG42
+    };
+
+    foreach( id and weap in weaps )
+    {
+        bot.GetWeapon( weap ).PrimaryFire.SetTargetBias( CLASS.BREAKABLE, 1.2 );
+    }
+
+    bot.GetWeapon( WEAPON.KNIFE ).PrimaryFire.SetDesirabilityRange( 0, 48, 0.6 );
+};
+
+global Cabinets =
+{
+    Allies_Main_Spawn_Cabinets = function( bAvailability )
+    {
+        SetAvailableMapGoals( TEAM.ALLIES, bAvailability, {
+            "AMMOCAB_cabinet_ammo_model",
+            "HEALTHCAB_t10000351",
+        });
+    },
+
+    Axis_Main_Spawn_Cabinets = function( bAvailability )
+    {
+        SetAvailableMapGoals( TEAM.AXIS, bAvailability, {
+            "AMMOCAB_t10000350",
+            "HEALTHCAB_cabinet_health_model",
+        });
+    },
+
+    Kantina_Spawn_Cabinets = function( bAvailability )
+    {
+        SetAvailableMapGoals( TEAM.ALLIES, bAvailability, {
+            "AMMOCAB_t10000370",
+            "HEALTHCAB_t10000368",
+        });
+    },
+
+    Secret_Room_Health_Cabinet = function( team, bAvailability )
+    {
+        SetAvailableMapGoals( team, bAvailability, "HEALTHCAB_496" );
+    },
+};

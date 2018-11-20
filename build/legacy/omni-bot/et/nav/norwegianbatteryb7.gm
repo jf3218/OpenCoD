@@ -1,0 +1,340 @@
+//==========================================================================================
+//
+//	norwegianbatteryb7.gm
+//
+//	Who                  	When		What
+//------------------------------------------------------------------------------------------
+//	maker@bigsighstudios.com	13 November 2017	Initial Script
+//  Version 1.1
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1, // please set to zero before distributing your script
+	DefendingTeam = TEAM.AXIS,
+
+	//endgame
+	Battery_Controls_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Battery_Controls" );
+		Util.MapDebugPrint( "Battery_Controls_Planted" );
+	},
+	Battery_Controls_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Battery_Controls" );
+		Util.MapDebugPrint( "Battery_Controls_Defused" );
+	},
+	Battery_Controls_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Battery_Controls" );
+		Util.MapDebugPrint( "Battery_Controls_Destroyed" );
+	},
+
+	KC_Stolen = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "FLAG_KC" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "CAPPOINT_DoorLock" );
+		Util.MapDebugPrint( "KC_Stolen" );
+	},
+	KC_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "FLAG_KC" );
+		Util.MapDebugPrint( "KC_Returned" );
+	},
+	KC_Secured = function( trigger )
+	{
+		Util.MapDebugPrint( "KC_Secured" );
+	},
+
+	Doors_Open = function( trigger )
+	{
+		sleep(1);
+		Wp.SetWaypointFlag( "Door_Ext_WP", "closed", 0 );
+		Wp.SetWaypointFlag( "Door_Int_WP", "closed", 0 );
+
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "CAPPOINT_DoorLock" );
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "FLAG_KC" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Battery_Controls" );
+
+		Util.EnableGroup( "Gun", TEAM.AXIS );
+		Util.DisableGroup( "KC", TEAM.AXIS );
+
+		Util.MapDebugPrint( "Doors_Open" );
+	},
+
+	Side_Entrance_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Side_Entrance" );
+		Util.MapDebugPrint( "Side_Entrance_Planted" );
+	},
+	Side_Entrance_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Side_Entrance" );
+		Util.MapDebugPrint( "Side_Entrance_Defused" );
+	},
+	Side_Entrance_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Side_Entrance_Destroyed" );
+	},
+
+
+	// Command Post template
+
+	//CP switch
+	CP_Owner = 0,
+
+	Set_CP = function(_p) // p = TEAM.ALLIES or TEAM.AXIS or 0 (unbuilt)
+	{
+		switch(_p)
+		{
+			case 0:
+			{
+				Map.CP_Owner = 0;
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+			case TEAM.ALLIES:
+			{
+				Map.CP_Owner = TEAM.ALLIES;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "PLANT_Command_Post" );
+			}
+			case TEAM.AXIS:
+			{
+				Map.CP_Owner = TEAM.AXIS;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+		}
+		Util.MapDebugPrint("CP Owner: " + Map.CP_Owner );
+	},
+
+	Allied_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.ALLIES);
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.Command_Post_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+
+	Axis_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.AXIS);
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+
+	Axis_CP_Destroyed = function( trigger )
+	{
+		Map.Command_Post_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+
+	CP_Planted = function( trigger )
+	{
+		Map.Command_Post_Dyno += 1;
+		Util.MapDebugPrint( "CP_Planted" );
+	},
+
+	CP_Defused = function( trigger )
+	{
+		Map.Command_Post_Dyno -= 1;
+		Util.MapDebugPrint( "CP_Defused" );
+	},
+
+// Command Post END
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!",  Map.Allied_CP_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!",          Map.Allied_CP_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!",    Map.Axis_CP_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!",          Map.Axis_CP_Destroyed );
+	OnTrigger( "Planted at the Command Post.",                              Map.CP_Planted  );
+	OnTrigger( "Defused at the Command Post.",                              Map.CP_Defused  );
+
+	OnTrigger( "Allied Command Post constructed, ^1The allied captured the bar!", Map.Allied_CP_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post,", Map.Allied_CP_Destroyed );
+
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_CP_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_CP_Destroyed );
+
+	//Custom
+	OnTrigger( "Planted at the sidedoor.", Map.Side_Entrance_Planted );
+	OnTrigger( "^1the side entrence was destroyed", Map.Side_Entrance_Destroyed );
+
+	OnTrigger( "Allies have stolen !", Map.KC_Stolen );
+	OnTrigger( "^1the allies have taken the keycard", Map.KC_Stolen );
+
+	OnTrigger( "Axis have returned !", Map.KC_Returned );
+	OnTrigger( "^3the axis returned thier keycard", Map.KC_Returned );
+
+	OnTrigger( "Allies secured the Key Card!", Map.KC_Secured );
+
+	//custom
+	OnTrigger( "^1keycard in placed, doors opening", Map.Doors_Open );
+
+	OnTrigger( "Planted at The Battery Controls.", Map.Battery_Controls_Planted );
+	OnTrigger( "Defused at The Battery Controls.", Map.Battery_Controls_Defused );
+	OnTrigger( "Allies have Destroyed the Battery Controls!", Map.Battery_Controls_Destroyed );
+
+	//---------------------------------------------------------------------------
+
+	//both teams
+	Util.DisableGoal( ".*", 1 ); // all but routes
+	SetAvailableMapGoals( 0, 1, ".*CAB.*" );
+
+	ETUtil.SetCabinets();
+
+	Util.LimitToClass("PLANT_Command_Post", 0, CLASS.COVERTOPS);
+
+	Util.AddUsePoint( "PLANT_Battery_Controls", Vec3(-1443, 2074, -235 ));
+	//Util.AddUsePoint( "PLANT_Side_Entrance", Vec3( -900, 1076, -443 ));
+
+	//Allies
+	SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Battery_Controls" );
+	SetAvailableMapGoals( TEAM.ALLIES, 1, {
+		"ATTACK_.*",
+		"BUILD_Command_Post",
+		"FLAG_KC",
+	});
+
+
+	//Axis
+	//Util.EnableGroup( "Bar", TEAM.AXIS );
+	//Util.EnableGroup( "KC", TEAM.AXIS );
+	SetAvailableMapGoals( TEAM.AXIS, 1, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, 1, "DEFEND_.*" );
+
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "MOBILEMG42_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=60, MaxCampTime=150} );
+	SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=30, MaxCampTime=900} );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Command_Post =
+		{
+			ROUTE_AlSp =
+			{
+				ROUTE_NW_Path =
+				{
+					ROUTE_Vlg_0 =
+					{
+						ROUTE_Tank =
+						{
+							ROUTE_CP = {},
+						},
+					},
+				},
+				ROUTE_NE_Path =
+				{
+					ROUTE_Vlg_0 =
+					{
+						ROUTE_CP = {},
+					},
+				},
+			},
+		},
+
+		PLANT_Command_Post = {},
+
+		FLAG_KC =
+		{
+			ROUTE_AlSp =
+			{
+				ROUTE_NE_Path =
+				{
+					ROUTE_Pass_H3 =
+					{
+						ROUTE_KC_4 =
+						{
+							Weight = 3,
+							ROUTE_KC = {},
+						},
+					},
+				},
+			},
+		},
+
+		CAPPOINT_DoorLock =
+		{
+			ROUTE_KC =
+			{
+				ROUTE_KC_3 =
+				{
+					ROUTE_KC_2 =
+					{
+						ROUTE_Central_Pass =
+						{
+							ROUTE_Metal_Balcony =
+							{
+								ROUTE_KC_Capture = {},
+							},
+						},
+					},
+				},
+			},
+		},
+
+		PLANT_Battery_Controls =
+		{
+			ROUTE_AlSp =
+			{
+				ROUTE_NW_Path =
+				{
+					ROUTE_West_Jetty =
+					{
+						ROUTE_West_Door =
+						{
+							ROUTE_Bunker_0 =
+							{
+								ROUTE_Bunker_1 =
+								{
+									ROUTE_Bunker_2_Low =
+									{
+										ROUTE_Gun_Plant = {},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	};
+	Util.Routes(MapRoutes);
+};

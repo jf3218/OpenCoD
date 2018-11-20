@@ -1,0 +1,194 @@
+global Map =
+{
+	Debug = 0,
+
+	flag_cover_is_down = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"FLAG_teamctfredflag",
+			"CAPPOINT_allied_dropzone",
+		});
+		Util.MapDebugPrint( "flag_cover_is_down" );
+	},
+
+	teamctfredflag_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_ax.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_ax2.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_al.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_al2.*" );
+		Util.MapDebugPrint( "teamctfredflag_Taken" );
+	},
+
+	teamctfredflag_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_ax.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_ax2.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_al.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_al2.*" );
+		Util.MapDebugPrint( "teamctfredflag_Returned" );
+	},
+
+	teamctfredflag_Secured = function( trigger )
+	{
+		ETUtil.WinningChat( TEAM.ALLIES );
+		ETUtil.LosingChat( TEAM.AXIS );
+		Util.MapDebugPrint( "teamctfredflag_Secured" );
+	},
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Allies have stolen Axis Flag!", Map.teamctfredflag_Taken );
+	OnTrigger( "Flag returned teamctfredflag!", Map.teamctfredflag_Returned );
+	OnTrigger( "Allies captured the_dropzone", Map.teamctfredflag_Secured );
+	OnTrigger( "Alea iacta est.", Map.flag_cover_is_down );
+
+	Util.DisableGoal( "FLAG_teamctfredflag" );
+	Util.DisableGoal( "DEFEND_ax2.*" );
+	Util.DisableGoal( "DEFEND_al2.*" );
+
+	Util.LimitToTeam( TEAM.AXIS, "DEFEND_ax.*" );
+	Util.LimitToTeam( TEAM.ALLIES, "DEFEND_al.*" );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 90.0;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		DEFEND_ax01 =
+		{
+			ROUTE_axis_spawn_01 =
+			{
+				ROUTE_ax_spawn_01left =
+				{
+					ROUTE_after_flag_02 = {},
+					ROUTE_after_flag_03 = {},
+				},
+				ROUTE_ax_spawn_01right =
+				{
+					ROUTE_after_flag_02 = {},
+					ROUTE_after_flag_03 = {},
+				},
+				ROUTE_ax_spawn_01tunnel =
+				{
+					ROUTE_after_flag_02 = {},
+					ROUTE_after_flag_03 = {},
+				},
+			},
+		},
+
+		DEFEND_ax2_01 =
+		{
+			ROUTE_axis_spawn_01 =
+			{
+				ROUTE_ax_spawn_01left =
+				{
+				},
+				ROUTE_ax_spawn_01right =
+				{
+				},
+				ROUTE_ax_spawn_01tunnel =
+				{
+				},
+			},
+		},
+
+		DEFEND_al01 =
+		{
+			ROUTE_allies_spawn_01 =
+			{
+				ROUTE_allies_spawn_01left =
+				{
+					ROUTE_allies_spawn_tunnel =
+					{
+						ROUTE_al_att_01 = {},
+						ROUTE_al_att_02 = {},
+						ROUTE_al_att_02a = {},
+						ROUTE_al_att_03 = {},
+						ROUTE_al_att_04 = {},
+						ROUTE_al_att_05 = {},
+
+					},
+					ROUTE_allies_spawn_straight =
+					{
+						ROUTE_al_att_01 = {},
+						ROUTE_al_att_02 = {},
+						ROUTE_al_att_02a = {},
+						ROUTE_al_att_03 = {},
+						ROUTE_al_att_04 = {},
+						ROUTE_al_att_05 = {},
+					},
+				},
+				ROUTE_allies_spawn_01right =
+				{
+					ROUTE_allies_spawn_tunnel = {},
+					ROUTE_allies_spawn_straight = {},
+				},
+			},
+		},
+
+		FLAG_teamctfredflag =
+		{
+			ROUTE_allies_spawn_01 =
+			{
+				ROUTE_allies_spawn_01left =
+				{
+					ROUTE_allies_spawn_tunnel =
+					{
+						ROUTE_al_att_01 = {},
+						ROUTE_al_att_02 = {},
+						ROUTE_al_att_02a = {},
+						ROUTE_al_att_03 = {},
+						ROUTE_al_att_04 = {},
+						ROUTE_al_att_05 = {},
+					},
+					ROUTE_allies_spawn_straight =
+					{
+						ROUTE_al_att_01 = {},
+						ROUTE_al_att_02 = {},
+						ROUTE_al_att_02a = {},
+						ROUTE_al_att_03 = {},
+						ROUTE_al_att_04 = {},
+						ROUTE_al_att_05 = {},
+					},
+				},
+				ROUTE_allies_spawn_01right =
+				{
+					ROUTE_allies_spawn_tunnel = {},
+					ROUTE_allies_spawn_straight = {},
+				},
+			},
+		},
+
+		CAPPOINT_allied_dropzone =
+		{
+			ROUTE_after_flag_01 =
+			{
+				ROUTE_after_flag_01b =
+				{
+					ROUTE_after_flag_02b = {},
+					ROUTE_after_flag_03 = {},
+				},
+				ROUTE_after_flag_01c =
+				{
+					ROUTE_after_flag_02b = {},
+					ROUTE_after_flag_03 = {},
+				},
+			},
+		},
+	};
+
+	MapRoutes["DEFEND_ax.."] = MapRoutes.DEFEND_ax01;
+	MapRoutes["DEFEND_ax2_.."] = MapRoutes.DEFEND_ax2_01;
+	MapRoutes["DEFEND_al.."] = MapRoutes.DEFEND_al01;
+
+	Util.Routes(MapRoutes);
+};

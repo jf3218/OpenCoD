@@ -1,0 +1,13 @@
+//M1 GARAND, used by allied engineer
+this.Name = "Carbine";
+this.WeaponId = WEAPON.CARBINE;
+
+mod=GetModName();
+if (mod=="etmain" || mod=="silEnT" || (mod=="etpub" && GetCvar("g_etnamFlags")==0)) {
+	this.PrimaryFire.IgnoreReload = true;
+}
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 1;
+this.PrimaryFire.LowAmmoPriority = 0.8;
+this.PrimaryFire.LowAmmoGetAmmoAmount = 16;

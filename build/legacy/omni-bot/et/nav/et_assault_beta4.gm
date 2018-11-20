@@ -1,0 +1,476 @@
+//==========================================================================================
+//
+//	et_assault_beta4.gm
+//
+//	Who                  	When		What
+//------------------------------------------------------------------------------------------
+//	maker@bigsighstudios.com	04 February 2018	Initial Script
+//
+//	Groups (in _goals.gm) are used for tactical stages: attack/defend, mobilemg etc.
+//  Objectives are set using SetAvailableMapGoals().
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1, // please set to zero before distributing your script
+	DefendingTeam = TEAM.AXIS,
+	Stage = 1,
+
+	Tank_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Tank" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "ESCORT_Tank" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "MOUNT_tank" );
+		Util.MapDebugPrint( "Tank_Built" );
+	},
+	Tank_Stolen = function( trigger )
+	{
+		Util.MapDebugPrint( "Tank_Stolen" );
+	},
+	Tank_Damaged = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Tank" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Tank" );
+		Util.MapDebugPrint( "Tank_Damaged" );
+	},
+
+	Gate_Area_Barrier_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Gate_Area_Barrier" );
+
+		SetAvailableMapGoals( TEAM.AXIS, 0, "BUILD_Gate_Area_Barrier" );
+		SetAvailableMapGoals( TEAM.AXIS, 1, "BUILD_Command_Post" );
+
+		Util.MapDebugPrint( "Gate_Area_Barrier_Built" );
+	},
+	Gate_Area_Barrier_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Gate_Area_Barrier" );
+
+		Util.MapDebugPrint( "Gate_Area_Barrier_Planted" );
+	},
+	Gate_Area_Barrier_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Gate_Area_Barrier" );
+
+		Util.MapDebugPrint( "Gate_Area_Barrier_Defused" );
+	},
+	Gate_Area_Barrier_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Gate_Area_Barrier" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Power_Generator" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Cave_Door" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Command_Post" );
+
+		Util.MapDebugPrint( "Gate_Area_Barrier_Destroyed" );
+	},
+
+	Hangar_Barrier_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 0, "BUILD_Hangar_Barrier" );
+		SetAvailableMapGoals( TEAM.AXIS, 1, "BUILD_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Hangar_Barrier" );
+
+		Util.MapDebugPrint( "Hangar_Barrier_Built" );
+	},
+	Hangar_Barrier_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Hangar_Barrier" );
+
+		Util.MapDebugPrint( "Hangar_Barrier_Planted" );
+	},
+	Hangar_Barrier_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Hangar_Barrier" );
+
+		Util.MapDebugPrint( "Hangar_Barrier_Defused" );
+	},
+	Hangar_Barrier_Destroyed = function( trigger )
+	{
+
+		Util.MapDebugPrint( "Hangar_Barrier_Destroyed" );
+	},
+
+	Flight_Gate_Destroyed = function( trigger )
+	{
+		Map.Stage = 3;
+		SetAvailableMapGoals( TEAM.ALLIES, 0, {
+			"ESCORT_Tank",
+			"MOUNT_Tank",
+			"ATTACK_S4_.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, 1, {
+			"FLAG_Docs",
+			"BUILD_Power_Generator",
+			"ATTACK_S5_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFEND_S4_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, 1, "DEFEND_S5_.*" );
+
+		Util.MapDebugPrint( "Flight_Gate_Destroyed" );
+	},
+
+	Power_Generator_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Power_Generator" );
+		SetAvailableMapGoals( TEAM.AXIS, 1, "PLANT_Power_Generator" );
+
+		Util.MapDebugPrint( "Power_Generator_Built" );
+	},
+	Power_Generator_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 0, "PLANT_Power_Generator" );
+
+		Util.MapDebugPrint( "Power_Generator_Planted" );
+	},
+	Power_Generator_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 1, "PLANT_Power_Generator" );
+
+		Util.MapDebugPrint( "Power_Generator_Defused" );
+	},
+	Power_Generator_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Power_Generator" );
+
+		Util.MapDebugPrint( "Power_Generator_Destroyed" );
+	},
+
+	Back_Door_Access_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Back_Door_Access" );
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFUSE_Back_Door_Access.*" );
+		Util.MapDebugPrint( "Back_Door_Access_Planted" );
+	},
+	Back_Door_Access_Destroyed = function( trigger )
+	{
+		Wp.SetWaypointFlag( "BD_Access_1", "team1", 0 );
+		Wp.SetWaypointFlag( "BD_Access_2", "team1", 0 );
+		Wp.SetWaypointFlag( "BD_Access_1", "door", 0 );
+		Wp.SetWaypointFlag( "BD_Access_2", "door", 0 );
+
+		SetAvailableMapGoals( TEAM.AXIS, 1, "DEFEND_S5_.*" );
+
+		Util.MapDebugPrint( "Back_Door_Access_Destroyed" );
+	},
+
+	Cave_Door_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Cave_Door" );
+		SetAvailableMapGoals( TEAM.AXIS, 0, "DEFUSE_Cave_Door" );
+		Util.MapDebugPrint( "Cave_Door_Planted" );
+	},
+	Cave_Door_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Cave_Door_Destroyed" );
+	},
+
+	docs_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "CAPPOINT_Docs" );
+		Util.MapDebugPrint( "docs_Taken" );
+	},
+
+	docs_Returned = function( trigger )
+	{
+		Util.MapDebugPrint( "docs_Returned" );
+	},
+
+	docs_Secured = function( trigger )
+	{
+		Util.MapDebugPrint( "docs_Secured" );
+	},
+
+	// Neutral Command Post
+	CP_Owner = 0,
+	CP_Dyno = 0,
+
+	Set_CP = function(_p) // p = TEAM.ALLIES or TEAM.AXIS or 0 (unbuilt)
+	{
+		switch(_p)
+		{
+			case 0:
+			{
+				Map.CP_Owner = 0;
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+			case TEAM.ALLIES:
+			{
+				Map.CP_Owner = TEAM.ALLIES;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "PLANT_Command_Post" );
+			}
+			case TEAM.AXIS:
+			{
+				Map.CP_Owner = TEAM.AXIS;
+				SetAvailableMapGoals( TEAM.AXIS,   0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Command_Post" );
+			}
+		}
+		//Util.MapDebugPrint("CP Owner: " + Map.CP_Owner );
+	},
+	Allied_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.ALLIES);
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+	Axis_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.AXIS);
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+	Axis_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+	CP_Planted = function( trigger )
+	{
+		Map.CP_Dyno += 1;
+		Util.MapDebugPrint( "CP_Planted" );
+	},
+	CP_Defused = function( trigger )
+	{
+		Map.CP_Dyno -= 1;
+		Util.MapDebugPrint( "CP_Defused" );
+	},
+
+// Command Post END
+
+	tank_at_location = function( trigger )
+	{
+		switch(Map.VehicleLocation)
+		{
+			case 1:
+			{
+				// STAGE 1: Hangar Barrier is down.
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "ATTACK_S1_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "MOBILEMG42_S1_ATTACK_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS  , 1, "DEFEND_S1_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 1, "MOBILEMG42_S1_DEFEND_.*" );
+			}
+			case 2:
+			{
+				// STAGE 2: Gate Area Barrier is down.
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "ATTACK_S1_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "ATTACK_S2_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "MOBILEMG42_S1_ATTACK_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "MOBILEMG42_S2_ATTACK_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS  , 0, "DEFEND_S1_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 1, "DEFEND_S2_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 0, "MOBILEMG42_S1_DEFEND_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 1, "MOBILEMG42_S2_DEFEND_.*" );
+			}
+			case 3:
+			{
+				// STAGE 3 active. Gate Area Barrier is blown.
+				SetAvailableMapGoals( TEAM.ALLIES, 0, {
+					"BUILD_Tank",
+					"MOUNT_Tank",
+					"ESCORT_Tank",
+				});
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "ATTACK_S2_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "ATTACK_S3_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "MOBILEMG42_S2_ATTACK_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS  , 0, "DEFEND_S2_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 1, "DEFEND_S3_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 0, "MOBILEMG42_S2_DEFEND_.*" );
+			}
+			case 4:
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "ATTACK_S3_.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, {
+					"ATTACK_S4_.*",
+					"FLAG_Docs",
+					"CAPPOINT_Docs",
+				});
+
+				SetAvailableMapGoals( TEAM.AXIS  , 0, "DEFEND_S3_.*" );
+				SetAvailableMapGoals( TEAM.AXIS  , 1, "DEFEND_S4_.*" );
+			}
+		}
+		Util.MapDebugPrint("vehicle at location " + Map.VehicleLocation, 1);
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+
+	OnTrigger( "tank at location", Map.tank_at_location );
+
+	barrier1 = OnTriggerRegion( AABB(-1883.090,  -633.192, 1.241, -1577.636,  -594.480, 75.241 ), RegionTrigger.VehicleTrigger );
+	barrier2 = OnTriggerRegion( AABB(-1824.322, -1357.688, 1.125, -1653.441, -1319.666, 75.125 ), RegionTrigger.VehicleTrigger );
+	barrier3 = OnTriggerRegion( AABB(-1031.138, -2874.106, 1.125,  -993.115, -2700.402, 75.125 ), RegionTrigger.VehicleTrigger );
+	barrier4 = OnTriggerRegion( AABB(  774.595, -2654.629, 1.125,   812.604, -2532.426, 75.125 ), RegionTrigger.VehicleTrigger );
+
+	OnTrigger( "The Tank has been repaired!", Map.Tank_Built );
+	OnTrigger( "The Tank has been damaged!", Map.Tank_Damaged );
+	OnTrigger( "Allied team has stolen the Tank!", Map.Tank_Stolen );
+
+	//1st barrier
+	OnTrigger( "Tank Barrier #1 has been constructed.", Map.Hangar_Barrier_Built );
+	OnTrigger( "Planted at the Hangar Barrier.", Map.Hangar_Barrier_Planted );
+	OnTrigger( "Defused at the Hangar Barrier.", Map.Hangar_Barrier_Defused );
+	OnTrigger( "Tank Barrier #1 has been destroyed.", Map.Hangar_Barrier_Destroyed );
+
+	//2nd barrier
+	OnTrigger( "Tank Barrier #2 has been constructed.", Map.Gate_Area_Barrier_Built );
+	OnTrigger( "Planted at the Gate Area Barrier.", Map.Gate_Area_Barrier_Planted );
+	OnTrigger( "Defused at the Gate Area Barrier.", Map.Gate_Area_Barrier_Defused );
+	OnTrigger( "Tank Barrier #2 has been destroyed.", Map.Gate_Area_Barrier_Destroyed );
+
+	//3rd barrier
+	OnTrigger( "Allied team has blown up the Flight Gate", Map.Flight_Gate_Destroyed );
+
+	OnTrigger( "Power Supply built, Radio Ready to Transmit the Docs", Map.Power_Generator_Built );
+	OnTrigger( "Planted at the Power Generator.", Map.Power_Generator_Planted );
+	OnTrigger( "Defused at the Power Generator.", Map.Power_Generator_Defused );
+	OnTrigger( "Axis cut the Power Supply", Map.Power_Generator_Destroyed );
+
+	OnTrigger( "Planted at the Side Entrance.", Map.Back_Door_Access_Planted );
+	OnTrigger( "Allied Team has Blown Up the Side Entrance", Map.Back_Door_Access_Destroyed );
+
+	OnTrigger( "Allied team has Blown up the Cave Door", Map.Cave_Door_Destroyed );
+
+	OnTrigger( "Allies have stolen Secret Documents!", Map.docs_Taken );
+	OnTrigger( "MISSING_STRING", Map.docs_Returned );
+	OnTrigger( "Allied Team has Transmitted the Docs", Map.docs_Secured );
+
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!",  Map.Allied_CP_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!",          Map.Allied_CP_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!",    Map.Axis_CP_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!",          Map.Axis_CP_Destroyed );
+	OnTrigger( "Planted at the Command Post.",                              Map.CP_Planted  );
+	OnTrigger( "Defused at the Command Post.",                              Map.CP_Defused  );
+
+	//---------------------------------------------------------------------------
+
+	Util.DisableGoal( ".*", 1 ); // all but routes
+	Util.EnableGoal( ".*CAB.*" );
+	ETUtil.SetCabinets();
+
+	Util.LimitToClass( "PLANT_Command_Post", 0, 5 );
+	Util.LimitToClass( "BUILD_Command_Post", 0, 3 );
+
+	//Allies
+	SetAvailableMapGoals( TEAM.ALLIES, 1, {
+		"BUILD_Tank",
+		"ESCORT_Tank",
+		"MOUNT_Tank",
+	});
+	Util.ExcludeClass( "FLAG_.*", 2, 3); //let engy do obj's
+
+	//Axis
+	SetAvailableMapGoals( TEAM.AXIS, 1, {
+		"BUILD_Hangar_Barrier",
+		"BUILD_Gate_Area_Barrier",
+	});
+	Util.ExcludeClass( "MOUNTMG42_.*", 1, 3); //let engy do obj's
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 3, "ESCORT_Tank" );
+
+	// Priority
+	SetGoalPriority( "ESCORT_Tank", 0.75, TEAM.ALLIES );
+
+	SetGoalPriority( "BUILD_Hangar_Barrier", 0.95, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Gate_Area_Barrier", 0.94, TEAM.AXIS, CLASS.ENGINEER );
+
+
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=60, MaxCampTime=300} );
+	SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=60, MaxCampTime=300} );
+
+/*
+	MOUNTMG42_1120 =
+	MOUNTMG42_1136 =
+	MOUNTMG42_1234 =
+	MOUNTMG42_1328 =
+	MOUNTMG42_1337 =
+	MOUNTMG42_1510 =
+	MOUNTMG42_1583 =
+	MOUNTMG42_1739 =
+	MOUNTMG42_1774 =
+*/
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Tank =
+		{
+		},
+		FLAG_docs =
+		{
+		},
+		CAPPOINT_Docs =
+		{
+		},
+		BUILD_Power_Generator =
+		{
+		},
+		PLANT_Power_Generator =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		PLANT_Cave_Door =
+		{
+		},
+		PLANT_Back_Door_Access =
+		{
+		},
+		BUILD_Hangar_Barrier =
+		{
+		},
+		PLANT_Hangar_Barrier =
+		{
+		},
+		BUILD_Gate_Area_Barrier =
+		{
+		},
+		PLANT_Gate_Area_Barrier =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

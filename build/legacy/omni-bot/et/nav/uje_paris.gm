@@ -1,0 +1,513 @@
+//==========================================================================================
+//
+//	uje_paris.gm
+//
+//	        Who       	When		   What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Niek	08 March 2018	Initial Script
+//	^1[UJE]^3Capyain	14 March 2018	Attack,Defense,Rôles,Improvement
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+	
+    Movers =
+    {
+	"MOVER_tank1",
+	"MOVER_tank2",
+    },
+    	tank1atsouth = false,
+	tank1build = false,
+	tank2atnorth = false,
+	trucksouth = true,
+	trucknorth = true,
+	planetank1 = false,
+	planetank2 = false,
+
+	Roles =
+	{
+		AXIS =
+		{
+		      AllBots = true, // each bot is considered for a role
+			ATTACKER = // Attack First Corner
+			{
+				numbots = 3,				
+			},
+			
+			ESCORT = // Escort
+			{
+				numbots = 4,
+				crucialClass = CLASS.MEDIC,				
+			},
+			
+			INFILTRATOR = // Plant CP
+			{
+				numbots = 1,
+				crucialClass = CLASS.COVERTOPS,				
+			},
+		},	
+		ALLIES =
+		{
+			AllBots = true, // default: every other bot
+			DEFENDER = // Defend First Corner
+			{
+				numbots = 3,
+				MinBotsForRole = 3,
+			},
+			
+			INFILTRATOR = // Plant CP
+			{
+				numbots = 1,
+				crucialClass = CLASS.COVERTOPS,
+				MinBotsForRole = 2,
+			},
+		},
+	},
+	North_Tank_Built = function( trigger )
+	{
+	Map.tank2build = true;
+	
+	if ( Map.tank2atnorth && Map.trucknorth )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank2" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_tank2" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_North_Tank" );
+	SetGoalRole("ESCORT_tank2", ROLE.ESCORT);
+	
+		Util.MapDebugPrint( "North_Tank_Built" );
+	},
+	
+	North_Tank_Destroyed = function( trigger )
+	{
+	Map.tank2build = false;
+	if ( !Map.planetank2 )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_North_Tank" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank2" );
+	ClearGoalRole("ESCORT_tank2", ROLE.ESCORT);
+	
+		Util.MapDebugPrint( "North_Tank_Destroyed" );
+	},
+	
+	North_Truck_Destroyed = function( trigger )
+	{
+	Map.trucknorth = false;
+	if ( Map.tank2atnorth && Map.tank2build )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_tank2" );
+	}
+	
+		Util.MapDebugPrint( "North_Truck_Destroyed" );
+	},
+	
+	South_Tank_Built = function( trigger )
+	{
+	Map.tank1build = true;
+	
+	if ( Map.tank1atsouth && Map.trucksouth )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank1" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_tank1" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_South_Tank" );
+	SetGoalRole("ESCORT_tank1", ROLE.ESCORT);
+	
+	Util.MapDebugPrint( "South_Tank_Built" );
+	},
+	
+	South_Tank_Destroyed = function( trigger )
+	{
+	Map.tank1build = false;
+	if ( !Map.planetank1 )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_South_Tank" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank1" );
+	ClearGoalRole("ESCORT_tank1", ROLE.ESCORT);
+	
+		Util.MapDebugPrint( "South_Tank_Destroyed" );
+	},
+
+	South_Truck_Destroyed = function( trigger )
+	{
+	Map.trucksouth = false;
+	if ( Map.tank1atsouth && Map.tank1build )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_tank1" );
+	}
+		Util.MapDebugPrint( "South_Truck_Destroyed" );
+	},
+	
+      South_Plane = function( trigger )
+	{
+	Map.planetank1 = true;
+	      SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_TK1_Tower.*" );
+		Util.ClearRoleForGoals( "DEFEND_TK1_Tower.*", ROLE.DEFENDER);
+		
+	      SetAvailableMapGoals( TEAM.AXIS, false, {"ATTACK_TK1_Tower.*","BUILD_South_Tank"} );
+		Util.SetRoleForTable("ESCORT_tank2.*", ROLE.ESCORT ); 
+		
+		Util.MapDebugPrint( "South_Plane" );
+	},
+	
+	North_Plane = function( trigger )
+	{
+	Map.planetank2 = true; 
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_TK2_Tower.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, {"ATTACK_TK2_Tower.*","BUILD_North_Tank"} );
+		Util.SetRoleForTable("ESCORT_tank1.*", ROLE.ESCORT );
+		
+		Util.MapDebugPrint( "North_Plane" );
+	},
+	
+	
+      tank1_at_first_corner =
+      {
+ 	Name="tank1_at_first_corner",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+ 		Util.MapDebugPrint(GetEntName(ent) + "_at_first_corner" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+	      SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_TK1_Fcorner.*" ); 
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_TK1_Scorner.*" );
+		SetGoalRole("ATTACK_TK1_Scorner.*", ROLE.ATTACKER);
+		Util.ClearRoleForGoals( "ATTACK_TK1_Fcorner.*", ROLE.ATTACKER);
+		
+	      SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_TK1_Fcorner.*" ); 
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_TK1_Scorner.*" );
+		SetGoalRole("DEFEND_TK1_Scorner.*", ROLE.DEFENDER);
+		Util.ClearRoleForGoals( "DEFEND_TK1_Fcorner.*", ROLE.DEFENDER);
+		
+ 		Util.MapDebugPrint(GetEntName(ent) + "_pass_first_corner" );
+ 	},
+},
+
+      tank1_at_second_corner =
+      {
+ 	Name="tank1_at_second_corner",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+ 		Util.MapDebugPrint(GetEntName(ent) + "_at_second_corner" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+	      SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_TK1_Scorner.*" ); 
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_South.*" );
+		SetGoalRole("ATTACK_South.*", ROLE.ATTACKER);
+		Util.ClearRoleForGoals( "ATTACK_TK1_Scorner.*", ROLE.ATTACKER);
+		
+	      SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_TK1_Scorner.*" ); 
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_South.*" );
+		SetGoalRole("DEFEND_South.*", ROLE.DEFENDER);
+		Util.ClearRoleForGoals( "DEFEND_TK1_Scorner.*", ROLE.DEFENDER);
+		
+ 		Util.MapDebugPrint(GetEntName(ent) + "_pass_second_corner" );
+ 	},
+},
+	
+	tank1_at_south_barrier =
+      {
+ 	Name="tank1_at_south_barrier",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+	Map.tank1atsouth = true;
+	if ( Map.trucksouth )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank1" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_South_Truck" );
+	}
+ 		Util.MapDebugPrint(GetEntName(ent) + "_at_south_barrier" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+	Map.tank1atsouth = false;
+	
+	      SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_South.*" ); 
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_TK1_Tower.*" );
+		SetGoalRole("ATTACK_TK1_Tower.*", ROLE.ATTACKER);
+		Util.ClearRoleForGoals( "ATTACK_South.*", ROLE.ATTACKER);
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_South.*" ); 
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_TK1_Tower.*" );
+		SetGoalRole("DEFEND_TK1_Tower.*", ROLE.DEFENDER);
+		Util.ClearRoleForGoals( "DEFEND_South.*", ROLE.DEFENDER);
+		
+ 		Util.MapDebugPrint(GetEntName(ent) + " _pass_south_barrier" );
+ 	},
+},
+
+	tank1_at_end =
+      {
+ 	Name="tank1_at_end",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+      SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank1" );
+	
+ 	      Util.MapDebugPrint(GetEntName(ent) + "_at_end" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+ 		Util.MapDebugPrint(GetEntName(ent) + "_at_end" );
+ 	},
+},
+	
+	tank2_at_first_corner =
+      {
+ 	Name="tank2_at_first_corner",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+	
+ 	      Util.MapDebugPrint(GetEntName(ent) + "_at_first_corner" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+	      SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_TK2_Fcorner.*" ); 
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_TK2_Scorner.*" );;
+		
+	      SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_TK2_Fcorner.*" ); 
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_TK2_Scorner.*" );
+		
+ 		Util.MapDebugPrint(GetEntName(ent) + "_pass_first_corner" );
+ 	},
+},
+
+	tank2_at_second_corner =
+      {
+ 	Name="tank2_at_second_corner",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+	
+ 	      Util.MapDebugPrint(GetEntName(ent) + "_at_second_corner" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_TK2_Scorner.*" ); 
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_North.*" );
+		
+	      SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_TK2_Scorner.*" ); 
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_North.*" );
+
+		
+ 		Util.MapDebugPrint(GetEntName(ent) + "_pass_second_corner" );
+ 	},
+},
+
+	tank2_at_north_barrier =
+      {
+ 	Name="tank2_at_north_barrier",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+	Map.tank2atnorth = true;
+	if ( Map.trucknorth )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank2" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_North_Truck" );
+	}
+ 	      Util.MapDebugPrint(GetEntName(ent) + "_at_north_barrier" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+	Map.tank2atnorth = false;
+	
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_TK2_Tower.*" ); 
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_North.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_North.*" ); 
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_TK2_Tower.*" );
+		
+ 		Util.MapDebugPrint(GetEntName(ent) + "_pass_north_barrier" );
+ 	},
+},	
+
+	tank2_at_end =
+      {
+ 	Name="tank2_at_end",
+ 	TriggerOnClass = { CLASS.VEHICLE_HVY, CLASS.VEHICLE },
+ 	OnEnter = function(ent)
+ 	{
+      SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_tank2" );
+	
+ 	      Util.MapDebugPrint(GetEntName(ent) + "_at_end" );
+ 	},
+ 	OnExit = function(ent)
+ 	{
+	Map.tank2atnorth = false;
+ 		Util.MapDebugPrint(GetEntName(ent) + "_at_end" );
+ 	},
+},
+	Allied_Command_Post_Built = function( trigger )
+	{
+
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"BUILD_Command_Post","PLANT_Command_Post"} );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+		
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+	
+      Axis_Command_Post_Built = function( trigger )
+	{
+      SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+      SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+
+	SetAvailableMapGoals( TEAM.AXIS, false, {"BUILD_Command_Post","PLANT_Command_Post"} );
+	
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+	
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+	
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+	
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+      SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+	
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	
+	OnTrigger( "^4The North Tank has been repaired!", Map.North_Tank_Built );
+	OnTrigger( "^4The North Tank has been damaged!", Map.North_Tank_Destroyed );
+	OnTrigger( "^4The Axis destroyed the North Barrier!", Map.North_Truck_Destroyed );
+	OnTrigger( "The plane destroyed the North Tank!", Map.North_Plane );
+	
+	OnTrigger( "^8The South Tank has been repaired!", Map.South_Tank_Built );
+      OnTrigger( "^8The South Tank has been damaged!", Map.South_Tank_Destroyed );
+	OnTrigger( "^8The Axis destroyed the South Barrier!", Map.South_Truck_Destroyed );
+	OnTrigger( "The plane destroyed the South Tank!", Map.South_Plane );
+
+	OnTrigger( "^4Allied Command Post constructed", Map.Allied_Command_Post_Built );
+	OnTrigger( "^1Axis team has destroyed the Allied Command Post", Map.Allied_Command_Post_Destroyed );
+
+	OnTrigger( "^4Axis Command Post constructed", Map.Axis_Command_Post_Built );
+	OnTrigger( "^4Allied team has destroyed the Axis Command Post", Map.Axis_Command_Post_Destroyed );
+	
+	//Tank TriggerRegion
+	tank1_at_first_corner = OnTriggerRegion(AABB(-1990.889,-3438.944,1.125,-1928.133,-2966.306,75.147), Map.tank1_at_first_corner);
+	tank1_at_second_corner = OnTriggerRegion(AABB(-1543.271,-1368.011,1.125,-1487.747,-1038.882,75.129), Map.tank1_at_second_corner);
+	tank1_at_south_barrier = OnTriggerRegion(AABB(-873.095,-1422.819,1.126,-827.204,-1023.969,87.705), Map.tank1_at_south_barrier);
+	tank1_at_end = OnTriggerRegion(AABB(1802.966,-240.187,1.125,1857.688,16.665,75.129),  Map.tank1_at_end);
+	tank2_at_first_corner = OnTriggerRegion(AABB(-2040.349,2820.197,1.125,-1969.393,3291.933,75.128), Map.tank2_at_first_corner);
+	tank2_at_second_corner = OnTriggerRegion(AABB(-1544.184,1029.239,1.126,-1488.234,1417.508,75.131), Map.tank2_at_second_corner);
+	tank2_at_north_barrier = OnTriggerRegion(AABB(-794.647,1050.244,1.125,-749.622,1393.364,75.154), Map.tank2_at_north_barrier);
+	tank2_at_end = OnTriggerRegion(AABB(1787.196,52.985,1.282,1852.181,232.799,75.282), Map.tank2_at_end);
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	//activation ALLIES
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+	"BUILD_Command_Post",
+	"DEFEND_TK1_Fcorner.*",
+	"DEFEND_TK2_Fcorner.*",
+	".*CAB.*",
+	});
+	
+	//activation AXIS
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+	"BUILD_Command_Post",
+	"ATTACK_TK1_Fcorner.*",
+	"ATTACK_TK2_Fcorner.*",
+	".*CAB.*",
+
+	});
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "PLANT.*" );
+	Util.SetMaxUsers( 1, "ESCORT.*" );
+	Util.SetMaxUsers( 1, "BUILD.*" );
+	Util.SetMaxUsers( 1, "ATTACK.*" );
+	Util.SetMaxUsers( 1, "DEFEND.*" );
+
+	// Camp times
+	//SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+	SetMapGoalProperties( "ATTACK.*", {MinCampTime=40, MaxCampTime=80} );
+	SetMapGoalProperties( "DEFEND.*", {MinCampTime=40, MaxCampTime=80} );
+	
+	//Priorities
+	SetGoalPriority( "BUILD_North_Tank", 0.91 );
+	SetGoalPriority( "BUILD_south_Tank", 0.91 );
+	SetGoalPriority( "BUILD_Command_Post", 0.82 );
+	SetGoalPriority( "PLANT_Command_Post", 0.82 );
+	SetGoalPriority( "PLANT_North_Truck", 0.91, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_South_Truck", 0.91, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "ESCORT.*", 0.85 );
+	
+      // *** ROLES ***
+	SetGoalRole("ATTACK_TK1_Fcorner.*", ROLE.ATTACKER); 
+	SetGoalRole( "PLANT_Command_Post" , ROLE.INFILTRATOR);
+	SetGoalRole("DEFEND_TK1_Fcorner.*", ROLE.DEFENDER);
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_South_Tank =
+		{
+		},
+		PLANT_South_Truck =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		BUILD_North_Tank =
+		{
+		},
+		PLANT_North_Truck =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

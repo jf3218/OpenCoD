@@ -1,0 +1,299 @@
+//==========================================================================================
+//
+//	urbanterritory44.gm
+//
+//	Who    	When		What
+//------------------------------------------------------------------------------------------
+//	^8'^0Stoer	11 June 2016	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+	
+	DefendingTeam = TEAM.ALLIES,
+	
+	Flag_maps	= "Flag_maps",
+	
+	SafePlanted	= 0,
+	GarageDoorStatus = 0, //closed
+	MapStatus = 0, //home
+	
+
+	//Plant Safe
+	
+	Safe_planted = function ( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Tresor.*");
+		SetAvailableMapGoals( TEAM.AXIS,true, "ATTACK_safe.*");
+		SetAvailableMapGoals( TEAM.ALLIES,true, "DEFEND_safe.*");
+		SetAvailableMapGoals( TEAM.ALLIES,true, "ROUTE_saferoom");
+		
+		Util.MapDebugPrint( "Safe_planted" );
+		
+	},
+	
+	Safe_defused = function ( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Tresor.*");
+		SetAvailableMapGoals( TEAM.AXIS,true, "ATTACK_safe.*");
+		SetAvailableMapGoals( TEAM.ALLIES,true, "DEFEND_safe.*");
+		
+		Util.MapDebugPrint( "Safe_Defused" );
+		
+	},	
+	
+	// Safe Destroyed
+	
+	Safe_Destroyed = function ( trigger )
+	{
+		SetAvailableMapGoals (TEAM.AXIS , true , "FLAG_maps");
+		
+		if (Map.MapStatus == 1 && Map.GarageDoorStatus == 0)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_garagedoor");
+		}
+		
+		
+		if (Map.MapStatus == 0)
+		{
+			SetAvailableMapGoals(TEAM.ALLIES, true , "DEFEND_safe.*");
+		}
+		
+		
+		SetAvailableMapGoals(TEAM.AXIS, true, Map.Flag_maps);
+		SetAvailableMapGoals(TEAM.ALLIES, true, "DEFEND_safe*.");
+		SetAvailableMapGoals(TEAM.ALLIES, true , "DEFEND_truck.*");
+		
+		Map.DontDispenseAmmo = false;
+		Util.MapDebugPrint( "Safe_Destroyed" );
+	},
+	
+
+	maps_Taken = function( trigger )
+	{
+
+		Map.MapStatus = 1;
+				
+		if (Map.GarageDoorStatus == 0)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false , "SWITCH_garagedoor");
+			SetAvailableMapGoals( TEAM.AXIS, true , "SWITCH_garagedoor");			
+		}
+		
+		else 
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true , "SWITCH_garagedoor");
+			SetAvailableMapGoals( TEAM.AXIS, false , "SWITCH_garagedoor");
+		}
+		
+			SetAvailableMapGoals( TEAM.AXIS, true , "ATTACK_truck.*");
+			SetAvailableMapGoals( TEAM.ALLIES, true , "DEFEND_truck.*");		
+		
+		
+		Util.MapDebugPrint( "maps_Taken" );
+	},
+
+	maps_Returned = function( trigger )
+	{
+		Map.MapStatus = 0;
+		
+		if (Map.maps_Returned == 1)
+		{
+		
+		SetAvailableMapGoals(TEAM.AXIS, true, Map.Flag_maps);
+		SetAvailableMapGoals( TEAM.ALLIES, false , "DEFEND_truck.*");
+		SetAvailableMapGoals(TEAM.ALLIES, true , "DEFEND_safe.*");
+		SetAvailableMapGoals(TEAM.AXIS, true , "ATTACK_safe.*");
+		}
+		
+		Util.MapDebugPrint( "maps_Returned" );
+	},
+	
+	
+	Garage_Door_Open = function (trigger)
+	{
+		Map.GarageDoorStatus = 1;
+
+		if ( Map.MapStatus == 1)
+		{
+			SetAvailableMapGoals(TEAM.ALLIES, true , "SWITCH_garagedoor");
+			SetAvailableMapGoals(TEAM.AXIS, false, "SWITCH_garagedoor");
+			SetAvailableMapGoals(TEAM.AXIS, true, "DEFEND_wait4truck");
+		}
+		
+		Util.MapDebugPrint("Garage_Door_Open", true);
+	},
+	
+	Garage_Door_Closed = function (trigger)
+	{
+		Map.GarageDoorStatus = 0;
+
+		if ( Map.MapStatus == 1)
+		{
+			SetAvailableMapGoals(TEAM.AXIS, true, "SWITCH_garagedoor");
+			SetAvailableMapGoals(TEAM.ALLIES, false , "SWITCH_garagedoor");
+		}
+		
+		Util.MapDebugPrint("Garage_Door_Closed", true);
+	},
+	
+	Ladder_Built = function( trigger )
+	{
+		SetAvailableMapGoals(TEAM.AXIS, true, "GRENADE_windowfence");
+		Util.MapDebugPrint( "Ladder_Built" );
+	},
+
+	defence_bars_Built = function( trigger )
+	{
+		Util.MapDebugPrint( "defence_bars_Built" );
+	},
+
+	Ladder_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Ladder_Destroyed" );
+	},
+
+	defence_bars_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "defence_bars_Destroyed" );
+	},	
+	
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "The Axis have built the Ladder!", Map.Ladder_Built );
+	OnTrigger( "The Allies have built the defence bars!", Map.defence_bars_Built );
+	OnTrigger( "The Allies have destroyed the Ladder!", Map.Ladder_Destroyed );
+	OnTrigger( "The Axis have destroyed the defence bars!", Map.defence_bars_Destroyed );
+	OnTrigger( "Planted at the Save!", Map.Safe_planted );
+	OnTrigger( "Defused at the Save!", Map.Safe_defused );
+	OnTrigger( "The Axis have destroyed the Safe!", Map.Safe_Destroyed );
+	OnTrigger( "Axis have stolen The Combat Maps!", Map.maps_Taken );
+	OnTrigger( "Allies have returned the Combat Maps!", Map.maps_Returned );
+	OnTrigger( "The Axis have opened the Garage!", Map.Garage_Door_Open );
+	OnTrigger( "The Allies have closed the Garage!", Map.Garage_Door_Closed );
+
+	
+	
+	Util.DisableGoal(".*", true); // all but routes
+    Util.EnableGoal("CAPPOINT.*");
+	Util.EnableGoal("HEALTHCAB_.*");
+	Util.EnableGoal("AMMOCAB_.*");
+
+	ETUtil.SetPrimaryGoals(1.0);
+
+	
+	Util.SetMaxUsers( 5, "ATTACK.*" );
+	Util.SetMaxUsers( 5, "DEFEND.*" );
+	Util.SetMaxUsers( 1, "SWITCH_.*" );
+	Util.SetMaxUsers( 1, "TRIPMINE_l.*" );
+	
+	SetMapGoalProperties( "ATTACK_.*", {MinCampTime=15, MaxCampTime=30});
+	SetMapGoalProperties( "DEFEND_.*", {MinCampTime=15, MaxCampTime=30});
+
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+			"PLANT_Tresor",
+			"BUILD_ladder",
+			"ATTACK_safe.*",
+			"Flag_maps",
+			"DEFEND_wait4truck",
+			"CAPPOINT_van",
+			/*"ATTACK_truck.*"*/
+		});
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"DEFEND_safe.*",
+			"BUILD_defence_bars",
+			//"DEFEND_truck.*",
+		});	
+		
+	MapRoutes =
+	{
+		FLAG_maps = 
+		{
+			ROUTE_AxisSpawn = 
+			{
+				ROUTE_axisspawnright =
+				{	
+					ROUTE_hatch = {},
+					ROUTE_ladder = {},
+					ROUTE_rightdoor = {},
+					ROUTE_saferoom = { Weight = 3,},
+				},
+				ROUTE_axisspawnleft =
+				{
+					ROUTE_axiswayright = {},
+					ROUTE_leftdoor = {},
+					ROUTE_escape = {},
+					ROUTE_leftdoor = {},
+					ROUTE_garage = { Weight = 3,},
+				},
+				
+			},
+			ROUTE_AlliesSpawn =
+			{
+				ROUTE_alliesspawnleft =
+				{
+					ROUTE_alliesroof = {},
+					ROUTE_rightdoor = {},
+					ROUTE_saferoom = { Weight = 3,},
+				},
+				ROUTE_alliesspawnright =
+				{
+					ROUTE_alliesroof = {},
+					ROUTE_leftdoor = {},
+					ROUTE_saferoom = { Weight = 3,},
+				},
+			},
+		},		
+		DEFEND_maps =
+		{
+		},
+		BUILD_Ladder =
+		{
+		},
+		PLANT_Ladder =
+		{
+		},
+		BUILD_defence_bars =
+		{
+		},
+		PLANT_defence_bars =
+		{
+		},
+	};
+	
+	MapRoutes.ATTACK_safe1 = MapRoutes.ATTACK_safe1;
+	MapRoutes.ATTACK_truck1 = MapRoutes.ATTACK_truck1;
+	MapRoutes.ATTACK_truck2 = MapRoutes.ATTACK_truck2;
+	MapRoutes.ATTACK_truck3 = MapRoutes.ATTACK_truck3;
+	MapRoutes.ATTACK_truck4 = MapRoutes.ATTACK_truck3;
+	MapRoutes.DEFEND_safe1 = MapRoutes.DEFEND_safe1;
+	MapRoutes.DEFEND_safe2 = MapRoutes.DEFEND_safe2;
+	MapRoutes.DEFEND_safe3 = MapRoutes.DEFEND_safe3;
+	MapRoutes.DEFEND_safe4 = MapRoutes.DEFEND_safe4;
+	MapRoutes.DEFEND_safe5 = MapRoutes.DEFEND_safe5;
+	MapRoutes.DEFEND_safe6 = MapRoutes.DEFEND_safe6;
+	MapRoutes.DEFEND_waitdes1 = MapRoutes.DEFEND_waitdes1;
+	MapRoutes.DEFEND_waitdes2 = MapRoutes.DEFEND_waitdes2;
+	
+	Util.Routes(MapRoutes);
+
+	Util.MapDebugPrint( "OnMapLoad" );
+};
+
+global OnBotJoin = function( bot )
+{
+
+	bot.TargetBreakableDist = 200.0;
+
+};
+
+

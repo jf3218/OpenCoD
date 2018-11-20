@@ -1,0 +1,41 @@
+this.Name = "Knife";
+this.WeaponId = WEAPON.KNIFE;
+
+this.PrimaryFire.WeaponType = "melee";
+this.PrimaryFire.RequiresAmmo = false;
+this.PrimaryFire.WaterProof = true;
+
+//DefaultDesirability must be greater than zero, so that bot can switch to knife after wasting all ammo
+this.PrimaryFire.DefaultDesirability = 0.01;
+this.PrimaryFire.SetDesirabilityRange(0, 48, 0.2);
+this.PrimaryFire.SetDesirabilityRange(48, 130, 0.02);
+
+if (GetModName() != "infected") //this condition is needed for goal Hunt
+{
+	// GetTarget returns null and HasTarget returns false if desirability is 0
+	this.PrimaryFire.SetDesirabilityRange(400, 100000, 0.0);
+}
+
+//bias must be big enough in order to use knife at close range instead of colt or luger
+this.PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 5.0);
+
+/////////////////////////////////////////////////////////////////
+
+if (GetCvar("g_throwableknives") && GetModName() != "silEnT") //etpub, infected, ETnam, ETBlight
+{
+	// BTN.THROW_KNIFE is "fake" button, because alternative fire does not work
+	// knives can be thrown only by g_EngineFuncs->BotCommand(GetGameID(), "throwknife")
+	this.SecondaryFire.ShootButton = BTN.THROW_KNIFE;
+
+	this.SecondaryFire.WeaponType = "projectile";
+	this.SecondaryFire.ProjectileSpeed = 900;
+	this.SecondaryFire.ProjectileGravity = 1.0;
+	this.SecondaryFire.RequiresAmmo = true;
+	this.SecondaryFire.DelayAfterFiring = 2;
+	this.SecondaryFire.WaterProof = true;
+
+	this.SecondaryFire.SetTargetBias(CLASS.VEHICLE_HVY, 0);
+
+	//desirability must be greater than PrimaryFire desirability
+	this.SecondaryFire.SetDesirabilityRange(100, 450, 0.25);
+}

@@ -1,0 +1,340 @@
+//==========================================================================================
+//
+//	cathedral_te.gm
+//
+//	Who          	When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Captain	27 May 2015	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+	ShowMovers = false,
+
+	Command_Post_Dyno = 0,
+	Main_Door_Dyno = 0,
+	Side_Door_Dyno = 0,
+    radarsStolen = 0,
+	eastRadarIsSecured = false,
+	westRadarIsSecured = false,
+	DefendingTeam = TEAM.AXIS,
+	
+	Command_Post_Built = function( trigger )
+	{
+        Util.ChangeSpawn( TEAM.ALLIES, 3, 4 );
+		Util.MapDebugPrint( "Command_Post_Built" );
+	},
+
+	Command_Post_Planted = function( trigger )
+	{
+
+		Map.Command_Post_Dyno += 1;
+		Util.MapDebugPrint( "Command_Post_Planted" );
+	},
+
+	Main_Door_Planted = function( trigger )
+	{
+
+		Map.Main_Door_Dyno += 1;
+		Util.MapDebugPrint( "Main_Door_Planted" );
+	},
+
+	Side_Door_Planted = function( trigger )
+	{
+
+		Map.Side_Door_Dyno += 1;
+		Util.MapDebugPrint( "Side_Door_Planted" );
+	},
+
+	Command_Post_Defused = function( trigger )
+	{
+
+		Map.Command_Post_Dyno -= 1;
+		Util.MapDebugPrint( "Command_Post_Defused" );
+	},
+
+	Main_Door_Defused = function( trigger )
+	{
+
+		Map.Main_Door_Dyno -= 1;
+		Util.MapDebugPrint( "Main_Door_Defused" );
+	},
+
+	Side_Door_Defused = function( trigger )
+	{
+
+		Map.Side_Door_Dyno -= 1;
+		Util.MapDebugPrint( "Side_Door_Defused" );
+	},
+
+	Command_Post_Destroyed = function( trigger )
+	{
+
+		Map.Command_Post_Dyno = 0;
+
+		Util.MapDebugPrint( "Command_Post_Destroyed" );
+	},
+
+	Main_Door_Destroyed = function( trigger )
+	{
+
+		Map.Main_Door_Dyno = 0;
+        SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allied_maindoor_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_.*" );
+				
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"PLANTMINE_Gazebo_.*",
+			"DEFEND_Axis_maindoor_.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+		        "PLANTMINE_Sidedoor_.*",
+				"PLANTMINE_West_.*",
+				"PLANTMINE_Cappoint_.*",
+				"DEFEND_West_radar_.*",
+				"DEFEND_East_radar_.*",
+				"MOBILEMG42_West_radar.*",
+			});
+		Util.MapDebugPrint( "Main_Door_Destroyed" );
+	},
+
+	Side_Door_Destroyed = function( trigger )
+	{
+
+		Map.Side_Door_Dyno = 0;
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"PLANTMINE_Gazebo_.*",
+			"DEFEND_Axis_maindoor_.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+		        "PLANTMINE_Sidedoor_.*",
+				"PLANTMINE_West_.*",
+				"PLANTMINE_Cappoint_.*",
+				"DEFEND_West_radar_.*",
+				"DEFEND_East_radar_.*",
+				"MOBILEMG42_West_radar.*",
+			});
+		Util.MapDebugPrint( "Side_Door_Destroyed" );
+	},
+
+	radarbox1_Taken = function( trigger )
+	{
+		Map.radarsStolen += 1;
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_West_radar_.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Cappoint_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_.*" );
+		Util.MapDebugPrint( "radarbox1_Taken" );
+	},
+
+	radarbox1_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"DEFEND_West_radar_.*",
+		});
+		Map.radarsStolen -= 1;
+		if ( Map.radarsStolen < 1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Cappoint_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_.*" );
+		}
+		Util.MapDebugPrint( "radarbox1_Returned" );
+	},
+
+	radarbox1_Secured = function( trigger )
+	{
+		Map.westRadarIsSecured = true;
+		Map.radarsStolen -= 1;
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANTMINE_West_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_West_radar_.*" );
+		Util.SetMaxUsers( 3, "FLAG_radarbox2" );
+		if ( Map.radarsStolen < 1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Cappoint_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Gold.*" );
+		}
+		Util.MapDebugPrint( "radarbox1_Secured" );
+	},
+
+	radarbox2_Taken = function( trigger )
+	{
+		Map.radarsStolen += 1;
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_East_radar_.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Cappoint_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_.*" );
+		Util.MapDebugPrint( "radarbox2_Taken" );
+	},
+
+	radarbox2_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"DEFEND_East_radar_.*",
+		});
+		Map.radarsStolen -= 1;
+		if ( Map.radarsStolen < 1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Cappoint.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_.*" );
+		}
+		Util.MapDebugPrint( "radarbox2_Returned" );
+	},
+
+	radarbox2_Secured = function( trigger )
+	{
+		Map.eastRadarIsSecured = true;
+		Map.radarsStolen -= 1;
+		if ( Map.radarsStolen < 1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Cappoint_.*" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_East_radar_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Gold.*" );
+		}
+		Util.MapDebugPrint( "radarbox2_Secured" );
+	},
+
+
+	oldcityflag_Axis_Captured = function( trigger )
+	{
+        SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT.*" );
+		Util.MapDebugPrint( "oldcityflag_Axis_Captured" );
+	},
+
+	oldcityflag_Allies_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT.*" );
+        SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT.*" );
+		Util.MapDebugPrint( "oldcityflag_Allies_Captured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Command_Post_Destroyed );
+	OnTrigger( "Allies have breached the Main Gate", Map.Main_Door_Destroyed );
+	OnTrigger( "Planted at Side Door.", Map.Side_Door_Planted );
+	OnTrigger( "Allies have blown open the Side Door!", Map.Side_Door_Destroyed );
+	OnTrigger( "Allies have stolen West Radar Parts!", Map.radarbox1_Taken );
+	OnTrigger( "Flag returned radarbox1!", Map.radarbox1_Returned );
+	OnTrigger( "Allies have secured the West Radar Parts!", Map.radarbox1_Secured );
+	OnTrigger( "Allies have stolen East Radar Parts!", Map.radarbox2_Taken );
+	OnTrigger( "Flag returned radarbox2!", Map.radarbox2_Returned );
+	OnTrigger( "Allies have secured the East Radar Parts!", Map.radarbox2_Secured );
+	OnTrigger( "Axis reclaim the Cathedral!", Map.oldcityflag_Axis_Captured );
+	OnTrigger( "Allies capture the Cathedral!", Map.oldcityflag_Allies_Captured );
+
+	SetAvailableMapGoals( TEAM.ALLIES, false, {
+		"PLANTMINE_.*",
+		"DEFEND_.*",
+		"ATTACK_.*",
+		"CAPPOINT_.*",
+		"FLAG_.*",
+	});
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allied_maindoor.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, {
+		"ATTACK_.*",
+		"DEFEND_.*",
+		"PLANTMINE_.*",
+		"CAPPOINT_.*",
+		"MOBILEMG42_West_radar.*",
+		
+	});
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		"PLANTMINE_Gazebo_.*",
+		"DEFEND_Axis_maindoor.*",
+	});
+
+	//~Util.DisableGoal( ".*", true ); // all but routes
+	//~SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_.*" );
+	//~SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_.*" );
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "BUILD_.*" );
+	Util.SetMaxUsers( 1, "PLANT_.*" );
+	Util.SetMaxUsers( 1, "CHECKPOINT.*" );
+	Util.SetMaxUsers( 3, "FLAG_radarbox1" );
+	Util.SetMaxUsers( 2, "FLAG_radarbox2" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "MOBILEMG42_.*" );
+	Util.SetMaxUsers( 1, "AIRSTRIKE_.*" );
+	Util.SetMaxUsers( 1, "CALLARTILLERY_.*" );
+
+	// Camp times
+	//SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+	//SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=10, MaxCampTime=60} );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 150.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+	// Routing
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		PLANT_Main_Door =
+		{
+		},
+		PLANT_Side_Door =
+		{
+		},
+		FLAG_radarbox2 =
+		{
+		},
+		FLAG_radarbox1 =
+		{
+		},
+		CHECKPOINT_oldcityflag =
+		{
+			ROUTE_allied_spawn_1 =
+			{
+				ROUTE_allied_cave = 
+				{
+				ROUTE_exit_garden_east_1 = {},
+				ROUTE_exit_garden_east_2 = {},
+				ROUTE_exit_garden_south = {}
+		},
+		    ROUTE_exit_south =
+		    {
+		        ROUTE_exit_garden_east_1 = {},
+			    ROUTE_exit_garden_east_2 = {},
+			    ROUTE_exit_garden_south = {}
+		},
+		    ROUTE_exit_east =
+          {
+		        ROUTE_exit_nave_east = {},
+		        ROUTE_exit_gazebo_1 = {},
+		        ROUTE_exit_gazebo_2 = {},
+		        ROUTE_exit_nave_south = {},
+		        ROUTE_exit_gazebo = {}
+
+				}
+			}
+		}
+	};
+	Util.Routes(MapRoutes);
+};

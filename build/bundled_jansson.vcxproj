@@ -1,0 +1,828 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{88219942-6F38-3B0D-BAE8-8541B81A5C05}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>bundled_jansson</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-mkdir.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Creating directories for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/tmp
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-mkdir.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Creating directories for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/tmp
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-mkdir.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Creating directories for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/tmp
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-mkdir.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Creating directories for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/tmp
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/bundled_jansson-prefix/src
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-mkdir.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-download.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">No download step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-download.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">No download step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-download.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">No download step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-download.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">No download step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-download.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-update.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">No update step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-update
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-update.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">No update step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-update
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-update.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">No update step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-update
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-update.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">No update step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-update
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-update.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-patch.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">No patch step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-patch.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">No patch step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-patch.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">No patch step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-patch.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">No patch step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-patch.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-configure.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Performing configure step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Release "-DCMAKE_CXX_FLAGS=/DWIN32 /D_WINDOWS /W3 /GR /EHsc" "-DCMAKE_CXX_FLAGS_DEBUG=/MTd /Zi /Ob0 /Od /RTC1 /DLEGACY_DEBUG=1 /EHa /W3" "-DCMAKE_CXX_FLAGS_RELEASE=/MT /O2 /Ob2 /DNDEBUG /EHsc /O2" "-DCMAKE_C_FLAGS=/DWIN32 /D_WINDOWS /W3" -DCMAKE_OSX_DEPLOYMENT_TARGET=\"10.7\" -DJANSSON_WITHOUT_TESTS=1 -DBUILD_DOCS=0 -DJANSSON_STATIC_CRT=1 -DJANSSON_BUILD_DOCS=0 "-GVisual Studio 15 2017" "-DCMAKE_GENERATOR_INSTANCE:INTERNAL=C:/Program Files (x86)/Microsoft Visual Studio/2017/Community" D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-configure.rule;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Performing configure step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Release "-DCMAKE_CXX_FLAGS=/DWIN32 /D_WINDOWS /W3 /GR /EHsc" "-DCMAKE_CXX_FLAGS_DEBUG=/MTd /Zi /Ob0 /Od /RTC1 /DLEGACY_DEBUG=1 /EHa /W3" "-DCMAKE_CXX_FLAGS_RELEASE=/MT /O2 /Ob2 /DNDEBUG /EHsc /O2" "-DCMAKE_C_FLAGS=/DWIN32 /D_WINDOWS /W3" -DCMAKE_OSX_DEPLOYMENT_TARGET=\"10.7\" -DJANSSON_WITHOUT_TESTS=1 -DBUILD_DOCS=0 -DJANSSON_STATIC_CRT=1 -DJANSSON_BUILD_DOCS=0 "-GVisual Studio 15 2017" "-DCMAKE_GENERATOR_INSTANCE:INTERNAL=C:/Program Files (x86)/Microsoft Visual Studio/2017/Community" D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-configure.rule;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Performing configure step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Release "-DCMAKE_CXX_FLAGS=/DWIN32 /D_WINDOWS /W3 /GR /EHsc" "-DCMAKE_CXX_FLAGS_DEBUG=/MTd /Zi /Ob0 /Od /RTC1 /DLEGACY_DEBUG=1 /EHa /W3" "-DCMAKE_CXX_FLAGS_RELEASE=/MT /O2 /Ob2 /DNDEBUG /EHsc /O2" "-DCMAKE_C_FLAGS=/DWIN32 /D_WINDOWS /W3" -DCMAKE_OSX_DEPLOYMENT_TARGET=\"10.7\" -DJANSSON_WITHOUT_TESTS=1 -DBUILD_DOCS=0 -DJANSSON_STATIC_CRT=1 -DJANSSON_BUILD_DOCS=0 "-GVisual Studio 15 2017" "-DCMAKE_GENERATOR_INSTANCE:INTERNAL=C:/Program Files (x86)/Microsoft Visual Studio/2017/Community" D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-configure.rule;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Performing configure step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Release "-DCMAKE_CXX_FLAGS=/DWIN32 /D_WINDOWS /W3 /GR /EHsc" "-DCMAKE_CXX_FLAGS_DEBUG=/MTd /Zi /Ob0 /Od /RTC1 /DLEGACY_DEBUG=1 /EHa /W3" "-DCMAKE_CXX_FLAGS_RELEASE=/MT /O2 /Ob2 /DNDEBUG /EHsc /O2" "-DCMAKE_C_FLAGS=/DWIN32 /D_WINDOWS /W3" -DCMAKE_OSX_DEPLOYMENT_TARGET=\"10.7\" -DJANSSON_WITHOUT_TESTS=1 -DBUILD_DOCS=0 -DJANSSON_STATIC_CRT=1 -DJANSSON_BUILD_DOCS=0 "-GVisual Studio 15 2017" "-DCMAKE_GENERATOR_INSTANCE:INTERNAL=C:/Program Files (x86)/Microsoft Visual Studio/2017/Community" D:/etlegacy_2/libs/jansson
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-configure.rule;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-build.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Performing build step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe --build . --config Debug
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-build.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Performing build step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe --build . --config Release
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-build.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Performing build step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe --build . --config MinSizeRel
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-build.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Performing build step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe --build . --config RelWithDebInfo
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-build.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\817bf49301b9a2c9d89f3900d76ef927\bundled_jansson-install.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">No install step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-install.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">No install step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-install.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">No install step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-install.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">No install step for 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+cd D:\etlegacy_2\build\libs\jansson
+if %errorlevel% neq 0 goto :cmEnd
+D:
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/817bf49301b9a2c9d89f3900d76ef927/bundled_jansson-install.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\4b841112c1d9922bd0c3b2960794d553\bundled_jansson-complete.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Completed 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/CMakeFiles/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/CMakeFiles/$(Configuration)/bundled_jansson-complete
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/4b841112c1d9922bd0c3b2960794d553/bundled_jansson-complete.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Completed 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/CMakeFiles/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/CMakeFiles/$(Configuration)/bundled_jansson-complete
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/4b841112c1d9922bd0c3b2960794d553/bundled_jansson-complete.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Completed 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/CMakeFiles/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/CMakeFiles/$(Configuration)/bundled_jansson-complete
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/4b841112c1d9922bd0c3b2960794d553/bundled_jansson-complete.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Completed 'bundled_jansson'</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -E make_directory D:/etlegacy_2/build/CMakeFiles/$(Configuration)
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/CMakeFiles/$(Configuration)/bundled_jansson-complete
+if %errorlevel% neq 0 goto :cmEnd
+C:\DATA\cmake\bin\cmake.exe -E touch D:/etlegacy_2/build/bundled_jansson-prefix/src/bundled_jansson-stamp/$(Configuration)/bundled_jansson-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/4b841112c1d9922bd0c3b2960794d553/bundled_jansson-complete.rule;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-mkdir;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-download;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-update;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-patch;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-configure;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-build;D:\etlegacy_2\build\bundled_jansson-prefix\src\bundled_jansson-stamp\$(Configuration)\bundled_jansson-install;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\build\CMakeFiles\b3842dd204fafe161f0effdb1624ccba\bundled_jansson.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"></Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/build/CMakeFiles/b3842dd204fafe161f0effdb1624ccba/bundled_jansson.rule;D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\CMakeFiles\bundled_jansson</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"></Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/build/CMakeFiles/b3842dd204fafe161f0effdb1624ccba/bundled_jansson.rule;D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\CMakeFiles\bundled_jansson</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'"></Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/build/CMakeFiles/b3842dd204fafe161f0effdb1624ccba/bundled_jansson.rule;D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\CMakeFiles\bundled_jansson</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'"></Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/build/CMakeFiles/b3842dd204fafe161f0effdb1624ccba/bundled_jansson.rule;D:\etlegacy_2\build\CMakeFiles\$(Configuration)\bundled_jansson-complete;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\CMakeFiles\bundled_jansson</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\etlegacy_2\build\CMakeFiles\bundled_jansson" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\etlegacy_2\build\ZERO_CHECK.vcxproj">
+      <Project>{E4AF90D6-A4A7-3753-9581-23F2F000C375}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

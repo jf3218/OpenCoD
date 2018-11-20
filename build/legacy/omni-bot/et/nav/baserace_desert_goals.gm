@@ -1,0 +1,953 @@
+global _MG = 
+{
+	BUILD_Gate_Rocketgun = 
+	{
+		Position = Vec3(-324.000, -2092.000, 404.000),
+		TagName = "Gate Rocketgun",
+		Stance = "crouch",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+	},
+	MOUNTMG42_asstower_axis_supermg = 
+	{
+		Position = Vec3(1208.000, -2376.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	DEFEND_r_cover_door = 
+	{
+		Position = Vec3(-1162.125, 2442.329, -135.875),
+		GoalType = "Defend",
+		Radius = 35,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.425, -0.844, 0.327),
+		},
+	},
+	ROUTE_e_upper = 
+	{
+		Position = Vec3(1638.036, -349.761, 0.125),
+		TagName = "e_upper",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	EXPLODEGate_Rocketgun_1 = 
+	{
+		Position = Vec3(571.000, 2585.995, 418.000),
+		TagName = "Gate Rocketgun",
+		TeamAvailability = 2,
+		GoalType = "Explode",
+	},
+	PLANT_Axis_Underbase_Wall = 
+	{
+		Position = Vec3(-548.000, -1920.000, -76.000),
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		TagName = "Axis Underbase Wall",
+		ExplosiveType = 1,
+	},
+	REPAIRMG42_gate_allied_mg = 
+	{
+		Position = Vec3(176.000, 2576.000, 356.000),
+		TagName = "gate_allied_mg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	ROUTE_r_e_underbase = 
+	{
+		Position = Vec3(1478.747, -2341.693, -219.875),
+		TagName = "r_e_underbase",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	ROUTE_nw_upper = 
+	{
+		Position = Vec3(-1289.683, 1975.138, 0.125),
+		TagName = "nw_upper",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	DEFEND_r_cover_wall = 
+	{
+		Position = Vec3(533.144, 2466.219, -143.875),
+		GoalType = "Defend",
+		Radius = 35,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.268, -0.961, 0.066),
+		},
+	},
+	REPAIRMG42_asstower_allied_ubermg_1 = 
+	{
+		Position = Vec3(-968.000, 2888.000, 500.000),
+		TagName = "asstower_allied_ubermg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	CAPPOINT_red_pad_leftwall = 
+	{
+		Position = Vec3(-1340.515, -2759.231, 5.125),
+		TagName = "red_pad_leftwall",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	CAPPOINT_blue_pad_rightwall = 
+	{
+		Position = Vec3(-1105.130, 3625.949, 5.125),
+		TagName = "blue_pad_rightwall",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	CAMP_bDefense5 = 
+	{
+		Position = Vec3(-170.603, 2770.125, -0.801),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.980, 0.201, 0.007),
+			[1] = Vec3(-0.972, -0.235, -0.003),
+		},
+	},
+	CAMP_bDefense4 = 
+	{
+		Position = Vec3(-1172.117, 4395.302, -0.801),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.025, -1.000, 0.005),
+			[1] = Vec3(0.408, -0.913, 0.002),
+			[2] = Vec3(0.645, -0.764, 0.000),
+		},
+	},
+	ROUTE_e_uppermid = 
+	{
+		Position = Vec3(296.810, 416.117, 0.125),
+		TagName = "e_uppermid",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	CAMP_bDefense3 = 
+	{
+		Position = Vec3(-18.388, 3689.349, -0.875),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.284, -0.959, 0.006),
+			[1] = Vec3(0.196, -0.981, -0.006),
+			[2] = Vec3(0.775, -0.632, -0.000),
+		},
+	},
+	EXPLODETower_Rocketgun_1 = 
+	{
+		Position = Vec3(-877.001, 2897.995, 398.000),
+		TagName = "Tower Rocketgun",
+		TeamAvailability = 2,
+		GoalType = "Explode",
+	},
+	CAMP_bDefense2 = 
+	{
+		Position = Vec3(747.063, 3673.970, -0.842),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.145, -0.989, 0.009),
+			[1] = Vec3(-0.481, -0.877, -0.007),
+			[2] = Vec3(-0.870, -0.493, 0.004),
+		},
+	},
+	MOUNTMG42_asstower_axis_ubermg_1 = 
+	{
+		Position = Vec3(1208.000, -2376.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+		TagName = "asstower_axis_ubermg",
+	},
+	CAMP_bDefense1 = 
+	{
+		Position = Vec3(1349.128, 3907.595, 63.199),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.041, -0.999, -0.033),
+			[1] = Vec3(-0.713, -0.701, -0.017),
+		},
+	},
+	CAMP_rDefense5 = 
+	{
+		Position = Vec3(254.794, -3134.250, -0.801),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.106, 0.994, 0.014),
+			[1] = Vec3(-0.800, 0.600, -0.000),
+			[2] = Vec3(0.659, 0.752, -0.015),
+		},
+	},
+	ROUTE_ne_trench = 
+	{
+		Position = Vec3(1431.212, 1330.585, -103.875),
+		TagName = "ne_trench",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	CAMP_rDefense4 = 
+	{
+		Position = Vec3(1373.203, -3885.875, -0.801),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.613, 0.790, 0.008),
+			[1] = Vec3(-0.099, 0.995, -0.009),
+			[2] = Vec3(0.297, 0.955, -0.001),
+		},
+	},
+	BUILD_Tower_Rocketgun_1 = 
+	{
+		Position = Vec3(-892.000, 2916.000, 384.000),
+		TagName = "Tower Rocketgun",
+		Stance = "crouch",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+	},
+	CAMP_rDefense3 = 
+	{
+		Position = Vec3(403.254, -2258.125, -0.801),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.997, -0.074, 0.008),
+			[1] = Vec3(-0.976, -0.218, -0.017),
+		},
+	},
+	CAPPOINT_red_pad_ops = 
+	{
+		Position = Vec3(106.223, -3480.392, 5.125),
+		TagName = "red_pad_ops",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	CAMP_rDefense2 = 
+	{
+		Position = Vec3(-496.289, -3155.980, -0.801),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.497, 0.868, -0.009),
+			[1] = Vec3(0.080, 0.997, -0.012),
+			[2] = Vec3(0.509, 0.861, -0.007),
+			[3] = Vec3(0.936, 0.352, 0.001),
+		},
+	},
+	MOUNTMG42_asstower_allied_supermg = 
+	{
+		Position = Vec3(-968.000, 2888.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	FLAG_Construction_Materials_4 = 
+	{
+		Position = Vec3(-720.000, -2944.000, 8.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	CAMP_rDefense1 = 
+	{
+		Position = Vec3(-1114.392, -3390.195, 63.302),
+		GoalType = "CAMP",
+		MinRadius = 32,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.064, 0.996, -0.055),
+			[1] = Vec3(0.683, 0.729, -0.051),
+		},
+	},
+	FLAG_Construction_Materials_9 = 
+	{
+		Position = Vec3(68.000, -2136.000, 0.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	ROUTE_s_midtunnel = 
+	{
+		Position = Vec3(304.483, -386.579, -223.875),
+		TagName = "s_midtunnel",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	REPAIRMG42_asstower_allied_supermg = 
+	{
+		Position = Vec3(-968.000, 2888.000, 500.000),
+		TagName = "asstower_allied_supermg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	CAPPOINT_blue_pad_forwardwall = 
+	{
+		Position = Vec3(-589.687, 2756.701, 5.125),
+		TagName = "blue_pad_forwardwall",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	CAPPOINT_blue_pad_leftwall = 
+	{
+		Position = Vec3(1579.578, 3266.813, 5.125),
+		TagName = "blue_pad_leftwall",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	CAPPOINT_blue_pad_engineering = 
+	{
+		Position = Vec3(-552.972, 4321.704, 5.125),
+		TagName = "blue_pad_engineering",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	REPAIRMG42_asstower_axis_ubermg = 
+	{
+		Position = Vec3(1208.000, -2376.000, 500.000),
+		TagName = "asstower_axis_ubermg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	REPAIRMG42_asstower_allied_woodenmg = 
+	{
+		Position = Vec3(-968.000, 2888.000, 500.000),
+		TagName = "asstower_allied_woodenmg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	CAPPOINT_blue_pad_assault = 
+	{
+		Position = Vec3(-771.167, 3028.936, 5.125),
+		TagName = "blue_pad_assault",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	PLANT_Allied_Underbase_Door = 
+	{
+		Position = Vec3(-1208.000, 2558.000, -82.000),
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 2,
+		TagName = "Allied Underbase Door",
+		ExplosiveType = 1,
+	},
+	ROUTE_rOutpostSpawn = 
+	{
+		Position = Vec3(-1998.753, -305.219, 0.125),
+		TagName = "rOutpostSpawn",
+		Radius = 300,
+		GoalType = "ROUTE",
+	},
+	PLANT_Axis_Underbase_Door = 
+	{
+		Position = Vec3(1448.000, -2046.000, -82.000),
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		TagName = "Axis Underbase Door",
+		ExplosiveType = 1,
+	},
+	MOUNTMG42_asstower_allied_woodenmg = 
+	{
+		Position = Vec3(-968.000, 2888.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	ROUTE_bOutpostSpawn = 
+	{
+		Position = Vec3(2234.046, 822.388, 0.125),
+		TagName = "bOutpostSpawn",
+		Radius = 300,
+		GoalType = "ROUTE",
+	},
+	MOUNTMG42_asstower_axis_ubermg = 
+	{
+		Position = Vec3(1208.000, -2376.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	BUILD_Axis_Outpost = 
+	{
+		Position = Vec3(-1878.000, -334.000, 58.000),
+		TagName = "Axis Outpost",
+		Stance = "crouch",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+	},
+	AMMOCAB_allied_forward_ammostand = 
+	{
+		Position = Vec3(2284.000, 610.000, 36.000),
+		TagName = "allied_forward_ammostand",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+	},
+	ROUTE_r_w_underbase = 
+	{
+		Position = Vec3(-664.735, -2611.619, -219.875),
+		TagName = "r_w_underbase",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	ROUTE_e_trench = 
+	{
+		Position = Vec3(957.282, 69.433, -103.875),
+		TagName = "e_trench",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	REPAIRMG42_asstower_axis_woodenmg = 
+	{
+		Position = Vec3(1208.000, -2376.000, 500.000),
+		TagName = "asstower_axis_woodenmg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	CAPPOINT_red_pad_med = 
+	{
+		Position = Vec3(441.328, -3227.576, 5.125),
+		TagName = "red_pad_med",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	FLAG_Construction_Materials_6 = 
+	{
+		Position = Vec3(-240.000, -16.000, 256.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	ROUTE_b_e_underbase = 
+	{
+		Position = Vec3(-1254.140, 2998.803, -219.875),
+		TagName = "b_e_underbase",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	FLAG_Construction_Materials_2 = 
+	{
+		Position = Vec3(-48.000, 776.000, -415.875),
+		TagName = "Construction Materials",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	ROUTE_n_midtunnel = 
+	{
+		Position = Vec3(-60.111, 909.906, -223.875),
+		TagName = "n_midtunnel",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	ROUTE_ne_upper = 
+	{
+		Position = Vec3(1857.216, 1269.078, 0.125),
+		TagName = "ne_upper",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	MOUNTMG42_gate_axis_mg = 
+	{
+		Position = Vec3(64.000, -2064.000, 332.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	MOUNTMG42_asstower_allied_ubermg = 
+	{
+		Position = Vec3(-968.000, 2888.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	Version = 1,
+	CAPPOINT_red_pad_assault = 
+	{
+		Position = Vec3(1014.257, -2509.891, 5.125),
+		TagName = "red_pad_assault",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	CAPPOINT_blue_pad_ops = 
+	{
+		Position = Vec3(129.564, 3990.951, 5.125),
+		TagName = "blue_pad_ops",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	ROUTE_rSpawn = 
+	{
+		Position = Vec3(-236.605, -3988.905, 0.125),
+		TagName = "rSpawn",
+		Radius = 500,
+		GoalType = "ROUTE",
+	},
+	CAPPOINT_blue_pad_spawn = 
+	{
+		Position = Vec3(656.266, 4545.096, 5.125),
+		TagName = "blue_pad_spawn",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	FLAG_Construction_Materials = 
+	{
+		Position = Vec3(-856.000, 3472.000, 8.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	CAPPOINT_red_pad_gatebunker = 
+	{
+		Position = Vec3(-451.585, -2233.080, 5.125),
+		TagName = "red_pad_gatebunker",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	FLAG_Construction_Materials_8 = 
+	{
+		Position = Vec3(176.000, 2656.000, 0.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	ROUTE_sw_upper = 
+	{
+		Position = Vec3(-1303.409, -1049.165, 0.125),
+		TagName = "sw_upper",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	REPAIRMG42_asstower_axis_supermg = 
+	{
+		Position = Vec3(1208.000, -2376.000, 500.000),
+		TagName = "asstower_axis_supermg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	ROUTE_rEastGrab = 
+	{
+		Position = Vec3(878.072, 3462.578, 8.125),
+		TagName = "rEastGrab",
+		Radius = 300,
+		GoalType = "ROUTE",
+	},
+	ROUTE_rWestGrab = 
+	{
+		Position = Vec3(-913.497, 3479.427, 8.125),
+		TagName = "rWestGrab",
+		Radius = 300,
+		GoalType = "ROUTE",
+	},
+	ROUTE_se_upper = 
+	{
+		Position = Vec3(1564.543, -1069.671, 0.125),
+		TagName = "se_upper",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	CAPPOINT_blue_pad_armory = 
+	{
+		Position = Vec3(819.143, 3817.101, 5.125),
+		TagName = "blue_pad_armory",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	MOUNTMG42_gate_allied_mg = 
+	{
+		Position = Vec3(176.000, 2576.000, 332.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	CAPPOINT_blue_pad_gatebunker = 
+	{
+		Position = Vec3(703.928, 2745.199, 5.125),
+		TagName = "blue_pad_gatebunker",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	ROUTE_b_w_underbase = 
+	{
+		Position = Vec3(906.683, 3184.299, -219.875),
+		TagName = "b_w_underbase",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	ROUTE_n_tunnel = 
+	{
+		Position = Vec3(633.297, 1766.715, -135.875),
+		TagName = "n_tunnel",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	CAPPOINT_red_pad_rightwall = 
+	{
+		Position = Vec3(1352.123, -3119.761, 5.125),
+		TagName = "red_pad_rightwall",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	ROUTE_se_trench = 
+	{
+		Position = Vec3(1872.850, -215.693, -103.875),
+		TagName = "se_trench",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	ROUTE_w_trench = 
+	{
+		Position = Vec3(-677.345, 545.234, -103.875),
+		TagName = "w_trench",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	ROUTE_w_uppermid = 
+	{
+		Position = Vec3(-72.825, 89.360, 0.125),
+		TagName = "w_uppermid",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	DEFEND_b_cover_door = 
+	{
+		Position = Vec3(1402.125, -1923.525, -135.875),
+		GoalType = "Defend",
+		Radius = 35,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(0.419, 0.902, 0.107),
+		},
+	},
+	EXPLODETower_Rocketgun = 
+	{
+		Position = Vec3(1117.000, -2385.994, 398.000),
+		TagName = "Tower Rocketgun",
+		TeamAvailability = 4,
+		GoalType = "Explode",
+	},
+	ROUTE_bWestGrab = 
+	{
+		Position = Vec3(-807.862, -2937.286, 0.125),
+		TagName = "bWestGrab",
+		Radius = 300,
+		GoalType = "ROUTE",
+	},
+	REPAIRMG42_asstower_allied_ubermg = 
+	{
+		Position = Vec3(-968.000, 2888.000, 500.000),
+		TagName = "asstower_allied_ubermg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	ROUTE_bEastGrab = 
+	{
+		Position = Vec3(1187.405, -2952.492, 0.125),
+		TagName = "bEastGrab",
+		Radius = 300,
+		GoalType = "ROUTE",
+	},
+	CAPPOINT_red_pad_armory = 
+	{
+		Position = Vec3(-586.907, -3297.998, 5.125),
+		TagName = "red_pad_armory",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	ROUTE_sw_trench = 
+	{
+		Position = Vec3(-1173.463, -871.483, -103.875),
+		TagName = "sw_trench",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	DEFEND_b_cover_wall = 
+	{
+		Position = Vec3(-282.125, -1945.665, -143.875),
+		GoalType = "Defend",
+		Radius = 35,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.351, 0.935, 0.047),
+		},
+	},
+	MOUNTMG42_asstower_allied_ubermg_1 = 
+	{
+		Position = Vec3(-968.000, 2888.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+		TagName = "asstower_allied_ubermg",
+	},
+	CAPPOINT_red_pad_spawn = 
+	{
+		Position = Vec3(-402.335, -4029.294, 5.125),
+		TagName = "red_pad_spawn",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	PLANT_Allied_Underbase_Wall = 
+	{
+		Position = Vec3(788.000, 2432.000, -76.000),
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 2,
+		TagName = "Allied Underbase Wall",
+		ExplosiveType = 1,
+	},
+	FLAG_Construction_Materials_5 = 
+	{
+		Position = Vec3(1096.000, -2960.000, 8.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	ROUTE_nw_trench = 
+	{
+		Position = Vec3(-1506.645, 1443.939, -103.875),
+		TagName = "nw_trench",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	BUILD_Tower_Rocketgun = 
+	{
+		Position = Vec3(1132.000, -2404.000, 384.000),
+		TagName = "Tower Rocketgun",
+		Stance = "crouch",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+	},
+	CAPPOINT_blue_pad_med = 
+	{
+		Position = Vec3(-207.423, 3739.180, 5.125),
+		TagName = "blue_pad_med",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	ROUTE_w_upper = 
+	{
+		Position = Vec3(-1379.502, 328.921, 0.125),
+		TagName = "w_upper",
+		Radius = 70,
+		GoalType = "ROUTE",
+	},
+	MOUNTMG42_asstower_axis_woodenmg = 
+	{
+		Position = Vec3(1208.000, -2376.000, 476.000),
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		TeamAvailability = 6,
+		mincamptime = 15,
+		maxcamptime = 30,
+	},
+	FLAG_Construction_Materials_3 = 
+	{
+		Position = Vec3(-48.000, -264.000, -415.875),
+		TagName = "Construction Materials",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	CAPPOINT_red_pad_engineering = 
+	{
+		Position = Vec3(802.873, -3801.897, 5.125),
+		TagName = "red_pad_engineering",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	FLAG_Construction_Materials_1 = 
+	{
+		Position = Vec3(960.000, 3456.000, 8.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+	REPAIRMG42_gate_axis_mg = 
+	{
+		Position = Vec3(64.000, -2064.000, 356.000),
+		TagName = "gate_axis_mg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	EXPLODEGate_Rocketgun = 
+	{
+		Position = Vec3(-331.000, -2073.995, 418.000),
+		TagName = "Gate Rocketgun",
+		TeamAvailability = 4,
+		GoalType = "Explode",
+	},
+	PLANT_Allied_Outpost = 
+	{
+		Position = Vec3(2125.996, 820.000, 96.004),
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 2,
+		TagName = "Allied Outpost",
+		ExplosiveType = 3,
+	},
+	REPAIRMG42_asstower_axis_ubermg_1 = 
+	{
+		Position = Vec3(1208.000, -2376.000, 500.000),
+		TagName = "asstower_axis_ubermg",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+	},
+	AMMOCAB_axis_forward_ammostand = 
+	{
+		Position = Vec3(-2048.000, -98.000, 36.000),
+		TagName = "axis_forward_ammostand",
+		TeamAvailability = 6,
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+	},
+	ROUTE_bSpawn = 
+	{
+		Position = Vec3(483.133, 4512.353, 0.125),
+		TagName = "bSpawn",
+		Radius = 500,
+		GoalType = "ROUTE",
+	},
+	BUILD_Gate_Rocketgun_1 = 
+	{
+		Position = Vec3(564.000, 2604.000, 404.000),
+		TagName = "Gate Rocketgun",
+		Stance = "crouch",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+	},
+	ROUTE_s_tunnel = 
+	{
+		Position = Vec3(-393.442, -1227.397, -135.875),
+		TagName = "s_tunnel",
+		Radius = 30,
+		GoalType = "ROUTE",
+	},
+	PLANT_Axis_Outpost = 
+	{
+		Position = Vec3(-1885.998, -308.000, 96.004),
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		TagName = "Axis Outpost",
+		ExplosiveType = 3,
+	},
+	BUILD_Allied_Outpost = 
+	{
+		Position = Vec3(2118.000, 846.000, 58.000),
+		TagName = "Allied Outpost",
+		Stance = "crouch",
+		TeamAvailability = 4,
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+	},
+	CAPPOINT_red_pad_forwardwall = 
+	{
+		Position = Vec3(841.533, -2240.290, 5.125),
+		TagName = "red_pad_forwardwall",
+		Radius = 30,
+		GoalType = "CapPoint",
+	},
+	FLAG_Construction_Materials_7 = 
+	{
+		Position = Vec3(480.000, 528.000, 256.125),
+		TagName = "Construction Materials",
+		TeamAvailability = 2,
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+	},
+};

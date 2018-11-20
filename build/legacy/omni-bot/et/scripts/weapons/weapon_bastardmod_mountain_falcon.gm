@@ -1,0 +1,10 @@
+if (GetModName()!="bastardmod"){ return; }
+
+WEAPON.TOKAREV = 50;
+this.Name = "Mountain Falcon";
+this.WeaponId = WEAPON.TOKAREV;
+
+this.PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 1.0);
+this.PrimaryFire.DefaultDesirability = 0.4;
+this.PrimaryFire.LowAmmoThreshold = 1;
+this.PrimaryFire.LowAmmoPriority = 0.8;

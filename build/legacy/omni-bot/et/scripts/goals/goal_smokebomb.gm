@@ -1,0 +1,37 @@
+// This script contains functionality to allow bots to toss smoke canisters from given position
+this.Name = "SMOKEBOMB";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+
+this.LimitToWeapon( WEAPON.SMOKE_GRENADE );
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	this.AddFinishCriteria(this.Bot.GetGameEntity(),"not weaponcharged", WEAPON.SMOKE_GRENADE);
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0xfb64787a /* SMOKEBOMB */, WEAPON.SMOKE_GRENADE);
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	if ( this.MapGoal.Stance == "crouch" )
+	{
+		this.Bot.HoldButton(BTN.CROUCH, 1.1);
+	}
+
+	this.AddAimRequest(Priority.High, "facing", Util.GetRandomTableValue(this.MapGoal.AimVectors));
+
+	this.AddWeaponRequest(Priority.High, WEAPON.SMOKE_GRENADE );
+	this.BlockForWeaponChange( WEAPON.SMOKE_GRENADE );
+	this.Bot.HoldButton(BTN.ATTACK1, 0.5 );
+	sleep(1);
+
+	this.Finished();
+};

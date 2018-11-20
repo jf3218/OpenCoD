@@ -1,0 +1,250 @@
+global _MG = 
+{
+	AMMOCAB_south_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-556.000, -1023.000, 432.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	BUILD_Command_Post = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Position = Vec3(296.000, -996.000, 452.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	CAPPOINT_allied_storage = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(-207.405, 849.336, 696.125),
+		TeamAvailability = 4,
+	},
+	CAPPOINT_axis_storage = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(-11.657, 847.345, 697.125),
+		TeamAvailability = 2,
+	},
+	FLAG_allies_gold_crate = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(-116.000, -1793.000, -54.875),
+		TeamAvailability = 2,
+	},
+	FLAG_axis_gold_crate = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(-114.000, 40.000, -54.875),
+		TeamAvailability = 4,
+	},
+	HEALTHCAB_south_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-452.000, -1023.000, 434.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	PLANT_Command_Post = 
+	{
+		CoverSpots = 
+		{
+			[0] = 
+			{
+				AimVectors = 
+				{
+					[0] = Vec3(0.115, -0.993, 0.027),
+					[1] = Vec3(0.733, -0.680, -0.004),
+				},
+				position = Vec3(205.528, -810.357, 424.125),
+				stance = "crouch",
+			},
+		},
+		CreateOnLoad = 0,
+		DetonateSpots = 
+		{
+			[0] = Vec3(501.137, -891.893, 424.125),
+		},
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		Position = Vec3(299.000, -1025.500, 452.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	ROUTE_allied_gold = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-119.244, -1786.646, -58.875),
+		Radius = 125,
+	},
+	ROUTE_allied_spawn = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1366.083, -2002.901, 689.125),
+		Radius = 500,
+	},
+	ROUTE_axis_gold = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-114.242, 33.838, -58.875),
+		Radius = 125,
+	},
+	ROUTE_axis_spawn = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(1112.653, -2016.398, 697.125),
+		Radius = 500,
+	},
+	ROUTE_bottom_N = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-117.934, -662.909, -95.875),
+		Radius = 125,
+	},
+	ROUTE_bottom_NE = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(230.154, -688.362, -95.875),
+		Radius = 125,
+	},
+	ROUTE_bottom_NW = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-456.543, -679.185, -95.875),
+		Radius = 125,
+	},
+	ROUTE_bottom_S = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-115.415, -1080.946, -94.875),
+		Radius = 125,
+	},
+	ROUTE_bottom_SE = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(240.825, -1114.896, -95.875),
+		Radius = 125,
+	},
+	ROUTE_bottom_SW = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-469.390, -1112.612, -95.875),
+		Radius = 125,
+	},
+	ROUTE_bottom_pole = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-116.225, -952.122, -94.875),
+		Radius = 125,
+	},
+	ROUTE_cab_roof = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-379.140, -871.304, 537.125),
+		Radius = 125,
+	},
+	ROUTE_cp_roof = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(143.282, -872.284, 537.125),
+		Radius = 125,
+	},
+	ROUTE_middle_NE = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(642.348, -745.799, 257.125),
+		Radius = 125,
+	},
+	ROUTE_middle_NW = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-877.820, -747.156, 257.125),
+		Radius = 125,
+	},
+	ROUTE_middle_SE = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(635.024, -1018.422, 257.125),
+		Radius = 125,
+	},
+	ROUTE_middle_SW = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-866.665, -1016.928, 257.125),
+		Radius = 125,
+	},
+	ROUTE_middle_ladder_N = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-146.289, -715.684, 257.125),
+		Radius = 60,
+	},
+	ROUTE_middle_ladder_S = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-89.082, -1037.561, 257.125),
+		Radius = 60,
+	},
+	ROUTE_middle_pole_E = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(136.307, -910.792, 173.125),
+		Radius = 125,
+	},
+	ROUTE_middle_pole_W = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-361.875, -910.111, 173.125),
+		Radius = 125,
+	},
+	ROUTE_top_E = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(600.702, -882.944, 785.125),
+		Radius = 125,
+	},
+	ROUTE_top_NE = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(270.031, -236.780, 785.125),
+		Radius = 125,
+	},
+	ROUTE_top_NW = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-496.306, -238.466, 785.125),
+		Radius = 125,
+	},
+	ROUTE_top_S = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-119.132, -1509.405, 785.125),
+		Radius = 125,
+	},
+	ROUTE_top_W = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-834.918, -884.187, 785.125),
+		Radius = 125,
+	},
+	ROUTE_top_pole_N = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-116.784, -703.300, 785.125),
+		Radius = 100,
+	},
+	ROUTE_top_pole_S = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-117.806, -1074.275, 785.125),
+		Radius = 100,
+	},
+	Version = 1,
+};

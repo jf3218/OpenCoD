@@ -1,0 +1,127 @@
+//==========================================================================================
+//
+//	et_november.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	palota	17 May 2015	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+
+	Navigation =
+	{
+		jump =
+		{
+			navigate = function(_this)
+			{
+				for(i=0; i<30; i+=1){
+					pos = _this.Bot.GetPosition();
+					if(pos.z < -40){
+						Util.MapDebugPrint("paththrough jump failed", true);
+						_this.Goto(pos);
+						break;
+					}
+					if(pos.z < 20){
+						_this.Bot.PressButton(BTN.JUMP);
+						yield();
+					}
+					if(pos.x > 420){
+						break;
+					}
+					yield();
+				}
+			},
+		},
+	},
+};
+
+global OnMapLoad = function()
+{
+	OnTriggerRegion(AABB(-205.462,-331.383,-69.177,245.326,344.221,278.618), RegionTrigger.DisableBotPush); //submarine
+
+	SetGoalPriority("MOUNTMG42_.*", 0.8);
+
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=60} );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CAPPOINT_allied =
+		{
+			ROUTE_x_gold  =
+			{
+				ROUTE_x_stairs_N  =
+				{
+					ROUTE_l_stairs  =
+					{
+					},
+					ROUTE_l_ladder  =
+					{
+					},
+				},
+				ROUTE_x_stairs_S  =
+				{
+					ROUTE_l_stairs  =
+					{
+					},
+					ROUTE_l_ladder  =
+					{
+					},
+				},
+				ROUTE_x_crates  =
+				{
+					ROUTE_center_water  =
+					{
+						ROUTE_l_stairs  =
+						{
+						},
+						ROUTE_l_ladder  =
+						{
+						},
+					},
+				},
+			},
+		},
+		CAPPOINT_axis =
+		{
+			ROUTE_l_gold  =
+			{
+				ROUTE_l_stairs  =
+				{
+					ROUTE_x_stairs_N  =
+					{
+					},
+					ROUTE_x_stairs_S  =
+					{
+					},
+				},
+				ROUTE_l_ladder  =
+				{
+					ROUTE_center_bridge  =
+					{
+						ROUTE_x_stairs_N  =
+						{
+						},
+						ROUTE_x_stairs_S  =
+						{
+						},
+					},
+				},
+			},
+		},
+	};
+	MapRoutes.CAPPOINT_axis.ROUTE_l_cappoint = MapRoutes.CAPPOINT_axis.ROUTE_l_gold;
+	MapRoutes.CAPPOINT_allied.ROUTE_x_cappoint = MapRoutes.CAPPOINT_allied.ROUTE_x_gold;
+	MapRoutes.FLAG_axis_gold_crate = MapRoutes.CAPPOINT_axis;
+	MapRoutes.FLAG_allies_gold_crate = MapRoutes.CAPPOINT_allied;
+	Util.Routes(MapRoutes);
+};

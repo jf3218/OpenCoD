@@ -1,0 +1,81 @@
+//==========================================================================================
+//
+//	highnoon.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	palota	30 May 2015	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	DontDispenseAmmo = true,
+	DontDispenseHealth = true,
+
+	ConstructibleProc = function()
+	{
+		start = Vec3(562, 610, 210);
+		end = Vec3(562, 610, 180);
+		for(;;)
+		{
+			tr = TraceLine(start, end, null, TRACE.FLOODFILLENT, 0, false);
+			if (tr.fraction < 1){
+				SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Constructible");
+				SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_axis_obj1" );
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_top.*" );
+				SetGoalPriority( "PLANTMINE_.*", 0.5 );
+				Util.MapDebugPrint( "Constructible_Built" );
+				return;
+			}
+			//DrawDebugLine(start, end, COLOR.GREEN, 1);
+			sleep(1);
+		}
+	},
+};
+
+global OnMapLoad = function()
+{
+	OnTriggerRegion(AABB(102.337,771.681,-269.376,284.855,965.498,94.102), RegionTrigger.DisableBotPush); //ladder
+	OnTriggerRegion(AABB(774.653,629.547,-239.352,1015.039,794.313,103.497), RegionTrigger.DisableBotPush);
+
+	Util.DisableGoal( ".*", true );
+	SetAvailableMapGoals( TEAM.AXIS, true, { "DEFEND_x.*", "PLANTMINE_.*" } );
+	SetAvailableMapGoals( TEAM.ALLIES, true, { "BUILD_Constructible", "CAPPOINT_.*", "ATTACK_.*" } );
+
+	thread(Map.ConstructibleProc);
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	if (bot.GetTeam()==TEAM.ALLIES){
+		bot.TargetBreakableDist = 200.0;
+	}
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_axis_obj1 =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_ladder_left =
+				{
+					ROUTE_saloon = {},
+					ROUTE_axis = { Weight=2 },
+				},
+				ROUTE_ladder_right =
+				{
+				},
+			},
+		},
+	};
+	MapRoutes["ATTACK_.*"] = MapRoutes.FLAG_axis_obj1;
+	Util.Routes(MapRoutes);
+};

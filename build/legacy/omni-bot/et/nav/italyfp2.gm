@@ -1,0 +1,3976 @@
+//==========================================================================================
+//
+//	italyfp2.gm
+//
+//	Who      	When		What
+//------------------------------------------------------------------------------------------
+//	Qiki		22 June 2013	Initial Script, waypoints and navigation
+//	Native12	06.01.2014	Ready to test
+//	Native12	18.01.2014	Fixed some bugs, minor changes in script
+//	Native12	19.01.2014	Fixed stuckages
+//
+//==========================================================================================
+
+global Map =
+{
+	Debug = 0,
+	ShowMovers = true,
+
+	Lower_Ramp_Dyno = 0,
+	Upper_Ramp_Dyno = 0,
+	Jeep_Barrier_Dyno = 0,
+	Ladder_Dyno = 0,
+	Market_Gate_Dyno = 0,
+	Tower_Wall_Dyno = 0,
+	Lower_Ramp = false,
+	Upper_Ramp = false,
+	Axis_CP = false,
+	Allied_CP = false,
+	Jeep = true,
+	Jeep_Barrier = false,
+	Ladder = false,
+	Market_Gate = true,
+	Axis_CP_Dyno = 0,
+	Allied_CP_Dyno = 0,
+	Golds_In_Jeep = 0,
+	Tower_Door = true,
+	Market_Place_Allies = false,
+	Market_Place_Axis = false,
+	Tower_Wall = true,
+	Ally_Win = false,
+	JeepAtPosition = false,
+	JeepAtRamps = false,
+	JeepAtBarrier = false,
+	JeepPassBarrier = false,
+	JeepAtMarketGate = false,
+	JeepPassMarketGate = false,
+	JeepPassGate_pos1 = false,
+	JeepPassGate_pos2 = false,
+	JeepPassGate_pos3 = false,
+	JeepPassRamps_pos1 = false,
+	JeepPassRamps_pos1_1 = false,
+	JeepPassRamps_pos2 = false,
+	JeepWithGold_pos1 = false,
+	JeepWithGold_pos2 = false,
+	JeepWithGold_pos3 = false,
+	JeepWithGold_pos4 = false,
+	JeepWithGold_pos5 = false,
+	JeepWithGold_pos6 = false,
+	JeepWithGold_pos7 = false,
+	JeepOnEscapeSquare = false,
+	ChangeToPanzer = false,
+	ChangeToMortar = false,
+	Ally_with_gold = 0,
+	DCM1 = 0,
+	DCM2 = 0,
+	plant_offset = 0,
+
+	DontDispenseAmmo = true,
+
+	Roles =
+	{
+		/*
+		Axis spawns:	1 - First spawn
+				3 - Market place
+				5 - CP spawn
+		*/
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =	//DEFEND Command post (at start)
+			{
+				//spawnpt = 5,
+				numbots = 4,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =	//DEFEND Market gate (at start)
+			{
+				//spawnpt = 3,
+				numbots = 8,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER2 =	//DEFEND Back way to Market place (at start)
+			{
+				//spawnpt = 0,
+				numbots = 3,
+				//crucialClass = CLASS.ENGINEER,
+			},
+		},
+		/*
+		//Alied spawns:	2 - First spawn
+				4 - Market place
+				6 - CP spawn
+		*/
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			ATTACKER =	// attack to market gate (at start) & escort
+			{
+				//spawnpt = 4,
+				numbots = 8,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =	// attack to market place & checkpoint
+			{
+				//spawnpt = 4,
+				numbots = 4,
+				//crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER2 =
+			{
+				//spawnpt = 6,
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+
+	Navigation =
+	{
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				sleep(0.1);
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump1
+		jump1 =
+		{
+			navigate = function(_this)
+			{
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.888, 0.384, 0.252));
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder1	//ladder to roof with horizontal ladder
+		ladder1 =
+		{
+			navigate = function(_this)
+			{
+				Map.NavLadder(_this, 0.017, 0.279, 0.960,  360.455, 535.776);
+			},
+		},
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder2	//ladder to Tower (spawn side)
+		ladder2 =
+		{
+			navigate = function(_this)
+			{
+				Map.NavLadder(_this, -0.001, -0.070, 0.998,  923.879, 1934.125);
+			},
+		},
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder3	//ladder to Tower (near tree)
+		ladder3 =
+		{
+			navigate = function(_this)
+			{
+				Map.NavLadder(_this, 0.226, 0.002, 0.974,  1173.875, 1435.543);
+			},
+		},
+	},
+
+	NavLadder = function(_this, x,y,z, x2,y2)	//for navigates: ladder1, ladder2, ladder3
+	{
+		_this.AddAimRequest(Priority.VeryHigh, "facing", Vec3(x,y,z));
+
+		for(i=0; i<10; i+=1)
+		{
+			pos = _this.Bot.GetPosition();
+			if(Abs(pos.x - x2) > 25 || Abs(pos.y - y2) > 25)
+			{
+				break;
+			}
+			sleep(0.5);
+		}
+	},
+
+	Jeep_Built = function( trigger )
+	{
+
+		Map.Jeep = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+
+		if ( Map.JeepAtMarketGate and !Map.JeepPassMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "GRENADE_Jeep" );
+		}
+
+		if ( Map.JeepAtPosition and Map.Golds_In_Jeep == 2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+		}
+		else if ( Map.JeepAtPosition and Map.Golds_In_Jeep < 2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+		else if ( Map.JeepAtRamps and ( !Map.Lower_Ramp or !Map.Upper_Ramp ))
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+		else if ( Map.JeepAtBarrier and Map.Jeep_Barrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+		else if ( Map.JeepAtMarketGate and Map.Market_Gate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+		}
+
+		Util.MapDebugPrint( "^5Jeep_Built" );
+	},
+
+	Jeep_Destroyed = function( trigger )
+	{
+
+		Map.Jeep = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "GRENADE_Jeep" );
+
+		if ( Map.JeepAtPosition and Map.Golds_In_Jeep < 2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+		else if ( Map.JeepAtRamps and ( !Map.Lower_Ramp or !Map.Upper_Ramp ))
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+		else if ( Map.JeepAtBarrier and Map.Jeep_Barrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+		else if ( Map.JeepAtMarketGate and Map.Market_Gate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Jeep" );
+		}
+
+		Util.MapDebugPrint( "^5Jeep_Destroyed" );
+	},
+
+	Jeep_Near_Market_Gate =
+	{
+		Name = "Jeep_Near_Market_Gate",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 1, 2, 3, 4, 5 } );
+
+			Wp.SetWaypointFlag( "Jeep_1", "closed", true );
+			Wp.SetWaypointFlag( "Jeep_2", "closed", true );
+
+			Util.MapDebugPrint( "^5Jeep_Near_Market_Gate" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_At_Market_Gate =
+	{
+		Name = "Jeep_At_Market_Gate",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepAtMarketGate = true;
+
+			if ( Map.Market_Gate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+			}
+
+			Wp.SetWaypointFlag( "Jeep_At_Gate_1", "jump", true );
+			Wp.SetWaypointFlag( "Jeep_At_Gate_2", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_At_Gate_3", "closed", false );
+
+			if ( Map.Jeep )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "GRENADE_Jeep" );
+			}
+
+			Util.MapDebugPrint( "^5Jeep_At_Market_Gate" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Market_Gate_Built = function( trigger )
+	{
+
+		Map.Market_Gate = true;
+
+		Wp.SetWaypointFlag( "MG_WP1", "closed", false );
+		Wp.SetWaypointFlag( "MG_WP2", "closed", false );
+		Wp.SetWaypointFlag( "MG_WP1", "sneak", true );
+		Wp.SetWaypointFlag( "MG_WP2", "sneak", true );
+		Wp.SetWaypointFlag( "MG_WP3", "sneak", true );
+		Wp.SetWaypointFlag( "MG_WP4", "sneak", true );
+		Wp.SetWaypointFlag( "MG_WP4", "sprint", false );
+		Wp.SetWaypointFlag( "MG_WP4", "jump", false );
+
+		Util.DisableGoal("ROUTE_ThroughMarketGate");
+		Util.DisableGoal("ROUTE_InsideUnderCP1");
+
+		GetGoal("AIRSTRIKE_Axis_MG_05").AimVectors =
+		{ Vec3(-0.307, 0.093, 0.947) };
+
+		Util.ClearRoleForGoals("CHECKPOINT_flag", ROLE.ATTACKER);
+		Util.ClearRoleForGoals(".*_Allies_MP_.*", ROLE.ATTACKER);
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Market_Gate" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Market_Gate" );
+
+		if ( Map.Market_Place_Allies )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_MG_.*" );
+			sleep(0.1);
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"ATTACK_Allies_MG_.*",
+				"SMOKEBOMB_Allies_MG_.*",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_MG_.*" );
+		}
+
+		if ( !Map.Jeep and Map.JeepAtMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+
+		if ( !Map.JeepPassMarketGate )
+		{
+			SetGoalPriority( "BUILD_Command_Post", 0.82, TEAM.ALLIES, CLASS.ENGINEER );	//focus on goal plant market gate (random choose)
+		}
+
+		Util.MapDebugPrint( "^5Market_Gate_Built" );
+	},
+
+	Market_Gate_Planted = function( trigger )	//thx Palota
+	{
+
+		if ( Map.Market_Gate_Dyno == 0 )
+		{
+			Map.DCM1 = OnTriggerRegion(AABB(-147.509,-672.875,-197.875,-98.609,-634.875,-185.875), RegionTrigger.DisableBotPush);
+			Map.DCM2 = OnTriggerRegion(AABB(-79.217,-541.125,-197.875,-24.826,-503.125,-185.875), RegionTrigger.DisableBotPush);
+
+			Wp.SetWaypointFlag( "Jeep_3", "jump", true );
+			Wp.SetWaypointFlag( "Jeep_3", "sprint", true );
+			Wp.SetWaypointFlag( "Jeep_4", "jump", true );
+			Wp.SetWaypointFlag( "Jeep_4", "sprint", true );
+		}
+
+		Map.Market_Gate_Dyno += 1;
+
+		foreach( goal in Util.GoalTable("DEFUSE_Market_Gate.*") )
+		{
+			pos1 = goal.GetPosition();
+			Util.MapDebugPrint( "^5dynamite position is: "+pos1 );
+
+			if( pos1.x > 63 )    //bot reaches through the bars to the dynamite - in prone position
+			{
+				goal.SetPosition( Vector3 (115, pos1.y, pos1.z ));
+				goal.Stance = "prone";
+				Util.MapDebugPrint( "^5goal " + goal.GetName() + " is enabled" );
+			}
+			else
+			{
+				goal.SetAvailable(TEAM.AXIS, false);
+				Util.MapDebugPrint( "^5goal " + goal.GetName() + " is disabled" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Market_Gate_Planted" );
+	},
+
+	Market_Gate_Defused = function( trigger )
+	{
+
+		Map.Market_Gate_Dyno -= 1;
+
+		if ( Map.Market_Gate_Dyno == 0 )
+		{
+			DeleteTriggerRegion( Map.DCM1 );
+			DeleteTriggerRegion( Map.DCM2 );
+			Wp.SetWaypointFlag( "Jeep_3", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_3", "sprint", false );
+			Wp.SetWaypointFlag( "Jeep_4", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_4", "sprint", false );
+		}
+
+		Util.MapDebugPrint( "^5Market_Gate_Defused" );
+	},
+
+	Market_Gate_Destroyed = function( trigger )
+	{
+
+		Map.Market_Gate_Dyno = 0;
+		Map.Market_Gate = false;
+
+		Wp.SetWaypointFlag( "MG_WP1", "closed", true );
+		Wp.SetWaypointFlag( "MG_WP2", "closed", true );
+		Wp.SetWaypointFlag( "MG_WP1", "sneak", false );
+		Wp.SetWaypointFlag( "MG_WP2", "sneak", false );
+		Wp.SetWaypointFlag( "MG_WP3", "sneak", false );
+		Wp.SetWaypointFlag( "MG_WP4", "sneak", false );
+		Wp.SetWaypointFlag( "MG_WP4", "sprint", true );
+		Wp.SetWaypointFlag( "MG_WP4", "jump", true );
+
+		DeleteTriggerRegion( Map.DCM1 );
+		DeleteTriggerRegion( Map.DCM2 );
+		Wp.SetWaypointFlag( "Jeep_3", "jump", false );
+		Wp.SetWaypointFlag( "Jeep_3", "sprint", false );
+		Wp.SetWaypointFlag( "Jeep_4", "jump", false );
+		Wp.SetWaypointFlag( "Jeep_4", "sprint", false );
+
+		Util.EnableGoal( "ROUTE_ThroughMarketGate" );
+		Util.EnableGoal( "ROUTE_InsideUnderCP1" );
+
+		SetGoalPriority( "BUILD_Command_Post", 0.9, TEAM.ALLIES, CLASS.ENGINEER );	//default
+
+		Util.SetRoleForGoals("CHECKPOINT_flag", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.ATTACKER, ROLE.ATTACKER1 });
+		Util.SetRoleForGoals(".*_Allies_MP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1 });
+
+		GetGoal("AIRSTRIKE_Axis_MG_05").AimVectors =
+		{ Vec3(-0.795, 0.264, 0.546) };
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Market_Gate" );
+
+		if ( Map.Market_Place_Allies )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_MG_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_MG_.*" );
+			sleep(0.1);
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"ATTACK_Allies_MG_.*",
+				"SMOKEBOMB_Allies_MG_.*",
+			});
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Market_Gate" );
+
+		if ( !Map.Jeep and Map.JeepAtMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+		}
+
+		Util.MapDebugPrint( "^5Market_Gate_Destroyed" );
+	},
+
+	Jeep_Pass_Market_Gate =
+	{
+		Name = "Jeep_Pass_Market_Gate",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassMarketGate = true;
+
+			Wp.SetWaypointFlag( "Jeep_At_Gate_1", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_At_Gate_2", "closed", true );
+			Wp.SetWaypointFlag( "Jeep_At_Gate_3", "closed", true );
+			Wp.SetWaypointFlag( "Jeep_1", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_2", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_3", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_3", "sprint", false );
+			Wp.SetWaypointFlag( "Jeep_4", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_4", "sprint", false );
+			Wp.SetWaypointFlag( "MG_WP4", "sprint", false );
+			Wp.SetWaypointFlag( "MG_WP4", "jump", false );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"PLANT_Market_Gate",
+				".*_Allies_MG_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Market_Gate" );
+
+			Util.SetRoleForGoals("ESCORT_Jeep", ROLE.ATTACKER1);
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Market_Gate_.*" );
+
+			if ( Map.Jeep_Barrier )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Jeep_Barrier" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Jeep_Barrier" );
+			}
+
+			if ( !Map.Market_Place_Allies )
+			{
+				sleep(0.1);
+				SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Allies_MG_.*" );
+			}
+
+			Util.MapDebugPrint( "^5Jeep_Pass_Market_Gate" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_Pass_Gate_pos1 =
+	{
+		Name = "Jeep_Pass_Gate_pos1",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassGate_pos1 = true;
+
+			Wp.SetWaypointFlag( "MG_WP1", "closed", false );
+			Wp.SetWaypointFlag( "MG_WP2", "closed", false );
+			Wp.SetWaypointFlag( "MG_WP4", "sprint", false );
+			Wp.SetWaypointFlag( "MG_WP4", "jump", false );
+
+			if ( Map.Golds_In_Jeep == 2 )
+			{
+				Map.JeepWithGold_pos2 = false;
+
+				ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 3, 4, 5 } );
+
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepWithGoldPos2_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_JeepWithGoldPos2_.*" );
+
+				Util.MapDebugPrint( "^5Jeep_With_gold_Pass_Gate_pos1" );
+			}
+			else
+			{
+				Map.ChangeToPanzer = true;
+
+				if ( Map.Jeep )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, "GRENADE_Jeep" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					".*_Axis_MG_.*",
+					".*_Axis_BackWayToMG_.*",
+				});
+
+				SetAvailableMapGoals( TEAM.ALLIES, false, {
+					".*_Allies_MG_.*",
+					".*_Allies_MP_.*",
+				});
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"PLANTMINE_Axis_Tunnel_.*",
+					"DEFEND_Axis_JeepPassGatePos1_.*",
+				});
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_JeepPassGatePos1_.*" );
+
+				if ( !Map.Ladder )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Ladder" );
+				}
+
+				Map.Change_To_Panzer();
+
+				Util.MapDebugPrint( "^5Jeep_Pass_Gate_pos1" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( Map.Golds_In_Jeep == 2 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldUnderMG42_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldUnderMG42_.*" );
+			}
+		}
+	},
+
+	Jeep_Pass_Gate_pos2 =
+	{
+		Name = "Jeep_Pass_Gate_pos2",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassGate_pos1 = false;
+			Map.JeepPassGate_pos2 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 3 } );
+
+			if ( Map.Golds_In_Jeep == 2 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepWithGoldUnderLadder_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_JeepWithGoldUnderLadder_.*" );
+
+				Util.MapDebugPrint( "^5Jeep_With_gold_Pass_Gate_pos2" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepPassGatePos1_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_JeepPassGatePos1_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepPassGatePos2_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"DEFEND_Allies_JeepPassGatePos2_.*",
+					"SMOKEBOMB_Allies_AtJeepBarrier",
+				});
+
+				Util.MapDebugPrint( "^5Jeep_Pass_Gate_pos2" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( Map.Golds_In_Jeep == 2 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldPos3_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos3_.*" );
+			}
+		}
+	},
+
+	Jeep_Pass_Gate_pos3 =
+	{
+		Name = "Jeep_Pass_Gate_pos3",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassGate_pos2 = false;
+			Map.JeepPassGate_pos3 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 1, 2, 3, 4, 5 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepPassGatePos2_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_JeepPassGatePos2_.*" );
+
+			if ( Map.Golds_In_Jeep == 2 )
+			{
+
+				Util.MapDebugPrint( "^5Jeep_With_gold_Pass_Gate_pos3" );
+			}
+			else
+			{
+				Map.ChangeToPanzer = false;
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"DEFEND_Axis_JeepPassGatePos3_.*",
+					"MOBILEMG42_Axis_JeepPassGatePos3_10",
+					"MOUNTMG42_miscmg",
+					"REPAIRMG42_miscmg",
+				});
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"DEFEND_Allies_JeepPassGatePos3_.*",
+					"MOUNTMG42_miscmg",
+					"REPAIRMG42_miscmg",
+				});
+
+				Map.Change_To_Panzer();
+
+				Util.MapDebugPrint( "^5Jeep_Pass_Gate_pos3" );
+			}
+		},
+		OnExit = function(ent)
+		{
+			if ( Map.Golds_In_Jeep == 2 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldPos4_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos4_.*" );
+			}
+		}
+	},
+
+	Market_Place_Axis_Captured = function( trigger )
+	{
+
+		Map.Market_Place_Allies = false;
+		Map.Market_Place_Axis = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_flag" );
+
+		if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			Util.SetMaxUsers( 1, "CHECKPOINT_flag" );
+
+			SetAvailableMapGoals( 0, false, ".*_MarketPlace_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_flag" );
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( Map.Axis_CP )
+					{
+						if ( RandInt(0,1) < 1 )
+						{
+							bot.ChangeSpawnPoint(5);
+						}
+						else
+						{
+							bot.ChangeSpawnPoint(3);
+						}
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(3);
+					}
+				}
+			}
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER1) )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						bot.ChangeSpawnPoint(3);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(1);
+					}
+				}
+			}
+
+			if ( !Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_flag" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_MG_.*" );
+
+				if ( Map.Market_Gate )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, ".*_Allies_MG_.*" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_MG_.*" );
+					sleep(0.1);
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"ATTACK_Allies_MG_.*",
+						"SMOKEBOMB_Allies_MG_.*",
+					});
+				}
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_MarketPlace_.*" );
+
+				if ( !Map.JeepWithGold_pos4 )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						Util.SetMaxUsers( 2, "CHECKPOINT_flag" );
+
+						if ( !Map.JeepWithGold_pos5 )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_MarketPlace_.*" );
+						}
+					}
+					else
+					{
+						Util.SetMaxUsers( 1, "CHECKPOINT_flag" );
+
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_MarketPlace_01" );
+					}
+				}
+				else
+				{
+					Util.SetMaxUsers( 1, "CHECKPOINT_flag" );
+
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_MarketPlace_01" );
+				}
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_flag" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Market_Place_Axis_Captured" );
+	},
+
+	Market_Place_Allies_Captured = function( trigger )
+	{
+
+		Map.Market_Place_Allies = true;
+		Map.Market_Place_Axis = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_flag" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_flag" );
+
+		if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			Util.SetMaxUsers( 1, "CHECKPOINT_flag" );
+
+			SetAvailableMapGoals( 0, false, ".*_MarketPlace_.*" );
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( Map.Axis_CP )
+					{
+						bot.ChangeSpawnPoint(5);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(1);
+					}
+				}
+			}
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER1) )
+				{
+					bot.ChangeSpawnPoint(1);
+				}
+			}
+
+			if ( !Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_flag" );
+
+				if ( Map.Market_Gate )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_MG_.*" );
+					sleep(0.1);
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"ATTACK_Allies_MG_.*",
+						"SMOKEBOMB_Allies_MG_.*",
+					});
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_MG_.*" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_MG_.*" );
+				sleep(0.1);
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MG_.*" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_MarketPlace_.*" );
+
+				if ( !Map.JeepWithGold_pos4 )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						Util.SetMaxUsers( 2, "CHECKPOINT_flag" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_MarketPlace_.*" );
+					}
+					else
+					{
+						Util.SetMaxUsers( 1, "CHECKPOINT_flag" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_MarketPlace_01" );
+					}
+				}
+				else
+				{
+					Util.SetMaxUsers( 1, "CHECKPOINT_flag" );
+
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_MarketPlace_01" );
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Market_Place_Allies_Captured" );
+	},
+
+	Axis_CP_Built = function( trigger )
+	{
+
+		Map.Axis_CP = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"BUILD_Command_Post",
+			"DEFEND_CP_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"BUILD_Command_Post",
+			"ATTACK_CP_.*",
+		});
+
+		if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"PLANT_Command_Post",
+				"PLANT_Command_Post1",
+			});
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( Map.Market_Place_Axis )
+					{
+						if ( RandInt(0,1) < 1)
+						{
+							bot.ChangeSpawnPoint(3);
+						}
+						else
+						{
+							bot.ChangeSpawnPoint(5);
+						}
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(5);
+					}
+				}
+			}
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER) )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						bot.ChangeSpawnPoint(5);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(1);
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_Command_Post",
+				"PLANT_Command_Post1",
+			});
+
+			if ( !Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_CP_.*" );
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_.*" );
+			}
+			else
+			{
+				if ( !Map.JeepWithGold_pos4 )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_CP_.*" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_CP_01" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_01" );
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_CP_01" );
+
+					SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_01" );
+				}
+			}
+			sleep(0.1);
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_supply" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "AMMOCAB_supply" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_health" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "HEALTHCAB_health" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_CP_Built" );
+	},
+
+	Allied_CP_Built = function( trigger )
+	{
+
+		Map.Allied_CP = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"BUILD_Command_Post",
+			"DEFEND_CP_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"BUILD_Command_Post",
+			"ATTACK_CP_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"PLANT_Command_Post",
+			"PLANT_Command_Post1",
+		});
+
+		if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER2) )
+				{
+					bot.ChangeSpawnPoint(6);
+				}
+			}
+
+			if ( !Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_CP_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_.*" );
+			}
+			else
+			{
+				if ( !Map.JeepWithGold_pos4 )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_CP_.*" );
+
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_CP_01" );
+
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_01" );
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_CP_01" );
+
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_01" );
+				}
+			}
+
+			sleep(0.1);
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "AMMOCAB_supply" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "AMMOCAB_supply" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "HEALTHCAB_health" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "HEALTHCAB_health" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_CP_Built" );
+	},
+
+	Command_Post_Planted = function( trigger )
+	{
+
+		if ( Map.Axis_CP )
+		{
+			Map.Axis_CP_Dyno += 1;
+
+			Util.MapDebugPrint( "^5Axis_CP_Planted" );
+		}
+		else
+		{
+			Map.Allied_CP_Dyno += 1;
+
+			if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Command_Post_.*" );
+			}
+
+			Util.MapDebugPrint( "^5Allied_CP_Planted" );
+		}
+	},
+
+	Command_Post_Defused = function( trigger )
+	{
+
+		if ( Map.Axis_CP )
+		{
+			Map.Axis_CP_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Axis_CP_Defused" );
+		}
+		else
+		{
+			Map.Allied_CP_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Allied_CP_Defused" );
+		}
+	},
+
+	Axis_CP_Destroyed = function( trigger )
+	{
+
+		Map.Axis_CP = false;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.DEFENDER) )
+			{
+				bot.ChangeSpawnPoint(1);
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+
+		if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( Map.Market_Place_Axis )
+					{
+						bot.ChangeSpawnPoint(3);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(1);
+					}
+				}
+			}
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER) )
+				{
+					bot.ChangeSpawnPoint(1);
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+
+			if ( !Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_.*" );
+			}
+			else
+			{
+				if ( !Map.JeepWithGold_pos4 )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_.*" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_01" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_01" );
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_01" );
+
+					SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_01" );
+				}
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "AMMOCAB_supply" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "AMMOCAB_supply" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "HEALTHCAB_health" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "HEALTHCAB_health" );
+
+		Util.MapDebugPrint( "^5Axis_CP_Destroyed" );
+	},
+
+	Allied_CP_Destroyed = function( trigger )
+	{
+
+		Map.Allied_CP = false;
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+
+		if ( Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER2) )
+				{
+					if ( Map.Market_Place_Allies )
+					{
+						bot.ChangeSpawnPoint(4);
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(2);
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+
+			if ( !Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_.*" );
+			}
+			else
+			{
+				if ( !Map.JeepWithGold_pos4 )
+				{
+					if ( !Map.JeepAtPosition )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_.*" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_.*" );
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_01" );
+
+						SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_01" );
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_CP_01" );
+
+					SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_CP_01" );
+				}
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "AMMOCAB_supply" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "AMMOCAB_supply" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "HEALTHCAB_health" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "HEALTHCAB_health" );
+
+		Util.MapDebugPrint( "^5Allied_CP_Destroyed" );
+	},
+
+	Jeep_At_Barrier =
+	{
+		Name = "Jeep_At_Barrier",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepAtBarrier = true;
+
+			Wp.SetWaypointFlag( "Jeep_At_Box_1", "jump", true );
+			Wp.SetWaypointFlag( "Jeep_At_Box_2", "closed", false );
+
+			if ( Map.Jeep and Map.Jeep_Barrier )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+			}
+
+			Util.MapDebugPrint( "^5Jeep_At_Barrier" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_Barrier_Built = function( trigger )
+	{
+
+		Map.Jeep_Barrier = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Jeep_Barrier" );
+
+		Wp.SetWaypointFlag( "Jeep_Pass_Box_1", "closed", true );
+
+		if ( !Map.Jeep and Map.JeepAtBarrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtBarrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+
+		if ( Map.JeepPassMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Jeep_Barrier" );
+		}
+
+		if ( Map.JeepAtBarrier )
+		{
+			if ( !Map.Lower_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_1st_Ramp" );
+			}
+			if ( !Map.Upper_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_2nd_Ramp" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Jeep_Barrier_Built" );
+	},
+
+	Jeep_Barrier_Planted = function( trigger )
+	{
+
+		Map.Jeep_Barrier_Dyno += 1;
+
+		Map.plant_offset += 1;
+
+		if ( Map.plant_offset == 1 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Jeep_Barrier" );
+			Util.SetGoalPosition(5, 2050, -165, "PLANT_Jeep_Barrier");
+			if ( Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Jeep_Barrier" );
+			}
+			Util.MapDebugPrint( "^5offset = " + Map.plant_offset );
+		}
+
+		if ( Map.plant_offset == 2 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Jeep_Barrier" );
+			Util.SetGoalPosition(5, 2100, -165, "PLANT_Jeep_Barrier");
+			if ( Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Jeep_Barrier" );
+			}
+			Util.MapDebugPrint( "^5offset = " + Map.plant_offset );
+		}
+
+		if ( Map.plant_offset == 3 )
+		{
+			Map.plant_offset = 0;
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Jeep_Barrier" );
+			Util.SetGoalPosition(5, 2000, -165, "PLANT_Jeep_Barrier");
+			if ( Map.JeepPassMarketGate )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Jeep_Barrier" );
+			}
+			Util.MapDebugPrint( "^5offset = " + Map.plant_offset );
+		}
+
+		Util.MapDebugPrint( "^5Jeep_Barrier_Planted" );
+	},
+
+	Jeep_Barrier_Defused = function( trigger )
+	{
+
+		Map.Jeep_Barrier_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Jeep_Barrier_Defused" );
+	},
+
+	Jeep_Barrier_Destroyed = function( trigger )
+	{
+
+		Map.Jeep_Barrier_Dyno = 0;
+		Map.Jeep_Barrier = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Jeep_Barrier" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Jeep_Barrier" );
+
+		Wp.SetWaypointFlag( "Jeep_Pass_Box_1", "closed", false );
+
+		if ( !Map.Jeep and Map.JeepAtBarrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtBarrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+		}
+
+		if ( Map.JeepAtBarrier )
+		{
+			if ( !Map.Lower_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_1st_Ramp" );
+			}
+			if ( !Map.Upper_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_2nd_Ramp" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Jeep_Barrier_Destroyed" );
+	},
+
+	Jeep_Pass_Barrier =
+	{
+		Name = "Jeep_Pass_Barrier",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassBarrier = true;
+
+			Wp.SetWaypointFlag( "Jeep_At_Box_3", "closed", true );
+
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_1", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_2", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_3", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_4", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_2", "jump", true );
+			Wp.SetWaypointFlag( "Box_74", "closed", false );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Jeep_Barrier" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_Allies_AtJeepBarrier" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Allies_JeepAtRamps" );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Jeep_Barrier_.*" );
+
+			if ( !Map.Lower_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_1st_Ramp" );
+			}
+			if ( !Map.Upper_Ramp )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_2nd_Ramp" );
+			}
+
+			Wp.SetWaypointFlag( "Jeep_At_Box_1", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_At_Box_2", "closed", true );
+
+			Util.MapDebugPrint( "^5Jeep_Pass_Barrier" );
+		},
+		OnExit = function(ent)
+		{
+			Wp.SetWaypointFlag( "Jeep_At_Box_3", "closed", false );
+
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_1", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_2", "closed", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_2", "jump", false );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_3", "closed", true );
+			Wp.SetWaypointFlag( "Jeep_Pass_Box_4", "closed", true );
+			Wp.SetWaypointFlag( "Box_74", "closed", true );
+		}
+	},
+
+	Jeep_At_Ramps =
+	{
+		Name = "Jeep_At_Ramps",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepAtRamps = true;
+
+			if ( Map.Jeep and ( !Map.Lower_Ramp or !Map.Upper_Ramp ) )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+			}
+
+			Util.MapDebugPrint( "^5Jeep_At_Ramps" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Lower_Ramp_Built = function( trigger )
+	{
+
+		Map.Lower_Ramp = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_1st_Ramp" );
+
+		if ( !Map.Jeep and Map.JeepAtRamps and Map.Upper_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtRamps and Map.Upper_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+		}
+
+		if ( Map.JeepPassMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_1st_Ramp" );
+		}
+
+		Util.MapDebugPrint( "^5Lower_Ramp_Built" );
+	},
+
+	Lower_Ramp_Planted = function( trigger )
+	{
+
+		Map.Lower_Ramp_Dyno += 1;
+
+		if ( Map.JeepPassMarketGate and !Map.JeepPassBarrier )
+		{
+			SetGoalPriority( "DEFUSE_1st_Ramp_.*", 0.8, TEAM.ALLIES, CLASS.ENGINEER );
+		}
+		else if ( Map.JeepPassBarrier )
+		{
+			SetGoalPriority( "DEFUSE_1st_Ramp_.*", 1.0, TEAM.ALLIES, CLASS.ENGINEER );	//default value
+		}
+
+		if ( !Map.JeepPassMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_1st_Ramp_.*" );
+		}
+		if ( Map.JeepAtRamps and Map.Upper_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_1st_Ramp_.*" );	//focus on goal "BUILD_Jeep"
+		}
+
+		Util.MapDebugPrint( "^5Lower_Ramp_Planted" );
+	},
+
+	Lower_Ramp_Defused = function( trigger )
+	{
+
+		Map.Lower_Ramp_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Lower_Ramp_Defused" );
+	},
+
+	Lower_Ramp_Destroyed = function( trigger )
+	{
+
+		Map.Lower_Ramp_Dyno = 0;
+		Map.Lower_Ramp = false;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_1st_Ramp" );
+
+		if ( !Map.Jeep and Map.JeepAtRamps )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtRamps and Map.Upper_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+
+		if ( Map.JeepAtBarrier and !Map.Jeep_Barrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_1st_Ramp" );
+		}
+		else if ( Map.JeepAtRamps )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_1st_Ramp" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_1st_Ramp" );
+		}
+
+		if ( Map.Upper_Ramp_Dyno > 0)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_2nd_Ramp_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Lower_Ramp_Destroyed" );
+	},
+
+	Upper_Ramp_Built = function( trigger )
+	{
+
+		Map.Upper_Ramp = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_2nd_Ramp" );
+
+		if ( !Map.Jeep and Map.JeepAtRamps and Map.Lower_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtRamps and Map.Lower_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+		}
+
+		if ( Map.JeepPassMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_2nd_Ramp" );
+		}
+
+		Util.MapDebugPrint( "^5Upper_Ramp_Built" );
+	},
+
+	Upper_Ramp_Planted = function( trigger )
+	{
+
+		Map.Upper_Ramp_Dyno += 1;
+
+		if ( Map.JeepPassMarketGate and !Map.JeepPassBarrier )
+		{
+			SetGoalPriority( "DEFUSE_2nd_Ramp_.*", 0.8, TEAM.ALLIES, CLASS.ENGINEER );
+		}
+		else if ( Map.JeepPassBarrier )
+		{
+			SetGoalPriority( "DEFUSE_2nd_Ramp_.*", 1.0, TEAM.ALLIES, CLASS.ENGINEER );	//default value
+		}
+
+
+		if ( !Map.JeepPassMarketGate )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_2nd_Ramp_.*" );
+		}
+		if ( Map.JeepAtRamps and Map.Lower_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_2nd_Ramp_.*" );	//focus on goal "BUILD_Jeep"
+		}
+
+		Util.MapDebugPrint( "^5Upper_Ramp_Planted" );
+	},
+
+	Upper_Ramp_Defused = function( trigger )
+	{
+
+		Map.Upper_Ramp_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Upper_Ramp_Defused" );
+	},
+
+	Upper_Ramp_Destroyed = function( trigger )
+	{
+
+		Map.Upper_Ramp_Dyno = 0;
+		Map.Upper_Ramp = false;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_2nd_Ramp" );
+
+		if ( !Map.Jeep and Map.JeepAtRamps )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Jeep" );
+		}
+
+		if ( Map.Jeep and Map.JeepAtRamps and Map.Lower_Ramp )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_Jeep" );
+		}
+
+		if ( Map.JeepAtBarrier and !Map.Jeep_Barrier )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_2nd_Ramp" );
+		}
+		else if ( Map.JeepAtRamps )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_2nd_Ramp" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_2nd_Ramp" );
+		}
+
+		if ( Map.Lower_Ramp_Dyno > 0)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_1st_Ramp_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Upper_Ramp_Destroyed" );
+	},
+
+	Jeep_Pass_Ramps =
+	{
+		Name = "Jeep_Pass_Ramps",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassGate_pos3 = false;
+			Map.ChangeToPanzer = true;
+
+			SetGoalPriority( "ESCORT_.*", 0.71, TEAM.ALLIES, 0 );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"PLANT_1st_Ramp",
+				"PLANT_2nd_Ramp",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"BUILD_1st_Ramp",
+				"BUILD_2nd_Ramp",
+				"SMOKEBOMB_Allies_JeepAtRamps",
+			});
+
+			if ( Map.Upper_Ramp_Dyno > 0)
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_2nd_Ramp_.*" );
+			}
+			if ( Map.Lower_Ramp_Dyno > 0)
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_1st_Ramp_.*" );
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"MOUNTMG42_Street",
+				"REPAIRMG42_Street",
+			});
+
+			Map.Change_To_Panzer();
+
+			Util.MapDebugPrint( "^5Jeep_Pass_Ramps" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_Pass_Ramps_pos1 =
+	{
+		Name = "Jeep_Pass_Ramps_pos1",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassRamps_pos1 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 1, 2, 3, 4, 5 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"DEFEND_Axis_JeepPassGatePos3_.*",
+				"MOBILEMG42_Axis_JeepPassGatePos3_10",
+				"MOUNTMG42_miscmg",
+				"REPAIRMG42_miscmg",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"DEFEND_Allies_JeepPassGatePos3_.*",
+				"MOUNTMG42_miscmg",
+				"REPAIRMG42_miscmg",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepPassRampsPos1_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_JeepPassRampsPos1_.*" );
+
+			Util.MapDebugPrint( "^5Jeep_Pass_Ramps_pos1" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_Pass_Ramps_pos1_1 =
+	{
+		Name = "Jeep_Pass_Ramps_pos1_1",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassRamps_pos1 = false;
+			Map.JeepPassRamps_pos1_1 = true;
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepPassRampsPos1_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_JeepPassRampsPos1_.*" );
+
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_JeepPassRampsPos1_1_.*",
+				"DEFEND_Axis_JeepPassRampsPos1_1_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"DEFEND_JeepPassRampsPos1_1_.*",
+				"DEFEND_Allies_JeepPassRampsPos1_1_.*",
+			});
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 1, 2, 3 } );
+
+			Util.MapDebugPrint( "^5Jeep_Pass_Ramps_pos1_1" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_Pass_Ramps_pos2 =
+	{
+		Name = "Jeep_Pass_Ramps_pos2",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassRamps_pos1_1 = false;
+			Map.JeepPassRamps_pos2 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 1, 2, 4, 5 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"PLANTMINE_Axis_Tunnel_.*",
+				"DEFEND_JeepPassRampsPos1_1_.*",
+				"DEFEND_Axis_JeepPassRampsPos1_1_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"DEFEND_JeepPassRampsPos1_1_.*",
+				"DEFEND_Allies_JeepPassRampsPos1_1_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepPassRampsPos2_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepPassRampsPos2_.*" );
+
+			Util.MapDebugPrint( "^5Jeep_Pass_Ramps_pos2" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_Near_Ladder =
+	{
+		Name = "Jeep_Near_Ladder",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Wp.SetWaypointFlag( "Near_Ladder1", "closed", false );
+			Wp.SetWaypointFlag( "Near_Ladder2", "closed", true );
+
+			Util.MapDebugPrint( "^5Jeep_Near_Ladder" );
+		},
+		OnExit = function(ent)
+		{
+			Wp.SetWaypointFlag( "Near_Ladder1", "closed", true );
+			Wp.SetWaypointFlag( "Near_Ladder2", "closed", false );
+		}
+	},
+
+	Jeep_At_Position =
+	{
+		Name = "Jeep_At_Position",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassRamps_pos2 = false;
+			Map.JeepAtPosition = true;
+			Map.ChangeToPanzer = false;
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER1) )
+				{
+					bot.ChangeSpawnPoint(1);
+				}
+				if ( bot.HasRole(ROLE.DEFENDER) )
+				{
+					bot.ChangeSpawnPoint(1);
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ESCORT_Jeep",
+				"MOUNTMG42_Street",
+				"REPAIRMG42_Street",
+			});
+
+			Map.Change_To_Panzer();
+
+			Util.MapDebugPrint( "^5Jeep_At_Position" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Tower_Door_Destroyed = function( trigger )
+	{
+
+		Map.Tower_Door = false;
+
+		Util.EnableGoal( "ROUTE_Door" );
+		Util.EnableGoal( "ROUTE_Door2" );
+		Util.EnableGoal( "ROUTE_StairsToDoor" );
+
+		ControlTrigger = OnTriggerRegion(AABB(260.463,1369.874,450.125,630.875,1859.875,1003.563), Map.Control_trigger);
+
+		sleep(1.8);
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepPassRampsPos2_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_JeepPassRampsPos2_.*" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gold_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"MOBILEMG42_Axis_Gold_13",
+			"MOBILEMG42_Axis_Gold_14",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"FLAG_jeep_gold",
+			"PLANT_Tower_Wall",
+		});
+
+		Util.MapDebugPrint( "^5Tower_Door_Destroyed" );
+	},
+
+	Tower_Wall_Planted = function( trigger )
+	{
+
+		Map.Tower_Wall_Dyno += 1;
+
+		Util.SetMaxUsers( 1, "DEFUSE_Tower_Wall_.*" );
+
+		if ( Map.Golds_In_Jeep == 2 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Tower_Wall_.*" );
+		}
+		Util.MapDebugPrint( "^5Tower_Wall_Planted" );
+	},
+
+	Tower_Wall_Defused = function( trigger )
+	{
+
+		Map.Tower_Wall_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Tower_Wall_Defused" );
+	},
+
+	Tower_Wall_Destroyed = function( trigger )
+	{
+
+		if ( Map.Tower_Wall_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Tower_Wall_.*" );
+		}
+
+		Map.Tower_Wall_Dyno = 0;
+		Map.Tower_Wall = false;
+
+		Util.EnableGoal( "ROUTE_Wall" );
+		Util.EnableGoal( "ROUTE_Wall3" );
+
+		if ( Map.Ladder )
+		{
+			Util.EnableGoal( "ROUTE_Wall2" );
+		}
+
+		Wp.SetWaypointFlag( "Inside_Tower_Wall", "closed", false );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Tower_Wall" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Tower_Wall" );
+
+		if ( Map.Golds_In_Jeep < 2 )
+		{
+			Util.LimitToClass("MOUNTMG42_miscmg", TEAM.ALLIES, CLASS.SOLDIER, CLASS.COVERTOPS, CLASS.FIELDOPS);
+			SetGoalPriority( "MOUNTMG42_miscmg", 0.8, TEAM.ALLIES, CLASS.COVERTOPS );
+			SetGoalPriority( "MOUNTMG42_miscmg", 0.81, TEAM.ALLIES, CLASS.SOLDIER, CLASS.FIELDOPS );
+			SetGoalPriority( "MOUNTMG42_miscmg", 0.8, TEAM.AXIS, CLASS.ENGINEER, CLASS.COVERTOPS );
+			SetGoalPriority( "MOUNTMG42_miscmg", 0.81, TEAM.AXIS, CLASS.SOLDIER, CLASS.MEDIC, CLASS.FIELDOPS );
+			SetAvailableMapGoals( 0, true, {
+				"MOUNTMG42_miscmg",
+				"REPAIRMG42_miscmg",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"MOBILEMG42_Axis_Gold_10",
+				"MOBILEMG42_Axis_Gold_11",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"MOBILEMG42_Axis_Gold_13",
+				"MOBILEMG42_Axis_Gold_14",
+			});
+		}
+
+		Util.MapDebugPrint( "^5Tower_Wall_Destroyed" );
+	},
+
+	Gold_Taken = function( trigger )
+	{
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Jeep" );
+
+		Util.MapDebugPrint( "^5Gold_Taken" );
+	},
+
+	Control_trigger =
+	{
+		Name = "Control_trigger",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( GetEntFlags( ent, ENTFLAG.CARRYINGGOAL ) )
+				{
+					Map.Ally_with_gold -= 1;
+
+					if ( Map.Golds_In_Jeep == 1 or Map.Ally_with_gold == 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, {
+							"DEFEND_Axis_JeepPassRampsPos2_04",
+							"DEFEND_Axis_JeepPassRampsPos2_05",
+							"DEFEND_Axis_JeepPassRampsPos2_06",
+							"DEFEND_Axis_JeepPassRampsPos2_07",
+							"DEFEND_Axis_JeepWithGolds_.*",
+						});
+
+						SetAvailableMapGoals( TEAM.ALLIES, false, {
+							"ATTACK_Allies_JeepPassRampsPos2_03",
+							"ATTACK_Allies_JeepPassRampsPos2_04",
+							"ATTACK_Allies_JeepPassRampsPos2_05",
+							"ATTACK_Allies_JeepPassRampsPos2_06",
+							"ATTACK_Allies_JeepWithGolds_.*",
+						});
+
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gold_.*" );
+
+						SetAvailableMapGoals( TEAM.AXIS, false, {
+							"MOBILEMG42_Axis_Gold_10",
+							"MOBILEMG42_Axis_Gold_11",
+						});
+
+						SetAvailableMapGoals( TEAM.AXIS, true, {
+							"MOBILEMG42_Axis_Gold_13",
+							"MOBILEMG42_Axis_Gold_14",
+						});
+					}
+					else
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gold_.*" );
+
+						SetAvailableMapGoals( TEAM.AXIS, false, {
+							"MOBILEMG42_Axis_Gold_10",
+							"MOBILEMG42_Axis_Gold_11",
+						});
+
+						SetAvailableMapGoals( TEAM.AXIS, true, {
+							"MOBILEMG42_Axis_Gold_13",
+							"MOBILEMG42_Axis_Gold_14",
+						});
+					}
+
+					Util.MapDebugPrint( "^5Ally returned with gold into Tower" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if ( GetEntFlags( ent, ENTFLAG.CARRYINGGOAL ) )
+				{
+					Map.Ally_with_gold += 1;
+
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"DEFEND_Axis_JeepPassRampsPos2_04",
+						"DEFEND_Axis_JeepPassRampsPos2_05",
+						"DEFEND_Axis_JeepPassRampsPos2_06",
+						"DEFEND_Axis_JeepPassRampsPos2_07",
+						"DEFEND_Axis_JeepWithGolds_.*",
+					});
+
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"ATTACK_Allies_JeepPassRampsPos2_03",
+						"ATTACK_Allies_JeepPassRampsPos2_04",
+						"ATTACK_Allies_JeepPassRampsPos2_05",
+						"ATTACK_Allies_JeepPassRampsPos2_06",
+						"ATTACK_Allies_JeepWithGolds_.*",
+					});
+
+					if ( Map.Ally_with_gold == 2 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Gold_.*" );
+					}
+
+					if ( Map.Golds_In_Jeep == 1 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Gold_.*" );
+					}
+
+					Util.MapDebugPrint( "^5Allies took " + Map.Ally_with_gold + " gold(s) from tower and have " + Map.Golds_In_Jeep + " gold secured in jeep" );
+				}
+			}
+		}
+	},
+
+	Gold_Dropped = function( trigger )
+	{
+
+		Util.MapDebugPrint( "^5Gold_Dropped " );
+	},
+
+	Gold_Returned = function( trigger )
+	{
+
+		if ( Map.Ally_with_gold > 0 )
+		{
+			Map.Ally_with_gold -= 1;
+		}
+
+		if ( Map.Golds_In_Jeep == 1 or Map.Ally_with_gold == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"DEFEND_Axis_JeepPassRampsPos2_04",
+				"DEFEND_Axis_JeepPassRampsPos2_05",
+				"DEFEND_Axis_JeepPassRampsPos2_06",
+				"DEFEND_Axis_JeepPassRampsPos2_07",
+				"DEFEND_Axis_JeepWithGolds_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_JeepPassRampsPos2_03",
+				"ATTACK_Allies_JeepPassRampsPos2_04",
+				"ATTACK_Allies_JeepPassRampsPos2_05",
+				"ATTACK_Allies_JeepPassRampsPos2_06",
+				"ATTACK_Allies_JeepWithGolds_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gold_.*" );
+
+			if ( Map.Tower_Wall )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"MOBILEMG42_Axis_Gold_13",
+					"MOBILEMG42_Axis_Gold_14",
+				});
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"MOBILEMG42_Axis_Gold_10",
+					"MOBILEMG42_Axis_Gold_11",
+				});
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gold_.*" );
+
+			if ( Map.Tower_Wall )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"MOBILEMG42_Axis_Gold_13",
+					"MOBILEMG42_Axis_Gold_14",
+				});
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"MOBILEMG42_Axis_Gold_10",
+					"MOBILEMG42_Axis_Gold_11",
+				});
+			}
+		}
+
+		Util.MapDebugPrint( "^5Gold_Returned" );
+	},
+
+	Gold_Secured = function( trigger )
+	{
+
+		Map.Golds_In_Jeep += 1;
+
+		if ( Map.Ally_with_gold > 0 )
+		{
+			Map.Ally_with_gold -= 1;
+		}
+
+		if ( Map.Golds_In_Jeep == 1 and Map.Ally_with_gold == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"DEFEND_Axis_JeepPassRampsPos2_04",
+				"DEFEND_Axis_JeepPassRampsPos2_05",
+				"DEFEND_Axis_JeepPassRampsPos2_06",
+				"DEFEND_Axis_JeepPassRampsPos2_07",
+				"DEFEND_Axis_JeepWithGolds_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_JeepPassRampsPos2_03",
+				"ATTACK_Allies_JeepPassRampsPos2_04",
+				"ATTACK_Allies_JeepPassRampsPos2_05",
+				"ATTACK_Allies_JeepPassRampsPos2_06",
+				"ATTACK_Allies_JeepWithGolds_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Gold_.*" );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"MOBILEMG42_Axis_Gold_10",
+				"MOBILEMG42_Axis_Gold_11",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"MOBILEMG42_Axis_Gold_13",
+				"MOBILEMG42_Axis_Gold_14",
+			});
+		}
+
+		if ( Map.Golds_In_Jeep == 2 )
+		{
+			Map.ChangeToPanzer = true;
+
+			SetAvailableMapGoals( 0, false, {
+				"MOUNTMG42_miscmg",
+				"REPAIRMG42_miscmg",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Gold_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"FLAG_jeep_gold",
+				"CAPPOINT_Jeep",
+			});
+
+			Map.Change_To_Panzer();
+		}
+
+		if ( Map.JeepAtPosition and Map.Golds_In_Jeep == 2 )
+		{
+			if ( !Map.Jeep )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Jeep" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_Jeep" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Gold_Secured" );
+	},
+
+	Jeep_With_Gold_pos1 =
+	{
+		Name = "Jeep_With_Gold_pos1",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepAtPosition = false;
+			Map.JeepWithGold_pos1 = true;
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER) and Map.Axis_CP )
+				{
+					bot.ChangeSpawnPoint(5);
+				}
+				if ( bot.HasRole(ROLE.DEFENDER1) and Map.Market_Place_Axis )
+				{
+					bot.ChangeSpawnPoint(3);
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"DEFEND_Axis_JeepPassRampsPos2_04",
+				"DEFEND_Axis_JeepPassRampsPos2_05",
+				"DEFEND_Axis_JeepPassRampsPos2_06",
+				"DEFEND_Axis_JeepPassRampsPos2_07",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_JeepPassRampsPos2_03",
+				"ATTACK_Allies_JeepPassRampsPos2_04",
+				"ATTACK_Allies_JeepPassRampsPos2_05",
+				"ATTACK_Allies_JeepPassRampsPos2_06",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldPos1_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos1_.*" );
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos1" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldUnderLadder_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_JeepWithGoldUnderLadder_.*" );
+		}
+	},
+
+	Jeep_With_Gold_pos2 =
+	{
+		Name = "Jeep_With_Gold_pos2",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepWithGold_pos1 = false;
+			Map.JeepWithGold_pos2 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 4, 5 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"DEFEND_Axis_JeepWithGolds_.*",
+				"DEFEND_Axis_JeepWithGoldPos1_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_JeepWithGolds_.*",
+				"ATTACK_Allies_JeepWithGoldPos1_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldPos2_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos2_.*" );
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos2" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepPassGatePos2_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_JeepPassGatePos2_.*" );
+
+			Util.DisableGoal( "BUILD_Ladder" );
+			Util.DisableGoal( "PLANT_Ladder" );
+		}
+	},
+
+	Jeep_With_Gold_pos3 =	//route under CP
+	{
+		Name = "Jeep_With_Gold_pos3",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepPassGate_pos3 = false;
+			Map.JeepWithGold_pos3 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 1, 2 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepWithGoldUnderMG42_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_JeepWithGoldUnderMG42_.*" );
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos3" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_JeepWithGoldPos5_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos5_.*" );
+		}
+	},
+
+	Jeep_With_Gold_pos4 =
+	{
+		Name = "Jeep_With_Gold_pos4",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepWithGold_pos3 = false;
+			Map.JeepWithGold_pos4 = true;
+
+			ETUtil.SetExcludeIndexes( "BUILD_Jeep", { 0, 1, 2, 4, 5 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepWithGoldPos3_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_JeepWithGoldPos3_.*" );
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos4" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_JeepWithGoldPos6_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos6_.*" );
+		}
+	},
+
+	Jeep_With_Gold_pos5 =
+	{
+		Name = "Jeep_With_Gold_pos5",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepWithGold_pos4 = false;
+			Map.JeepWithGold_pos5 = true;
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"DEFEND_Axis_JeepWithGoldPos4_.*",
+				".*_CP_.*",
+				"DEFEND_MarketPlace_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_JeepWithGoldPos4_.*",
+				".*_CP_.*",
+			});
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos5" );
+		},
+		OnExit = function(ent)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_JeepWithGoldPos7_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Allies_JeepWithGoldPos7_.*" );
+		}
+	},
+
+	Jeep_With_Gold_pos6 =
+	{
+		Name = "Jeep_With_Gold_pos6",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepWithGold_pos5 = false;
+			Map.JeepWithGold_pos6 = true;
+			Map.ChangeToMortar = true;
+
+			Util.ClearRoleForGoals(".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 });
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_JeepWithGoldPos5_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_JeepWithGoldPos5_.*" );
+
+			SetGoalPriority( "ATTACK_Axis_JeepWithGoldPos7_.*", 0.68, TEAM.AXIS, 0 );
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.ALLIES) )
+				{
+					bot.ChangeSpawnPoint(2);
+				}
+				else
+				{
+					if ( bot.GetClass () == CLASS.SOLDIER )
+					{
+						if(GetModName() == "noquarter")
+						{
+							WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.STG44, false );
+						}
+
+						bot.ChangePrimaryWeapon(WEAPON.MORTAR);
+						bot.ChangeSpawnPoint(1);
+						ETUtil.SuicideSpawn( TEAM.AXIS, 1, 2, CLASS.SOLDIER );
+					}
+					else
+					{
+						if ( Map.Market_Place_Axis and Map.Axis_CP )
+						{
+							if ( RandInt(0,1) < 1 )
+							{
+								bot.ChangeSpawnPoint(3);	//Market place
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(5);	//CP
+							}
+						}
+						else if ( Map.Market_Place_Axis and !Map.Axis_CP )
+						{
+							bot.ChangeSpawnPoint(3);
+						}
+						else if ( !Map.Market_Place_Axis and Map.Axis_CP )
+						{
+							bot.ChangeSpawnPoint(5);
+						}
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMORTAR_Axis_JeepOnEscapeSquare_.*" );
+
+			Map.Change_To_Panzer();
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos6" );
+		},
+		OnExit = function(ent)
+		{
+
+		}
+	},
+
+	Jeep_With_Gold_pos7 =
+	{
+		Name = "Jeep_With_Gold_pos7",
+		TriggerOnEntity = GetGoal("MOVER_jeep_mover").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.JeepWithGold_pos6 = false;
+			Map.JeepWithGold_pos7 = true;
+			Map.ChangeToMortar = true;
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.ALLIES) )
+				{
+					bot.ChangeSpawnPoint(2);
+				}
+				else
+				{
+					if ( bot.GetClass () == CLASS.SOLDIER )
+					{
+						bot.ChangePrimaryWeapon(WEAPON.MORTAR);
+						bot.ChangeSpawnPoint(1);
+					}
+					else
+					{
+						if ( Map.Market_Place_Axis and Map.Axis_CP )
+						{
+							if ( RandInt(0,1) < 1 )
+							{
+								bot.ChangeSpawnPoint(3);	//Market place
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(5);	//CP
+							}
+						}
+						else if ( Map.Market_Place_Axis and !Map.Axis_CP )
+						{
+							bot.ChangeSpawnPoint(3);
+						}
+						else if ( !Map.Market_Place_Axis and Map.Axis_CP )
+						{
+							bot.ChangeSpawnPoint(5);
+						}
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_JeepWithGoldPos6_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_JeepWithGoldPos6_.*" );
+
+			SetGoalPriority( "ATTACK_Axis_JeepOnEscapeSquare_.*", 1.00, TEAM.AXIS, 0 );
+			SetGoalPriority( "CALLARTILLERY_Axis_JeepOnEscapeSquare_.*", 1.1, TEAM.AXIS, 0 );
+			SetGoalPriority( "ARTILLERY_S_Axis_JeepOnEscapeSquare_.*", 1.1, TEAM.AXIS, 0 );
+			SetGoalPriority( "AIRSTRIKE_Axis_JeepOnEscapeSquare_.*", 1.1, TEAM.AXIS, 0 );
+			SetGoalPriority( "MOBILEMORTAR_Axis_JeepOnEscapeSquare_.*", 1.1, TEAM.AXIS, 0 );
+
+			SetGoalPriority( "DEFEND_Allies_JeepOnEscapeSquare_.*", 0.55, TEAM.ALLIES, 0 );
+
+			Map.Change_To_Panzer();
+
+			Util.MapDebugPrint( "^5Jeep_With_Gold_pos7" );
+		},
+		OnExit = function(ent)
+		{
+			Map.JeepWithGold_pos7 = false;
+			Map.JeepOnEscapeSquare = true;
+			Map.ChangeToMortar = true;
+
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_JeepWithGoldPos7_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_JeepOnEscapeSquare_.*" );
+
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_JeepOnEscapeSquare_.*" );
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.ALLIES) )
+				{
+					bot.ChangeSpawnPoint(2);
+				}
+				else
+				{
+					if ( bot.GetClass () == CLASS.SOLDIER )
+					{
+						bot.ChangePrimaryWeapon(WEAPON.MORTAR);
+						bot.ChangeSpawnPoint(1);
+					}
+					else
+					{
+						if ( Map.Market_Place_Axis and Map.Axis_CP )
+						{
+							if ( RandInt(0,1) < 1 )
+							{
+								bot.ChangeSpawnPoint(3);	//Market place
+							}
+							else
+							{
+								bot.ChangeSpawnPoint(5);	//CP
+							}
+						}
+						else if ( Map.Market_Place_Axis and !Map.Axis_CP )
+						{
+							bot.ChangeSpawnPoint(3);
+						}
+						else if ( !Map.Market_Place_Axis and Map.Axis_CP )
+						{
+							bot.ChangeSpawnPoint(5);
+						}
+					}
+				}
+			}
+
+			Map.Change_To_Panzer();
+
+			Util.MapDebugPrint( "^5Jeep On Escape Square" );
+		}
+	},
+
+	Ladder_Built = function( trigger )
+	{
+
+		Map.Ladder = true;
+
+		if ( !Map.Tower_Wall )
+		{
+			Util.EnableGoal( "ROUTE_Wall2" );
+		}
+
+		Util.EnableGoal( "ROUTE_HorizontalLadder" );
+
+		if ( Map.JeepWithGold_pos3 or Map.JeepWithGold_pos4 or Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Ladder" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Ladder" );
+		}
+
+		Util.MapDebugPrint( "^5Ladder_Built" );
+	},
+
+	Ladder_Planted = function( trigger )
+	{
+
+		Map.Ladder_Dyno += 1;
+
+		if ( Map.JeepWithGold_pos3 or Map.JeepWithGold_pos4 or Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Ladder_.*" );
+		}
+		else
+		{
+			SetGoalPriority( "DEFUSE_Ladder_.*", 0.6, TEAM.ALLIES, CLASS.ENGINEER );
+		}
+
+		Util.MapDebugPrint( "^5Ladder_Planted" );
+	},
+
+	Ladder_Defused = function( trigger )
+	{
+
+		Map.Ladder_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Ladder_Defused" );
+	},
+
+	Ladder_Destroyed = function( trigger )
+	{
+
+		if ( Map.Ladder_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Ladder_.*" );
+		}
+
+		Util.DisableGoal("ROUTE_HorizontalLadder");
+
+		if ( !Map.Tower_Wall )
+		{
+			Util.DisableGoal("ROUTE_Wall2");
+		}
+
+		Map.Ladder_Dyno = 0;
+		Map.Ladder = false;
+
+		if ( Map.JeepPassMarketGate )
+		{
+			if ( Map.JeepWithGold_pos3 or Map.JeepWithGold_pos4 or Map.JeepWithGold_pos5 or Map.JeepWithGold_pos6 or Map.JeepWithGold_pos7 or Map.JeepOnEscapeSquare )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Ladder" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Ladder" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Ladder_Destroyed" );
+	},
+
+	Alllies_Win = function( trigger )
+	{
+
+		Map.Ally_Win = true;
+
+		Util.MapDebugPrint( "^5Alllies_Win" );
+
+		sleep(1);
+		ETUtil.WinningChat( TEAM.ALLIES );
+		sleep(1.5);
+		ETUtil.LosingChat( TEAM.AXIS );
+	},
+
+	Thirty_second = function( trigger )
+	{
+
+		Util.MapDebugPrint( "^5Thirty_second" );
+
+		sleep(30);
+
+		if ( !Map.Ally_Win )
+		{
+			Util.MapDebugPrint( "^5Axis_Win" );
+
+			sleep(1);
+			ETUtil.WinningChat( TEAM.AXIS );
+			sleep(1.5);
+			ETUtil.LosingChat( TEAM.ALLIES );
+		}
+	},
+
+	Change_To_Panzer = function ()
+	{
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetClass () == CLASS.SOLDIER )
+			{
+				if ( !Map.ChangeToMortar )
+				{
+					if( bot.HasRole(ROLE.DEFENDER1))
+					{
+						if ( !Map.ChangeToPanzer )
+						{
+							bot.ChangePrimaryWeapon(WEAPON.MOBILE_MG42);
+							yield();
+							if ( bot.HasWeapon (WEAPON.PANZERFAUST) or bot.HasWeapon (WEAPON.FLAMETHROWER) )
+							{
+								while ( bot.GetReinforceTime() > 1)
+								{
+									yield();
+								}
+
+								if ( bot.HasWeapon (WEAPON.PANZERFAUST) or bot.HasWeapon (WEAPON.FLAMETHROWER) )
+								{
+									bot.ExecCommand ("kill");
+									Util.MapDebugPrint( "^5I have wrong weapon" );
+								}
+								Util.MapDebugPrint( "^5Changed to mobilemg42" );
+							}
+						}
+						else
+						{
+							bot.ChangePrimaryWeapon(WEAPON.PANZERFAUST);
+							yield();
+							if ( bot.HasWeapon (WEAPON.MOBILE_MG42) or bot.HasWeapon (WEAPON.FLAMETHROWER) )
+							{
+								while ( bot.GetReinforceTime() > 1)
+								{
+									yield();
+								}
+
+								if ( bot.HasWeapon (WEAPON.MOBILE_MG42) or bot.HasWeapon (WEAPON.FLAMETHROWER) )
+								{
+									bot.ExecCommand ("kill");
+									Util.MapDebugPrint( "^5I have wrong weapon" );
+								}
+								Util.MapDebugPrint( "^5Changed to panzerfaust" );
+							}
+						}
+					}
+
+					if( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER2) )
+					{
+						bot.ChangePrimaryWeapon(WEAPON.PANZERFAUST);
+						yield();
+						if ( bot.HasWeapon (WEAPON.MOBILE_MG42) or bot.HasWeapon (WEAPON.FLAMETHROWER) )
+						{
+							while ( bot.GetReinforceTime() > 1)
+							{
+								yield();
+							}
+
+							if ( bot.HasWeapon (WEAPON.MOBILE_MG42) or bot.HasWeapon (WEAPON.FLAMETHROWER) )
+							{
+								bot.ExecCommand ("kill");
+								Util.MapDebugPrint( "^5I have wrong weapon" );
+							}
+							Util.MapDebugPrint( "^5Changed to panzerfaust" );
+						}
+					}
+				}
+				else
+				{
+					if ( bot.GetTeam(TEAM.AXIS) )
+					{
+						WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MORTAR, true );
+						bot.ChangePrimaryWeapon(WEAPON.MORTAR);
+						bot.ChangeSpawnPoint(1);	//First Axis spawn
+						yield();
+						if ( bot.HasWeapon (WEAPON.MOBILE_MG42) or bot.HasWeapon (WEAPON.FLAMETHROWER) or bot.HasWeapon (WEAPON.PANZERFAUST) )
+						{
+							while ( bot.GetReinforceTime() > 1)
+							{
+								yield();
+							}
+
+							if ( bot.HasWeapon (WEAPON.MOBILE_MG42) or bot.HasWeapon (WEAPON.FLAMETHROWER) or bot.HasWeapon (WEAPON.PANZERFAUST) )
+							{
+								bot.ExecCommand ("kill");
+								Util.MapDebugPrint( "^5I have wrong weapon" );
+							}
+							Util.MapDebugPrint( "^5Changed to mortar" );
+						}
+					}
+				}
+			}
+		}
+	},
+};
+
+global OnMapLoad = function()
+{
+
+	OnTrigger( "Jeep repaired!", Map.Jeep_Built );
+	OnTrigger( "Jeep damaged", Map.Jeep_Destroyed );
+
+	Jeeppos0 = OnTriggerRegion( AABB(-581.875,-547.524,-208.875,-352.306,-438.960,-99.533), Map.Jeep_Near_Market_Gate );
+	Jeeppos1 = OnTriggerRegion( AABB(-18.875,-629.108,-197.875,22.704,-591.086,-123.875), Map.Jeep_At_Market_Gate );
+
+	OnTrigger( "Market Gate built!", Map.Market_Gate_Built );
+	OnTrigger( "Planted at the Market Gate.", Map.Market_Gate_Planted );
+	OnTrigger( "Planted at Market Gate.", Map.Market_Gate_Planted );	//Nitmod
+	OnTrigger( "Defused at the Market Gate.", Map.Market_Gate_Defused );
+	OnTrigger( "Defused at Market Gate.", Map.Market_Gate_Defused );	//Nitmod
+	OnTrigger( "Market Gate destroyed!", Map.Market_Gate_Destroyed );
+
+	Jeeppos2 = OnTriggerRegion( AABB(-15.659,-632.023,-197.875,29.156,-593.968,-123.875), Map.Jeep_Pass_Market_Gate );
+	Jeeppos2_1 = OnTriggerRegion( AABB(290.276,-516.733,-208.875,653.297,715.993,-123.875), Map.Jeep_Pass_Gate_pos1 );
+	Jeeppos2_2 = OnTriggerRegion( AABB(-261.473,812.426,-208.875,670.517,1093.462,-123.875), Map.Jeep_Pass_Gate_pos2 );
+	Jeeppos2_3 = OnTriggerRegion( AABB(-245.481,1156.752,-208.875,-6.817,1741.762,-123.875), Map.Jeep_Pass_Gate_pos3 );
+
+	OnTrigger( "Axis have captured the Market Place!", Map.Market_Place_Axis_Captured );
+	OnTrigger( "Allies have captured the Market Place!", Map.Market_Place_Allies_Captured );
+
+	Jeeppos3 = OnTriggerRegion( AABB(-273.875,1767.903,-197.875,-235.875,1805.903,-123.875), Map.Jeep_At_Barrier );
+
+	OnTrigger( "Jeep Barrier built!", Map.Jeep_Barrier_Built );
+	OnTrigger( "Planted at the Jeep Barrier.", Map.Jeep_Barrier_Planted );
+	OnTrigger( "Planted at Jeep Barrier.", Map.Jeep_Barrier_Planted );	//Nitmod
+	OnTrigger( "Defused at the Jeep Barrier.", Map.Jeep_Barrier_Defused );
+	OnTrigger( "Defused at Jeep Barrier.", Map.Jeep_Barrier_Defused );	//Nitmod
+	OnTrigger( "Jeep Barrier destroyed!", Map.Jeep_Barrier_Destroyed );
+
+	Jeeppos4 = OnTriggerRegion( AABB(-273.875,1779.069,-197.875,-235.875,1817.069,-123.875), Map.Jeep_Pass_Barrier );
+
+	Jeeppos5 = OnTriggerRegion( AABB(-105.873,2525.317,-208.875,-67.833,2565.538,-158.875), Map.Jeep_At_Ramps );
+
+	OnTrigger( "Lower Ramp constructed!", Map.Lower_Ramp_Built );
+	OnTrigger( "Planted at the 1st Ramp.", Map.Lower_Ramp_Planted );
+	OnTrigger( "Planted at 1st Ramp.", Map.Lower_Ramp_Planted );	//Nitmod
+	OnTrigger( "Defused at the 1st Ramp.", Map.Lower_Ramp_Defused );
+	OnTrigger( "Defused at 1st Ramp.", Map.Lower_Ramp_Defused );	//Nitmod
+	OnTrigger( "Lower Ramp destroyed!", Map.Lower_Ramp_Destroyed );
+
+	OnTrigger( "Upper Ramp constructed!", Map.Upper_Ramp_Built );
+	OnTrigger( "Planted at the 2nd Ramp.", Map.Upper_Ramp_Planted );
+	OnTrigger( "Planted at 2nd Ramp.", Map.Upper_Ramp_Planted );	//Nitmod
+	OnTrigger( "Defused at the 2nd Ramp.", Map.Upper_Ramp_Defused );
+	OnTrigger( "Defused at 2nd Ramp.", Map.Upper_Ramp_Defused );	//Nitmod
+	OnTrigger( "Upper Ramp destroyed!", Map.Upper_Ramp_Destroyed );
+
+	Jeeppos6 = OnTriggerRegion( AABB(-231.875,2565.627,-208.733,-193.875,2603.627,-134.733), Map.Jeep_Pass_Ramps );
+	Jeeppos6_1 = OnTriggerRegion( AABB(-231.875,3105.722,-82.875,25.826,3360.875,12.125), Map.Jeep_Pass_Ramps_pos1 );
+	Jeeppos6_1_1 = OnTriggerRegion( AABB(342.861,2829.826,1.125,383.438,2886.690,75.125), Map.Jeep_Pass_Ramps_pos1_1 );
+	Jeeppos6_2 = OnTriggerRegion( AABB(875.396,1613.154,-90.691,1165.531,2443.929,78.125), Map.Jeep_Pass_Ramps_pos2 );
+
+	Jeeppos7_0 = OnTriggerRegion( AABB(949.630,1910.761,-64.767,987.630,1948.761,9.233), Map.Jeep_Near_Ladder );
+	Jeeppos7 = OnTriggerRegion( AABB(1043.793,1528.583,-106.724,1081.793,1566.583,-32.724), Map.Jeep_At_Position );
+
+	OnTrigger( "goldrush_axis_gold_defend", Map.Tower_Door_Destroyed );
+
+	OnTrigger( "Planted at the Tower Wall.", Map.Tower_Wall_Planted );
+	OnTrigger( "Planted at Tower Wall.", Map.Tower_Wall_Planted );	//Nitmod
+	OnTrigger( "Defused at the Tower Wall.", Map.Tower_Wall_Defused );
+	OnTrigger( "Defused at Tower Wall.", Map.Tower_Wall_Defused );	//Nitmod
+	OnTrigger( "Allies have made a hole in the Tower Wall", Map.Tower_Wall_Destroyed );
+
+	OnTrigger( "Allies have stolen a goldcrate!", Map.Gold_Taken );
+	OnTrigger( "a goldcrate dropped.", Map.Gold_Dropped );
+	OnTrigger( "Flag returned jeep_gold!", Map.Gold_Returned );
+	OnTrigger( "Allies have stolen the first goldcrate!", Map.Gold_Secured );
+	OnTrigger( "Allies have stolen the second goldcrate!", Map.Gold_Secured );
+
+	Jeeppos7_3 = OnTriggerRegion( AABB(949.532,613.901,-208.875,1095.839,1535.512,-34.515), Map.Jeep_With_Gold_pos1 );
+	Jeeppos7_3 = OnTriggerRegion( AABB(663.830,352.378,-208.875,1069.410,555.836,-123.875), Map.Jeep_With_Gold_pos2 );
+	Jeeppos7_3 = OnTriggerRegion( AABB(-1425.341,1124.831,-208.875,-318.734,1395.418,-123.875), Map.Jeep_With_Gold_pos3 );
+	Jeeppos7_4 = OnTriggerRegion( AABB(-1725.755,297.234,-208.875,-1509.115,1333.537,-89.206), Map.Jeep_With_Gold_pos4 );
+	Jeeppos7_5 = OnTriggerRegion( AABB(-1731.638,-59.212,-208.875,-1133.126,237.624,-123.875), Map.Jeep_With_Gold_pos5 );
+	Jeeppos7_6 = OnTriggerRegion( AABB(-1379.167,-895.842,-208.875,-1145.280,-82.256,-123.875), Map.Jeep_With_Gold_pos6 );
+	Jeeppos7_7 = OnTriggerRegion( AABB(-1346.137,-1422.765,-280.636,-1012.072,-919.874,-125.903), Map.Jeep_With_Gold_pos7 );
+
+	OnTrigger( "Ladder to balcony has been built near the Tower!", Map.Ladder_Built );
+	OnTrigger( "Planted at the Ladder.", Map.Ladder_Planted );
+	OnTrigger( "Planted at Ladder.", Map.Ladder_Planted );	//Nitmod
+	OnTrigger( "Defused at the Ladder.", Map.Ladder_Defused );
+	OnTrigger( "Defused at Ladder.", Map.Ladder_Defused );	//Nitmod
+	OnTrigger( "Ladder to balcony has been destroyed!", Map.Ladder_Destroyed );
+
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_CP_Built );
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_CP_Built );
+	OnTrigger( "Planted at the Command Post.", Map.Command_Post_Planted );
+	OnTrigger( "Planted at Command Post.", Map.Command_Post_Planted );	//Nitmod
+	OnTrigger( "Defused at the Command Post.", Map.Command_Post_Defused );
+	OnTrigger( "Defused at Command Post.", Map.Command_Post_Defused );	//Nitmod
+	OnTrigger( "Axis Command Post destroyed!", Map.Axis_CP_Destroyed );
+	OnTrigger( "Allied Command Post destroyed!", Map.Allied_CP_Destroyed );
+
+	OnTrigger( "Allies escaped succesfully!", Map.Alllies_Win );
+	OnTrigger( "thirty second warning.", Map.Thirty_second );
+
+	RegionTrigger.Create(AABB(-1284.484,993.907,-208.875,-787.279,1334.312,370.978), "DisableBotPush", "Ladder_Near_CP");
+	RegionTrigger.Create(AABB(-1284.484,993.907,-208.875,-787.279,1334.312,370.978), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(-534.927,-491.125,-197.875,-272.125,-199.098,54.125), "DisableBotPush", "Wooden_Tribes");
+	RegionTrigger.Create(AABB(-534.927,-491.125,-197.875,-272.125,-199.098,54.125), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(-326.125,2374.890,12.125,21.875,2466.282,172.819), "DisableBotPush", "Railing_At_Jeep_Barrier");
+	RegionTrigger.Create(AABB(-326.125,2374.890,12.125,21.875,2466.282,172.819), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(347.946,1279.514,400.125,533.466,1487.199,588.125), "DisableBotPush", "Tower_Wall_Window");
+	RegionTrigger.Create(AABB(347.946,1279.514,400.125,533.466,1487.199,588.125), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(-374.679,2309.885,-197.875,-279.724,2405.875,-97.350), "DisableBotPush", "Jeep_Barrier_Coverspot_0");
+	RegionTrigger.Create(AABB(-374.679,2309.885,-197.875,-279.724,2405.875,-97.350), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(-46.266,2334.999,-197.870,21.875,2394.874,-123.870), "DisableBotPush", "Jeep_Barrier_Coverspot_1");
+	RegionTrigger.Create(AABB(-46.266,2334.999,-197.870,21.875,2394.874,-123.870), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(-944.184,1112.657,348.685,785.649,1680.875,599.754), "DisableBotPush", "Roofs");
+	RegionTrigger.Create(AABB(-944.184,1112.657,348.685,785.649,1680.875,599.754), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(214.872,774.839,121.696,324.528,1173.867,429.808), "DisableBotPush", "Way_Down_From_Roof");
+	RegionTrigger.Create(AABB(214.872,774.839,121.696,324.528,1173.867,429.808), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(849.821,1833.297,-68.668,991.445,2007.769,61.756), "DisableBotPush", "LAdder_To_Gold");
+	RegionTrigger.Create(AABB(849.821,1833.297,-68.668,991.445,2007.769,61.756), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(167.125,335.125,-208.875,384.820,557.875,157.125), "DisableBotPush", "LAdder_To_Ladder");
+	RegionTrigger.Create(AABB(167.125,335.125,-208.875,384.820,557.875,157.125), "DisableCombatMovement", "");
+	//RegionTrigger.Create(AABB(-1054.013,797.125,271.125,-755.125,852.102,403.125), "DisableBotPush", "Around_CP");
+	RegionTrigger.Create(AABB(-1054.013,797.125,271.125,-755.125,852.102,403.125), "DisableCombatMovement", "Around_CP");
+	RegionTrigger.Create(AABB(686.458,-596.693,-208.875,763.944,-521.031,-133.905), "DisableBotPush", "Axis_MG_01");
+	RegionTrigger.Create(AABB(686.458,-596.693,-208.875,763.944,-521.031,-133.905), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(831.782,-695.822,-198.811,898.103,-624.125,-76.920), "DisableBotPush", "Axis_MG_02");
+	RegionTrigger.Create(AABB(831.782,-695.822,-198.811,898.103,-624.125,-76.920), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(1141.376,-858.846,-192.875,1239.875,-668.683,-23.493), "DisableBotPush", "Axis_MG_03");
+	RegionTrigger.Create(AABB(1141.376,-858.846,-192.875,1239.875,-668.683,-23.493), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(713.849,-987.875,-208.875,876.078,-864.966,-38.525), "DisableBotPush", "Axis_MG_04");
+	RegionTrigger.Create(AABB(713.849,-987.875,-208.875,876.078,-864.966,-38.525), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(312.370,-765.131,-208.875,408.975,-677.462,-134.875), "DisableBotPush", "Axis_MG_05");
+	RegionTrigger.Create(AABB(312.370,-765.131,-208.875,408.975,-677.462,-134.875), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(825.401,-609.860,-166.875,896.875,-514.385,-73.860), "DisableBotPush", "Axis_MG_08");
+	RegionTrigger.Create(AABB(825.401,-609.860,-166.875,896.875,-514.385,-73.860), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(492.911,-672.875,-208.875,537.875,-620.613,-93.617), "DisableBotPush", "Axis_MG_10");
+	RegionTrigger.Create(AABB(492.911,-672.875,-208.875,537.875,-620.613,-93.617), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(-581.875,-547.524,-208.875,-352.306,-438.960,-99.533), "DisableCombatMovement", "Allies_MG_01 + 02");
+	RegionTrigger.Create(AABB(507.632,3065.125,1.125,580.875,3158.137,159.125), "DisableCombatMovement", "DEFEND_JeepPassRampsPos1_03");
+	RegionTrigger.Create(AABB(507.632,3065.125,1.125,580.875,3158.137,159.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(623.889,3040.719,127.183,672.875,3104.032,201.183), "DisableCombatMovement", "DEFEND_JeepPassRampsPos1_1_01");
+	RegionTrigger.Create(AABB(623.889,3040.719,127.183,672.875,3104.032,201.183), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1205.509,2499.125,1.125,1280.875,2613.074,135.125), "DisableCombatMovement", "DEFEND_Axis_JeepPassRampsPos1_1_06");
+	RegionTrigger.Create(AABB(1205.509,2499.125,1.125,1280.875,2613.074,135.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(836.507,1763.125,64.125,917.772,1824.320,138.125), "DisableCombatMovement", "DEFEND_Axis_JeepPassRampsPos2_02");
+	RegionTrigger.Create(AABB(836.507,1763.125,64.125,917.772,1824.320,138.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(755.125,2103.612,64.125,819.118,2198.038,138.125), "DisableCombatMovement", "DEFEND_Axis_JeepPassRampsPos2_03");
+	RegionTrigger.Create(AABB(755.125,2103.612,64.125,819.118,2198.038,138.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(775.242,2131.130,295.125,859.189,2205.875,369.125), "DisableCombatMovement", "DEFEND_Axis_JeepPassRampsPos2_08");
+	RegionTrigger.Create(AABB(775.242,2131.130,295.125,859.189,2205.875,369.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1075.842,2120.628,295.125,1166.459,2205.875,369.125), "DisableCombatMovement", "DEFEND_Axis_JeepPassRampsPos2_09");
+	RegionTrigger.Create(AABB(1075.842,2120.628,295.125,1166.459,2205.875,369.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1067.214,1962.930,295.125,1145.491,2070.960,369.125), "DisableCombatMovement", "DEFEND_Axis_JeepPassRampsPos2_10");
+	RegionTrigger.Create(AABB(1067.214,1962.930,295.125,1145.491,2070.960,369.125), "DisableBotPush", "");
+	RegionTrigger.Create(AABB(1166.572,2093.520,295.125,1250.875,2205.875,369.125), "DisableBotPush", "MOBILEMG42_Axis_Gold_10");
+	RegionTrigger.Create(AABB(260.516,1772.080,400.125,357.800,1859.875,474.125), "DisableBotPush", "MOBILEMG42_Axis_Gold_11");
+	RegionTrigger.Create(AABB(-420.198,-688.810,-208.875,117.872,-486.968,-9.974), "DisableCombatMovement", "Jeep_in_front_of_MG");
+	RegionTrigger.Create(AABB(-245.481,1156.752,-208.875,-6.817,1741.762,-123.875), "DisableCombatMovement", "Jeep_in_front_of_Barrier");
+	RegionTrigger.Create(AABB(746.759,1301.125,211.125,904.183,1530.405,485.103), "DisableCombatMovement", "Wooden_Barrels");
+	RegionTrigger.Create(AABB(-1848.874,-42.875,12.125,-1757.624,99.618,86.125), "DisableBotPush", "Axis_JeepWithGoldPos5_03");
+	RegionTrigger.Create(AABB(-1294.481,-1680.875,-197.875,-1168.814,-1479.314,-123.875), "DisableBotPush", "Axis_JeepWithGoldPos6_03");
+	RegionTrigger.Create(AABB(-1294.481,-1680.875,-197.875,-1168.814,-1479.314,-123.875), "DisableCombatMovement", "");
+	RegionTrigger.Create(AABB(879.733,1860.125,-47.120,962.665,1953.126,397.749), "DisableCombatMovement", "Ladder1_to_gold");
+	RegionTrigger.Create(AABB(1126.830,1385.820,-114.121,1250.875,1521.769,321.716), "DisableCombatMovement", "Ladder2_to_gold");
+	RegionTrigger.Create(AABB(241.861,626.341,133.475,846.990,788.266,294.981), "DisableCombatMovement", "Destructible_ladder");
+	RegionTrigger.Create(AABB(810.854,2732.142,169.125,1030.807,2861.480,285.573), "DisableCombatMovement", "Window_Axis_spawn");
+	RegionTrigger.Create(AABB(810.854,2732.142,169.125,1030.807,2861.480,285.573), "DisableBotPush", "");
+
+	GetGoal("AIRSTRIKE_Axis_MG_05").AimVectors =
+	{ Vec3(-0.307, 0.093, 0.947) };
+
+	Util.DisableGoal( ".*", true );
+
+	Util.ClearRoleForGoals(".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 });
+
+	SetAvailableMapGoals( 0, false, "PLANT_Jeep" );
+
+	SetAvailableMapGoals( 0, true, {
+		"AMMOCAB_t14",
+		"HEALTHCAB_t13",
+	});
+
+	Wp.SetWaypointFlag( "Jeep_At_Box_1", "jump", false );
+	Wp.SetWaypointFlag( "Jeep_At_Box_2", "closed", true );
+	Wp.SetWaypointFlag( "Jeep_At_Box_3", "closed", false );
+
+	Wp.SetWaypointFlag( "Jeep_Pass_Box_1", "closed", false );
+	Wp.SetWaypointFlag( "Jeep_Pass_Box_2", "closed", false );
+	Wp.SetWaypointFlag( "Jeep_Pass_Box_2", "jump", false );
+	Wp.SetWaypointFlag( "Jeep_Pass_Box_3", "closed", true );
+	Wp.SetWaypointFlag( "Jeep_Pass_Box_4", "closed", true );
+
+	Wp.SetWaypointFlag( "Jeep_At_Gate_1", "jump", false );
+	Wp.SetWaypointFlag( "Jeep_At_Gate_2", "closed", true );
+	Wp.SetWaypointFlag( "Jeep_At_Gate_3", "closed", true );
+	Wp.SetWaypointFlag( "Box_74", "closed", true );
+	Wp.SetWaypointFlag( "Jeep_1", "closed", false );
+	Wp.SetWaypointFlag( "Jeep_2", "closed", false );
+	Wp.SetWaypointFlag( "Jeep_3", "jump", false );
+	Wp.SetWaypointFlag( "Jeep_3", "sprint", false );
+	Wp.SetWaypointFlag( "Jeep_4", "jump", false );
+	Wp.SetWaypointFlag( "Jeep_4", "sprint", false );
+
+	Wp.SetWaypointFlag( "Near_Ladder1", "closed", true );
+	Wp.SetWaypointFlag( "Near_Ladder2", "closed", false );
+
+	Wp.SetWaypointFlag( "Inside_Tower_Wall", "closed", true );
+
+	Wp.SetWaypointFlag( "MG_WP1", "closed", false );
+	Wp.SetWaypointFlag( "MG_WP2", "closed", false );
+	Wp.SetWaypointFlag( "MG_WP1", "sneak", true );
+	Wp.SetWaypointFlag( "MG_WP2", "sneak", true );
+	Wp.SetWaypointFlag( "MG_WP3", "sneak", true );
+	Wp.SetWaypointFlag( "MG_WP4", "sneak", true );
+	Wp.SetWaypointFlag( "MG_WP4", "sprint", false );
+	Wp.SetWaypointFlag( "MG_WP4", "jump", false );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"PLANT_Market_Gate",
+		"ESCORT_Jeep",
+		"CHECKPOINT_flag",
+		"BUILD_Command_Post",
+		".*_Allies_MG_.*",
+		".*_Allies_MP_.*",
+		"ATTACK_CP_.*",
+	});
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		"CHECKPOINT_flag",
+		"BUILD_Command_Post",
+		"ATTACK_CP_.*",
+		".*_Axis_MG_.*",
+		".*_Axis_BackWayToMG_.*",
+	});
+
+	SetGoalPriority( "PLANT_.*", 0.9, 0, 0 );
+	SetGoalPriority( "DEFEND_JeepPassGatePos.*", 0.51, 0, 0 );
+	SetGoalPriority( ".*_JeepPassRampsPos.*", 0.51, 0, 0 );
+	SetGoalPriority( "DEFEND_MarketPlace_01", 0.51, 0, 0 );
+
+	SetGoalPriority( "ESCORT_.*", 0.69, TEAM.ALLIES, 0 );
+	SetGoalPriority( "DEFEND_Allies_JeepPassGatePos3_03", 0.52, TEAM.ALLIES, 0 );
+	SetGoalPriority( "DEFEND_Allies_JeepPassGatePos3_02", 0.52, TEAM.ALLIES, 0 );
+	SetGoalPriority( "BUILD_Jeep", 0.91, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Market_Gate", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Command_Post", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Ladder", 0.8, TEAM.ALLIES, CLASS.ENGINEER );
+
+	SetGoalPriority( ".*_Axis_MG_09", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( ".*_Axis_MG_10", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Gold_.*", 0.79, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Gold_01", 0.9, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_Gold_03", 0.9, TEAM.AXIS, 0 );
+
+	Util.AddUseWp( "PLANT_Tower_Wall", "Tower_Wall_Plant_WP" );
+	Util.AddUseWp( "HEALTHCAB_health", "Health_WP" );
+	Util.AddUseWp( "PLANT_Command_Post", "CP_Plant_WP" );
+	Util.AddUseWp( "BUILD_Market_Gate", "Build_MG_WP" );
+	Util.AddUseWp( "PLANT_Market_Gate", "Plant_MG_WP1" );
+	Util.AddUseWp( "PLANT_Market_Gate", "Plant_MG_WP2" );
+	Util.AddUseWp( "PLANT_Market_Gate", "MG_WP1" );
+	Util.AddUseWp( "PLANT_Market_Gate", "MG_WP2" );
+
+	Util.SetGoalPosition(5, 2050, -165, "PLANT_Jeep_Barrier");
+	Util.SetGoalPosition(-212.875, 2794.689, -143.875, "PLANT_1st_Ramp");
+	Util.SetGoalPosition(225.035, 3341.875, 24.125, "PLANT_2nd_Ramp");
+	Util.SetGoalPosition(669.189, 727.816, 255.125, "PLANT_Ladder");
+
+	Util.LimitToClass("PLANT_Command_Post", 0, CLASS.ENGINEER);
+	Util.LimitToClass("PLANT_Command_Post1", 0, CLASS.COVERTOPS);
+
+	Util.LimitToClass("PLANT_1st_Ramp", TEAM.AXIS, CLASS.ENGINEER);
+	Util.LimitToClass("PLANT_2nd_Ramp", TEAM.AXIS, CLASS.ENGINEER);
+
+	Util.SetRoleForGoals("BUILD_Command_Post", { ROLE.DEFENDER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("PLANT_Command_Post", { ROLE.DEFENDER, ROLE.ATTACKER2 });	//or cancel?
+	Util.SetRoleForGoals("PLANT_Command_Post1", { ROLE.DEFENDER, ROLE.ATTACKER2 });	//or cancel?
+	Util.SetRoleForGoals("ATTACK_CP_.*", { ROLE.DEFENDER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("DEFEND_MarketPlace_.*", { ROLE.DEFENDER1, ROLE.ATTACKER1 });
+	Util.SetRoleForGoals("CHECKPOINT_flag", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.ATTACKER1 });
+	Util.SetRoleForGoals("DEFEND_JeepPassGate.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.ATTACKER, ROLE.ATTACKER1 });
+
+	Util.SetRoleForGoals(".*_Axis_MG_.*", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("GRENADE_Jeep", ROLE.DEFENDER1);
+	Util.SetRoleForGoals(".*_Axis_BackWayToMG_.*", ROLE.DEFENDER2);
+
+	Util.SetRoleForGoals("AIRSTRIKE_Allies_MG_.*", ROLE.ATTACKER);
+	Util.SetRoleForGoals("ATTACK_Allies_MG_.*", ROLE.ATTACKER);
+	Util.SetRoleForGoals("ESCORT_Jeep", ROLE.ATTACKER);
+	Util.SetRoleForGoals(".*_Allies_MP_.*", ROLE.ATTACKER1);
+
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "PLANT_Ladder" );
+	Util.SetMaxUsers( 2, "BUILD_.*" );
+	Util.SetMaxUsers( 3, "CHECKPOINT_flag" );
+	Util.SetMaxUsers( 4, "ESCORT_.*" );
+	Util.SetMaxUsersInUse( 2, "DEFEND_Jeep.*" );
+	Util.SetMaxUsersInUse( 2, "MOUNTMG42_miscmg" );
+
+	Util.LimitToTeam(TEAM.ALLIES, "ROUTE_ThroughMarketGate");
+
+	Util.DisableGoal("ROUTE_ThroughMarketGate");
+	Util.DisableGoal("ROUTE_InsideUnderCP1");
+
+	print( "^3Omni-bot map script by ^1Q^2i^3k^4i^1 ^3and ^1n^2a^4t^8i^3v^5e12 ^3for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 110.0;
+
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MORTAR, false );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Command_Post =
+		{
+			ROUTE_Allied_FirstSpawnFront =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnBack =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnSide1 =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnSide2 =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+
+					},
+				},
+			},
+			ROUTE_SpawnsOnMarketPlace =	//spawns for both teams
+			{
+				ROUTE_ThroughMarketGate =	//for Allies only
+				{
+					Weight = 2,
+					ROUTE_InsideUnderCP1 =
+					{
+
+					},
+				},
+				ROUTE_UnderHorizontalLadder =
+				{
+
+				},
+			},
+		},
+		BUILD_2nd_Ramp =
+		{
+		},
+		BUILD_Market_Gate =
+		{
+		},
+		BUILD_Jeep_Barrier =
+		{
+		},
+		BUILD_1st_Ramp =
+		{
+		},
+		BUILD_Jeep =
+		{
+		},
+		BUILD_Ladder =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		PLANT_Command_Post1 =
+		{
+		},
+		PLANT_1st_Ramp =
+		{
+		},
+		PLANT_2nd_Ramp =
+		{
+		},
+		PLANT_Ladder =
+		{
+		},
+		PLANT_Jeep_Barrier =
+		{
+			ROUTE_Allied_FirstSpawnFront =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+					ROUTE_Corner =
+					{
+
+					},
+					ROUTE_WineCellar =
+					{
+
+					},
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+						ROUTE_AroundStreetMG42 =
+						{
+
+						},
+						ROUTE_Corner =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnBack =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+					ROUTE_Corner =
+					{
+
+					},
+					ROUTE_WineCellar =
+					{
+
+					},
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+						ROUTE_AroundStreetMG42 =
+						{
+
+						},
+						ROUTE_Corner =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnSide1 =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+					ROUTE_Corner =
+					{
+
+					},
+					ROUTE_WineCellar =
+					{
+
+					},
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+						ROUTE_AroundStreetMG42 =
+						{
+
+						},
+						ROUTE_Corner =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnSide2 =
+			{
+				ROUTE_StreetToCP =
+				{
+					Weight = 2,
+					ROUTE_Corner =
+					{
+
+					},
+					ROUTE_WineCellar =
+					{
+
+					},
+
+				},
+				ROUTE_WindowNearMarketGate =
+				{
+					ROUTE_InsideUnderCP =
+					{
+						ROUTE_AroundStreetMG42 =
+						{
+
+						},
+						ROUTE_Corner =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_SpawnsOnMarketPlace =	//spawns for both teams
+			{
+				ROUTE_ThroughMarketGate =	//for Allies only
+				{
+					ROUTE_InsideUnderCP1 =
+					{
+						ROUTE_AroundStreetMG42 =
+						{
+
+						},
+						ROUTE_Corner =
+						{
+
+						},
+					},
+				},
+				ROUTE_UnderHorizontalLadder =
+				{
+					Weight = 2,
+				},
+				ROUTE_CornerAxisFirstSpawn =
+				{
+					ROUTE_Ramps =
+					{
+
+					},
+				},
+			},
+			ROUTE_SpawnsNearCP =	//spawns for both teams
+			{
+				ROUTE_AroundStreetMG42 =
+				{
+
+				},
+				ROUTE_Corner =
+				{
+
+				},
+				ROUTE_StairsToWineCellar =
+				{
+					ROUTE_WineCellar =
+					{
+
+					},
+				},
+			},
+		},
+		PLANT_Market_Gate =
+		{
+		},
+		PLANT_Tower_Wall =
+		{
+		},
+		FLAG_jeep_gold =
+		{
+			ROUTE_Allied_FirstSpawnFront =
+			{
+				ROUTE_RightPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_LeftPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_HorizontalLadder =
+				{
+					ROUTE_Door2 =
+					{
+
+					},
+					ROUTE_Wall2 =
+					{
+						Weight = 2,
+					},
+				},
+				ROUTE_LadderToCP =
+				{
+					ROUTE_Roof =
+					{
+						ROUTE_Wall3 =
+						{
+
+						},
+					},
+					ROUTE_StairsToDoor =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnBack =
+			{
+				ROUTE_RightPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_LeftPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_HorizontalLadder =
+				{
+					ROUTE_Door2 =
+					{
+
+					},
+					ROUTE_Wall2 =
+					{
+						Weight = 2,
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnSide1 =
+			{
+				ROUTE_RightPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_LeftPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_HorizontalLadder =
+				{
+					ROUTE_Door2 =
+					{
+
+					},
+					ROUTE_Wall2 =
+					{
+						Weight = 2,
+					},
+				},
+			},
+			ROUTE_Allied_FirstSpawnSide2 =
+			{
+				ROUTE_RightPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_LeftPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_HorizontalLadder =
+				{
+					ROUTE_Door2 =
+					{
+
+					},
+					ROUTE_Wall2 =
+					{
+						Weight = 2,
+					},
+				},
+			},
+			ROUTE_SpawnsOnMarketPlace =	//spawns for both teams
+			{
+				ROUTE_RightPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_LeftPassage =
+				{
+					ROUTE_LadderNearTree =
+					{
+						ROUTE_Door =
+						{
+
+						},
+						ROUTE_Wall =
+						{
+
+						},
+					},
+					ROUTE_LadderSpawn =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+				ROUTE_HorizontalLadder =
+				{
+					ROUTE_Door2 =
+					{
+
+					},
+					ROUTE_Wall2 =
+					{
+						Weight = 2,
+					},
+				},
+			},
+		},
+		CHECKPOINT_flag =
+		{
+		},
+		CAPPOINT_Jeep =
+		{
+			ROUTE_FlagGold =
+			{
+				ROUTE_Wall =
+				{
+					Weight = 2,
+
+				},
+				ROUTE_Door =
+				{
+
+				},
+			},
+		},
+		DEFEND_Axis_Gold_01 =
+		{
+			ROUTE_FirstAxisSpawn_2Floor1 =
+			{
+				ROUTE_LadderSpawn =
+				{
+					ROUTE_Door =
+					{
+
+					},
+				},
+				ROUTE_LadderNearTree =
+				{
+					ROUTE_Wall =
+					{
+
+					},
+					ROUTE_StairsToDoor =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_FirstAxisSpawn_2Floor2 =
+			{
+				ROUTE_LadderSpawn =
+				{
+					ROUTE_Door =
+					{
+
+					},
+				},
+				ROUTE_LadderNearTree =
+				{
+					ROUTE_Wall =
+					{
+
+					},
+					ROUTE_StairsToDoor =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_FirstAxisSpawn_1Floor1 =
+			{
+				ROUTE_LadderSpawn =
+				{
+					ROUTE_Door =
+					{
+
+					},
+				},
+				ROUTE_LadderNearTree =
+				{
+					ROUTE_Wall =
+					{
+
+					},
+					ROUTE_StairsToDoor =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_FirstAxisSpawn_1Floor2 =
+			{
+				ROUTE_LadderSpawn =
+				{
+					ROUTE_Door =
+					{
+
+					},
+				},
+				ROUTE_LadderNearTree =
+				{
+					ROUTE_Wall =
+					{
+
+					},
+					ROUTE_StairsToDoor =
+					{
+						ROUTE_Door =
+						{
+
+						},
+					},
+				},
+			},
+		},
+		MOUNTMG42_miscmg =
+		{
+			ROUTE_FirstAxisSpawn_2Floor1 =
+			{
+				ROUTE_Passage =
+				{
+
+				},
+				ROUTE_AroundStreetMG42 =
+				{
+					ROUTE_UnderCP =
+					{
+						ROUTE_UnderHorizontalLadder =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_FirstAxisSpawn_2Floor2 =
+			{
+				ROUTE_Passage =
+				{
+
+				},
+				ROUTE_AroundStreetMG42 =
+				{
+					ROUTE_UnderCP =
+					{
+						ROUTE_UnderHorizontalLadder =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_FirstAxisSpawn_1Floor1 =
+			{
+				ROUTE_Passage =
+				{
+
+				},
+				ROUTE_AroundStreetMG42 =
+				{
+					ROUTE_UnderCP =
+					{
+						ROUTE_UnderHorizontalLadder =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_FirstAxisSpawn_1Floor2 =
+			{
+				ROUTE_Passage =
+				{
+
+				},
+				ROUTE_AroundStreetMG42 =
+				{
+					ROUTE_UnderCP =
+					{
+						ROUTE_UnderHorizontalLadder =
+						{
+
+						},
+					},
+				},
+			},
+		},
+	};
+
+	MapRoutes["ATTACK_CP_.*"] = MapRoutes.BUILD_Command_Post;
+	MapRoutes.PLANT_Command_Post = MapRoutes.BUILD_Command_Post;
+	MapRoutes.PLANT_Command_Post1 = MapRoutes.BUILD_Command_Post;
+	MapRoutes.BUILD_1st_Ramp = MapRoutes.PLANT_Jeep_Barrier;
+	MapRoutes.BUILD_2nd_Ramp = MapRoutes.PLANT_Jeep_Barrier;
+	MapRoutes["DEFEND_Axis_Gold_.*"] = MapRoutes.DEFEND_Axis_Gold_01;
+	MapRoutes["DEFEND_Axis_Gold_.*"] = MapRoutes.FLAG_jeep_gold;
+
+	Util.Routes(MapRoutes);
+
+	Util.DisableGoal("ROUTE_ThroughMarketGate");
+	Util.DisableGoal("ROUTE_InsideUnderCP1");
+	Util.DisableGoal("ROUTE_Wall");
+	Util.DisableGoal("ROUTE_Wall2");
+	Util.DisableGoal("ROUTE_Wall3");
+	Util.DisableGoal("ROUTE_HorizontalLadder");
+	Util.DisableGoal("ROUTE_Door");
+	Util.DisableGoal("ROUTE_Door2");
+	Util.DisableGoal("ROUTE_StairsToDoor");
+};

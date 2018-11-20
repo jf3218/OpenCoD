@@ -1,0 +1,289 @@
+global _MG = 
+{
+	AMMOCAB_north_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(1107.250, 656.250, 331.750),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_south_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-155.250, -1218.500, 36.750),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_south_ammocabinet_1 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(2941.375, 570.375, 34.375),
+		Range = 1250,
+		TagName = "south_ammocabinet",
+		TeamAvailability = 6,
+	},
+	ARTILLERY_S_axis_mainpath_1 = 
+	{
+		GoalType = "ARTILLERY_S",
+		MinRadius = 32,
+		Position = Vec3(-12.928, -740.154, 7.125),
+	},
+	BUILD_Assault_Ramp = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Position = Vec3(-2606.438, 2558.938, 47.188),
+		TagName = "Assault Ramp",
+		TeamAvailability = 4,
+	},
+	BUILD_Command_Post = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Position = Vec3(2576.000, -1769.000, 58.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	BUILD_Truck = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "BUILD",
+		Mobile = 1,
+		Position = Vec3(-155.750, -2317.250, 41.000),
+		TeamAvailability = 4,
+	},
+	CALLARTILLERY_axis_mainpath = 
+	{
+		GoalType = "CALLARTILLERY",
+		MinRadius = 32,
+		Position = Vec3(59.079, 1851.546, 2.845),
+	},
+	CAPPOINT_9 = 
+	{
+		GoalType = "CapPoint",
+		Position = Vec3(-302.875, -2314.332, 4.125),
+		Radius = 35,
+	},
+	DEFEND_axis_point_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.448, -0.875, -0.182),
+		},
+		GoalType = "Defend",
+		GroupName = "axis_point",
+		MaxCampTime = 999,
+		MinCampTime = 999,
+		MinRadius = 32,
+		Position = Vec3(-625.670, 464.044, 368.680),
+		Radius = 15,
+		Stance = "crouch",
+	},
+	DEFEND_axis_point_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.307, -0.926, -0.220),
+		},
+		GoalType = "Defend",
+		MaxCampTime = 999,
+		MinCampTime = 999,
+		Position = Vec3(-467.399, 465.861, 367.772),
+		Radius = 20,
+		Stance = "crouch",
+		TeamAvailability = 2,
+	},
+	ESCORT_truck = 
+	{
+		GoalType = "ESCORT",
+		MinRadius = 32,
+		Offsets = 
+		{
+			[0] = Vec3(14.045, -161.625, -34.375),
+			[1] = Vec3(-76.125, -8.402, -34.375),
+			[2] = Vec3(76.125, -3.897, -34.375),
+			[3] = Vec3(0.166, 161.626, -34.375),
+		},
+		Position = Vec3(-234.901, -2317.374, 5.125),
+		Vehicle = "MOVER_truck",
+	},
+	FLAG_axis_gold = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(-240.000, 2416.000, 329.125),
+		TeamAvailability = 4,
+	},
+	HEALTHCAB_south_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-291.250, -1218.500, 35.625),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_south_healthcabinet_1 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(2941.375, 706.375, 33.250),
+		Range = 1250,
+		TagName = "south_healthcabinet",
+		TeamAvailability = 6,
+	},
+	MOUNTMG42_177 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 45,
+		MinCampTime = 15,
+		Position = Vec3(177.121, 1941.510, 71.500),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	MOUNTMG42_18 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 45,
+		MinCampTime = 15,
+		Position = Vec3(185.855, -1195.880, 73.500),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	MOUNTMG42_97 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		MaxCampTime = 45,
+		MinCampTime = 15,
+		Position = Vec3(-1763.270, 2474.500, 365.500),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	MOVER_truck = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "MOVER",
+		Position = Vec3(-464.500, -2321.000, 62.500),
+		TeamAvailability = 4,
+	},
+	PLANT_Assault_Ramp = 
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		Position = Vec3(-2186.500, 2657.125, 144.008),
+		TagName = "Assault Ramp",
+		TeamAvailability = 2,
+	},
+	PLANT_Command_Post = 
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 3,
+		GoalType = "PLANT",
+		Position = Vec3(2605.500, -1766.000, 58.000),
+		TagName = "Command Post",
+		TeamAvailability = 6,
+	},
+	PLANT_East_Axis_Gate = 
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(1387.500, -355.750, 82.625),
+		TagName = "East Axis Gate",
+		TeamAvailability = 4,
+	},
+	PLANT_Wall = 
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(-812.000, 2597.000, 340.000),
+		TeamAvailability = 4,
+	},
+	PLANT_West_Axis_Gate = 
+	{
+		CreateOnLoad = 0,
+		ExplosiveType = 1,
+		GoalType = "PLANT",
+		Position = Vec3(-1164.813, 927.000, 89.438),
+		TagName = "West Axis Gate",
+		TeamAvailability = 4,
+	},
+	REPAIRMG42_177 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(177.121, 1941.510, 71.500),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	REPAIRMG42_18 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(185.855, -1195.880, 73.500),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	REPAIRMG42_97 = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		Position = Vec3(-1763.270, 2474.500, 365.500),
+		TagName = "",
+		TeamAvailability = 6,
+	},
+	SNIPE_allies_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.560, 0.828, -0.018),
+			[1] = Vec3(0.268, 0.963, -0.013),
+		},
+		GoalType = "Snipe",
+		GroupName = "SNIPE_allies",
+		MaxCampTime = 999,
+		MinCampTime = 120,
+		MinRadius = 32,
+		Position = Vec3(-2798.241, -2966.364, 411.833),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.163, -0.987, 0.012),
+		},
+		GoalType = "Snipe",
+		GroupName = "SNIPE_axis",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		Position = Vec3(-144.851, 1780.558, 1.750),
+		Radius = 20,
+		Stance = "crouch",
+	},
+	SNIPE_axis_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.132, -0.983, -0.130),
+		},
+		GoalType = "Snipe",
+		GroupName = "SNIPE_axis",
+		MaxCampTime = 120,
+		MinCampTime = 30,
+		MinRadius = 32,
+		Position = Vec3(-156.738, 1802.727, 147.375),
+		Radius = 32,
+		Stance = "crouch",
+		TagName = "axis_snipe2",
+	},
+	Version = 1,
+};

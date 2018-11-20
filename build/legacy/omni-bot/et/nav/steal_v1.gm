@@ -1,0 +1,190 @@
+//==========================================================================================
+//
+//	steal_v1.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	palota	16 May 2015	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	Bridges = 0,
+
+	bridge_Built = function()
+	{
+		Map.Bridges += 1;
+		if(Map.Bridges == 1){
+			sleep(2);
+			SetAvailableMapGoals(TEAM.AXIS, true, { "BUILD_Axis_Command_Post", "PLANT_Allied_Command_Post" });
+			SetAvailableMapGoals(TEAM.ALLIES, true, { "BUILD_Allied_Command_Post", "PLANT_Axis_Command_Post" });
+		}
+	},
+
+	bridge_Destroyed = function()
+	{
+		Map.Bridges -= 1;
+		if(Map.Bridges == 0){
+			SetAvailableMapGoals(TEAM.AXIS, false, { "BUILD_Axis_Command_Post", "PLANT_Allied_Command_Post" });
+			SetAvailableMapGoals(TEAM.ALLIES, false, { "BUILD_Allied_Command_Post", "PLANT_Axis_Command_Post" });
+		}
+	},
+
+	allied_brige1_Built = function( trigger )
+	{
+		Map.bridge_Built();
+		Util.MapDebugPrint( "allied_brige1_Built" );
+	},
+
+	allied_brige2_Built = function( trigger )
+	{
+		Map.bridge_Built();
+		Util.MapDebugPrint( "allied_brige2_Built" );
+	},
+
+	axis_brige1_Built = function( trigger )
+	{
+		Map.bridge_Built();
+		Util.MapDebugPrint( "axis_brige1_Built" );
+	},
+
+	axis_brige2_Built = function( trigger )
+	{
+		Map.bridge_Built();
+		Util.MapDebugPrint( "axis_brige2_Built" );
+	},
+
+	allied_brige1_Destroyed = function( trigger )
+	{
+		Map.bridge_Destroyed();
+		Util.MapDebugPrint( "allied_brige1_Destroyed" );
+	},
+
+	allied_brige2_Destroyed = function( trigger )
+	{
+		Map.bridge_Destroyed();
+		Util.MapDebugPrint( "allied_brige2_Destroyed" );
+	},
+
+	axis_brige1_Destroyed = function( trigger )
+	{
+		Map.bridge_Destroyed();
+		Util.MapDebugPrint( "axis_brige1_Destroyed" );
+	},
+
+	axis_brige2_Destroyed = function( trigger )
+	{
+		Map.bridge_Destroyed();
+		Util.MapDebugPrint( "axis_brige2_Destroyed" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Allied Engineer brige 1 constructed!", Map.allied_brige1_Built );
+	OnTrigger( "Allied Engineer brige 2 constructed!", Map.allied_brige2_Built );
+	OnTrigger( "Axis Engineer brige 1 constructed!", Map.axis_brige1_Built );
+	OnTrigger( "Axis Engineer brige 2 constructed!", Map.axis_brige2_Built );
+	OnTrigger( "Allied Engineer brige 1 destroyed!", Map.allied_brige1_Destroyed );
+	OnTrigger( "Allied Engineer brige 2 destroyed!", Map.allied_brige2_Destroyed );
+	OnTrigger( "Axis Engineer brige 1 destroyed!", Map.axis_brige1_Destroyed );
+	OnTrigger( "Axis Engineer brige 2 destroyed!", Map.axis_brige2_Destroyed );
+
+	OnTriggerRegion(AABB(-3664.585,3425.685,95.111,-1516.545,6893.513,843.648), RegionTrigger.DisableCombatMovement); //snipers
+
+	Util.DisableGoal(".*_Command_Post");
+	SetAvailableMapGoals(TEAM.AXIS, false, "SNIPE_l.*");
+	SetAvailableMapGoals(TEAM.ALLIES, false, "SNIPE_x.*");
+
+	SetGoalPriority("SNIPE.*", 0.8);
+	SetGoalPriority("BUILD_.*_Command_Post", 0.91);
+	SetGoalPriority("PLANT_.*_Command_Post", 0.85);
+
+	Util.AddUsePoint( "CAPPOINT_axis", { Vec3(946,381,-183), Vec3(4,384,-183) } );
+	Util.AddUsePoint( "CAPPOINT_allied", { Vec3(6,5514,-183), Vec3(955,5497,-183) } );
+
+	SetMapGoalProperties( "SNIPE.*", {mincamptime=30, maxcamptime=90} );
+
+	Server.MinClassCount[TEAM.AXIS][CLASS.COVERTOPS] += 1;
+	Server.MinClassCount[TEAM.ALLIES][CLASS.COVERTOPS] += 1;
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	r1 = {
+		ROUTE_a1  =
+		{
+			ROUTE_left1 = {},
+			ROUTE_left2 = { Weight=1.5 },
+		},
+		ROUTE_a2  =
+		{
+			ROUTE_left1 = {},
+			ROUTE_left2 = { Weight=1.5 },
+		},
+		ROUTE_a3  =
+		{
+			ROUTE_right1 = { Weight=1.5 },
+			ROUTE_right2 = {},
+		},
+		ROUTE_a4  =
+		{
+			ROUTE_right1 = { Weight=1.5 },
+			ROUTE_right2 = {},
+		},
+	};
+
+	r2 = {
+		ROUTE_x1  =
+		{
+			ROUTE_left1 = {},
+			ROUTE_left2 = { Weight=1.5 },
+		},
+		ROUTE_x2  =
+		{
+			ROUTE_left1 = {},
+			ROUTE_left2 = { Weight=1.5 },
+		},
+		ROUTE_x3  =
+		{
+			ROUTE_right1 = { Weight=1.5 },
+			ROUTE_right2 = {},
+		},
+		ROUTE_x4  =
+		{
+			ROUTE_right1 = { Weight=1.5 },
+			ROUTE_right2 = {},
+		},
+	};
+
+	MapRoutes =
+	{
+		FLAG_gold =
+		{
+			ROUTE_allied_spawn = r1,
+			ROUTE_allied_cappoint1 = r1,
+			ROUTE_allied_cappoint2 = r1,
+		},
+		FLAG_ping =
+		{
+			ROUTE_axis_spawn = r2,
+			ROUTE_axis_cappoint1 = r2,
+			ROUTE_axis_cappoint2 = r2,
+		},
+		CAPPOINT_axis =
+		{
+			ROUTE_allied_gold = r1
+		},
+		CAPPOINT_allied =
+		{
+			ROUTE_axis_gold = r2
+		},
+	};
+	Util.Routes(MapRoutes);
+};

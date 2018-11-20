@@ -1,0 +1,126 @@
+// This script contains functionality to allow engineers to plant tripmines in the silEnT mod
+this.Name = "TRIPMINE";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+if (WEAPON.TRIPMINE)
+{
+	this.LimitToWeapon(WEAPON.TRIPMINE);
+}
+else
+{
+	this.AutoAdd = false;
+}
+
+
+// define some goal states
+this.LAY_EXPLOSIVE = 0;
+this.ARM_EXPLOSIVE = 1;
+
+this.Initialize = function()
+{
+	// check ammo so we can finish if too many tripmines are placed
+	this.LimitTo( this.CheckTripmineAmmo, 2 );
+};
+
+this.CheckTripmineAmmo = function()
+{
+	return Util.HasAmmoForWeapon(this.Bot, WEAPON.TRIPMINE);
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0x4e8856e1 /* TRIPMINE */, WEAPON.DYNAMITE);
+};
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	this.GoalState = this.LAY_EXPLOSIVE;
+	this.ExplosiveEntity = null;
+
+	//this.AddFinishCriteria(this.Bot.GetGameEntity(),"not weaponcharged", WEAPON.DYNAMITE);
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	if ( this.MapGoal.Stance == "crouch" ) {
+		this.Bot.HoldButton( BTN.CROUCH, 99 );
+	}
+
+	while(1)
+	{
+		switch(this.GoalState)
+		{
+			case this.LAY_EXPLOSIVE:
+			{
+				this.UpdateSetMine();
+			}
+			case this.ARM_EXPLOSIVE:
+			{
+				this.UpdateArmMine();
+			}
+			default:
+			{
+				this.Finished();
+			}
+		}
+
+		sleep(0.25);
+	}
+
+	this.Finished();
+};
+
+this.Exit = function()
+{
+	this.Bot.ReleaseButton(BTN.CROUCH);
+	this.ReleaseAimRequest();
+	this.ReleaseWeaponRequest();
+
+	this.GoalState = this.LAY_EXPLOSIVE;
+	this.ExplosiveEntity = null;
+
+	this.MapGoal = null;
+};
+
+this.UpdateSetMine = function()
+{
+	this.Priority = 2.0;
+
+	this.AddAimRequest(Priority.High, "position", this.MapGoal.AimPosition);
+	this.AddWeaponRequest(Priority.High, WEAPON.TRIPMINE );
+	this.BlockForWeaponChange( WEAPON.TRIPMINE );
+	this.Bot.PressButton(BTN.ATTACK1);
+};
+
+this.UpdateArmMine = function()
+{
+	if ( !this.ExplosiveEntity || !EntityIsValid(this.ExplosiveEntity) ) {
+		this.Finished();
+	}
+
+	this.AddWeaponRequest(Priority.High, WEAPON.PLIERS );
+	this.BlockForWeaponChange( WEAPON.PLIERS );
+
+	while ( EntityIsValid(this.ExplosiveEntity) && this.Bot.GetExplosiveState(this.ExplosiveEntity) == 1 ) {
+		minePosition = GetEntPosition(this.ExplosiveEntity);
+		this.AddAimRequest(Priority.High, "position", minePosition);
+		this.Bot.MoveTowards(minePosition);
+		this.Bot.PressButton(BTN.ATTACK1);
+		yield();
+	}
+
+	this.Finished();
+};
+
+this.Events[EVENT.WEAPON_FIRE] = function(weaponId, projectileEntity)
+{
+	if(weaponId == WEAPON.TRIPMINE)
+	{
+		this.ExplosiveEntity = projectileEntity;
+		this.GoalState = this.ARM_EXPLOSIVE;
+	}
+};

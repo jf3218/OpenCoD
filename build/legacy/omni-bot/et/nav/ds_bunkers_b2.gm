@@ -1,0 +1,2978 @@
+//==========================================================================================
+//
+//	ds_bunkers_b2.gm
+//	ds_bunkers_b2_goals.gm
+//	ds_bunkers_b2.way
+//
+//	Who      	When		What
+//------------------------------------------------------------------------------------------
+//	Qiki		24.06.2013	Script and waypoints
+//	Native12	01.02.2014	Finished
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+
+	Allied_Command_Post_Dyno = 0,
+	Allied_Defensive_Barrier_Dyno = 0,
+	Allied_MG42_Dyno = 0,
+	Allied_Main_Hatch_Dyno = 0,
+	First_Allied_Supply_Stash_Dyno = 0,
+	Second_Allied_Supply_Stash_Dyno = 0,
+	Axis_Command_Post_Dyno = 0,
+	Axis_Defensive_Barrier_Dyno = 0,
+	Axis_MG42_Dyno = 0,
+	Axis_Main_Hatch_Dyno = 0,
+	First_Axis_Secret_Weapon_Dyno = 0,
+	Second_Axis_Secret_Weapon_Dyno = 0,
+	Window_1 = true,
+	Window_2 = true,
+	Allied_Command_Post = false,
+	Allied_Defensive_Barrier = false,
+	Allied_MG42 = false,
+	Axis_Command_Post = false,
+	Axis_Defensive_Barrier = false,
+	Axis_MG42 = false,
+	Allied_Main_Hatch = true,
+	Axis_Main_Hatch = true,
+	First_Allied_Supply_Stash = true,
+	First_Axis_Secret_Weapon = true,
+	Second_Allied_Supply_Stash = true,
+	Second_Axis_Secret_Weapon = true,
+	forwardflag_Axis = false,
+	forwardflag_Allies = false,
+	Axis_Engs_Inside = 0,
+	Allied_Engs_Inside = 0,
+
+	Roles =
+	{
+		/*
+		Axis spawns:	1 - First spawn
+				0 - CP spawn
+		*/
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =
+			{
+				spawnpt = 1,
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER =
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER2 =
+			{
+				numbots = 2,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+		/*
+		Alied spawns:	2 - First spawn
+				0 - CP spawn
+		*/
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER1 =
+			{
+				spawnpt = 2,
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER2 =
+			{
+				numbots = 2,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+
+	Navigation =
+	{
+		//	/bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:window_1
+		window_1 =
+		{
+			gotowp = "Allied_Window",
+			EvalFunc = function()
+			{
+				return Map.Window_1;
+			},
+
+			navigate = function(_this)
+			{
+				if ( !Map.Window_1 )
+				{
+					yield();
+					return;
+				}
+
+				_this.AddWeaponRequest(Priority.High, WEAPON.KNIFE );
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.999655,-0.021376,0.015243));
+
+				while( Map.Window_1 )
+				{
+					_this.Bot.HoldButton(BTN.ATTACK1, 0.5);
+					yield();
+				}
+
+				_this.ReleaseAimRequest();
+				_this.ReleaseWeaponRequest();
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:window_2
+		window_2 =
+		{
+			gotowp = "Axis_Window",
+			EvalFunc = function()
+			{
+				return Map.Window_2;
+			},
+
+			navigate = function(_this)
+			{
+				if ( !Map.Window_2 )
+				{
+					yield();
+					return;
+				}
+
+				_this.AddWeaponRequest(Priority.High, WEAPON.KNIFE );
+				_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.999368,-0.035466,0.002493));
+
+				while( Map.Window_2 )
+				{
+					_this.Bot.HoldButton(BTN.ATTACK1, 0.5);
+					yield();
+				}
+
+				_this.ReleaseAimRequest();
+				_this.ReleaseWeaponRequest();
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_1
+		ladder_1 =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_1", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.BACKWARD, 1.5);
+					sleep(1.5);
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_3
+		ladder_3 =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_3", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.BACKWARD, 1.5);
+					sleep(1.5);
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_2
+		ladder_2 =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_2", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.BACKWARD, 0.3);
+					sleep(0.3);
+					_this.Bot.HoldButton(BTN.FORWARD, 0.5);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.BACKWARD, 2.5);
+					sleep(2.5);
+				}
+			},
+		},
+
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder_4
+		ladder_4 =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_4", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.BACKWARD, 0.3);
+					sleep(0.3);
+					_this.Bot.HoldButton(BTN.FORWARD, 0.5);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.BACKWARD, 2);
+					sleep(2);
+				}
+			},
+		},
+	},
+
+	Allied_Command_Post_Built = function( trigger )
+	{
+
+		Map.Allied_Command_Post = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allied_Command_Post" );
+
+		Util.MapDebugPrint( "^5Allied_Command_Post_Built" );
+	},
+
+	Allied_Command_Post_Planted = function( trigger )
+	{
+
+		Map.Allied_Command_Post_Dyno += 1;
+
+		Util.SetRoleForGoals("DEFUSE_Allied_Command_Post_.*", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+
+		if ( Map.First_Allied_Supply_Stash_Dyno > 0 or Map.Second_Allied_Supply_Stash_Dyno > 0 or Map.Allied_Defensive_Barrier_Dyno > 0 or Map.Allied_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Command_Post_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_Command_Post_Planted" );
+	},
+
+	Allied_Command_Post_Defused = function( trigger )
+	{
+
+		Map.Allied_Command_Post_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Allied_Command_Post_Defused" );
+	},
+
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+
+		Map.Allied_Command_Post = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_Command_Post" );
+
+		if ( Map.Allied_Command_Post_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Command_Post.*" );
+		}
+
+		Map.Allied_Command_Post_Dyno = 0;
+
+		Util.MapDebugPrint( "^5Allied_Command_Post_Destroyed" );
+	},
+
+	Allied_Defensive_Barrier_Built = function( trigger )
+	{
+
+		Map.Allied_Defensive_Barrier = true;
+
+		if ( Map.Allied_Main_Hatch )
+		{
+			SetGoalPriority( "PLANT_Allied_Main_Hatch", 0.84, TEAM.AXIS, CLASS.ENGINEER );
+		}
+
+		SetGoalPriority( "ATTACK_Allied_Base_.*", 0.5, TEAM.AXIS, 0 );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_Defensive_Barrier" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"PLANT_Allied_Defensive_Barrier",
+			"PLANT_Allied_defensive_barrier_disg",
+		});
+
+		if ( Map.Axis_Engs_Inside == 0 )
+		{
+			if ( Map.First_Allied_Supply_Stash )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_First_Allied_Supply_Stash" );
+			}
+
+			if ( Map.Second_Allied_Supply_Stash )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Second_Allied_Supply_Stash" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Allied_Defensive_Barrier_Built" );
+	},
+
+	Allied_Defensive_Barrier_Planted = function( trigger )
+	{
+
+		Map.Allied_Defensive_Barrier_Dyno += 1;
+
+		if ( Map.First_Allied_Supply_Stash_Dyno > 0 or Map.Second_Allied_Supply_Stash_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Defensive_Barrier_.*" );
+		}
+		else
+		{
+			if ( Map.Allied_Main_Hatch_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Main_Hatch_.*" );
+			}
+			if ( Map.Allied_Command_Post_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Command_Post_.*" );
+			}
+
+			if ( Map.Allied_MG42_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_MG42_.*" );
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Defensive_Barrier_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_Defensive_Barrier_Planted" );
+	},
+
+	Allied_Defensive_Barrier_Defused = function( trigger )
+	{
+
+		Map.Allied_Defensive_Barrier_Dyno -= 1;
+
+		if ( Map.Allied_Defensive_Barrier_Dyno == 0 )
+		{
+			if ( Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+			{
+				if ( Map.Allied_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Allied_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+					}
+
+					if ( Map.Allied_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Allied_Defensive_Barrier_Defused" );
+	},
+
+	Allied_Defensive_Barrier_Destroyed = function( trigger )
+	{
+
+		Map.Allied_Defensive_Barrier = false;
+
+		if ( Map.Allied_Main_Hatch )
+		{
+			SetGoalPriority( "PLANT_Allied_Main_Hatch", 0.81, TEAM.AXIS, CLASS.ENGINEER );	//default
+		}
+
+		if ( !Map.Axis_Defensive_Barrier )
+		{
+			SetGoalPriority( "ATTACK_Allied_Base_.*", 0.5, TEAM.AXIS, 0 );
+		}
+		else
+		{
+			SetGoalPriority( "ATTACK_Allied_Base_.*", 0.55, TEAM.AXIS, 0 );
+		}
+
+		if ( Map.Axis_Engs_Inside == 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_Defensive_Barrier" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"PLANT_Allied_Defensive_Barrier",
+			"PLANT_Allied_defensive_barrier_disg",
+		});
+
+		if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DUFUSE_Allied_Defensive_Barrier.*" );
+		}
+
+		Map.Allied_Defensive_Barrier_Dyno = 0;
+
+		if ( Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+		{
+			if ( Map.Allied_Main_Hatch_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+			}
+			else
+			{
+				if ( Map.Allied_Command_Post_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+				}
+
+				if ( Map.Allied_MG42_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Allied_Defensive_Barrier_Destroyed" );
+
+		sleep(1);	//time when blockwall switching from red to green
+
+		if ( Map.First_Allied_Supply_Stash )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_First_Allied_Supply_Stash" );
+		}
+
+		if ( Map.Second_Allied_Supply_Stash )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Second_Allied_Supply_Stash" );
+		}
+	},
+
+	Allied_MG42_Built = function( trigger )
+	{
+
+		Map.Allied_MG42 = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_MG42" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"MOUNTMG42_Allied_MG42",
+			"REPAIRMG42_Allied_MG42",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allied_MG42" );
+
+		Util.MapDebugPrint( "^5Allied_MG42_Built" );
+	},
+
+	Allied_MG42_Planted = function( trigger )
+	{
+
+		Map.Allied_MG42_Dyno += 1;
+
+		Util.SetRoleForGoals("DEFUSE_Allied_MG42_.*", ROLE.DEFENDER1);
+
+		if ( Map.First_Allied_Supply_Stash_Dyno > 0 or Map.Second_Allied_Supply_Stash_Dyno > 0 or Map.Allied_Defensive_Barrier_Dyno > 0 or Map.Allied_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_MG42_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_MG42_Planted" );
+	},
+
+	Allied_MG42_Defused = function( trigger )
+	{
+
+		Map.Allied_MG42_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Allied_MG42_Defused" );
+	},
+
+	Allied_MG42_Destroyed = function( trigger )
+	{
+
+		Map.Allied_MG42 = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"MOUNTMG42_Allied_MG42",
+			"REPAIRMG42_Allied_MG42",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_MG42" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_MG42" );
+
+		if ( Map.Allied_MG42_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_MG42.*" );
+		}
+
+		Map.Allied_MG42_Dyno = 0;
+
+		Util.MapDebugPrint( "^5Allied_MG42_Destroyed" );
+	},
+
+	Allied_Main_Hatch_Planted = function( trigger )
+	{
+
+		Map.Allied_Main_Hatch_Dyno += 1;
+
+		if ( Map.First_Allied_Supply_Stash_Dyno > 0 or Map.Second_Allied_Supply_Stash_Dyno > 0 or Map.Allied_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Main_Hatch_.*" );
+		}
+		else
+		{
+			if ( Map.Allied_Command_Post_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Command_Post_.*" );
+			}
+
+			if ( Map.Allied_MG42_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_MG42_.*" );
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_Main_Hatch_Planted" );
+	},
+
+	Allied_Main_Hatch_Defused = function( trigger )
+	{
+
+		Map.Allied_Main_Hatch_Dyno -= 1;
+
+		if ( Map.Allied_Main_Hatch_Dyno == 0 )
+		{
+			if ( Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 and Map.Allied_Defensive_Barrier_Dyno == 0 )
+			{
+				if ( Map.Allied_Command_Post_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+				}
+
+				if ( Map.Allied_MG42_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Allied_Main_Hatch_Defused" );
+	},
+
+	Allied_Main_Hatch_Destroyed = function( trigger )
+	{
+
+		Map.Allied_Main_Hatch = false;
+
+		Wp.SetWaypointFlag( "Ally_Hatch", "closed", true );
+		Wp.SetWaypointFlag( "Ally_Hatch_1", "climb", true );
+
+		Util.EnableGoal( "ROUTE_Allied_Main_Hatch" );
+		Util.EnableGoal( "ROUTE_Allied_Underground" );
+
+		if ( !Map.Axis_Main_Hatch )
+		{
+			Util.EnableGoal( "ROUTE_Axis_Main_Hatch_1" );
+			Util.EnableGoal( "ROUTE_Allied_Main_Hatch_1" );
+			Util.EnableGoal( "ROUTE_Axis_Underground_1" );
+			Util.EnableGoal( "ROUTE_Allied_Underground_1" );
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANTMINE_Allied_Base_.*" );
+
+		if ( Map.Allied_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Main_Hatch.*" );
+		}
+
+		Map.Allied_Main_Hatch_Dyno = 0;
+
+		if ( Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 and Map.Allied_Defensive_Barrier_Dyno == 0 )
+		{
+			if ( Map.Allied_Command_Post_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+			}
+
+			if ( Map.Allied_MG42_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+			}
+		}
+
+		sleep(1);
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "SMOKEBOMB_Allied_Base_1" );
+
+		Util.MapDebugPrint( "^5Allied_Main_Hatch_Destroyed" );
+	},
+
+	First_Allied_Supply_Stash_Planted = function( trigger )
+	{
+
+		Map.First_Allied_Supply_Stash_Dyno += 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ATTACKER1) and bot.GetClass () == CLASS.ENGINEER and Map.forwardflag_Allies )
+			{
+				bot.ChangeSpawnPoint(2);
+			}
+		}
+
+		if ( Map.Allied_Command_Post_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Command_Post_.*" );
+		}
+
+		if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Defensive_Barrier_.*" );
+		}
+
+		if ( Map.Allied_MG42_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_MG42_.*" );
+		}
+
+		if ( Map.Allied_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Main_Hatch_.*" );
+		}
+
+		Util.MapDebugPrint( "^5First_Allied_Supply_Stash_Planted" );
+	},
+
+	First_Allied_Supply_Stash_Defused = function( trigger )
+	{
+
+		Map.First_Allied_Supply_Stash_Dyno -= 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Allies and Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER1) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		if ( Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+		{
+			if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Allied_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Allied_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+					}
+
+					if ( Map.Allied_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5First_Allied_Supply_Stash_Defused" );
+	},
+
+	First_Allied_Supply_Stash_Destroyed = function( trigger )
+	{
+
+		Map.First_Allied_Supply_Stash = false;
+
+		Wp.SetWaypointFlag( "FASS_1", "jump", false );
+		Wp.SetWaypointFlag( "FASS_2", "jump", false );
+		Wp.SetWaypointFlag( "FASS_2", "sneak", false );
+		Wp.SetWaypointFlag( "FASS_3", "jump", false );
+		Wp.SetWaypointFlag( "FASS_4", "closed", true );
+		Wp.SetWaypointFlag( "FASS_5", "closed", true );
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Allies and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER1) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		if ( Map.First_Allied_Supply_Stash_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_First_Allied_Supply_Stash.*" );
+		}
+
+		Map.First_Allied_Supply_Stash_Dyno = 0;
+
+		if ( Map.Second_Allied_Supply_Stash_Dyno == 0 )
+		{
+			if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Allied_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Allied_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+					}
+
+					if ( Map.Allied_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5First_Allied_Supply_Stash_Destroyed" );
+	},
+
+	Second_Allied_Supply_Stash_Planted = function( trigger )
+	{
+
+		Map.Second_Allied_Supply_Stash_Dyno += 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ATTACKER1) and bot.GetClass () == CLASS.ENGINEER and Map.forwardflag_Allies )
+			{
+				bot.ChangeSpawnPoint(2);
+			}
+		}
+
+		if ( Map.Allied_Command_Post_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Command_Post_.*" );
+		}
+
+		if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Defensive_Barrier_.*" );
+		}
+
+		if ( Map.Allied_MG42_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_MG42_.*" );
+		}
+
+		if ( Map.Allied_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Allied_Main_Hatch_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Second_Allied_Supply_Stash_Planted" );
+	},
+
+	Second_Allied_Supply_Stash_Defused = function( trigger )
+	{
+
+		Map.Second_Allied_Supply_Stash_Dyno -= 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Allies and Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER1) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		if ( Map.First_Allied_Supply_Stash_Dyno == 0 and Map.Second_Allied_Supply_Stash_Dyno == 0 )
+		{
+			if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Allied_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Allied_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+					}
+
+					if ( Map.Allied_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Second_Allied_Supply_Stash_Defused" );
+	},
+
+	Second_Allied_Supply_Stash_Destroyed = function( trigger )
+	{
+
+		Map.Second_Allied_Supply_Stash = false;
+
+		Wp.SetWaypointFlag( "SASS_1", "jump", false );
+		Wp.SetWaypointFlag( "SASS_2", "closed", true );
+		Wp.SetWaypointFlag( "SASS_3", "jump", false );
+		Wp.SetWaypointFlag( "SASS_4", "closed", true );
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Allies and Map.First_Allied_Supply_Stash_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER1) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		if ( Map.Second_Allied_Supply_Stash_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Second_Allied_Supply_Stash.*" );
+		}
+
+		Map.Second_Allied_Supply_Stash_Dyno = 0;
+
+		if ( Map.First_Allied_Supply_Stash_Dyno == 0 )
+		{
+			if ( Map.Allied_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Allied_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Allied_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_Command_Post_.*" );
+					}
+
+					if ( Map.Allied_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "DEFUSE_Allied_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Second_Allied_Supply_Stash_Destroyed" );
+	},
+
+	Allied_Window_Exploded = function( trigger )
+	{
+
+		Map.Window_1 = false;
+
+		Util.MapDebugPrint( "^5Allied_Window_Exploded" );
+	},
+
+	AxisEngsInside =
+	{
+		Name = "AxisEngsInside",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.AXIS )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Axis_Engs_Inside += 1;
+
+					if ( Map.First_Allied_Supply_Stash )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_First_Allied_Supply_Stash" );
+					}
+
+					if ( Map.Second_Allied_Supply_Stash )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Second_Allied_Supply_Stash" );
+					}
+
+					if ( !Map.Allied_Defensive_Barrier )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_Defensive_Barrier" );
+					}
+
+					SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Supply_Stash_.*" );
+
+					Util.MapDebugPrint( "^5Axis engineer entered" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.AXIS )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Axis_Engs_Inside -= 1;
+
+					Util.MapDebugPrint( "^5Axis engineer left" );
+
+					if ( Map.Axis_Engs_Inside == 0 )
+					{
+						if ( !Map.Allied_Defensive_Barrier )
+						{
+							SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_Defensive_Barrier" );
+						}
+						else
+						{
+							if ( Map.First_Allied_Supply_Stash )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_First_Allied_Supply_Stash" );
+							}
+
+							if ( Map.Second_Allied_Supply_Stash )
+							{
+								SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Second_Allied_Supply_Stash" );
+							}
+						}
+
+						SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Supply_Stash_.*" );
+
+						Util.MapDebugPrint( "^5Axis engineers are not inside" );
+					}
+				}
+			}
+		},
+	},
+
+	Axis_Command_Post_Built = function( trigger )
+	{
+
+		Map.Axis_Command_Post = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Post" );
+
+		Util.MapDebugPrint( "^5Axis_Command_Post_Built" );
+	},
+
+	Axis_Command_Post_Planted = function( trigger )
+	{
+
+		Map.Axis_Command_Post_Dyno += 1;
+
+		Util.SetRoleForGoals("DEFUSE_Axis_Command_Post_.*", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno > 0 or Map.Second_Axis_Secret_Weapon_Dyno > 0 or Map.Axis_Defensive_Barrier_Dyno > 0 or Map.Axis_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Command_Post_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_Command_Post_Planted" );
+	},
+
+	Axis_Command_Post_Defused = function( trigger )
+	{
+
+		Map.Axis_Command_Post_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Axis_Command_Post_Defused" );
+	},
+
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+
+		Map.Axis_Command_Post = false;
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Post" );
+
+		if ( Map.Axis_Command_Post_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Command_Post.*" );
+		}
+
+		Map.Axis_Command_Post_Dyno = 0;
+
+		Util.MapDebugPrint( "^5Axis_Command_Post_Destroyed" );
+	},
+
+	Axis_Defensive_Barrier_Built = function( trigger )
+	{
+
+		Map.Axis_Defensive_Barrier = true;
+
+		if ( Map.Axis_Main_Hatch )
+		{
+			SetGoalPriority( "PLANT_Axis_Main_Hatch", 0.84, TEAM.ALLIES, CLASS.ENGINEER );
+		}
+
+		SetGoalPriority( "ATTACK_Axis_Base_.*", 0.5, TEAM.ALLIES, 0 );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Defensive_Barrier" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"PLANT_Axis_Defensive_Barrier",
+			"PLANT_Axis_defensive_barrier_disg",
+		});
+
+		if ( Map.Allied_Engs_Inside == 0 )
+		{
+			if ( Map.First_Axis_Secret_Weapon )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_First_Axis_Secret_Weapon" );
+			}
+
+			if ( Map.Second_Axis_Secret_Weapon )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Second_Axis_Secret_Weapon" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Axis_Defensive_Barrier_Built" );
+	},
+
+	Axis_Defensive_Barrier_Planted = function( trigger )
+	{
+
+		Map.Axis_Defensive_Barrier_Dyno += 1;
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno > 0 or Map.Second_Axis_Secret_Weapon_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Defensive_Barrier_.*" );
+		}
+		else
+		{
+			if ( Map.Axis_Main_Hatch_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Main_Hatch_.*" );
+			}
+			if ( Map.Axis_Command_Post_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Command_Post_.*" );
+			}
+
+			if ( Map.Axis_MG42_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_MG42_.*" );
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Defensive_Barrier_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_Defensive_Barrier_Planted" );
+	},
+
+	Axis_Defensive_Barrier_Defused = function( trigger )
+	{
+
+		Map.Axis_Defensive_Barrier_Dyno -= 1;
+
+		if ( Map.Allied_Defensive_Barrier_Dyno == 0 )
+		{
+			if ( Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+			{
+				if ( Map.Axis_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Axis_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+					}
+
+					if ( Map.Axis_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Axis_Defensive_Barrier_Defused" );
+	},
+
+	Axis_Defensive_Barrier_Destroyed = function( trigger )
+	{
+
+		Map.Axis_Defensive_Barrier = false;
+
+		if ( Map.Axis_Main_Hatch )
+		{
+			SetGoalPriority( "PLANT_Axis_Main_Hatch", 0.81, TEAM.ALLIES, CLASS.ENGINEER );	//default
+		}
+
+		if ( !Map.Allied_Defensive_Barrier )
+		{
+			SetGoalPriority( "ATTACK_Axis_Base_.*", 0.5, TEAM.ALLIES, 0 );
+		}
+		else
+		{
+			SetGoalPriority( "ATTACK_Axis_Base_.*", 0.55, TEAM.ALLIES, 0 );
+		}
+
+		if ( Map.Allied_Engs_Inside == 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Defensive_Barrier" );
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_Axis_Defensive_Barrier",
+			"PLANT_Axis_defensive_barrier_disg",
+		});
+
+		if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Defensive_Barrier.*" );
+		}
+
+		Map.Axis_Defensive_Barrier_Dyno = 0;
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+		{
+			if ( Map.Axis_Main_Hatch_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+			}
+			else
+			{
+				if ( Map.Axis_Command_Post_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+				}
+
+				if ( Map.Axis_MG42_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Axis_Defensive_Barrier_Destroyed" );
+
+		sleep(1);	//time when blockwall switching from red to green
+
+		if ( Map.First_Axis_Secret_Weapon )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_First_Axis_Secret_Weapon" );
+		}
+
+		if ( Map.Second_Axis_Secret_Weapon )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Second_Axis_Secret_Weapon" );
+		}
+	},
+
+	Axis_MG42_Built = function( trigger )
+	{
+
+		Map.Axis_MG42 = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_MG42" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"MOUNTMG42_Axis_MG42",
+			"REPAIRMG42_Axis_MG42",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_MG42" );
+
+		Util.MapDebugPrint( "^5Axis_MG42_Built" );
+	},
+
+	Axis_MG42_Planted = function( trigger )
+	{
+
+		Map.Axis_MG42_Dyno += 1;
+
+		Util.SetRoleForGoals("DEFUSE_Axis_MG42_.*", ROLE.DEFENDER);
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno > 0 or Map.Second_Axis_Secret_Weapon_Dyno > 0 or Map.Axis_Defensive_Barrier_Dyno > 0 or Map.Axis_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_MG42_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_MG42_Planted" );
+	},
+
+	Axis_MG42_Defused = function( trigger )
+	{
+
+		Map.Axis_MG42_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Axis_MG42_Defused" );
+	},
+
+	Axis_MG42_Destroyed = function( trigger )
+	{
+
+		Map.Axis_MG42 = false;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"MOUNTMG42_Axis_MG42",
+			"REPAIRMG42_Axis_MG42",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_MG42" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_MG42" );
+
+		if ( Map.Axis_MG42_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_MG42.*" );
+		}
+
+		Map.Axis_MG42_Dyno = 0;
+
+		Util.MapDebugPrint( "^5Axis_MG42_Destroyed" );
+	},
+
+	Axis_Main_Hatch_Planted = function( trigger )
+	{
+
+		Map.Axis_Main_Hatch_Dyno += 1;
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno > 0 or Map.Second_Axis_Secret_Weapon_Dyno > 0 or Map.Axis_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Main_Hatch_.*" );
+		}
+		else
+		{
+			if ( Map.Axis_Command_Post_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Command_Post_.*" );
+			}
+
+			if ( Map.Axis_MG42_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_MG42_.*" );
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_Main_Hatch_Planted" );
+	},
+
+	Axis_Main_Hatch_Defused = function( trigger )
+	{
+
+		Map.Axis_Main_Hatch_Dyno -= 1;
+
+		if ( Map.Axis_Main_Hatch_Dyno == 0 )
+		{
+			if ( Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 and Map.Axis_Defensive_Barrier_Dyno == 0 )
+			{
+				if ( Map.Axis_Command_Post_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+				}
+
+				if ( Map.Axis_MG42_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Axis_Main_Hatch_Defused" );
+	},
+
+	Axis_Main_Hatch_Destroyed = function( trigger )
+	{
+
+		Map.Axis_Main_Hatch = false;
+
+		Wp.SetWaypointFlag( "Axis_Hatch", "closed", true );
+		Wp.SetWaypointFlag( "Axis_Hatch_1", "climb", true );
+
+		Util.EnableGoal( "ROUTE_Axis_Main_Hatch" );
+		Util.EnableGoal( "ROUTE_Axis_Underground" );
+
+		if ( !Map.Allied_Main_Hatch )
+		{
+			Util.EnableGoal( "ROUTE_Axis_Main_Hatch_1" );
+			Util.EnableGoal( "ROUTE_Allied_Main_Hatch_1" );
+			Util.EnableGoal( "ROUTE_Axis_Underground_1" );
+			Util.EnableGoal( "ROUTE_Allied_Underground_1" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Axis_Base_.*" );
+
+		if ( Map.Axis_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Main_Hatch.*" );
+		}
+
+		Map.Axis_Main_Hatch_Dyno = 0;
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 and Map.Axis_Defensive_Barrier_Dyno == 0 )
+		{
+			if ( Map.Axis_Command_Post_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+			}
+
+			if ( Map.Axis_MG42_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+			}
+		}
+
+		sleep(1);
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Axis_Base_1" );
+
+		Util.MapDebugPrint( "^5Axis_Main_Hatch_Destroyed" );
+	},
+
+	First_Axis_Secret_Weapon_Planted = function( trigger )
+	{
+
+		Map.First_Axis_Secret_Weapon_Dyno += 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Axis and bot.HasRole(ROLE.ATTACKER) and bot.GetClass () == CLASS.ENGINEER )
+			{
+				bot.ChangeSpawnPoint(1);
+			}
+		}
+
+		if ( Map.Axis_Command_Post_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Command_Post_.*" );
+		}
+
+		if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Defensive_Barrier_.*" );
+		}
+
+		if ( Map.Axis_MG42_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_MG42_.*" );
+		}
+
+		if ( Map.Axis_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Main_Hatch_.*" );
+		}
+
+		Util.MapDebugPrint( "^5First_Axis_Secret_Weapon_Planted" );
+	},
+
+	First_Axis_Secret_Weapon_Defused = function( trigger )
+	{
+
+		Map.First_Axis_Secret_Weapon_Dyno -= 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Axis and Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+		{
+			if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Axis_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Axis_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+					}
+
+					if ( Map.Axis_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5First_Axis_Secret_Weapon_Defused" );
+	},
+
+	First_Axis_Secret_Weapon_Destroyed = function( trigger )
+	{
+
+		Map.First_Axis_Secret_Weapon = false;
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_First_Axis_Secret_Weapon.*" );
+		}
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Axis and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		Map.First_Axis_Secret_Weapon_Dyno = 0;
+
+		if ( Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+		{
+			if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Axis_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Axis_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+					}
+
+					if ( Map.Axis_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5First_Axis_Secret_Weapon_Destroyed" );
+	},
+
+	Second_Axis_Secret_Weapon_Planted = function( trigger )
+	{
+
+		Map.Second_Axis_Secret_Weapon_Dyno += 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Axis and bot.HasRole(ROLE.ATTACKER) and bot.GetClass () == CLASS.ENGINEER )
+			{
+				bot.ChangeSpawnPoint(1);
+			}
+		}
+
+		if ( Map.Axis_Command_Post_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Command_Post_.*" );
+		}
+
+		if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Defensive_Barrier_.*" );
+		}
+
+		if ( Map.Axis_MG42_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_MG42_.*" );
+		}
+
+		if ( Map.Axis_Main_Hatch_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Main_Hatch_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Second_Axis_Secret_Weapon_Planted" );
+	},
+
+	Second_Axis_Secret_Weapon_Defused = function( trigger )
+	{
+
+		Map.Second_Axis_Secret_Weapon_Dyno -= 1;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Axis and Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno == 0 and Map.Second_Axis_Secret_Weapon_Dyno == 0 )
+		{
+			if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Axis_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Axis_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+					}
+
+					if ( Map.Axis_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Second_Axis_Secret_Weapon_Defused" );
+	},
+
+	Second_Axis_Secret_Weapon_Destroyed = function( trigger )
+	{
+
+		Map.Second_Axis_Secret_Weapon = false;
+
+		Wp.SetWaypointFlag( "SASW", "closed", true );
+
+		if ( Map.Second_Axis_Secret_Weapon_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Second_Axis_Secret_Weapon.*" );
+		}
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( Map.forwardflag_Axis and Map.First_Axis_Secret_Weapon_Dyno == 0 )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) and bot.GetClass () == CLASS.ENGINEER )
+				{
+					bot.ChangeSpawnPoint(0);
+				}
+			}
+		}
+
+		Map.Second_Axis_Secret_Weapon_Dyno = 0;
+
+		if ( Map.First_Axis_Secret_Weapon_Dyno == 0 )
+		{
+			if ( Map.Axis_Defensive_Barrier_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Defensive_Barrier_.*" );
+			}
+			else
+			{
+				if ( Map.Axis_Main_Hatch_Dyno > 0 )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Main_Hatch_.*" );
+				}
+				else
+				{
+					if ( Map.Axis_Command_Post_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_Command_Post_.*" );
+					}
+
+					if ( Map.Axis_MG42_Dyno > 0 )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "DEFUSE_Axis_MG42_.*" );
+					}
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5Second_Axis_Secret_Weapon_Destroyed" );
+	},
+
+	Axis_Window_Exploded = function( trigger )
+	{
+
+		Map.Window_2 = false;
+
+		Util.MapDebugPrint( "^5Axis_Window_Exploded" );
+	},
+
+	AlliedEngsInside =
+	{
+		Name = "AlliedEngsInside",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Allied_Engs_Inside += 1;
+
+					if ( Map.First_Axis_Secret_Weapon )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_First_Axis_Secret_Weapon" );
+					}
+
+					if ( Map.Second_Axis_Secret_Weapon )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Second_Axis_Secret_Weapon" );
+					}
+
+					if ( !Map.Axis_Defensive_Barrier )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Defensive_Barrier" );
+					}
+
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Secret_Weapon_.*" );
+
+					Util.MapDebugPrint( "^5Allied engineer entered" );
+				}
+			}
+		},
+		OnExit = function(ent)
+		{
+			if( GetEntTeam(ent) == TEAM.ALLIES )
+			{
+				if( GetEntClass(ent) == CLASS.ENGINEER )
+				{
+					Map.Allied_Engs_Inside -= 1;
+
+					Util.MapDebugPrint( "^5Allied engineer left" );
+
+					if ( Map.Allied_Engs_Inside == 0 )
+					{
+						if ( !Map.Axis_Defensive_Barrier )
+						{
+							SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Defensive_Barrier" );
+						}
+						else
+						{
+							if ( Map.First_Axis_Secret_Weapon )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_First_Axis_Secret_Weapon" );
+							}
+
+							if ( Map.Second_Axis_Secret_Weapon )
+							{
+								SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Second_Axis_Secret_Weapon" );
+							}
+						}
+
+						SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Secret_Weapon_.*" );
+
+						Util.MapDebugPrint( "^5Allied engineers are not inside" );
+					}
+				}
+			}
+		},
+	},
+
+	forwardflag_Axis_Captured = function( trigger )
+	{
+
+		Map.forwardflag_Axis = true;
+		Map.forwardflag_Allies = false;
+
+		Util.SetMaxUsers( 1, "CHECKPOINT_.*" );
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ATTACKER) or bot.HasRole(ROLE.ATTACKER2) )
+			{
+				bot.ChangeSpawnPoint(0);
+			}
+
+			if ( bot.GetClass () == CLASS.ENGINEER )
+			{
+				if ( Map.First_Axis_Secret_Weapon_Dyno != 0 or Map.Second_Axis_Secret_Weapon_Dyno != 0 )
+				{
+					bot.ChangeSpawnPoint(1);
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5forwardflag_Axis_Captured" );
+	},
+
+	forwardflag_Allies_Captured = function( trigger )
+	{
+
+		Map.forwardflag_Axis = false;
+		Map.forwardflag_Allies = true;
+
+		Util.SetMaxUsers( 1, "CHECKPOINT_.*" );
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.HasRole(ROLE.ATTACKER1) or bot.HasRole(ROLE.DEFENDER2) )
+			{
+				bot.ChangeSpawnPoint(0);
+			}
+
+			if ( bot.GetClass () == CLASS.ENGINEER )
+			{
+				if ( Map.First_Allied_Supply_Stash_Dyno != 0 or Map.Second_Allied_Supply_Stash_Dyno != 0 )
+				{
+					bot.ChangeSpawnPoint(2);
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "^5forwardflag_Allies_Captured" );
+	},
+};
+
+global OnMapLoad = function()
+{
+
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_Command_Post_Built );
+	OnTrigger( "Allied team has built the Allied Defensive Barrier!", Map.Allied_Defensive_Barrier_Built );
+	OnTrigger( "The Allied team has built the Allied MG-42!", Map.Allied_MG42_Built );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_Command_Post_Built );
+	OnTrigger( "Axis team has built the Axis Defensive Barrier!", Map.Axis_Defensive_Barrier_Built );
+	OnTrigger( "The Axis team has built the Axis MG-42!", Map.Axis_MG42_Built );
+
+	OnTrigger( "Planted at the Allied Command Post.", Map.Allied_Command_Post_Planted );
+	OnTrigger( "Planted at Allied Command Post.", Map.Allied_Command_Post_Planted );	//Nitmod
+	OnTrigger( "Planted at the Allied Defensive Barrier.", Map.Allied_Defensive_Barrier_Planted );
+	OnTrigger( "Planted at Allied Defensive Barrier.", Map.Allied_Defensive_Barrier_Planted );	//Nitmod
+	OnTrigger( "Planted at the Allied MG42.", Map.Allied_MG42_Planted );
+	OnTrigger( "Planted at Allied MG42.", Map.Allied_MG42_Planted );	//Nitmod
+	OnTrigger( "Planted at the Allied Main Hatch.", Map.Allied_Main_Hatch_Planted );
+	OnTrigger( "Planted at Allied Main Hatch.", Map.Allied_Main_Hatch_Planted );	//Nitmod
+	OnTrigger( "Planted at the Axis Command Post.", Map.Axis_Command_Post_Planted );
+	OnTrigger( "Planted at Axis Command Post.", Map.Axis_Command_Post_Planted );	//Nitmod
+	OnTrigger( "Planted at the Axis Defensive Barrier.", Map.Axis_Defensive_Barrier_Planted );
+	OnTrigger( "Planted at Axis Defensive Barrier.", Map.Axis_Defensive_Barrier_Planted );	//Nitmod
+	OnTrigger( "Planted at the Axis MG42.", Map.Axis_MG42_Planted );
+	OnTrigger( "Planted at Axis MG42.", Map.Axis_MG42_Planted );	//Nitmod
+	OnTrigger( "Planted at the Axis Main Hatch.", Map.Axis_Main_Hatch_Planted );
+	OnTrigger( "Planted at Axis Main Hatch.", Map.Axis_Main_Hatch_Planted );	//Nitmod
+	OnTrigger( "Planted at the First Allied Supply Stash.", Map.First_Allied_Supply_Stash_Planted );
+	OnTrigger( "Planted at First Allied Supply Stash.", Map.First_Allied_Supply_Stash_Planted );	//Nitmod
+	OnTrigger( "Planted at the First Axis Secret Weapon.", Map.First_Axis_Secret_Weapon_Planted );
+	OnTrigger( "Planted at First Axis Secret Weapon.", Map.First_Axis_Secret_Weapon_Planted );	//Nitmod
+	OnTrigger( "Planted at the Second Allied Supply Stash.", Map.Second_Allied_Supply_Stash_Planted );
+	OnTrigger( "Planted at Second Allied Supply Stash.", Map.Second_Allied_Supply_Stash_Planted );	//Nitmod
+	OnTrigger( "Planted at the Second Axis Secret Weapon.", Map.Second_Axis_Secret_Weapon_Planted );
+	OnTrigger( "Planted at Second Axis Secret Weapon.", Map.Second_Axis_Secret_Weapon_Planted );	//Nitmod
+
+	OnTrigger( "Defused at the Allied Command Post.", Map.Allied_Command_Post_Defused );
+	OnTrigger( "Defused at Allied Command Post.", Map.Allied_Command_Post_Defused );	//Nitmod
+	OnTrigger( "Defused at the Allied Defensive Barrier.", Map.Allied_Defensive_Barrier_Defused );
+	OnTrigger( " Defused at Allied Defensive Barrier.", Map.Allied_Defensive_Barrier_Defused );	//Nitmod
+	OnTrigger( "Defused at the Allied MG42.", Map.Allied_MG42_Defused );
+	OnTrigger( "Defused at Allied MG42.", Map.Allied_MG42_Defused );	//Nitmod
+	OnTrigger( "Defused at the Allied Main Hatch.", Map.Allied_Main_Hatch_Defused );
+	OnTrigger( "Defused at Allied Main Hatch.", Map.Allied_Main_Hatch_Defused );	//Nitmod
+	OnTrigger( "Defused at the Axis Command Post.", Map.Axis_Command_Post_Defused );
+	OnTrigger( "Defused at Axis Command Post.", Map.Axis_Command_Post_Defused );	//Nitmod
+	OnTrigger( "Defused at the Axis Defensive Barrier.", Map.Axis_Defensive_Barrier_Defused );
+	OnTrigger( "Defused at Axis Defensive Barrier.", Map.Axis_Defensive_Barrier_Defused );	//Nitmod
+	OnTrigger( "Defused at the Axis MG42.", Map.Axis_MG42_Defused );
+	OnTrigger( "Defused at Axis MG42.", Map.Axis_MG42_Defused );	//Nitmod
+	OnTrigger( "Defused at the Axis Main Hatch.", Map.Axis_Main_Hatch_Defused );
+	OnTrigger( "Defused at Axis Main Hatch.", Map.Axis_Main_Hatch_Defused );	//Nitmod
+	OnTrigger( "Defused at the First Allied Supply Stash.", Map.First_Allied_Supply_Stash_Defused );
+	OnTrigger( "Defused at First Allied Supply Stash.", Map.First_Allied_Supply_Stash_Defused );	//Nitmod
+	OnTrigger( "Defused at the First Axis Secret Weapon.", Map.First_Axis_Secret_Weapon_Defused );
+	OnTrigger( "Defused at First Axis Secret Weapon.", Map.First_Axis_Secret_Weapon_Defused );	//Nitmod
+	OnTrigger( "Defused at the Second Allied Supply Stash.", Map.Second_Allied_Supply_Stash_Defused );
+	OnTrigger( "Defused at Second Allied Supply Stash.", Map.Second_Allied_Supply_Stash_Defused );	//Nitmod
+	OnTrigger( "Defused at the Second Axis Secret Weapon.", Map.Second_Axis_Secret_Weapon_Defused );
+	OnTrigger( "Defused at Second Axis Secret Weapon.", Map.Second_Axis_Secret_Weapon_Defused );	//Nitmod
+
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "Axis team has destroyed the Allied Defensive Barrier!", Map.Allied_Defensive_Barrier_Destroyed );
+	OnTrigger( "The Axis team has destroyed the Allied MG-42!", Map.Allied_MG42_Destroyed );
+	OnTrigger( "Axis have destroyed the Allied Main Hatch!", Map.Allied_Main_Hatch_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Defensive Barrier!", Map.Axis_Defensive_Barrier_Destroyed );
+	OnTrigger( "The Allied team has destroyed the Axis MG-42!", Map.Axis_MG42_Destroyed );
+	OnTrigger( "Allies have destroyed the Axis Main Hatch!", Map.Axis_Main_Hatch_Destroyed );
+	OnTrigger( "Axis have destroyed the First Allied Supply Stash!", Map.First_Allied_Supply_Stash_Destroyed );
+	OnTrigger( "Allies have destroyed the First Axis Secret Weapon!", Map.First_Axis_Secret_Weapon_Destroyed );
+	OnTrigger( "Axis have destroyed the Second Allied Supply Stash!", Map.Second_Allied_Supply_Stash_Destroyed );
+	OnTrigger( "Allies have destroyed the Second Axis Secret Weapon!", Map.Second_Axis_Secret_Weapon_Destroyed );
+
+	OnTrigger( "Axis have captured the Forward Spawn!", Map.forwardflag_Axis_Captured );
+	OnTrigger( "Allies have captured the Forward Spawn!", Map.forwardflag_Allies_Captured );
+
+	OnTrigger( "GRENADE_Allied_Window Exploded.", Map.Allied_Window_Exploded );
+	OnTrigger( "GRENADE_Axis_Window Exploded.", Map.Axis_Window_Exploded );
+
+	Util.DisableGoal( ".*", true );
+
+	SetAvailableMapGoals( 0, true, {
+		"ROUTE_.*",
+		"CHECKPOINT_forwardflag",
+		"AMMOCAB_.*",
+		"HEALTHCAB_.*",
+	});
+
+	Util.DisableGoal( "ROUTE_Axis_Main_Hatch" );
+	Util.DisableGoal( "ROUTE_Allied_Main_Hatch" );
+	Util.DisableGoal( "ROUTE_Axis_Main_Hatch_1" );
+	Util.DisableGoal( "ROUTE_Allied_Main_Hatch_1" );
+	Util.DisableGoal( "ROUTE_Axis_Underground_1" );
+	Util.DisableGoal( "ROUTE_Allied_Underground_1" );
+
+	Util.ClearRoleForGoals(".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 });
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"BUILD_Allied_MG42",
+		"BUILD_Allied_Defensive_Barrier",
+		"BUILD_Allied_Command_Post",
+		"PLANT_Axis_Main_Hatch",
+		"PLANT_First_Axis_Secret_Weapon",
+		"PLANT_Second_Axis_Secret_Weapon",
+		"MOUNTMG42_Allied_Main_Hatch",
+		"REPAIRMG42_Allied_Main_Hatch",
+		"DEFEND_Allied_Base_.*",
+		"ATTACK_Axis_Base_.*",
+		"CALLARTILLERY_Allied_Bunker",
+		"ARTILLERY_S_Axis_Bunker",
+	});
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		"BUILD_Axis_MG42",
+		"BUILD_Axis_Defensive_Barrier",
+		"BUILD_Axis_Command_Post",
+		"PLANT_Allied_Main_Hatch",
+		"PLANT_First_Allied_Supply_Stash",
+		"PLANT_Second_Allied_Supply_Stash",
+		"MOUNTMG42_Axis_Main_Hatch",
+		"REPAIRMG42_Axis_Main_Hatch",
+		"ATTACK_Allied_Base_.*",
+		"DEFEND_Axis_Base_.*",
+		"CALLARTILLERY_Axis_Bunker",
+		"ARTILLERY_S_Allied_Bunker",
+	});
+
+	SetGoalPriority( "PLANT_Allied_Defensive_Barrier", 0.83, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Allied_Defensive_Barrier", 0.82, TEAM.AXIS, CLASS.COVERTOPS );
+	SetGoalPriority( "PLANT_Allied_defensive_barrier_disg", 0.83, TEAM.AXIS, CLASS.COVERTOPS );
+	SetGoalPriority( "PLANT_First_Allied_Supply_Stash", 0.82, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Second_Allied_Supply_Stash", 0.82, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Axis_Command_Post", 0.81, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Axis_MG42", 0.89, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Allied_MG42", 0.8, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Allied_Command_Post", 0.8, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "MOUNTMG42_Axis_Main_Hatch", 0.5, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Secret_Weapon_.*", 0.75, TEAM.AXIS, 0 );
+	SetGoalPriority( "PLANT_Allied_Main_Hatch", 0.84, TEAM.AXIS, CLASS.ENGINEER );
+
+	SetGoalPriority( "PLANT_Axis_Defensive_Barrier", 0.83, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Axis_Defensive_Barrier", 0.82, TEAM.ALLIES, CLASS.COVERTOPS );
+	SetGoalPriority( "PLANT_Axis_defensive_barrier_disg", 0.83, TEAM.ALLIES, CLASS.COVERTOPS );
+	SetGoalPriority( "PLANT_First_Axis_Secret_Weapon", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Second_Axis_Secret_Weapon", 0.82, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Allied_Command_Post", 0.81, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "BUILD_Allied_MG42", 0.89, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Axis_MG42", 0.8, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Axis_Command_Post", 0.8, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "MOUNTMG42_Allied_Main_Hatch", 0.5, TEAM.ALLIES, 0 );
+	SetGoalPriority( "DEFEND_Supply_Stash_.*", 0.75, TEAM.ALLIES, 0 );
+	SetGoalPriority( "PLANT_Axis_Main_Hatch", 0.84, TEAM.ALLIES, CLASS.ENGINEER );
+
+	SetGoalPriority( "PLANTMINE_.*", 0.82, 0, CLASS.ENGINEER );
+	SetGoalPriority( "REPAIRMG42_.*", 0.8, 0, CLASS.ENGINEER );
+	SetGoalPriority( "SMOKEBOMB_.*", 0.83, 0, CLASS.COVERTOPS );
+	SetGoalPriority( "ATTACK_.*", 0.55, 0, 0 );
+
+	Util.SetGoalPosition(-573.147, -331.182, 168.264, "BUILD_Allied_Command_Post");
+	Util.SetGoalPosition(577.072, 351.855, 168.125, "BUILD_Axis_Command_Post");
+
+
+	Util.LimitToClass("PLANT_Axis_defensive_barrier_disg", TEAM.ALLIES, CLASS.COVERTOPS);
+	Util.SetRoleForGoals("PLANT_Axis_defensive_barrier_disg", ROLE.INFILTRATOR);
+
+	Util.LimitToClass("PLANT_Allied_defensive_barrier_disg", TEAM.AXIS, CLASS.COVERTOPS);
+	Util.SetRoleForGoals("PLANT_Allied_defensive_barrier_disg", ROLE.INFILTRATOR);
+
+	Util.AddUseWp( "BUILD_Axis_Defensive_Barrier", "Axis_Defensive_Barrier_Build_WP" );
+	Util.AddUseWp( "PLANT_First_Axis_Secret_Weapon", "First_Axis_Secret_Weapon_Plant_WP" );
+	Util.AddUseWp( "PLANT_Second_Axis_Secret_Weapon", "Second_Axis_Secret_Weapon_Plant_WP" );
+	Util.AddUseWp( "PLANT_First_Allied_Supply_Stash", "First_Allied_Supply_Stash_Plant_WP" );
+	Util.AddUseWp( "PLANT_Second_Allied_Supply_Stash", "Second_Allied_Supply_Stash_Plant_WP" );
+
+	//Both teams roles
+	Util.SetRoleForGoals(".*_Command_Post", ROLE.ATTACKER2);
+	Util.SetRoleForGoals(".*_Command_Post", ROLE.DEFENDER2);
+	Util.SetRoleForGoals("CHECKPOINT_forwardflag", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER2 });
+
+	//Allied roles
+	Util.SetRoleForGoals("ATTACK_Axis_Base_.*", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("PLANT_Axis_Defensive_Barrier", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("PLANT_First_Axis_Secret_Weapon", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("PLANT_Second_Axis_Secret_Weapon", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("PLANT_Axis_MG42", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("SMOKEBOMB_Axis_Base_1", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("PLANT_Axis_Main_Hatch", { ROLE.ATTACKER1, ROLE.DEFENDER2 });
+
+	Util.SetRoleForGoals("DEFEND_Allied_Base_.*", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("PLANTMINE_Allied_Base_.*", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("MOUNTMG42_Allied_MG42", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("REPAIRMG42_Allied_MG42", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("MOUNTMG42_Allied_Main_Hatch", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("REPAIRMG42_Allied_Main_Hatch", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("CALLARTILLERY_Allied_Bunker", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("ARTILLERY_S_Axis_Bunker", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("DEFEND_Supply_Stash_.*", ROLE.DEFENDER1);
+	Util.SetRoleForGoals("BUILD_Allied_Defensive_Barrier", { ROLE.DEFENDER1, ROLE.DEFENDER2 });
+	Util.SetRoleForGoals("BUILD_Allied_MG42", { ROLE.DEFENDER1, ROLE.DEFENDER2 });
+
+	//Axis roles
+	Util.SetRoleForGoals("ATTACK_Allied_Base_.*", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("PLANT_Allied_Defensive_Barrier", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("PLANT_First_Allied_Supply_Stash", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("PLANT_Second_Allied_Supply_Stash", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("PLANT_Allied_MG42", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("SMOKEBOMB_Allied_Base_1", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("PLANT_Allied_Main_Hatch", { ROLE.ATTACKER, ROLE.ATTACKER2 });
+
+	Util.SetRoleForGoals("DEFEND_Axis_Base_.*", ROLE.DEFENDER);
+	Util.SetRoleForGoals("PLANTMINE_Axis_Base.*", ROLE.DEFENDER);
+	Util.SetRoleForGoals("MOUNTMG42_Axis_MG42", ROLE.DEFENDER);
+	Util.SetRoleForGoals("REPAIRMG42_Axis_MG42", ROLE.DEFENDER);
+	Util.SetRoleForGoals("MOUNTMG42_Axis_Main_Hatch", ROLE.DEFENDER);
+	Util.SetRoleForGoals("REPAIRMG42_Axis_Main_Hatch", ROLE.DEFENDER);
+	Util.SetRoleForGoals("CALLARTILLERY_Axis_Bunker", ROLE.DEFENDER);
+	Util.SetRoleForGoals("ARTILLERY_S_Allied_Bunker", ROLE.DEFENDER);
+	Util.SetRoleForGoals("DEFEND_Secret_Weapon_.*", ROLE.DEFENDER);
+	Util.SetRoleForGoals("BUILD_Axis_Defensive_Barrier", { ROLE.DEFENDER, ROLE.ATTACKER2 });
+	Util.SetRoleForGoals("BUILD_Axis_MG42", { ROLE.DEFENDER, ROLE.ATTACKER2 });
+
+	DCM1 = OnTriggerRegion(AABB(-535.689,-2540.303,-6.875,-325.262,-2355.125,75.288), RegionTrigger.DisableCombatMovement);	//Allied_entrence_to_underground
+	DCM2 = OnTriggerRegion(AABB(-733.802,-3484.605,169.125,-414.579,-2601.128,301.125), RegionTrigger.DisableCombatMovement);	//Allied_basic_spawn_roofs
+	DCM3 = OnTriggerRegion(AABB(100.742,-4344.875,-6.862,320.875,-3902.092,227.416), RegionTrigger.DisableCombatMovement);	//Allied_basic_spawn_barrack_with_windows
+	DCM4 = OnTriggerRegion(AABB(-832.875,-4352.875,1.125,122.875,-3818.339,272.823), RegionTrigger.DisableCombatMovement);	//Allied_basic_spawn_main_storage
+	DCM5 = OnTriggerRegion(AABB(-816.875,-2383.817,-6.875,816.875,2391.594,267.125), RegionTrigger.DisableCombatMovement);	//Main_battlefield
+	DCM6 = OnTriggerRegion(AABB(-132.391,-284.196,129.125,137.932,255.650,480.782), RegionTrigger.DisableCombatMovement);	//Ramp_for_checkpoint
+	DCM7 = OnTriggerRegion(AABB(-640.875,-1782.662,183.818,184.874,-1207.044,417.770), RegionTrigger.DisableCombatMovement);	//Allied_outside_MG42
+	DCM8 = OnTriggerRegion(AABB(317.731,2346.847,-6.875,546.067,2529.860,89.687), RegionTrigger.DisableCombatMovement);	//Axis_entrence_to_underground
+	DCM9 = OnTriggerRegion(AABB(416.035,2591.896,169.125,734.579,3486.876,301.125), RegionTrigger.DisableCombatMovement);	//Axis_basic_spawn_roofs
+	DCM10 = OnTriggerRegion(AABB(-320.875,3920.144,-6.875,-103.377,4344.875,226.820), RegionTrigger.DisableCombatMovement);	//Axis_basic_spawn_barrack_with_windows
+	DCM11 = OnTriggerRegion(AABB(-120.875,3818.787,1.125,830.289,4352.875,305.538), RegionTrigger.DisableCombatMovement);	//Axis_basic_spawn_main_storage
+	DCM12 = OnTriggerRegion(AABB(-184.875,1198.967,236.811,640.875,1778.143,428.193), RegionTrigger.DisableCombatMovement);	//Axis_outside_MG42
+	BD1 = OnTriggerRegion(AABB(126.564,-4344.875,137.125,256.875,-4017.408,242.019), RegionTrigger.BreakableDistance);	//Allied_windows_near_storage
+	BD2 = OnTriggerRegion(AABB(-256.875,4017.546,137.125,-124.685,4344.875,238.083), RegionTrigger.BreakableDistance);	//Axis_windows_near_storage
+
+	Allied_Trigger = OnTriggerRegion( AABB(-832.875,-4352.875,1.125,122.875,-3847.125,367.776), Map.AxisEngsInside );
+	Axis_Trigger = OnTriggerRegion( AABB(-122.875,3845.125,1.125,832.875,4352.875,368.840), Map.AlliedEngsInside );
+
+	RegionTrigger.Create(AABB(212.307,-2364.096,41.125,320.875,-2259.454,196.023), "DisableBotPush", "DEFEND_Allied_Base_2");
+	RegionTrigger.Create(AABB(-690.626,-3448.841,183.492,-547.437,-3321.103,287.405), "DisableBotPush", "DEFEND_Allied_Base_3");
+	RegionTrigger.Create(AABB(-575.802,-2935.942,183.792,-438.592,-2795.060,292.087), "DisableBotPush", "DEFEND_Allied_Base_10");
+	RegionTrigger.Create(AABB(-320.875,2247.125,41.297,-188.805,2370.149,163.125), "DisableBotPush", "DEFEND_Axis_Base_1");
+	RegionTrigger.Create(AABB(560.661,3312.706,181.548,697.210,3455.114,290.351), "DisableBotPush", "DEFEND_Axis_Base_3");
+	RegionTrigger.Create(AABB(442.273,2819.172,182.727,572.157,2939.138,284.049), "DisableBotPush", "DEFEND_Axis_Base_10");
+	RegionTrigger.Create(AABB(-64.875,1159.125,-127.680,64.875,1232.504,83.125), "DisableBotPush", "Axis_Main_hatch_ladder");
+	RegionTrigger.Create(AABB(-64.875,-1253.108,-167.653,64.875,-1159.126,83.125), "DisableBotPush", "Allied_Main_hatch_ladder");
+
+	Wp.SetWaypointFlag( "Ally_Hatch", "closed", false );
+	Wp.SetWaypointFlag( "Ally_Hatch_1", "climb", false );
+	Wp.SetWaypointFlag( "Axis_Hatch", "closed", false );
+	Wp.SetWaypointFlag( "Axis_Hatch_1", "climb", false );
+	Wp.SetWaypointFlag( "SASW", "closed", false );
+
+	Wp.SetWaypointFlag( "FASS_1", "jump", true );
+	Wp.SetWaypointFlag( "FASS_2", "jump", true );
+	Wp.SetWaypointFlag( "FASS_2", "sneak", true );
+	Wp.SetWaypointFlag( "FASS_3", "jump", true );
+	Wp.SetWaypointFlag( "FASS_4", "closed", false );
+	Wp.SetWaypointFlag( "FASS_5", "closed", false );
+
+	Wp.SetWaypointFlag( "SASS_1", "jump", true );
+	Wp.SetWaypointFlag( "SASS_2", "closed", false );
+	Wp.SetWaypointFlag( "SASS_3", "jump", true );
+	Wp.SetWaypointFlag( "SASS_4", "closed", false );
+
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 4, "CHECKPOINT_.*" );
+	Util.SetMaxUsers( 2, "PLANT_.*" );
+	Util.SetMaxUsers( 2, "BUILD_.*" );
+
+	print( "^3Omni-bot map script by ^1Q^2i^3k^4i^1 ^3and ^1n^2a^4t^8i^3v^5e12 ^3for ^1D^4S ^7Bunkers ^2beta 2 ^3executed." );
+
+	while(1)
+	{
+		Util.BotChat(  0, "say", "^3Script for ^1D^4S ^7Bunkers ^2beta 2 ^3by ^1Q^2i^3k^4i^1 ^3& ^1n^2a^4t^8i^3v^5e12", 1 );
+		sleep(180);
+	}
+};
+
+global OnBotJoin = function( bot )
+{
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Allied_MG42 =
+		{
+		},
+		BUILD_Allied_Command_Post =
+		{
+		},
+		BUILD_Axis_Command_Post =
+		{
+		},
+		BUILD_Axis_Defensive_Barrier =
+		{
+		},
+		BUILD_Axis_MG42 =
+		{
+		},
+		BUILD_Allied_Defensive_Barrier =
+		{
+		},
+		PLANT_Second_Allied_Supply_Stash =
+		{
+		},
+		PLANT_Allied_Main_Hatch =
+		{
+			ROUTE_Axis_Spawn =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+
+					},
+				},
+				ROUTE_Axis_Main_Hatch =
+				{
+
+				},
+			},
+			ROUTE_Axis_Spawn_1 =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+
+					},
+				},
+				ROUTE_Axis_Main_Hatch =
+				{
+
+				},
+			},
+		},
+		PLANT_Axis_Main_Hatch =
+		{
+			ROUTE_Allied_Spawn =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+
+					},
+				},
+				ROUTE_Allied_Main_Hatch =
+				{
+
+				},
+			},
+			ROUTE_Allied_Spawn_1 =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+
+					},
+				},
+				ROUTE_Allied_Main_Hatch =
+				{
+
+				},
+			},
+		},
+		PLANT_First_Axis_Secret_Weapon =
+		{
+			ROUTE_Allied_Spawn =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+
+					},
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+
+					},
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Main_Hatch_1 =
+				{
+					ROUTE_Axis_Main_Hatch_1 =
+					{
+						ROUTE_Axis_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Allied_Spawn_1 =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+
+					},
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+
+					},
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Main_Hatch_1 =
+				{
+					ROUTE_Axis_Main_Hatch_1 =
+					{
+						ROUTE_Axis_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_Forward_Spawn =
+			{
+				ROUTE_Axis_Right =
+				{
+
+				},
+				ROUTE_Axis_Left =
+				{
+
+				},
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Axis_Main_Hatch =
+					{
+						ROUTE_Axis_Underground =
+						{
+
+						},
+					},
+				},
+			},
+		},
+		PLANT_First_Allied_Supply_Stash =
+		{
+			ROUTE_Axis_Spawn =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+
+					},
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+
+					},
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Main_Hatch_1 =
+				{
+					ROUTE_Allied_Main_Hatch_1 =
+					{
+						ROUTE_Allied_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Axis_Spawn_1 =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+
+					},
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+
+					},
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Main_Hatch_1 =
+				{
+					ROUTE_Allied_Main_Hatch_1 =
+					{
+						ROUTE_Allied_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Axis_Forward_Spawn =
+			{
+				ROUTE_Allied_Right =
+				{
+
+				},
+				ROUTE_Allied_Left =
+				{
+
+				},
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Allied_Main_Hatch =
+					{
+						ROUTE_Allied_Underground =
+						{
+
+						},
+					},
+				},
+			},
+		},
+		SMOKEBOMB_Axis_Base_1 =
+		{
+			ROUTE_Allied_Spawn =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Main_Hatch_1 =
+				{
+					ROUTE_Axis_Main_Hatch_1 =
+					{
+						ROUTE_Axis_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Allied_Spawn_1 =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Axis_Main_Hatch =
+						{
+							ROUTE_Axis_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Main_Hatch_1 =
+				{
+					ROUTE_Axis_Main_Hatch_1 =
+					{
+						ROUTE_Axis_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_Forward_Spawn =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Axis_Main_Hatch =
+					{
+						ROUTE_Axis_Underground =
+						{
+
+						},
+					},
+				},
+			},
+		},
+		PLANT_Axis_defensive_barrier_disg =
+		{
+			ROUTE_Allied_Spawn =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Right =
+						{
+							ROUTE_Thru_Axis_Door =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Thru_Axis_Door =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Allied_Spawn_1 =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Right =
+						{
+							ROUTE_Thru_Axis_Door =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Thru_Axis_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_battlefield_1 =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Axis_Left =
+					{
+						ROUTE_Axis_Right =
+						{
+							ROUTE_Thru_Axis_Door =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Allied_Left =
+				{
+					ROUTE_Axis_Right =
+					{
+						ROUTE_Thru_Axis_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Allied_Forward_Spawn =
+			{
+				ROUTE_Around_Allied_CP =
+				{
+					ROUTE_Thru_Axis_Door =
+					{
+
+					},
+				},
+			},
+			ROUTE_Allied_battlefield_2 =
+			{
+				ROUTE_Around_Allied_CP =
+				{
+					ROUTE_Thru_Axis_Door =
+					{
+
+					},
+				},
+			},
+			ROUTE_Axis_battlefield_2 =
+			{
+				ROUTE_Thru_Axis_Door =
+				{
+
+				},
+			},
+		},
+		SMOKEBOMB_Allied_Base_1 =
+		{
+			ROUTE_Axis_Spawn =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Main_Hatch_1 =
+				{
+					ROUTE_Allied_Main_Hatch_1 =
+					{
+						ROUTE_Allied_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Axis_Spawn_1 =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Allied_Main_Hatch =
+						{
+							ROUTE_Allied_Underground =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Main_Hatch_1 =
+				{
+					ROUTE_Allied_Main_Hatch_1 =
+					{
+						ROUTE_Allied_Underground_1 =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Axis_Forward_Spawn =
+			{
+				ROUTE_Allied_Right =
+				{
+					ROUTE_Allied_Main_Hatch =
+					{
+						ROUTE_Allied_Underground =
+						{
+
+						},
+					},
+				},
+			},
+		},
+		PLANT_Allied_defensive_barrier_disg =
+		{
+			ROUTE_Axis_Spawn =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Right =
+						{
+							ROUTE_Thru_Allied_Door =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Thru_Allied_Door =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Axis_Spawn_1 =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Right =
+						{
+							ROUTE_Thru_Allied_Door =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Thru_Allied_Door =
+						{
+
+						},
+					},
+				},
+			},
+			ROUTE_Axis_battlefield_1 =
+			{
+				ROUTE_Axis_Right =
+				{
+					ROUTE_Allied_Left =
+					{
+						ROUTE_Allied_Right =
+						{
+							ROUTE_Thru_Allied_Door =
+							{
+
+							},
+						},
+					},
+				},
+				ROUTE_Axis_Left =
+				{
+					ROUTE_Allied_Right =
+					{
+						ROUTE_Thru_Allied_Door =
+						{
+
+						},
+					},
+				},
+			},
+
+			ROUTE_Axis_Forward_Spawn =
+			{
+				ROUTE_Around_Axis_CP =
+				{
+					ROUTE_Thru_Allied_Door =
+					{
+
+					},
+				},
+			},
+			ROUTE_Axis_battlefield_2 =
+			{
+				ROUTE_Around_Axis_CP =
+				{
+					ROUTE_Thru_Allied_Door =
+					{
+
+					},
+				},
+			},
+			ROUTE_Allied_battlefield_2 =
+			{
+				ROUTE_Thru_Allied_Door =
+				{
+
+				},
+			},
+		},
+		PLANT_Axis_Command_Post =
+		{
+		},
+		PLANT_Second_Axis_Secret_Weapon =
+		{
+		},
+		PLANT_Allied_MG42 =
+		{
+		},
+		PLANT_Allied_Command_Post =
+		{
+		},
+		PLANT_Allied_Defensive_Barrier =
+		{
+		},
+		PLANT_Axis_MG42 =
+		{
+		},
+		PLANT_Axis_Defensive_Barrier =
+		{
+		},
+		CHECKPOINT_forwardflag =
+		{
+			ROUTE_Axis_Spawn =
+			{
+				ROUTE_Axis_Bunker_2 =
+				{
+
+				},
+				ROUTE_Axis_Right =
+				{
+
+				},
+				ROUTE_Axis_Left =
+				{
+
+				},
+				ROUTE_Axis_Main_Hatch =
+				{
+
+				},
+			},
+			ROUTE_Axis_Spawn_1 =
+			{
+				ROUTE_Axis_Bunker_2 =
+				{
+
+				},
+				ROUTE_Axis_Right =
+				{
+
+				},
+				ROUTE_Axis_Left =
+				{
+
+				},
+				ROUTE_Axis_Main_Hatch =
+				{
+
+				},
+			},
+
+			ROUTE_Allied_Spawn =
+			{
+				ROUTE_Allied_Bunker_2 =
+				{
+
+				},
+				ROUTE_Allied_Right =
+				{
+
+				},
+				ROUTE_Allied_Left =
+				{
+
+				},
+				ROUTE_Allied_Main_Hatch =
+				{
+
+				},
+			},
+			ROUTE_Axis_Spawn_1 =
+			{
+				ROUTE_Allied_Bunker_2 =
+				{
+
+				},
+				ROUTE_Allied_Right =
+				{
+
+				},
+				ROUTE_Allied_Left =
+				{
+
+				},
+				ROUTE_Allied_Main_Hatch =
+				{
+
+				},
+			},
+		},
+	};
+
+	MapRoutes.PLANT_Second_Allied_Supply_Stash = MapRoutes.PLANT_First_Allied_Supply_Stash;
+	MapRoutes.PLANT_Allied_Defensive_Barrier = MapRoutes.PLANT_First_Allied_Supply_Stash;
+	MapRoutes.PLANT_Allied_MG42 = MapRoutes.PLANT_First_Allied_Supply_Stash;
+	MapRoutes.ATTACK_Allied_Base_1 = MapRoutes.PLANT_First_Allied_Supply_Stash;
+	MapRoutes.ATTACK_Allied_Base_2 = MapRoutes.PLANT_First_Allied_Supply_Stash;
+	MapRoutes.ATTACK_Allied_Base_3 = MapRoutes.PLANT_First_Allied_Supply_Stash;
+
+	MapRoutes.PLANT_Second_Axis_Secret_Weapon = MapRoutes.PLANT_First_Axis_Secret_Weapon;
+	MapRoutes.PLANT_Axis_Defensive_Barrier = MapRoutes.PLANT_First_Axis_Secret_Weapon;
+	MapRoutes.PLANT_Axis_MG42 = MapRoutes.PLANT_First_Axis_Secret_Weapon;
+	MapRoutes.ATTACK_Axis_Base_1 = MapRoutes.PLANT_First_Axis_Secret_Weapon;
+	MapRoutes.ATTACK_Axis_Base_2 = MapRoutes.PLANT_First_Axis_Secret_Weapon;
+	MapRoutes.ATTACK_Axis_Base_3 = MapRoutes.PLANT_First_Axis_Secret_Weapon;
+
+	Util.Routes(MapRoutes);
+};

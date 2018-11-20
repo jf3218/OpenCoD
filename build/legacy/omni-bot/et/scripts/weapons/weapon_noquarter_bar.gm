@@ -1,0 +1,9 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.BAR = 86;
+this.Name = "BAR";
+this.WeaponId = WEAPON.BAR;
+
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 1;
+this.PrimaryFire.LowAmmoPriority = 0.8;

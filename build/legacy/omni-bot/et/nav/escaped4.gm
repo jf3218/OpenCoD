@@ -1,0 +1,437 @@
+//==========================================================================================
+//
+//	escaped4.gm
+//
+//	Who                  	When		What
+//------------------------------------------------------------------------------------------
+//	maker@bigsighstudios.com	21 February 2018	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1, // please set to zero before distributing your script
+
+	//DefendingTeam = TEAM.AXIS, hmm, dual obj...
+
+
+	Main_Entrance_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Main_Entrance" );
+		Util.MapDebugPrint( "Main_Entrance_Planted" );
+	},
+	Main_Entrance_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Main_Entrance" );
+		Util.MapDebugPrint( "Main_Entrance_Defused" );
+	},
+	Main_Entrance_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Main_Entrance" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "CHECKPOINT_forward_spawn" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Bridge" );
+		Util.MapDebugPrint( "Main_Entrance_Destroyed" );
+	},
+
+	Lower_Cave_Entrance_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Lower_Cave_Entrance" );
+		Util.MapDebugPrint( "Lower_Cave_Entrance_Planted" );
+	},
+	Lower_Cave_Entrance_Defused = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Lower_Cave_Entrance" );
+		Util.MapDebugPrint( "Lower_Cave_Entrance_Defused" );
+	},
+	Lower_Cave_Entrance_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Bridge" );
+		Util.MapDebugPrint( "Lower_Cave_Entrance_Destroyed" );
+	},
+
+	Bridge_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Bridge" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Main_Cave_Exit" );
+		Util.MapDebugPrint( "Bridge_Built" );
+	},
+	Bridge_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Bridge" );
+		Util.MapDebugPrint( "Bridge_Destroyed" );
+	},
+
+	Ladder_Built = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Ladder" );
+		Util.MapDebugPrint( "Ladder_Built" );
+	},
+	Ladder_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Ladder" );
+		Util.MapDebugPrint( "Ladder_Destroyed" );
+	},
+
+	Lake_Exit_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Lake_Exit_Destroyed" );
+	},
+
+	Main_Bunker_Entrance_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Main_Bunker_Entrance" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "GRENADE_Rocks_.*" );
+
+		Util.MapDebugPrint( "Main_Bunker_Entrance_Destroyed" );
+	},
+
+	Main_Cave_Exit_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Main_Cave_Exit" );
+		Util.MapDebugPrint( "Main_Cave_Exit_Planted" );
+	},
+	Main_Cave_Exit_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Main_Cave_Exit" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Top_Cave_Exit" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Main_Bunker_Entrance" );
+		Util.MapDebugPrint( "Main_Cave_Exit_Destroyed" );
+	},
+
+	Top_Cave_Exit_Planted = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Top_Cave_Exit" );
+		Util.MapDebugPrint( "Top_Cave_Exit_Planted" );
+	},
+	Top_Cave_Exit_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Top_Cave_Exit" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "CHECKPOINT_forward_spawn1" );
+		SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Transmitter" );
+		Util.MapDebugPrint( "Top_Cave_Exit_Destroyed" );
+	},
+
+	Transmitter_Planted = function( trigger )
+	{
+		Util.MapDebugPrint( "Transmitter_Planted" );
+	},
+	Transmitter_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Transmitter_Destroyed" );
+	},
+
+	Escape_Plans_Taken = function( trigger )
+	{
+		Util.MapDebugPrint( "Escape_Plans_Taken" );
+	},
+
+	Escape_Plans_Returned = function( trigger )
+	{
+		Util.MapDebugPrint( "Escape_Plans_Returned" );
+	},
+
+	Escape_Plans_Secured = function( trigger )
+	{
+		Util.MapDebugPrint( "Escape_Plans_Secured" );
+	},
+
+	cexitspa_Axis_Captured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, 1, "CAPPOINT_Docs" );
+
+		Util.MapDebugPrint( "cexitspa_Axis_Captured" );
+	},
+
+	cexitspa_Allies_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "cexitspa_Allies_Captured" );
+	},
+
+	forward_spawn_Axis_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "forward_spawn_Axis_Captured" );
+	},
+
+	forward_spawn_Allies_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "forward_spawn_Allies_Captured" );
+	},
+
+	forward_spawn1_Axis_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "forward_spawn1_Axis_Captured" );
+	},
+
+	forward_spawn1_Allies_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "forward_spawn1_Allies_Captured" );
+	},
+
+	// Neutral Command Post
+	CP_Owner = 0,
+	CP_Dyno = 0,
+
+	Set_CP = function(_p) // p = TEAM.ALLIES or TEAM.AXIS or 0 (unbuilt)
+	{
+		switch(_p)
+		{
+			case 0:
+			{
+				Map.CP_Owner = 0;
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+			}
+			case TEAM.ALLIES:
+			{
+				Map.CP_Owner = TEAM.ALLIES;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   1, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "BUILD_Command_Post" );
+			}
+			case TEAM.AXIS:
+			{
+				Map.CP_Owner = TEAM.AXIS;
+				SetAvailableMapGoals( TEAM.ALLIES, 0, "BUILD_Command_Post" );
+				SetAvailableMapGoals( TEAM.ALLIES, 1, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "PLANT_Command_Post" );
+				SetAvailableMapGoals( TEAM.AXIS,   0, "BUILD_Command_Post" );
+			}
+		}
+		//Util.MapDebugPrint("CP Owner: " + Map.CP_Owner );
+	},
+	Allied_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.ALLIES);
+		Util.MapDebugPrint( "Allied_CP_Built" );
+	},
+	Allied_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Allied_CP_Destroyed" );
+	},
+	Axis_CP_Built = function( trigger )
+	{
+		Map.Set_CP(TEAM.AXIS);
+		Util.MapDebugPrint( "Axis_CP_Built" );
+	},
+	Axis_CP_Destroyed = function( trigger )
+	{
+		Map.CP_Dyno = 0;
+		Map.Set_CP(0);
+		Util.MapDebugPrint( "Axis_CP_Destroyed" );
+	},
+	CP_Planted = function( trigger )
+	{
+		Map.CP_Dyno += 1;
+		Util.MapDebugPrint( "CP_Planted" );
+	},
+	CP_Defused = function( trigger )
+	{
+		Map.CP_Dyno -= 1;
+		Util.MapDebugPrint( "CP_Defused" );
+	},
+
+// Command Post END
+
+	GRENADE_Rocks_1_Exploded = function( trigger )
+	{
+		Wp.SetWaypointFlag( "Rocks_1", "closed", 0 );
+
+		Util.MapDebugPrint( "GRENADE_Rocks1_Exploded" );
+	},
+	GRENADE_Rocks_2_Exploded = function( trigger )
+	{
+		Wp.SetWaypointFlag( "Rocks_2", "closed", 0 );
+
+		Util.MapDebugPrint( "GRENADE_Rocks2_Exploded" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+
+	//Rocks
+	OnTrigger( "GRENADE_Rocks_1 Exploded.", Map.GRENADE_Rocks_1_Exploded );
+	OnTrigger( "GRENADE_Rocks_2 Exploded.", Map.GRENADE_Rocks_2_Exploded );
+
+	OnTrigger( "The Bridge has been constructed", Map.Bridge_Built );
+	OnTrigger( "The Bridge has been destroyed.", Map.Bridge_Destroyed );
+
+	OnTrigger( "MISSING_STRING", Map.Ladder_Built );
+	OnTrigger( "MISSING_STRING", Map.Ladder_Destroyed );
+
+	OnTrigger( "MISSING_STRING", Map.Lake_Exit_Destroyed );
+
+	OnTrigger( "Planted at the Lower Cave Entrance.", Map.Lower_Cave_Entrance_Planted );
+	OnTrigger( "Defused at the Lower Cave Entrance.", Map.Lower_Cave_Entrance_Defused );
+	OnTrigger( "Lower Cave Entrance Destroyed.", Map.Lower_Cave_Entrance_Destroyed );
+
+	OnTrigger( "Main Bunker Entrance blown up", Map.Main_Bunker_Entrance_Destroyed );
+
+	//"Allies capture the Main Cave Entrance!"
+	OnTrigger( "Main Exit blown up", Map.Main_Cave_Exit_Destroyed );
+
+	OnTrigger( "Planted at Main Entrance.", Map.Main_Entrance_Planted );
+	OnTrigger( "Main Entrance blown up", Map.Main_Entrance_Destroyed );
+
+	OnTrigger( "Top Cave Exit Destroyed.", Map.Top_Cave_Exit_Planted );
+	OnTrigger( "Top Cave Exit Destroyed.", Map.Top_Cave_Exit_Destroyed );
+
+	//allies win
+	OnTrigger( "Planted at the Transmitter.", Map.Transmitter_Planted );
+	OnTrigger( "Allies have destroyed the Transmitter!", Map.Transmitter_Destroyed );
+
+	OnTrigger( "Axis have stolen The Escape Plans!", Map.Escape_Plans_Taken );
+	OnTrigger( "Allies have returned The Escape Plans!", Map.Escape_Plans_Returned );
+	//Axis win
+	OnTrigger( "Axis have sendet the Commandmaps!", Map.Escape_Plans_Secured );
+
+	OnTrigger( "Allies capture the Exit!", Map.cexitspa_Allies_Captured );
+	OnTrigger( "Axis capture the Exit!", Map.cexitspa_Axis_Captured );
+
+	OnTrigger( "MISSING_STRING", Map.forward_spawn_Axis_Captured );
+	OnTrigger( "Allies capture the Main Cave Entrance!", Map.forward_spawn_Allies_Captured );
+
+	OnTrigger( "Allies capture the Top Exit!", Map.forward_spawn1_Axis_Captured );
+	OnTrigger( "Axis capture the Top Exit!", Map.forward_spawn1_Allies_Captured );
+
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!",  Map.Allied_CP_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!",          Map.Allied_CP_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!",    Map.Axis_CP_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!",          Map.Axis_CP_Destroyed );
+	OnTrigger( "Planted at the Command Post.",                              Map.CP_Planted  );
+	OnTrigger( "Defused at the Command Post.",                              Map.CP_Defused  );
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	Util.EnableGoal( ".*CAB.*" );
+	ETUtil.SetCabinets();
+
+	//Allies
+	SetAvailableMapGoals( TEAM.ALLIES, 1, {
+		"ATTACK_.*",
+		"PLANT_Lower_Cave_Entrance",
+		"PLANT_Main_Entrance",
+	});
+	//Util.LimitToClass( "GRENADE_Rocks_.*", 2, 1, 4 ); //panzer+fieldops
+	SetGoalPriority( "CHECKPOINT_forward_spawn", 0.95, 0 );
+
+	//Axis
+	SetAvailableMapGoals( TEAM.AXIS, 1, {
+		"DEFEND_.*",
+		"FLAG_Escape_Plans",
+	});
+	Util.LimitToClass( "PLANT_Bridge", 1, 5 );
+	Util.LimitToClass( "PLANT_Ladder", 1, 5 );
+
+
+	Util.AddUsePoint( "PLANT_Main_Entrance", Vec3( 210, -370, -849 ) );
+	Util.AddUsePoint( "PLANT_Lower_Cave_Entrance", Vec3( 3816, -2798, 1855 ) );
+
+	Util.AddUsePoint( "PLANT_Lake_Exit", Vec3( 2481, 4275, 516 ) );
+	Util.AddUsePoint( "PLANT_Lake_Exit", Vec3( 2552, 4282, 516 ) );
+
+	Util.AddUsePoint( "PLANT_Transmitter", Vec3( -2455, 5544, 1695 ) );
+
+	//Util.AddUsePoint( "PLANT_Main_Cave_Exit", Vec3( 489, 3800, 480 ) );
+	//Util.AddUsePoint( "PLANT_Main_Cave_Exit", Vec3( 689, 3801, 470 ) );
+	//Util.AddUsePoint( "PLANT_Main_Cave_Exit", Vec3( 739, 3890, 503 ) );
+	Util.SetGoalPosition( 775, 3801, 476, "PLANT_Main_Cave_Exit" );
+
+	Util.LimitToClass( "PLANT_Command_Post", 0, 5 );
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "PLANT_.*" );
+	Util.SetMaxUsers( 3, "ATTACK_.*" );
+	Util.SetMaxUsers( 3, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "SNIPE_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 1, "MOBILEMG42_.*" );
+	Util.SetMaxUsers( 1, "MOBILEMORTAR_.*" );
+	Util.SetMaxUsers( 1, "AIRSTRIKE_.*" );
+	Util.SetMaxUsers( 1, "CALLARTILLERY_.*" );
+	Util.SetMaxUsers( 1, "ARTILLERY_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CAPPOINT_Docs = {},
+
+		CHECKPOINT_forward_spawn =
+		{
+		},
+		FLAG_Escape_Plans =
+		{
+		},
+		PLANT_Lower_Cave_Entrance =
+		{
+		},
+		PLANT_Main_Entrance =
+		{
+		},
+		CHECKPOINT_forward_spawn1 =
+		{
+		},
+		PLANT_Main_Cave_Exit =
+		{
+		},
+		PLANT_Transmitter =
+		{
+		},
+		PLANT_Top_Cave_Exit =
+		{
+		},
+		PLANT_Lake_Exit =
+		{
+		},
+		PLANT_Main_Bunker_Entrance =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		BUILD_Bridge =
+		{
+		},
+		PLANT_Bridge =
+		{
+		},
+		BUILD_Ladder =
+		{
+		},
+		PLANT_Ladder =
+		{
+		},
+		CHECKPOINT_cexitspa =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

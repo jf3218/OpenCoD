@@ -1,0 +1,781 @@
+global _MG = 
+{
+	CALLARTILLERY_as4 = 
+	{
+		TagName = "as4",
+		Position = Vec3(2610.568, 1381.307, 64.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 140,
+	},
+	ROUTE_axis1 = 
+	{
+		TagName = "axis1",
+		GoalType = "route",
+		Position = Vec3(1343.873, 383.370, -463.875),
+		Radius = 300,
+	},
+	SNIPE_axis_snipe1 = 
+	{
+		TagName = "axis_snipe1",
+		MinRadius = 30,
+		MinCampTime = 2,
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		MaxCampTime = 6,
+		GoalType = "Snipe",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.136, 0.984, -0.115),
+		},
+		Position = Vec3(3423.427, 2809.616, 80.125),
+		Radius = 20,
+	},
+	CALLARTILLERY_as5 = 
+	{
+		TagName = "as5",
+		Position = Vec3(3599.258, 1824.557, 64.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 20,
+	},
+	ROUTE_tunnel2 = 
+	{
+		TagName = "tunnel2",
+		GoalType = "route",
+		Position = Vec3(1511.529, 1914.075, -479.875),
+		Radius = 35,
+	},
+	DEFEND_radar2 = 
+	{
+		TagName = "radar2",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.709, -0.651, 0.271),
+		},
+		Position = Vec3(4592.761, 722.956, -95.875),
+		Radius = 45,
+	},
+	ROUTE_ally_dyno2b = 
+	{
+		TagName = "ally_dyno2b",
+		GoalType = "route",
+		Position = Vec3(2773.774, 5506.700, 64.125),
+		Radius = 125,
+	},
+	FLAG_gold_box = 
+	{
+		TagName = "gold_box",
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		TeamAvailability = 2,
+		Position = Vec3(1600.000, 8258.000, 56.125),
+	},
+	MOUNTMG42_462 = 
+	{
+		Position = Vec3(5833.000, 4336.000, 304.000),
+		TagName = "462",
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		maxcamptime = 90,
+		TeamAvailability = 6,
+		mincamptime = 10,
+	},
+	ROUTE_axisplant2 = 
+	{
+		TagName = "axisplant2",
+		GoalType = "route",
+		Position = Vec3(2984.032, 8110.628, 64.125),
+		Radius = 20,
+	},
+	CALLARTILLERY_as3 = 
+	{
+		TagName = "as3",
+		Position = Vec3(3252.257, 2757.123, 64.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 35,
+	},
+	MOUNTMG42_44 = 
+	{
+		Position = Vec3(2590.000, 7976.000, 432.000),
+		TagName = "44",
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		maxcamptime = 90,
+		TeamAvailability = 6,
+		mincamptime = 10,
+	},
+	ROUTE_ally2 = 
+	{
+		TagName = "ally2",
+		GoalType = "route",
+		Position = Vec3(3698.789, 8187.301, 384.125),
+		Radius = 200,
+	},
+	DEFEND_s1 = 
+	{
+		TagName = "s1",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.187, 0.329, 0.925),
+		},
+		Position = Vec3(4793.875, 1497.875, -136.875),
+		Radius = 20,
+	},
+	ROUTE_ally3 = 
+	{
+		TagName = "ally3",
+		GoalType = "route",
+		Position = Vec3(3291.938, 8034.298, 64.125),
+		Radius = 55,
+	},
+	SNIPE_ally_snipe1 = 
+	{
+		TagName = "ally_snipe1",
+		MinRadius = 30,
+		MinCampTime = 2,
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		MaxCampTime = 6,
+		GoalType = "Snipe",
+		AimVectors = 
+		{
+			[0] = Vec3(0.196, -0.976, -0.092),
+		},
+		Position = Vec3(2743.394, 5837.336, 80.125),
+		Radius = 20,
+	},
+	CALLARTILLERY_as2 = 
+	{
+		TagName = "as2",
+		Position = Vec3(2936.437, 4977.492, 64.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 35,
+	},
+	CHECKPOINT_allied_flag1 = 
+	{
+		TagName = "allied_flag1",
+		CreateOnLoad = 0,
+		GoalType = "CHECKPOINT",
+		Position = Vec3(3472.000, 6240.000, 384.000),
+	},
+	MOUNTMG42_43 = 
+	{
+		Position = Vec3(2430.000, 7976.000, 432.000),
+		TagName = "43",
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		maxcamptime = 90,
+		TeamAvailability = 6,
+		mincamptime = 10,
+	},
+	ROUTE_axis_dyno3 = 
+	{
+		TagName = "axis_dyno3",
+		GoalType = "route",
+		Position = Vec3(2992.612, 3363.407, 64.125),
+		Radius = 60,
+	},
+	ROUTE_axis_dyno1 = 
+	{
+		TagName = "axis_dyno1",
+		GoalType = "route",
+		Position = Vec3(2925.165, 1977.068, 64.125),
+		Radius = 65,
+	},
+	DEFEND_gold6 = 
+	{
+		TagName = "gold6",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(0.491, -0.850, 0.189),
+		},
+		Position = Vec3(1654.561, 8475.920, 16.125),
+		Radius = 20,
+	},
+	MOUNTMG42_106 = 
+	{
+		Position = Vec3(3758.000, 670.000, 432.000),
+		TagName = "106",
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		maxcamptime = 90,
+		TeamAvailability = 6,
+		mincamptime = 10,
+	},
+	DEFEND_s2 = 
+	{
+		TagName = "s2",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(0.399, -0.476, 0.783),
+		},
+		Position = Vec3(1197.184, 7586.886, -63.875),
+		Radius = 20,
+	},
+	DEFEND_def_parts2 = 
+	{
+		TagName = "def_parts2",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.698, -0.715, -0.029),
+		},
+		Position = Vec3(1751.227, 7574.788, -63.875),
+		Radius = 35,
+	},
+	ROUTE_tunnel = 
+	{
+		TagName = "tunnel",
+		GoalType = "route",
+		Position = Vec3(5177.770, 7575.326, -527.875),
+		Radius = 20,
+	},
+	DEFEND_ally_door = 
+	{
+		TagName = "ally_door",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 60,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.992, -0.129, 0.010),
+		},
+		Position = Vec3(3354.052, 8232.914, 72.125),
+		Radius = 30,
+	},
+	ARTILLERY_S_82 = 
+	{
+		TagName = "82",
+		GoalType = "ARTILLERY_S",
+		Position = Vec3(3084.365, 1602.921, 64.125),
+		Radius = 100,
+	},
+	ROUTE_stairs = 
+	{
+		TagName = "stairs",
+		GoalType = "route",
+		Position = Vec3(4264.032, 8143.964, 64.125),
+		Radius = 20,
+	},
+	ARTILLERY_D_159 = 
+	{
+		TagName = "159",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3133.260, 2974.748, 64.125),
+		Radius = 116,
+	},
+	ROUTE_tunnel4 = 
+	{
+		TagName = "tunnel4",
+		GoalType = "route",
+		Position = Vec3(2543.551, 6369.845, -399.875),
+		Radius = 35,
+	},
+	DEFEND_gold5 = 
+	{
+		TagName = "gold5",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.102, 0.992, -0.074),
+		},
+		Position = Vec3(2688.393, 8023.430, 72.125),
+		Radius = 35,
+	},
+	MOUNTMG42_105 = 
+	{
+		Position = Vec3(3602.000, 670.000, 432.000),
+		TagName = "105",
+		CreateOnLoad = 0,
+		GoalType = "MOUNTMG42",
+		maxcamptime = 90,
+		TeamAvailability = 6,
+		mincamptime = 10,
+	},
+	ROUTE_ally1 = 
+	{
+		TagName = "ally1",
+		GoalType = "route",
+		Position = Vec3(5170.618, 8391.313, -527.875),
+		Radius = 300,
+	},
+	DEFEND_def_parts = 
+	{
+		TagName = "def_parts",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.056, 0.351, 0.935),
+		},
+		Position = Vec3(1286.301, 7417.831, -63.875),
+		Radius = 35,
+	},
+	ROUTE_tunnel3 = 
+	{
+		TagName = "tunnel3",
+		GoalType = "route",
+		Position = Vec3(2534.803, 4022.208, -399.875),
+		Radius = 35,
+	},
+	ARTILLERY_S_73 = 
+	{
+		TagName = "73",
+		GoalType = "ARTILLERY_S",
+		Position = Vec3(3012.896, 5617.832, 64.125),
+		Radius = 116,
+	},
+	Version = 1,
+	ROUTE_s1 = 
+	{
+		TagName = "s1",
+		GoalType = "route",
+		Position = Vec3(4936.197, 7917.111, -527.875),
+		Radius = 40,
+	},
+	REPAIRMG42_462 = 
+	{
+		TagName = "462",
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		TeamAvailability = 6,
+		Position = Vec3(5833.000, 4336.000, 304.000),
+	},
+	ROUTE_stairs1 = 
+	{
+		TagName = "stairs1",
+		GoalType = "route",
+		Position = Vec3(1585.250, 986.071, -463.875),
+		Radius = 55,
+	},
+	ARTILLERY_S_69 = 
+	{
+		TagName = "69",
+		GoalType = "ARTILLERY_S",
+		Position = Vec3(3087.132, 7220.855, 64.125),
+		Radius = 300,
+	},
+	PLANT_axis_door = 
+	{
+		TagName = "axis door",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		ExplosiveType = 1,
+		TeamAvailability = 4,
+		Position = Vec3(3390.000, 439.000, 147.000),
+	},
+	ROUTE_ar1 = 
+	{
+		TagName = "ar1",
+		GoalType = "route",
+		Position = Vec3(4333.605, 6770.562, 0.125),
+		Radius = 55,
+	},
+	ROUTE_axis_flag = 
+	{
+		TagName = "axis_flag",
+		GoalType = "route",
+		Position = Vec3(1491.704, 541.449, -79.875),
+		Radius = 35,
+	},
+	PLANTMINE_63 = 
+	{
+		TagName = "63",
+		GoalType = "PLANTMINE",
+		Position = Vec3(3526.161, 7504.319, 64.125),
+		Radius = 90,
+	},
+	ROUTE_ally_dyno1 = 
+	{
+		TagName = "ally_dyno1",
+		GoalType = "route",
+		Position = Vec3(3183.866, 6536.528, 64.125),
+		Radius = 55,
+	},
+	ROUTE_allyplant = 
+	{
+		TagName = "allyplant",
+		GoalType = "route",
+		Position = Vec3(2596.006, 448.780, 72.125),
+		Radius = 20,
+	},
+	ARTILLERY_S_360 = 
+	{
+		TagName = "360",
+		GoalType = "ARTILLERY_S",
+		Position = Vec3(3255.324, 5523.500, 64.125),
+		Radius = 116,
+	},
+	PLANT_allied_door = 
+	{
+		TagName = "allied door",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		ExplosiveType = 1,
+		TeamAvailability = 2,
+		Position = Vec3(2786.000, 8201.000, 147.000),
+	},
+	ROUTE_ar2 = 
+	{
+		TagName = "ar2",
+		GoalType = "route",
+		Position = Vec3(3062.476, 5848.547, 64.125),
+		Radius = 35,
+	},
+	REPAIRMG42_44 = 
+	{
+		TagName = "44",
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		TeamAvailability = 6,
+		Position = Vec3(2590.000, 7976.000, 432.000),
+	},
+	ROUTE_allyplant2 = 
+	{
+		TagName = "allyplant2",
+		GoalType = "route",
+		Position = Vec3(3180.808, 485.655, 64.125),
+		Radius = 35,
+	},
+	PLANTMINE_190 = 
+	{
+		TagName = "190",
+		GoalType = "PLANTMINE",
+		Position = Vec3(2491.701, 7413.958, 64.125),
+		Radius = 35,
+	},
+	ARTILLERY_D_82 = 
+	{
+		TagName = "82",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3084.365, 1602.921, 64.125),
+		Radius = 100,
+	},
+	ROUTE_ally_dyno2c = 
+	{
+		TagName = "ally_dyno2c",
+		GoalType = "route",
+		Position = Vec3(3443.072, 4911.008, 64.125),
+		Radius = 71,
+	},
+	MOBILEMORTAR_mortar2 = 
+	{
+		TagName = "mortar2",
+		Position = Vec3(2790.042, 8525.841, 480.125),
+		MortarAim = 
+		{
+		},
+		GoalType = "MOBILEMORTAR",
+		Radius = 20,
+	},
+	MOBILEMORTAR_mortar1 = 
+	{
+		TagName = "mortar1",
+		Position = Vec3(3369.982, 101.317, 480.125),
+		MortarAim = 
+		{
+		},
+		GoalType = "MOBILEMORTAR",
+		Radius = 20,
+	},
+	ARTILLERY_D_73 = 
+	{
+		TagName = "73",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3012.896, 5617.832, 64.125),
+		Radius = 116,
+	},
+	DEFEND_axis_door = 
+	{
+		TagName = "axis_door",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(0.939, 0.342, -0.017),
+		},
+		Position = Vec3(2802.125, 379.629, 72.125),
+		Radius = 20,
+	},
+	CAPPOINT_gold_cap = 
+	{
+		TagName = "gold_cap",
+		GoalType = "CapPoint",
+		Position = Vec3(4747.793, 1400.417, -136.875),
+		Radius = 20,
+	},
+	ROUTE_ally_dyno2d = 
+	{
+		TagName = "ally_dyno2d",
+		GoalType = "route",
+		Position = Vec3(3410.229, 3576.602, 64.125),
+		Radius = 35,
+	},
+	REPAIRMG42_43 = 
+	{
+		TagName = "43",
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		TeamAvailability = 6,
+		Position = Vec3(2430.000, 7976.000, 432.000),
+	},
+	ROUTE_ally_dyno2a = 
+	{
+		TagName = "ally_dyno2a",
+		GoalType = "route",
+		Position = Vec3(2744.948, 6126.059, 384.125),
+		Radius = 20,
+	},
+	SNIPE_snipe99 = 
+	{
+		TagName = "snipe99",
+		MinRadius = 30,
+		MinCampTime = 2,
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		MaxCampTime = 6,
+		GoalType = "Snipe",
+		AimVectors = 
+		{
+			[0] = Vec3(0.019, -0.990, -0.138),
+		},
+		Position = Vec3(3069.737, 8525.090, 480.125),
+		Radius = 35,
+	},
+	ARTILLERY_D_70 = 
+	{
+		TagName = "70",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3082.594, 6709.355, 64.125),
+		Radius = 175,
+	},
+	DEFEND_radar1 = 
+	{
+		TagName = "radar1",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(0.754, -0.655, -0.050),
+		},
+		Position = Vec3(3459.544, 637.976, 72.125),
+		Radius = 35,
+	},
+	CALLARTILLERY_as1 = 
+	{
+		TagName = "as1",
+		Position = Vec3(3541.661, 5022.410, 64.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 35,
+	},
+	CALLARTILLERY_604 = 
+	{
+		TagName = "604",
+		Position = Vec3(3400.797, 8513.457, 480.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 20,
+	},
+	DEFEND_gold_box = 
+	{
+		TagName = "gold_box",
+		MinRadius = 30,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		GoalType = "Defend",
+		AimVectors = 
+		{
+			[0] = Vec3(-0.503, -0.840, 0.204),
+		},
+		Position = Vec3(4960.668, 1615.330, -191.875),
+		Radius = 35,
+	},
+	ROUTE_ladder1 = 
+	{
+		TagName = "ladder1",
+		GoalType = "route",
+		Position = Vec3(3901.170, 4276.525, -375.875),
+		Radius = 13,
+	},
+	CALLARTILLERY_589 = 
+	{
+		TagName = "589",
+		Position = Vec3(2739.475, 130.773, 480.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 35,
+	},
+	SNIPE_572 = 
+	{
+		TagName = "572",
+		MinRadius = 30,
+		MinCampTime = 2,
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		MaxCampTime = 6,
+		GoalType = "Snipe",
+		AimVectors = 
+		{
+			[0] = Vec3(0.872, -0.383, -0.306),
+		},
+		Position = Vec3(1599.941, 5024.216, 384.125),
+		Radius = 13,
+	},
+	CALLARTILLERY_571 = 
+	{
+		TagName = "571",
+		Position = Vec3(1637.799, 5106.118, 384.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 13,
+	},
+	CAPPOINT_cap_parts = 
+	{
+		TagName = "cap_parts",
+		GoalType = "CapPoint",
+		Position = Vec3(1789.058, 7357.833, -63.875),
+		Radius = 20,
+	},
+	ROUTE_axis2 = 
+	{
+		TagName = "axis2",
+		GoalType = "route",
+		Position = Vec3(2487.980, 524.276, 384.125),
+		Radius = 255,
+	},
+	REPAIRMG42_106 = 
+	{
+		TagName = "106",
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		TeamAvailability = 6,
+		Position = Vec3(3758.000, 670.000, 432.000),
+	},
+	ROUTE_axis_dyno2 = 
+	{
+		TagName = "axis_dyno2",
+		GoalType = "route",
+		Position = Vec3(3646.156, 1626.407, 64.125),
+		Radius = 90,
+	},
+	ARTILLERY_D_360 = 
+	{
+		TagName = "360",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3255.324, 5523.500, 64.125),
+		Radius = 116,
+	},
+	ARTILLERY_D_69 = 
+	{
+		TagName = "69",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3087.132, 7220.855, 64.125),
+		Radius = 300,
+	},
+	ROUTE_tunnel1 = 
+	{
+		TagName = "tunnel1",
+		GoalType = "route",
+		Position = Vec3(2544.672, 82.125, -79.875),
+		Radius = 13,
+	},
+	ROUTE_ladder5 = 
+	{
+		TagName = "ladder5",
+		GoalType = "route",
+		Position = Vec3(3757.472, 4026.552, 32.125),
+		Radius = 20,
+	},
+	CHECKPOINT_axis_flag1 = 
+	{
+		TagName = "axis_flag1",
+		CreateOnLoad = 0,
+		GoalType = "CHECKPOINT",
+		Position = Vec3(2736.000, 2400.000, 384.000),
+	},
+	REPAIRMG42_105 = 
+	{
+		TagName = "105",
+		CreateOnLoad = 0,
+		GoalType = "REPAIRMG42",
+		TeamAvailability = 6,
+		Position = Vec3(3602.000, 670.000, 432.000),
+	},
+	ROUTE_axis_flag2 = 
+	{
+		TagName = "axis_flag2",
+		GoalType = "route",
+		Position = Vec3(2820.957, 1076.003, 72.125),
+		Radius = 75,
+	},
+	CALLARTILLERY_ally_arty = 
+	{
+		TagName = "ally_arty",
+		Position = Vec3(2939.817, 7648.941, 64.125),
+		GoalType = "CALLARTILLERY",
+		Radius = 100,
+	},
+	ARTILLERY_D_590 = 
+	{
+		TagName = "590",
+		GoalType = "ARTILLERY_D",
+		Position = Vec3(3246.509, 1847.337, 64.125),
+		Radius = 175,
+	},
+	ROUTE_axisplant1 = 
+	{
+		TagName = "axisplant1",
+		GoalType = "route",
+		Position = Vec3(3702.134, 8240.454, 72.125),
+		Radius = 140,
+	},
+	FLAG_radar_parts = 
+	{
+		TagName = "radar_parts",
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		TeamAvailability = 4,
+		Position = Vec3(4680.000, 512.000, -59.875),
+	},
+};

@@ -1,0 +1,11 @@
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.BAR_SET = 87;
+this.Name = "BAR Set";
+this.WeaponId = WEAPON.BAR_SET;
+
+this.PrimaryFire.IgnoreReload = true; // Since this weapon shares the same clip with the non scoped version
+this.PrimaryFire.SetDesirabilityRange(500, 4000, 0.3);
+this.PrimaryFire.LowAmmoThreshold = 1;
+this.PrimaryFire.LowAmmoPriority = 0.8;
+

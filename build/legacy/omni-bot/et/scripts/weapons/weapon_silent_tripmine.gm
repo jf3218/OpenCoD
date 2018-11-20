@@ -1,0 +1,9 @@
+//used by engineer, goal TRIPMINE
+if (GetModName()!="silEnT") { return; }
+
+WEAPON.TRIPMINE = 51;
+this.Name = "Tripmine";
+this.WeaponId = WEAPON.TRIPMINE;
+
+this.PrimaryFire.WeaponType = "item";
+this.PrimaryFire.WaterProof = true;

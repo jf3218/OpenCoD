@@ -1,0 +1,361 @@
+global _MG = 
+{
+	FLAG_SECRET_BEER_FORMULA = 
+	{
+		TagName = "SECRET BEER FORMULA",
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		TeamAvailability = 4,
+		Position = Vec3(-712.000, -108.000, 86.125),
+	},
+	ATTACK_STAIRS_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.222, -0.962, 0.160),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		TagName = "STAIRS",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-541.131, 564.325, 184.125),
+	},
+	ATTACK_RADIO_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.505, 0.049, -0.862),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		TagName = "RADIO",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(10.125, 44.891, 8.125),
+	},
+	ROUTE_ALLIES_SPAWN = 
+	{
+		TagName = "ALLIES_SPAWN",
+		GoalType = "ROUTE",
+		Radius = 150,
+		Position = Vec3(156.534, -53.453, 637.125),
+	},
+	CAPPOINT_RADIO = 
+	{
+		TagName = "RADIO",
+		GoalType = "CapPoint",
+		Radius = 35,
+		Position = Vec3(-121.875, -12.351, 8.125),
+	},
+	ROUTE_CODEROOM_DOWNSTAIRS = 
+	{
+		TagName = "CODEROOM_DOWNSTAIRS",
+		GoalType = "ROUTE",
+		Radius = 35,
+		Position = Vec3(-321.427, 132.347, 2.125),
+	},
+	ATTACK_PROTECT_DOCS_POSITION_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.497, -0.866, 0.049),
+		},
+		GoalType = "Attack",
+		Radius = 20,
+		TagName = "PROTECT_DOCS_POSITION",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-402.125, 365.875, 2.125),
+	},
+	ROUTE_DOCS_CAPTURE_STAIRS = 
+	{
+		TagName = "DOCS_CAPTURE_STAIRS",
+		GoalType = "ROUTE",
+		Radius = 35,
+		Position = Vec3(-185.094, 313.476, 8.125),
+	},
+	Version = 1,
+	ROUTE_AIRSHAFT = 
+	{
+		TagName = "AIRSHAFT",
+		GoalType = "ROUTE",
+		Radius = 35,
+		Position = Vec3(-19.302, -117.548, 152.125),
+	},
+	ATTACK_BUNKER_ENTRANCE_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.979, -0.117, 0.166),
+		},
+		GoalType = "Attack",
+		Radius = 20,
+		TagName = "BUNKER_ENTRANCE",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-731.875, 399.275, 392.125),
+	},
+	ROUTE_SUPPLIES_SHAFT = 
+	{
+		TagName = "SUPPLIES_SHAFT",
+		GoalType = "ROUTE",
+		Radius = 10,
+		Position = Vec3(119.888, 714.997, 183.821),
+	},
+	ATTACK_STAIRS = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.739, 0.672, 0.054),
+		},
+		GoalType = "Attack",
+		Radius = 20,
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-605.556, -98.195, 184.125),
+	},
+	ATTACK_RADIO = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.940, 0.023, -0.341),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(67.885, -25.247, 8.125),
+	},
+	ATTACK_194 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.412, -0.831, -0.372),
+		},
+		GoalType = "Attack",
+		Radius = 10,
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-592.677, 611.412, 636.125),
+		TeamAvailability = 2,
+	},
+	ATTACK_PROTECT_DOCS_POSITION = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.787, -0.617, 0.010),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-715.001, 346.363, 2.125),
+	},
+	ROUTE_ALLIES_FSPAWN2 = 
+	{
+		TagName = "ALLIES_FSPAWN2",
+		GoalType = "ROUTE",
+		Radius = 60,
+		Position = Vec3(22.949, 239.723, 586.049),
+	},
+	ROUTE_DOOR_DOWNSTAIRS = 
+	{
+		TagName = "DOOR_DOWNSTAIRS",
+		GoalType = "ROUTE",
+		Radius = 35,
+		Position = Vec3(-681.199, 135.565, 184.125),
+	},
+	HEALTHCAB_healthcabinet = 
+	{
+		TagName = "healthcabinet",
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		TeamAvailability = 6,
+		Position = Vec3(-28.000, 664.000, 160.000),
+	},
+	PLANT_airshaftgrid = 
+	{
+		TagName = "airshaftgrid",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		ExplosiveType = 1,
+		Position = Vec3(-60.500, -115.000, 443.000),
+	},
+	ATTACK_PROTECT_DOCS_POSITION_3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.295, 0.946, 0.132),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		TagName = "PROTECT_DOCS_POSITION",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-471.822, -141.975, 2.125),
+	},
+	ATTACK_128 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.650, -0.701, -0.292),
+		},
+		GoalType = "Attack",
+		Radius = 10,
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-546.125, 753.599, 636.125),
+		TeamAvailability = 2,
+	},
+	ROUTE_DOCUMENTS_SHAFT = 
+	{
+		TagName = "DOCUMENTS_SHAFT",
+		GoalType = "ROUTE",
+		Radius = 20,
+		Position = Vec3(-7.916, 250.163, 152.125),
+	},
+	PLANT_secret_entrance = 
+	{
+		TagName = "secret entrance",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		ExplosiveType = 1,
+		Position = Vec3(-195.000, 709.000, 388.000),
+	},
+	PLANT_STEEL_DOOR = 
+	{
+		TagName = "STEEL DOOR",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		ExplosiveType = 1,
+		Position = Vec3(-475.500, 36.500, 451.000),
+	},
+	ATTACK_BUNKER_ENTRANCE = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.831, 0.545, 0.111),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-573.474, 116.816, 392.125),
+	},
+	ATTACK_RADIO_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.225, -0.951, -0.210),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		TagName = "RADIO",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(94.125, 479.875, 8.125),
+	},
+	ROUTE_STEEL_DOOR = 
+	{
+		TagName = "STEEL_DOOR",
+		GoalType = "ROUTE",
+		Radius = 35,
+		Position = Vec3(-499.154, 11.019, 392.125),
+	},
+	ROUTE_ALLIES_FSPAWN1 = 
+	{
+		TagName = "ALLIES_FSPAWN1",
+		GoalType = "ROUTE",
+		Radius = 60,
+		Position = Vec3(177.073, 198.624, 575.125),
+	},
+	AMMOCAB_supplycabinet = 
+	{
+		TagName = "supplycabinet",
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		TeamAvailability = 6,
+		Position = Vec3(-28.000, 616.000, 160.000),
+	},
+	ATTACK_BUNKER_ENTRANCE_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.949, 0.314, 0.016),
+		},
+		GoalType = "Attack",
+		Radius = 20,
+		TagName = "BUNKER_ENTRANCE",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-726.751, 218.626, 392.125),
+	},
+	ATTACK_RADIO_3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.242, 0.969, -0.054),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		TagName = "RADIO",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(113.280, 117.875, 8.125),
+	},
+	ATTACK_PROTECT_DOCS_POSITION_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.999, -0.022, -0.038),
+		},
+		GoalType = "Attack",
+		Radius = 60,
+		TagName = "PROTECT_DOCS_POSITION",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-718.776, 130.604, 2.125),
+	},
+	PLANT_RADIOSTATION = 
+	{
+		TagName = "RADIOSTATION",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		ExplosiveType = 1,
+		Position = Vec3(-67.000, -20.000, 64.000),
+	},
+	ATTACK_BUNKER_ENTRANCE_3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.431, 0.902, 0.019),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		TagName = "BUNKER_ENTRANCE",
+		MinCampTime = 3,
+		MaxCampTime = 10,
+		Position = Vec3(-54.254, 191.080, 392.125),
+	},
+	ROUTE_SECRET_ENTRANCE = 
+	{
+		TagName = "SECRET_ENTRANCE",
+		GoalType = "ROUTE",
+		Radius = 35,
+		Position = Vec3(-5.708, 704.260, 278.125),
+	},
+	PLANT_CODEROOM = 
+	{
+		TagName = "CODEROOM",
+		CreateOnLoad = 0,
+		GoalType = "PLANT",
+		TeamAvailability = 4,
+		ExplosiveType = 1,
+		Position = Vec3(-690.000, 56.000, 87.000),
+	},
+};

@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1F63D83D-7AFC-37C7-9936-ECF41C2DB2F9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>bundled_minizip</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bundled_minizip.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bundled_minizip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bundled_minizip.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bundled_minizip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">bundled_minizip.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">bundled_minizip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">bundled_minizip.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">bundled_minizip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;LEGACY_DEBUG=1;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LEGACY_DEBUG=1;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DEFAULT_BASEDIR=".";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DEFAULT_BASEDIR=\".\";WINVER=0x601;_CRT_SECURE_NO_WARNINGS;SQLITE_HAVE_ISNAN=1;SQLITE_THREADSAFE=0;OC_X86_ASM;BUNDLED_GLEW;GLEW_STATIC;BUNDLED_SDL;HAVE_SDL;FEATURE_GETTEXT;FEATURE_FREETYPE;FEATURE_OGG_VORBIS;FEATURE_THEORA;FEATURE_IRC_CLIENT;CURL_STATICLIB;FEATURE_DBMS;FEATURE_AUTOUPDATE;FEATURE_IRC_SERVER;FEATURE_MULTIVIEW;FEATURE_RATING;BUNDLED_LUA;FEATURE_LUA;FEATURE_OMNIBOT;FEATURE_EDV;FEATURE_ANTICHEAT;USE_RENDERER_DLOPEN;FEATURE_LUASQL;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\include;D:\etlegacy_2\libs\ogg\include;D:\etlegacy_2\libs\vorbis\include;D:\etlegacy_2\libs\vorbis\lib;D:\etlegacy_2\libs\glew\include;D:\etlegacy_2\libs\sqlite3\src;D:\etlegacy_2\libs\theora\include;D:\etlegacy_2\build\libs\sdl2\include;D:\etlegacy_2\libs\jpegturbo;D:\etlegacy_2\libs\freetype\include;D:\etlegacy_2\libs\curl\include;D:\etlegacy_2\libs\lua\src;D:\etlegacy_2\libs\zlib;D:\etlegacy_2\libs\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule D:/etlegacy_2/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2 -BD:/etlegacy_2/build --check-stamp-file D:/etlegacy_2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/CMakeLists.txt;D:\etlegacy_2\CMakeLists.txt;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeCXXCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;D:\etlegacy_2\build\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCXXInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-CXX.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDependentOption.cmake;D:\etlegacy_2\cmake\ETLFunctions.cmake;D:\etlegacy_2\cmake\ETLPrograms.cmake;D:\etlegacy_2\cmake\ETLCommon.cmake;D:\etlegacy_2\cmake\ETLPlatform.cmake;D:\etlegacy_2\cmake\ETLSources.cmake;D:\etlegacy_2\cmake\ETLVersion.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;C:\DATA\cmake\share\cmake-3.11\Modules\FindGit.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\.git\HEAD;D:\etlegacy_2\cmake\GetGitRevisionDescription.cmake.in;D:\etlegacy_2\build\CMakeFiles\git-data\grabRef.cmake;D:\etlegacy_2\.git\refs\heads\master;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\git_version.h.in;D:\etlegacy_2\cmake\ETLBundledLibs.cmake;D:\etlegacy_2\libs\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\ExternalProject.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;D:\etlegacy_2\libs\jpegturbo\jconfig.h.cmake;D:\etlegacy_2\libs\jpegturbo\jconfigint.h.cmake;D:\etlegacy_2\build\bundled_curl-prefix\tmp\bundled_curl-cfgcmd.txt.in;D:\etlegacy_2\build\libs\sdl2\tmp\bundled_sdl-cfgcmd.txt.in;D:\etlegacy_2\libs\glew\CMakeLists.txt;D:\etlegacy_2\libs\sqlite3\CMakeLists.txt;D:\etlegacy_2\build\bundled_freetype-prefix\tmp\bundled_freetype-cfgcmd.txt.in;D:\etlegacy_2\build\bundled_jansson-prefix\tmp\bundled_jansson-cfgcmd.txt.in;D:\etlegacy_2\cmake\ETLSetupFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindOpenGL.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;D:\etlegacy_2\cmake\ETLSourceGroup.cmake;D:\etlegacy_2\cmake\ETLBuildRenderer.cmake;D:\etlegacy_2\cmake\ETLBuildClient.cmake;D:\etlegacy_2\cmake\ETLBuildServer.cmake;D:\etlegacy_2\cmake\ETLBuildMod.cmake;D:\etlegacy_2\cmake\ETLBuildPack.cmake;D:\etlegacy_2\cmake\ETLInstallOmniBot.cmake;D:\etlegacy_2\cmake\ETLInstallGeoIP.cmake;D:\etlegacy_2\cmake\ETLInstallWolfAdmin.cmake;D:\etlegacy_2\cmake\ETLInstall.cmake;D:\etlegacy_2\cmake\Uninstall.cmake.in;D:\etlegacy_2\cmake\ETLCPack.cmake;D:\etlegacy_2\cmake\CPackOptions.cmake.in;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\etlegacy_2\libs\minizip\ioapi.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\minizip\unzip.c" />
+    <ClInclude Include="D:\etlegacy_2\libs\minizip\crypt.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\minizip\ioapi.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\minizip\unzip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\etlegacy_2\build\ZERO_CHECK.vcxproj">
+      <Project>{E4AF90D6-A4A7-3753-9581-23F2F000C375}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\etlegacy_2\build\bundled_zlib.vcxproj">
+      <Project>{A11DC084-DECE-3ECB-8D07-EA3C8ADA6A41}</Project>
+      <Name>bundled_zlib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,325 @@
+//==========================================================================================
+//
+//	mountainpass.gm
+//
+//	Who      	When		What
+//------------------------------------------------------------------------------------------
+//	rand0m#		11.9.2016	Initial Script & waypoints
+//	Native12	03.11.2016	Released
+//	Native12	22.02.2017	Adapted from Mountain pass beta 3 to Mountain pass beta 4 (waypoints, moved goals....)
+//
+//	Bugs and suggestions: PM on http://omni-bot.invisionzone.com/index.php?/index
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	
+	DontDispenseAmmo = true,
+	
+	Mines_Intels_Stolen = false,
+	WoodFenceDestroyed = false,
+	ForwardspawnAxis = true,
+	
+	Roles =
+	{
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			
+			DEFENDER =	
+			{
+				numbots = 5,
+			},
+			DEFENDER1 =	
+			{
+				numbots = 5,
+			},
+			DEFENDER2 =	
+			{
+				numbots = 5,
+			},
+			DEFENDER3 =	
+			{
+				numbots = 5,
+			},
+		},
+		
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			
+			ATTACKER =	
+			{
+				numbots = 5,
+			},
+			ATTACKER1 =	
+			{
+				numbots = 5,
+			},
+			ATTACKER2 =	
+			{
+				numbots = 5,
+			},
+			ATTACKER3 =	
+			{
+				numbots = 5,
+			},
+		},
+	},
+	
+	forwardspawn_Axis_Captured = function( trigger )
+	{
+		Map.ForwardspawnAxis = true;
+		
+		SetGoalRole( "FLAG_docs", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_Spawn_.*" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "SMOKEBOMB_Spawn" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Spawn" );
+		
+		if ( !Map.Mines_Intels_Stolen )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Spawn_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Spawn_.*" );
+		}
+		
+		Util.MapDebugPrint( "forwardspawn_Axis_Captured" );
+	},
+	
+	forwardspawn_Allies_Captured = function( trigger )
+	{
+		Map.ForwardspawnAxis = false;
+		
+		SetAvailableMapGoals( 0, true, "CHECKPOINT_forwardspawn" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_Spawn_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_Spawn" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "SMOKEBOMB_Spawn" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_Spawn_.*" );
+		
+		ClearGoalRole( "FLAG_docs", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		
+		ClearGoalRole( ".*_Axis_Spawn_.*", ROLE.DEFENDER2 );
+		SetGoalRole( "DEFEND_Axis_MinesIntels_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		
+		Util.MapDebugPrint( "forwardspawn_Allies_Captured" );
+	},
+	
+	Wood_Fence_Planted = function( trigger )
+	{
+		Util.MapDebugPrint( "Wood_Fence_Planted" );
+	},
+	
+	Wood_Fence_Defused = function( trigger )
+	{
+		Util.MapDebugPrint( "Wood_Fence_Defused" );
+	},
+	
+	Wood_Fence_Destroyed = function( trigger )
+	{
+		Map.WoodFenceDestroyed = true;
+		
+		Util.MapDebugPrint( "Wood_Fence_Destroyed" );
+		
+		sleep(2);
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Truck_.*" );
+		
+		if ( Map.Mines_Intels_Stolen )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_HiddenPlace_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Truck" );
+		}
+	},
+	
+	docs_Taken = function( trigger )
+	{
+		Map.Mines_Intels_Stolen = true;
+		
+		ClearGoalRole( "CHECKPOINT_forwardspawn", ROLE.DEFENDER1 );
+		
+		SetGoalRole( "PLANT_Wood_Fence", { ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_MinesIntels_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_docs" );
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_CappointPlace_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_CappointPlace_.*" );
+		
+		if ( Map.ForwardspawnAxis )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_Spawn_.*" );
+		}
+		
+		if ( Map.WoodFenceDestroyed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_Truck" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_LookForGold_.*" );
+			
+			SetAvailableMapGoals( TEAM.ALLIES, true, "CAPPOINT_HiddenPlace_.*" );
+		}
+		
+		Util.MapDebugPrint( "docs_Taken" );
+	},
+	
+	docs_Dropped = function( trigger )
+	{
+		Util.MapDebugPrint( "docs_Dropped" );
+	},
+	
+	docs_Returned = function( trigger )
+	{
+		Map.Mines_Intels_Stolen = false;
+		
+		ClearGoalRole( "PLANT_Wood_Fence", ROLE.ATTACKER1 );
+		
+		SetGoalRole( "CHECKPOINT_forwardspawn", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.ATTACKER, ROLE.ATTACKER1 } );
+		
+		SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_CappointPlace_.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_LookForGold_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_CappointPlace_.*" );
+		
+		if ( Map.ForwardspawnAxis )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Spawn_.*" );
+		}
+		
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MinesIntels_.*" );
+		
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_docs" );
+		
+		Util.MapDebugPrint( "docs_Returned" );
+	},
+	
+	docs_Secured = function( trigger )
+	{
+		ETUtil.WinningChat( TEAM.ALLIES );
+		
+		Util.MapDebugPrint( "docs_Secured" );
+	},
+	
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "Planted at ^2the wood fence.", Map.Wood_Fence_Planted );
+	OnTrigger( "Planted at ^2wood fence.", Map.Wood_Fence_Planted );	//Nitmod
+	OnTrigger( "Defused at ^2the wood fence.", Map.Wood_Fence_Defused );
+	OnTrigger( "Defused at ^2wood fence.", Map.Wood_Fence_Defused );	//Nitmod
+	OnTrigger( "^2Allies have destroyed the wood fence!", Map.Wood_Fence_Destroyed );
+	OnTrigger( "Allies have stolen the mines intels!", Map.docs_Taken );
+	OnTrigger( "Flag dropped docs!", Map.docs_Dropped );
+	OnTrigger( "Flag returned docs!", Map.docs_Returned );
+	OnTrigger( "Allies captured securing_trigger", Map.docs_Secured );
+	OnTrigger( "^2Axis re-captured the spawn", Map.forwardspawn_Axis_Captured );
+	OnTrigger( "^2Allied captured the spawn", Map.forwardspawn_Allies_Captured );
+	
+	Util.DisableGoal( ".*", true );
+	
+	ETUtil.SetCabinets();
+	
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+	
+	ClearGoalRole( ".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	
+	SetAvailableMapGoals( 0, true, "AMMOCAB_.*" );
+	SetAvailableMapGoals( 0, true, "HEALTHCAB_.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Spawn_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MinesIntels_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Axis_Outside_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_forwardspawn" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_docs" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Wood_Fence" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_Spawn" );
+	
+	SetGoalRole( "SMOKEBOMB_Spawn", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "CHECKPOINT_forwardspawn", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.ATTACKER, ROLE.ATTACKER1 } );
+	
+	SetGoalRole( "DEFEND_Axis_Spawn_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+	SetGoalRole( "DEFEND_Axis_CappointPlace_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFEND_Axis_LookForGold_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	SetGoalRole( "DEFEND_Axis_MinesIntels_.*", ROLE.DEFENDER3 );
+	
+	SetGoalRole( "FLAG_docs", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "PLANT_Wood_Fence", { ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+	SetGoalRole( "DEFEND_Allies_Spawn_.*", ROLE.ATTACKER );
+	
+	SetGoalPriority( "CHECKPOINT_forwardspawn", 0.8, 0, 0 );
+	SetGoalPriority( "SMOKEBOMB_Spawn", 0.81, 0, 0 );
+	
+	SetGoalPriority( "PLANTMINE_.*", 0.78, TEAM.AXIS, 0 );
+	SetGoalPriority( "PLANTMINE_Truck_.*", 0.79, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_MinesIntels_10", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_MinesIntels_11", 0.51, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_CappointPlace_.*", 0.52, TEAM.AXIS, 0 );
+	SetGoalPriority( "DEFEND_Axis_LookForGold_.*", 0.53, TEAM.AXIS, 0 );
+	SetGoalPriority( "MOBILEMG42_Axis_Spawn_.*", 0.99, TEAM.AXIS, CLASS.SOLDIER );
+	
+	Util.SetMaxUsers( 2, "PLANT_Wood_Fence" );
+	Util.SetMaxUsers( 1, "DEFEND_Axis_LookForGold_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_Axis_MinesIntels_10" );
+	Util.SetMaxUsers( 1, "DEFEND_Axis_MinesIntels_11" );
+	Util.SetMaxUsers( 1, "SMOKEBOMB_Spawn" );
+	
+	Util.AddUseWp( "CHECKPOINT_forwardspawn", "Flag_1" );
+	Util.AddUseWp( "CHECKPOINT_forwardspawn", "Flag_2" );
+	Util.AddUseWp( "CHECKPOINT_forwardspawn", "Flag_3" );
+	Util.AddUseWp( "CHECKPOINT_forwardspawn", "Flag_4" );
+	Util.AddUseWp( "PLANT_Wood_Fence", "Fence_1" );
+	Util.AddUseWp( "PLANT_Wood_Fence", "Fence_2" );
+	
+	RegionTrigger.Create(AABB(-3362.517,-1313.202,562.171,-3092.932,-788.701,903.704), "DisableCombatMovement", "Flag_Area");
+	
+	print( "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3 for map: ^7" + GetMapName() );
+	
+	Util.BotChat( 0, "say", "^3Omni-bot map script ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12", 1 );
+};
+
+global OnBotJoin = function( bot )
+{
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+	WeaponTable.SetWeaponAvailability( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_Wood_Fence =
+		{
+		},
+		CHECKPOINT_forwardspawn =
+		{
+		},
+		FLAG_docs =
+		{
+		},
+	};
+	Util.Routes(MapRoutes);
+};

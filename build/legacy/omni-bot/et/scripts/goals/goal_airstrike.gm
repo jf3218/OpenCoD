@@ -1,0 +1,37 @@
+// This script contains functionality to allow fieldops to toss airstrikes from given position
+this.Name = "AIRSTRIKE";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+
+this.LimitToWeapon( WEAPON.SMOKE_MARKER );
+
+this.Enter = function()
+{
+	if(!this.MarkInProgress()) { this.Finished(); }
+
+	this.AddFinishCriteria(this.Bot.GetGameEntity(),"not weaponcharged", WEAPON.SMOKE_MARKER);
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0xc8998d3d /* AIRSTRIKE */, WEAPON.SMOKE_MARKER);
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	if ( this.MapGoal.Stance == "crouch" )
+	{
+		this.Bot.HoldButton(BTN.CROUCH, 1.1);
+	}
+
+	this.AddAimRequest(Priority.High, "facing", Util.GetRandomTableValue(this.MapGoal.AimVectors));
+
+	this.AddWeaponRequest(Priority.High, WEAPON.SMOKE_MARKER );
+	this.BlockForWeaponChange( WEAPON.SMOKE_MARKER );
+	this.Bot.HoldButton(BTN.ATTACK1, 0.5 );
+	sleep(1);
+	this.BlackboardDelay(5);
+	this.Finished();
+};

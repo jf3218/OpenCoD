@@ -1,0 +1,1212 @@
+//==========================================================================================
+//
+//	fueldump_christmas.gm
+//
+//	Who      	When		What
+//------------------------------------------------------------------------------------------
+// palota   18.8.2015	PLANT_Giant_Snow_Man, MOUNTMG42_bridge_bunker, MOUNTMG42_axis_base, DEFEND_Bridge_14
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+
+	DispenseHealthTime = 10.0,
+	DispenseAmmoTime = 1.0,
+	DefendingTeam = TEAM.AXIS, //needed for IntrusionWarning
+
+	Tank_Pass_Tunnel = false,
+	Tunnel_Doors = true,
+	Depot_Gates = true,
+	Tank_Over_Bridge = false,
+	Front_Dump = false,
+	Rear_Dump = false,
+	FuelDumpDyno = 0,
+	Garage_Door_1_Closed = false,
+	Garage_Door_2_Closed = false,
+	//TankStatus = 1, //tank is repaired by default
+	BridgeStatus = 0, //not built
+	FootBridgeStatus = 0,
+
+	Navigation =
+	{
+		// /bot waypoint_setproperty paththrough Navigation_PT:jump
+		jump =
+		{
+			navigate = function(_this)
+			{
+				_this.Bot.HoldButton(BTN.JUMP, 0.55);
+				sleep(0.55);
+			},
+		},
+
+		//    /bot waypoint_setproperty paththrough Navigation_PT:ladder_1
+		ladder_1 =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_1", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.25);
+					_this.Bot.HoldButton(BTN.BACKWARD, 0.7);
+					_this.Bot.HoldButton(BTN.WALK, 0.7);
+					sleep(0.7);
+					_this.Bot.HoldButton(BTN.FORWARD, 1.4);
+					sleep(1.4);
+				}
+			},
+		},
+
+		//    /bot waypoint_setproperty paththrough Navigation_PT:ladder_2
+		ladder_2 =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder_2", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.1);
+					_this.Bot.HoldButton(BTN.FORWARD, 0.5);
+					sleep(0.5);
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(0.547, -0.003, -0.837));
+					sleep(0.1);
+					_this.Bot.HoldButton(BTN.FORWARD, 2);
+					sleep(2);
+				}
+			},
+		},
+		//    /bot waypoint_setproperty paththrough Navigation_PT:jumptoroof
+		jumptoroof =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("jumptoroof", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.3);
+					_this.Bot.HoldButton(BTN.FORWARD, 0.6);
+					sleep(0.1);
+					_this.Bot.HoldButton(BTN.JUMP, 0.5);
+					_this.Bot.HoldButton(BTN.SPRINT, 0.5);
+					_this.Bot.HoldButton(BTN.FORWARD, 2.4);
+					sleep(0.5);
+					_this.Bot.HoldButton(BTN.FORWARD, 2);
+					_this.Bot.HoldButton(BTN.SPRINT, 2);
+					_this.Bot.HoldButton(BTN.STRAFE_L, 0.55);
+					sleep(0.6);
+					_this.Bot.HoldButton(BTN.JUMP, 0.55);
+					sleep(1);
+				}
+			},
+		},
+	},
+
+	// some dedicated defenders for tunnel grate breach
+	Roles =
+	{
+		AXIS =
+		{
+			DEFENDER1 =
+			{
+				numbots = 3,
+			},
+		},
+	},
+
+	// spawn a few axis bots back when a disguised covert op gets through the tunnel grate
+	AxisFallBack =
+	{
+		Name = "AxisFallBack",
+		TriggerOnClass = CLASS.COVERTOPS,
+		OnEnter = function(ent)
+		{
+			// only for allied covert ops in disguise
+			if ( !GetEntFlags(ent, ENTFLAG.DISGUISED) || GetEntTeam(ent) != TEAM.ALLIES ) {
+				return;
+			}
+
+			// NOTE: they will not shift forward after they do this since it's highly likely
+			// that humans will keep trying to exploit it. the special camps will be disabled
+			// on tunnel door breach.
+
+			// spawn the axis engineers back to defend
+			ETUtil.SuicideSpawn( TEAM.AXIS, 2, -1, CLASS.ENGINEER );
+
+			// disable the bridge plant for them
+			SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Bridge" );
+
+			// and defend the depot
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"BUILD_West_Axis_Base_Fortification",
+				"PLANTMINE_rGate.*",
+				"DEFEND_rTeamDoor.*",
+			});
+
+			DeleteTriggerRegion("AxisFallBack");
+		},
+	},
+
+	DepotRoofCounter = 0,
+	DepotRoof =
+	{
+		Name = "DepotRoof",
+		TriggerOnClass = CLASS.ANYPLAYER,
+		OnEnter = function(ent)
+		{
+			// only for allied players
+			if ( GetEntTeam(ent) != TEAM.ALLIES ) {
+				return;
+			}
+
+			Map.DepotRoofCounter += 1;
+
+			// some goals to clear out the roof
+			Util.EnableGroup( "depotroof", TEAM.AXIS );
+		},
+		OnExit = function(ent)
+		{
+			// only for allied players
+			if ( GetEntTeam(ent) != TEAM.ALLIES ) {
+				return;
+			}
+
+			Map.DepotRoofCounter -= 1;
+
+			// is the roof clear?
+			if ( Map.DepotRoofCounter < 1 ) {
+				Util.DisableGroup( "depotroof", TEAM.AXIS );
+			}
+		},
+	},
+
+	//Allied_Command_Post_Built = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	//},
+	//
+	//Allied_Command_Post_Destroyed = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	//},
+	//
+	//Axis_Command_Post_Built = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	//},
+	//
+	//Axis_Command_Post_Destroyed = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	//},
+
+	Bridge_Built = function( trigger )
+	{
+		Map.BridgeStatus = 1;
+
+		sleep(2);
+
+		if ( Map.Tunnel_Doors )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Bridge_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CALLARTILLERY_bTowerHill.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Tunnel_Doors.*" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "MOBILEMORTAR_rBridge.*" );
+		}
+		Util.EnableGoal( "ROUTE_mainbridgeRoute3" );
+
+		Util.MapDebugPrint( "Bridge_Built" );
+	},
+
+	Bridge_Reinforced = function( trigger )
+	{
+		Map.BridgeStatus = 2;
+
+		if ( Map.Tunnel_Doors )
+		{
+			SetGoalPriority( "BUILD_Tank", 0.92 );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_allies_bridge.*" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_arty_bridge_cons.*" );
+		}
+
+		Util.MapDebugPrint( "Bridge_Reinforced" );
+	},
+
+	Bridge_Planted = function( trigger )
+	{
+		if ( Map.BridgeStatus <= 1 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Bridge.*" );
+		}
+
+		Util.MapDebugPrint( "Bridge_Planted" );
+	},
+
+	Bridge_Damaged = function( trigger )
+	{
+		Map.BridgeStatus = 1;
+
+		if ( Map.Tunnel_Doors )
+		{
+			SetGoalPriority( "BUILD_Tank", 0.7 );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SMOKEBOMB_allies_bridge.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "CALLARTILLERY_arty_bridge_cons.*" );
+		}
+
+		Util.MapDebugPrint( "Bridge_Damaged" );
+	},
+
+	Bridge_Destroyed = function( trigger )
+	{
+		Map.BridgeStatus = 0;
+
+		if ( Map.Tunnel_Doors )
+		{
+			if ( Map.FootBridgeStatus == 0 )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Tunnel_Doors.*" );
+				SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Bridge_.*" );
+				if ( !Map.Tank_Over_Bridge ){
+					SetAvailableMapGoals( TEAM.ALLIES, true, "CALLARTILLERY_bTowerHill.*" );
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMORTAR_rBridge.*" );
+		}
+		Util.DisableGoal( "ROUTE_mainbridgeRoute3" );
+
+		Util.MapDebugPrint( "Bridge_Destroyed" );
+	},
+
+	East_Axis_Base_Fortification_Built = function( trigger )
+	{
+		Map.Front_Dump = true;
+
+		if ( Map.Rear_Dump )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Giant_Snow_Man" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "ROUTE_FD_patrol" );
+		}
+		SetGoalPriority( "PLANT_East_Axis_Base_Fortification", 0.81);
+
+		Util.MapDebugPrint( "East_Axis_Base_Fortification_Built" );
+	},
+
+	Fuel_Accessible = function()
+	{
+		if ( !Map.Depot_Gates )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_.*_Axis_Base_Fortification");
+			sleep(2); //wait for blockwall waypoint connection
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Giant_Snow_Man" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_.*_Axis_Base_Fortification");
+		}
+		SetAvailableMapGoals( TEAM.AXIS, true, "ROUTE_FD_patrol" );
+	},
+
+	East_Axis_Base_Fortification_Damaged = function( trigger )
+	{
+		Map.Front_Dump = false;
+
+		SetGoalPriority( "PLANT_East_Axis_Base_Fortification", 0.7);
+		Map.Fuel_Accessible();
+
+		Util.MapDebugPrint( "East_Axis_Base_Fortification_Damaged" );
+	},
+
+	//East_Axis_Base_Fortification_Destroyed = function( trigger )
+	//{
+	// Util.MapDebugPrint( "East_Axis_Base_Fortification_Destroyed" );
+	//},
+
+	West_Axis_Base_Fortification_Built = function( trigger )
+	{
+		Map.Rear_Dump = true;
+
+		if ( Map.Front_Dump )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Giant_Snow_Man" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "ROUTE_FD_patrol" );
+		}
+		SetGoalPriority( "PLANT_West_Axis_Base_Fortification", 0.81);
+
+		Util.MapDebugPrint( "West_Axis_Base_Fortification_Built" );
+	},
+
+	West_Axis_Base_Fortification_Damaged = function( trigger )
+	{
+		Map.Rear_Dump = false;
+
+		SetGoalPriority( "PLANT_West_Axis_Base_Fortification", 0.7);
+		Map.Fuel_Accessible();
+
+		Util.MapDebugPrint( "West_Axis_Base_Fortification_Damaged" );
+	},
+
+	//West_Axis_Base_Fortification_Destroyed = function( trigger )
+	//{
+	// Util.MapDebugPrint( "West_Axis_Base_Fortification_Destroyed" );
+	//},
+
+	Foot_Bridge_Built = function( trigger )
+	{
+		Map.FootBridgeStatus = 1;
+
+		sleep(2);
+
+		if ( Map.Tunnel_Doors )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Tunnel_Doors.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Bridge_.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CALLARTILLERY_bTowerHill.*" );
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ROUTE_footbridgeRoute2" );
+
+		Util.MapDebugPrint( "Foot_Bridge_Built" );
+	},
+
+	Foot_Bridge_Destroyed = function( trigger )
+	{
+		Map.FootBridgeStatus = 0;
+
+		//make sure tunnel attack goals are off if both bridges aren't built
+		if ( Map.BridgeStatus == 0 && Map.Tunnel_Doors )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Tunnel_Doors.*");
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Bridge_.*" );
+			if ( !Map.Tank_Over_Bridge ){
+				SetAvailableMapGoals( TEAM.ALLIES, true, "CALLARTILLERY_bTowerHill.*" );
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ROUTE_footbridgeRoute2" );
+
+		Util.MapDebugPrint( "Foot_Bridge_Destroyed" );
+	},
+
+	//Road_MG_Built = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Road_MG_Built" );
+	//},
+	//
+	//Road_MG_Planted = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Road_MG_Planted" );
+	//},
+	//
+	//Road_MG_Destroyed = function( trigger )
+	//{
+	// Util.MapDebugPrint( "Road_MG_Destroyed" );
+	//},
+
+	Allied_Side_MG_Built = function( trigger )
+	{
+		Wp.SetWaypointFlag( "Side_MG_WP_1", "closed", true );
+
+		Util.MapDebugPrint( "Allied_Side_MG_Built" );
+	},
+
+	Allied_Side_MG_Destroyed = function( trigger )
+	{
+		Wp.SetWaypointFlag( "Side_MG_WP_1", "closed", false );
+
+		Util.MapDebugPrint( "Allied_Side_MG_Destroyed" );
+	},
+
+	Axis_Side_MG_Built = function( trigger )
+	{
+		Wp.SetWaypointFlag( "Side_MG_WP_2", "closed", false );
+
+		Util.MapDebugPrint( "Axis_Side_MG_Built" );
+	},
+
+	Axis_Side_MG_Destroyed = function( trigger )
+	{
+		Wp.SetWaypointFlag( "Side_MG_WP_2", "closed", true );
+
+		Util.MapDebugPrint( "Axis_Side_MG_Destroyed" );
+	},
+
+	//Tank_Built = function( trigger )
+	//{
+	// Map.TankStatus = 1;
+	//
+	// Util.MapDebugPrint( "Tank_Built" );
+	//},
+
+	//Tank_Destroyed = function( trigger )
+	//{
+	// Map.TankStatus = 0;
+	//
+	// Util.MapDebugPrint( "Tank_Destroyed" );
+	//},
+
+	Fuel_Dump_Planted = function( trigger )
+	{
+		Map.FuelDumpDyno += 1;
+
+		if ( Map.Depot_Gates )
+		{
+			return;
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_fueldump.*" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Fuel_Dump.*" );
+		Util.DisableGroup( "depotwall", TEAM.AXIS );
+		sleep(0.5);
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Fuel_Dump.*" );
+		Util.EnableGroup( "depotwall", TEAM.AXIS );
+
+		Util.MapDebugPrint( "Fuel_Dump_Planted" );
+	},
+
+	Fuel_Dump_Defused = function( trigger )
+	{
+		Map.FuelDumpDyno -= 1;
+
+		if ( Map.FuelDumpDyno < 1 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "CAMP_fueldump.*" );
+		}
+
+		Util.MapDebugPrint( "Fuel_Dump_Defused" );
+	},
+
+	Fuel_Dump_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Fuel_Dump_Destroyed" );
+	},
+
+	tunnelgrate_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Tunnel_Grate.*" );
+
+		if (Map.BridgeStatus < 2)
+		{
+			SetGoalPriority( "BUILD_Tank", 0.7, TEAM.ALLIES);
+		}
+
+		Util.MapDebugPrint( "tunnelgrate_Destroyed" );
+	},
+
+	tunneldoors_Destroyed = function( trigger )
+	{
+		Map.Tunnel_Doors = false;
+
+		// delete the cov ops trigger region
+		DeleteTriggerRegion("AxisFallBack");
+
+		Util.DisableGroup( "roadmg", TEAM.ALLIES );
+
+		sleep( 2 );
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"BUILD_Bridge",
+			"BUILD_Foot_Bridge",
+			"SNIPE_bTowerMg.*",
+			"MOBILEMORTAR_bBridge.*",
+			"ATTACK_Tunnel_Doors.*",
+			"HEALTHCAB_alliedhut_healthcabinet",
+			"AMMOCAB_alliedhut_ammocabinet",
+			"SMOKEBOMB_allies_bridge.*",
+			"ATTACK_Bridge_.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"GRENADE_axis_base_mg",
+			"ATTACK_Depot_Gates.*",
+			"ATTACK_Tank_Bay.*",
+			"BUILD_Side_MG",
+			"MOUNTMG42_Side_MG_1",
+			"REPAIRMG42_Side_MG_1",
+			"BUILD_Allied_Command_Post",
+			"PLANT_Tunnel_MG",
+		});
+		SetGoalPriority( "DEFUSE_Bridge.*", 0.0, TEAM.ALLIES, CLASS.ENGINEER, true );
+		SetGoalPriority( "DEFUSE_Foot_Bridge.*", 0.0, TEAM.ALLIES, CLASS.ENGINEER, true );
+		SetGoalPriority( "DEFUSE_Axis_Command_Post_.*", 0.0, TEAM.AXIS, CLASS.ENGINEER, true );
+		SetGoalPriority( "DEFUSE_Tunnel_MG_.*", 0.0, TEAM.AXIS, CLASS.ENGINEER, true );
+		SetGoalPriority( "DEFEND_Tunnel_Doors.*", 0.7, TEAM.AXIS );
+
+		if ( Map.Garage_Door_1_Closed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Garage_Door_1" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Garage_Door_1" );
+		}
+
+		if ( Map.Garage_Door_2_Closed )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Garage_Door_2" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Garage_Door_2" );
+		}
+
+		Util.DisableGroup( "tdoor", TEAM.AXIS );
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_rTeamDoor.*",
+			"DEFEND_Tunnel_Grate.*",
+			"ARTILLERY_S_bTowerHill3",
+			"CALLARTILLERY_Tunnel_Doors_25",
+			"AIRSTRIKE_Tunnel_Doors_26",
+			".*_bridge_cons.*",
+			"BUILD_Tunnel_MG",
+			"BUILD_Axis_Command_Post",
+			"PLANT_Foot_Bridge",
+			"PLANT_Bridge",
+			"PLANTMINE_Cave_Tunnel_Exit_.*",
+			"MOUNTMG42_Tunnel_MG",
+			"REPAIRMG42_Tunnel_MG",
+			"MOUNTMG42_bridge_bunker",
+			"REPAIRMG42_bridge_bunker",
+			"CALLARTILLERY_arty_bridge_cons.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"DEFEND_Tunnel_Doors.*",
+			"DEFEND_Depot_Gates.*",
+			"MOUNTMG42_axisbase_mg42",
+			"REPAIRMG42_axisbase_mg42",
+			"REPAIRMG42_axis_base",
+			".*_Side_MG",
+			"PLANT_Allied_Command_Post",
+			"PLANTMINE_CP_Door",
+			"PLANTMINE_Cave_Door",
+			"PLANTMINE_Cave_Exit_.*",
+			"PLANTMINE_Hill_.*",
+		});
+
+		Util.MapDebugPrint( "tunneldoors_Destroyed" );
+	},
+
+	depotgates_Destroyed = function( trigger )
+	{
+		Map.Depot_Gates = false;
+
+		SetGoalPriority( "MOUNT_tank", 0.5, TEAM.ALLIES, CLASS.ENGINEER, CLASS.MEDIC, CLASS.FIELDOPS, CLASS.COVERTOPS );
+		SetGoalPriority( "MOUNT_tank", 0.8, TEAM.ALLIES, CLASS.SOLDIER );
+
+		sleep( 2 );
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"ATTACK_Depot_Gates.*",
+			"ATTACK_Tank_Bay.*",
+			"ESCORT_tank",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"ATTACK_Fuel_Dump_.*",
+			"ATTACK_Depot_Side_Wall.*",
+			"PLANT_East_Axis_Base_Fortification",
+			"PLANT_West_Axis_Base_Fortification",
+			"AIRSTRIKE_Fuel_Dump_65",
+			"CALLARTILLERY_Fuel_Dump_66",
+			"ARTILLERY_S_Fuel_Dump_67",
+		});
+
+		if ( !Map.Front_Dump || !Map.Rear_Dump )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Giant_Snow_Man" );
+		}
+
+		Util.SetGoalRange( "BUILD_Allied_Command_Post", 1600);
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"PLANTMINE_Depot_Gates_.*",
+			"DEFEND_Depot_Gates.*", //depotwall group will be enabled again
+			"BUILD_Side_MG",
+			"MOUNTMG42_Side_MG",
+			"REPAIRMG42_Side_MG",
+		});
+		Util.EnableGroup( "depotwall", TEAM.AXIS );
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"DEFEND_Fuel_Dump_.*",
+			"PLANTMINE_rGate.*",
+			"MOUNTMG42_axis_base",
+		});
+		SetGoalPriority( "DEFUSE_Side_MG.*", 0.0, TEAM.AXIS, CLASS.ENGINEER, true );
+
+		Util.DisableGroup( "depotwallarty", TEAM.AXIS );
+		Util.EnableGroup( "depotarty", TEAM.AXIS );
+
+		OnTriggerRegion( AABB(-11668,-5740,161, -11469,-5512,393), RegionTrigger.IntrusionWarning );
+		OnTriggerRegion( AABB(-9952,-5522,180, -9628,-5333,364), RegionTrigger.IntrusionWarning );
+		OnTriggerRegion( AABB(-10136,-6699,146, -9994,-6608,367), RegionTrigger.IntrusionWarning );
+		OnTriggerRegion( AABB(-11369,-7391,160, -11206,-6991,433), RegionTrigger.IntrusionWarning );
+		OnTriggerRegion( AABB(-11184,-7426,178, -11106,-7005,410), RegionTrigger.IntrusionWarningEngObj );
+		OnTriggerRegion( AABB(-11064,-7099,158, -10926,-6968,339), RegionTrigger.IntrusionWarningEngObj );
+		OnTriggerRegion( AABB(-10580,-7450,158, -10445,-7011,397), RegionTrigger.IntrusionWarningEngObj );
+		OnTriggerRegion( AABB(-10861,-7124,165, -10641,-6995,351), RegionTrigger.AllClear );
+
+		Util.MapDebugPrint( "depotgates_Destroyed" );
+	},
+
+	depotsidewall_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"ATTACK_Depot_Side_Wall.*",
+			"BUILD_Tank",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"PLANTMINE_rWall.*",
+			"BUILD_East_Axis_Base_Fortification",
+		});
+
+		ETUtil.SetAimModeForMount("MOUNT_tank",
+		{
+			Vec3(-11329.384, -7111.280, 177.898),
+			Vec3(-11180.670, -6141.054, 176.125),
+			Vec3(-9464.406, -6364.474, 282.736)
+		});
+
+		Util.MapDebugPrint( "depotsidewall_Destroyed" );
+	},
+
+	tbdoorone = function( trigger )
+	{
+		vel = ToVector(trigger.Action);
+
+		if ( vel[2] < 0 )
+		{
+			Map.Garage_Door_1_Closed = true;
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_Garage_Door_1" );
+
+			Util.MapDebugPrint("Garege_Door_1_Closing");
+
+			sleep(5);
+
+			if ( !Map.Tunnel_Doors )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Garage_Door_1" );
+			}
+
+			Util.MapDebugPrint("Garege_Door_1_Closed");
+		}
+		else if ( vel[2] > 0 )
+		{
+			Map.Garage_Door_1_Closed = false;
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_Garage_Door_1" );
+
+			Util.MapDebugPrint("Garege_Door_1_Opening");
+
+			sleep(5);
+
+			if ( !Map.Tunnel_Doors and !Map.Tank_Pass_Tunnel )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Garage_Door_1" );
+			}
+
+			Util.MapDebugPrint("Garege_Door_1_Opened");
+		}
+	},
+
+	tbdoortwo = function( trigger )
+	{
+		vel = ToVector(trigger.Action);
+
+		if ( vel[2] < 0 )
+		{
+			Map.Garage_Door_2_Closed = true;
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_Garage_Door_2" );
+
+			Util.MapDebugPrint("Garege_Door_2_Closing");
+
+			sleep(5);
+
+			if ( !Map.Tunnel_Doors )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_Garage_Door_2" );
+			}
+
+			Util.MapDebugPrint("Garege_Door_2_Closed");
+		}
+		else if ( vel[2] > 0 )
+		{
+			Map.Garage_Door_2_Closed = false;
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_Garage_Door_2" );
+
+			Util.MapDebugPrint("Garege_Door_2_Opening");
+
+			sleep(5);
+
+			if ( !Map.Tunnel_Doors and !Map.Tank_Pass_Tunnel )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_Garage_Door_2" );
+			}
+
+			Util.MapDebugPrint("Garege_Door_2_Opened");
+		}
+	},
+
+	tank_over_bridge = function()
+	{
+		Map.Tank_Over_Bridge = true;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"CALLARTILLERY_bTowerHill.*",
+			"ARTILLERY_S_bTowerHill.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_Bridge_.*",
+			"PLANTMINE_Tunnel_Doors_.*",
+			"PLANTMINE_rFootbridge.*",
+			"MOBILEMORTAR_rBridge.*",
+			"ARTILLERY_S_bridge_cons",
+		});
+		Util.EnableGroup( "tdoor", TEAM.AXIS );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"ARTILLERY_S_bTowerHill3",
+			"CALLARTILLERY_Tunnel_Doors_25",
+			"AIRSTRIKE_Tunnel_Doors_26",
+			"PLANTMINE_Cave_Tunnel_Exit_.*",
+		});
+
+		Util.MapDebugPrint( "tank_over_bridge" );
+	},
+
+	tank_in_tunnel = function()
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Tunnel_MG" );
+		Util.EnableGroup( "tunnelexitarty", TEAM.AXIS );
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Tunnel_Doors.*" );
+
+		Util.MapDebugPrint( "tank_in_tunnel" );
+	},
+
+	tank_past_tunnel = function()
+	{
+		Map.Tank_Pass_Tunnel = true;
+
+		Util.DisableGroup( "tunnelexitarty", TEAM.AXIS );
+		Util.EnableGroup( "depotwallarty", TEAM.AXIS );
+		Util.DisableGroup( "forwarddepot", TEAM.AXIS ); // disable camps inside tunnel
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"PLANT_Side_MG",
+			"MOUNTMG42_Side_MG_1",
+			"REPAIRMG42_Side_MG_1",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"PLANTMINE_CP_Door",
+			"PLANTMINE_Cave_Door",
+			"PLANTMINE_Cave_Exit_.*",
+			"PLANTMINE_Hill_.*",
+			"SWITCH_Garage_Door_1",
+			"SWITCH_Garage_Door_2",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			".*_Side_MG",
+			"BUILD_West_Axis_Base_Fortification",
+			"PLANTMINE_Depot_Gates_.*",
+		});
+
+		Util.MapDebugPrint( "tank_past_tunnel" );
+	},
+
+	tank_at_location = function( trigger )
+	{
+		switch(Map.VehicleLocation)
+		{
+			case 2:
+			{
+				Map.tank_over_bridge();
+			}
+			case 3:
+			{
+				Map.tank_in_tunnel();
+			}
+			case 4:
+			{
+				Map.tank_past_tunnel();
+			}
+		}
+		Util.MapDebugPrint("vehicle at location " + Map.VehicleLocation, true);
+	},
+};
+
+global OnMapLoad = function()
+{
+	Util.SetGoalPosition( -3860.965820, -4226.477051, 232.133408, "PLANT_Bridge" );
+	Util.SetGoalPosition( -1218.925,-3095.991,408.092, "PLANT_Foot_Bridge" );
+
+	//OnTrigger( "^D***^WAllied Command Post constructed. Charge speed increased!^D***", Map.Allied_Command_Post_Built );
+	//OnTrigger( "^J***^WAxis Command Post constructed. Charge speed increased!^J***", Map.Axis_Command_Post_Built );
+	OnTrigger( "^D***^WAllied team has reinforced the Bridge!^D***", Map.Bridge_Reinforced );
+	OnTrigger( "^D***^WAllied team has constructed the bridge!^D***", Map.Bridge_Built );
+	OnTrigger( "^J***^WAxis team has constructed the East Axis Base Fortification!^J***", Map.East_Axis_Base_Fortification_Built );
+	OnTrigger( "^D***^WAllied team has constructed the Foot Bridge!^D***", Map.Foot_Bridge_Built );
+	//OnTrigger( "^D***^WAllied team has constructed the Road MG Nest!^D***", Map.Road_MG_Built );
+	OnTrigger( "^D***^WAllied team has constructed the Side MG Nest!^D***", Map.Allied_Side_MG_Built );
+	OnTrigger( "^J***^WAxis team has constructed the Side MG Nest!^J***", Map.Axis_Side_MG_Built );
+	//OnTrigger( "The Tank has been repaired", Map.Tank_Built );
+	//OnTrigger( "^J***^WAxis team has constructed the Tunnel MG!^J***", Map.Tunnel_MG_Built );
+	OnTrigger( "^J***^WAxis team has constructed the West Axis Base Fortification!^J***", Map.West_Axis_Base_Fortification_Built );
+	//OnTrigger( "^J***^WAxis team has destroyed the Allied Command Post!^J***", Map.Allied_Command_Post_Destroyed );
+	//OnTrigger( "^D***^WAllied team has destroyed the Axis Command Post!^D***", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "^J***^WAxis team has damaged the Bridge!^J***",  Map.Bridge_Damaged );
+	OnTrigger( "^J***^WAxis team has destroyed the Bridge!^J***", Map.Bridge_Destroyed );
+	OnTrigger( "^D***^WAllied team has damaged the East Axis Base Fortification!^D***", Map.East_Axis_Base_Fortification_Damaged );
+	//OnTrigger( "^D***^WAllied team has destroyed the East Axis Base Fortification!^D***", Map.East_Axis_Base_Fortification_Destroyed );
+	OnTrigger( "^J***^WAxis team has destroyed the Foot Bridge!^J***", Map.Foot_Bridge_Destroyed );
+	OnTrigger( "Planted at the Giant Snow Man.", Map.Fuel_Dump_Planted );
+	OnTrigger( "Defused at the Giant Snow Man.", Map.Fuel_Dump_Defused );
+	OnTrigger( "^D***^WAllied team has destroyed the Giant Snowman! :( ^D***", Map.Fuel_Dump_Destroyed );
+	//OnTrigger( "^J***^WAxis team has destroyed the Road MG Nest!^J***", Map.Road_MG_Destroyed );
+	OnTrigger( "^D***^WAllied team has destroyed the Side MG Nest!^D***", Map.Axis_Side_MG_Destroyed );
+	OnTrigger( "^J***^WAxis team has destroyed the Side MG Nest!^J***", Map.Allied_Side_MG_Destroyed );
+	OnTrigger( "Planted at the Bridge.", Map.Bridge_Planted );
+	//OnTrigger( "^D***^WAllied team has destroyed the Tunnel MG!^D***", Map.Tunnel_MG_Destroyed );
+	OnTrigger( "^D***^WAllied team has damaged the West Axis Base Fortification!^D***", Map.West_Axis_Base_Fortification_Damaged );
+	//OnTrigger( "^D***^WAllied team has destroyed the West Axis Base Fortification!^D***", Map.West_Axis_Base_Fortification_Destroyed );
+	//OnTrigger( "The Tank has been damaged", Map.Tank_Destroyed );
+	OnTrigger( "^D***^WAllied team has breached the Tunnel Grate!^D***", Map.tunnelgrate_Destroyed );
+	OnTrigger( "^D***^WAllied team has breached the Tunnel Doors!^D***", Map.tunneldoors_Destroyed );
+	OnTrigger( "^D***^WAllied team has breached the Depot Gates!^D***", Map.depotgates_Destroyed );
+	OnTrigger( "^D***^WAllied team has breached the Depot Side Wall!^D***", Map.depotsidewall_Destroyed );
+	OnTrigger( "tbdoor1_lever1_goto", Map.tbdoorone );
+	OnTrigger( "tbdoor2_lever1_goto", Map.tbdoortwo );
+	OnTrigger( "tank at location", Map.tank_at_location );
+	//OnTrigger( "Planted at the Road MG.", Map.Road_MG_Planted );
+
+	// tank positions
+	OnTriggerRegion(AABB(-3337.337,-6550.084,207.125,-3016.404,-6386.294,284.880), RegionTrigger.VehicleTrigger); //near bridge
+	OnTriggerRegion(AABB(-3810.875,-4750.004,211.125,-3611.125,-4491.826,291.954), RegionTrigger.VehicleTrigger); //over bridge
+	OnTriggerRegion(AABB(-5693.422,-2970.203,209.125,-5602.288,-2678.854,291.125), RegionTrigger.VehicleTrigger); //in tunnel
+	OnTriggerRegion(AABB(-7926.541,-2944.875,209.125,-7809.442,-2687.126,283.125), RegionTrigger.VehicleTrigger); //exit tunnel
+
+	OnTriggerRegion(AABB(-3733.483,-2051.376,652.817,-3449.874,-1751.765,1083.265), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-9999.171,-5791.996,177.340,-9894.374,-5449.106,515.125), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-10538.093,-5582.775,441.125,-10443.125,-5535.007,557.906), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-11316.018,-6832.875,183.449,-11055.125,-6732.373,259.345), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-12552.428,-6052.649,393.125,-11996.329,-5993.180,510.034), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-10503.335,-5846.517,305.125,-10184.176,-5702.019,395.125), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-11064.850,-7650.512,181.125,-10600.443,-7080.235,604.782), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-3696.232,-4825.550,65.127,-3523.531,-4510.127,279.254), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-9427.145,-1285.650,1163.742,-9228.191,-1172.881,1285.031), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-2831.975,-8336.546,348.482,-2711.256,-8153.473,450.134), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-11332.472,-6914.470,537.132,-10380.936,-6283.438,687.614), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-3074.798,-8210.986,389.125,-2946.725,-8119.135,517.481), RegionTrigger.DisableBotPush);
+	OnTriggerRegion(AABB(-10136.874,-5462.146,441.125,-8755.125,-5162.832,523.125), RegionTrigger.DisableBotPush);  //wall
+	OnTriggerRegion(AABB(-10908.676,-7287.709,182.167,-10720.402,-7071.353,566.530), RegionTrigger.DisableBotPush); //fueltankladder
+	OnTriggerRegion(AABB(-12016.875,-6135.739,177.170,-11803.087,-5745.805,464.596), RegionTrigger.DisableBotPush); //fueltankladder
+
+	OnTriggerRegion(AABB(-9999.171,-5791.996,177.340,-9894.374,-5449.106,515.125), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-12016.875,-6135.739,177.170,-11803.087,-5745.805,464.596), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-10538.093,-5582.775,441.125,-10443.125,-5535.007,557.906), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-11316.018,-6832.875,183.449,-11055.125,-6732.373,259.345), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-12552.428,-6052.649,393.125,-11996.329,-5993.180,510.034), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-10503.335,-5846.517,305.125,-10184.176,-5702.019,395.125), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-11064.850,-7650.512,181.125,-10600.443,-7080.235,604.782), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-3696.232,-4825.550,65.127,-3523.531,-4510.127,279.254), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-5376.875,-3173.627,234.605,-4943.194,-2917.311,608.047), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-10781.831,-5526.875,313.125,-10448.712,-5255.125,515.125), RegionTrigger.DisableCombatMovement);
+	OnTriggerRegion(AABB(-11332.472,-6914.470,537.132,-10380.936,-6283.438,687.614), RegionTrigger.DisableCombatMovement);
+
+	OnTriggerRegion(AABB(-3500,-8290,389,-2940,-7800,517), RegionTrigger.BreakableDistance); //allied hut window for sniper
+	RegionTrigger.BreakableDistance.MaxBreakableDist = 250;
+	RegionTrigger.BreakableDistance.MinBreakableDist = 0;
+
+	// detect covert ops sneaking through tunnel grate
+	OnTriggerRegion(AABB(-6720.574,-1895.911,321.125,-6626.926,-1558.944,403.125), Map.AxisFallBack);
+	// detect allies on the depot roof
+	OnTriggerRegion(AABB(-11424.124,-6971.128,537.125,-10310.962,-6210.208,944.180), Map.DepotRoof);
+
+	// Max users per goal
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "CAMP_.*" );
+	Util.SetMaxUsers( 1, "SWITCH_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42.*" );
+	Util.SetMaxUsers( 1, "MOUNT_tank" );
+	Util.SetMaxUsers( 1, "SMOKEBOMB_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "REPAIRMG.*" );
+	Util.SetMaxUsers( 1, "PLANT_.*" );
+	Util.SetMaxUsers( 2, "PLANT_Giant_Snow_Man" );
+	Util.SetMaxUsers( 4, "PLANT_West_Axis_Base_Fortification" );
+	Util.SetMaxUsers( 4, "PLANT_East_Axis_Base_Fortification" );
+	Util.SetMaxUsers( 1, "BUILD.*" );
+	Util.SetMaxUsers( 3, "BUILD_Tank" );
+	Util.SetMaxUsers( 3, "BUILD_Bridge" );
+
+	// set some preferred positions to start from for vehicle goals
+	ETUtil.SetStartIndex("MOUNT_tank", 0);
+	ETUtil.SetStartIndex("ESCORT_tank", 0);
+	ETUtil.SetStartIndex("BUILD_Tank", 0);
+	ETUtil.SetAimModeForMount("MOUNT_tank", "velocity");
+
+	SetGoalPriority( "GRENADE_.*", 0.7 );
+	SetGoalPriority( "SWITCH_.*", 0.6 );
+	SetGoalPriority( "PLANT_Side_MG", 0.5, 0, CLASS.ENGINEER );
+
+	// Allied goals
+	SetGoalPriority( "PLANT_Axis_Command_Post", 0.5, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Tunnel_MG", 0.5, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Giant_Snow_Man", 0.85, TEAM.ALLIES );
+	SetGoalPriority( "BUILD_Side_MG", 0.81, TEAM.ALLIES);
+	SetGoalPriority( "BUILD_Allied_Command_Post", 0.86, TEAM.ALLIES);
+	SetGoalPriority( "BUILD_Tank", 0.92, TEAM.ALLIES );
+	SetGoalPriority( "DEFUSE_Road_MG.*", 0.0, TEAM.ALLIES, CLASS.ENGINEER, true );
+	SetGoalPriority( "PLANT_Axis_Command_Post", 0.79, TEAM.ALLIES, CLASS.COVERTOPS );
+	SetGoalPriority( "PLANT_Tunnel_MG", 0.79, TEAM.ALLIES, CLASS.COVERTOPS );
+	SetGoalPriority( "SNIPE.*", 0.8, TEAM.ALLIES );
+	SetGoalPriority( "PLANT_West_Axis_Base_Fortification", 0.7, TEAM.ALLIES);
+	SetGoalPriority( "PLANT_East_Axis_Base_Fortification", 0.7, TEAM.ALLIES);
+
+	// Axis goals
+	SetGoalPriority( "PLANT_Allied_Command_Post", 0.0, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Foot_Bridge", 0.5, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Road_MG", 0.0, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "CAMP_fueldump.*", 0.66, TEAM.AXIS );
+	SetGoalPriority( "CAMP_roofclear.*", 0.67, TEAM.AXIS );
+	SetGoalPriority( "DEFEND_rTeamDoor.*", 0.75, TEAM.AXIS );
+	SetGoalPriority( "DEFUSE_Fuel_Dump_.*", 1.20, TEAM.AXIS, CLASS.ENGINEER, true );
+	SetGoalPriority( "DEFEND_Depot_Gates_17", 0.51, TEAM.AXIS );
+	SetGoalPriority( "MOUNTMG42_bridge_bunker", 0.5, TEAM.AXIS );
+	
+	Util.LimitToClass( "DEFEND_rTeamDoor.*", TEAM.AXIS, CLASS.ENGINEER );
+
+	Util.DisableGoal( ".*", true );
+	Util.DisableGoal( "ROUTE_footbridgeRoute2" );
+	Util.DisableGoal( "ROUTE_mainbridgeRoute3" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"BUILD_Tank",
+		"SMOKEBOMB_allies_bridge.*",
+		"HEALTHCAB_alliedhut_healthcabinet",
+		"AMMOCAB_alliedhut_ammocabinet",
+		"BUILD_Bridge",
+		"BUILD_Foot_Bridge",
+		"MOUNT_tank",
+		"ESCORT_tank",
+		"PLANT_Axis_Command_Post",
+		"PLANT_Tunnel_MG",
+		"ATTACK_Bridge_.*",
+		"CALLARTILLERY_bTowerHill.*",
+		"ARTILLERY_S_bTowerHill.*",
+		"SNIPE_bTowerMg.*",
+		"MOBILEMORTAR_bBridge.*",
+	});
+	Util.EnableGroup( "roadmg", TEAM.ALLIES ); // build, mountmg, repair for Road_MG
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		"PLANT_Bridge",
+		"ARTILLERY_S_bridge_cons",
+		"REPAIRMG42_Tunnel_MG",
+		"BUILD_Tunnel_MG",
+		"BUILD_Axis_Command_Post",
+		"PLANT_Foot_Bridge",
+		"CALLARTILLERY_arty_bridge_cons.*",
+		"MOUNTMG42_Tunnel_MG",
+		"DEFEND_Bridge_.*",
+		"MOBILEMORTAR_rBridge.*",
+		"PLANTMINE_rFootbridge.*",
+		"PLANTMINE_Tunnel_Doors_.*",
+		"MOUNTMG42_bridge_bunker",
+		"REPAIRMG42_bridge_bunker",
+	});
+
+	Util.SetGoalRange( "BUILD_Allied_Command_Post", 0);
+
+	Wp.SetWaypointFlag( "Side_MG_WP_1", "closed", false );
+	Wp.SetWaypointFlag( "Side_MG_WP_2", "closed", true );
+
+	Util.AddUseWp( "MOUNTMG42_Side_MG_1", "Side_MG_WP_3" );
+	Util.AddUseWp( "REPAIRMG42_Side_MG_1", "Side_MG_WP_3" );
+	Util.AddUseWp( "PLANT_Side_MG", "Side_MG_WP_3" );
+	Util.AddUseWp( "MOUNTMG42_bridge_bunker", "bridge_bunker" );
+	Util.AddUseWp( "REPAIRMG42_bridge_bunker", "bridge_bunker" );
+
+	// randomize plant goal position
+	Util.AddUsePoint( "PLANT_Giant_Snow_Man", { Vec3(-10817, -7257, 444), Vec3(-10697, -7606, 308), Vec3(-10986, -7585, 318) });
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.MaxViewDistance = 5000;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Bridge =
+		{
+			ROUTE_AllySpawn =
+			{
+				ROUTE_mainbridgeRoute1 = {},
+				ROUTE_mainbridge4 =
+				{
+					ROUTE_mainbridge5 =
+					{
+						ROUTE_mainbridgeRoute2 = {}
+					},
+				},
+			},
+		},
+		ATTACK_Tunnel_Doors_1 =
+		{
+			ROUTE_AllySpawn =
+			{
+				ROUTE_footbridgeRoute2 = {},
+				ROUTE_mainbridgeRoute3 = {},
+			},
+		},
+		BUILD_Allied_Command_Post =
+		{
+			ROUTE_TunnelSpawn1 =
+			{
+				ROUTE_northtunnel =
+				{
+					ROUTE_cphill = {},
+					ROUTE_cpflank = { Weight = 2 },
+				},
+			},
+		},
+		ATTACK_Depot_Gates_1 =
+		{
+			ROUTE_TunnelSpawn1 =
+			{
+				ROUTE_maintunnel =
+				{
+					ROUTE_eTankPath1 = { ROUTE_eTankPath2 = {}, },
+					ROUTE_wTankPath1 = { ROUTE_wTankPath2 = {}, },
+				},
+				ROUTE_northtunnel =
+				{
+					ROUTE_cphill = {},
+					ROUTE_cpflank = {},
+				},
+				ROUTE_southtunnel =
+				{
+					Weight = 2,
+					ROUTE_southtunnel2 = {},
+				},
+			},
+		},
+		PLANT_Giant_Snow_Man =
+		{
+			ROUTE_TunnelSpawn1 =
+			{
+				ROUTE_maintunnel =
+				{
+					ROUTE_eTankPath1 = { ROUTE_eTankPath2 = {}, },
+					ROUTE_wTankPath1 = { ROUTE_wTankPath2 = {}, },
+					ROUTE_cphill =
+					{
+						ROUTE_depotgate = {},
+						ROUTE_sidewall = { ROUTE_sidewall2 = {}, },
+					},
+				},
+				ROUTE_northtunnel =
+				{
+					Weight = 3,
+					ROUTE_cphill = {},
+					ROUTE_cpflank =
+					{
+						Weight = 2,
+						ROUTE_sidewall = {},
+					},
+				},
+				ROUTE_southtunnel =
+				{
+					//Weight = 2,
+					ROUTE_southtunnel2 = {},
+				},
+			},
+			//add route support for et pro scripted cp spawns
+			ROUTE_CpSpawn =
+			{
+				ROUTE_depotgate = {},
+				ROUTE_sidewall2 = {},
+			},
+		},
+		DEFEND_Depot_Gates_6 =
+		{
+			ROUTE_FuelDumpSpawn1 =
+			{
+				ROUTE_cphill2 = { Weight = 2, },
+				ROUTE_sidewall2 = { ROUTE_sidewall = {}, }
+			},
+		},
+		DEFEND_Fuel_Dump_6 =
+		{
+			ROUTE_FuelDumpSpawn1 =
+			{
+				ROUTE_FD_stairs = {},
+				ROUTE_FD_back =
+				{
+					Weight = 2,
+					ROUTE_FD_weststairs = {},
+					ROUTE_FD_opengate = {},
+				},
+				ROUTE_FD_patrol = { Weight = 2, },
+			},
+		},
+		PLANTMINE_rGate1 =
+		{
+			ROUTE_FuelDumpSpawn1 =
+			{
+				ROUTE_FD_back = {},
+				ROUTE_FD_patrol = { Weight = 2, },
+			},
+		},
+		GRENADE_axis_base_mg =
+		{
+			ROUTE_TunnelSpawn1 =
+			{
+				ROUTE_southtunnel =
+				{
+					ROUTE_southtunnel2 = {},
+				},
+			},
+		},
+	};
+
+	//copy some routes
+	MapRoutes.DEFEND_Depot_Gates_6.ROUTE_FuelDumpSpawn2 = MapRoutes.DEFEND_Depot_Gates_6.ROUTE_FuelDumpSpawn1;
+	MapRoutes.DEFEND_Fuel_Dump_6.ROUTE_FuelDumpSpawn2 = MapRoutes.DEFEND_Fuel_Dump_6.ROUTE_FuelDumpSpawn1;
+	MapRoutes.PLANTMINE_rGate1.ROUTE_FuelDumpSpawn2 = MapRoutes.PLANTMINE_rGate1.ROUTE_FuelDumpSpawn1;
+	MapRoutes["ATTACK_Bridge_[12356]"] = MapRoutes.BUILD_Bridge;
+	MapRoutes["ATTACK_Tunnel_Doors.*"] = MapRoutes.ATTACK_Tunnel_Doors_1;
+	MapRoutes["ATTACK_Depot_Gates_[2345]"] = MapRoutes.ATTACK_Depot_Gates_1;
+	MapRoutes["ATTACK_Tank_Bay.*"] = MapRoutes.ATTACK_Depot_Gates_1;
+	MapRoutes.PLANT_Side_MG = MapRoutes.BUILD_Allied_Command_Post;
+	MapRoutes.MOUNTMG42_Side_MG_1 = MapRoutes.BUILD_Allied_Command_Post;
+	MapRoutes.REPAIRMG42_Side_MG_1 = MapRoutes.BUILD_Allied_Command_Post;
+	MapRoutes["ATTACK_Fuel_Dump_.*"] = MapRoutes.PLANT_Giant_Snow_Man;
+	MapRoutes.PLANT_East_Axis_Base_Fortification = MapRoutes.PLANT_Giant_Snow_Man;
+	MapRoutes.PLANT_West_Axis_Base_Fortification = MapRoutes.PLANT_Giant_Snow_Man;
+	MapRoutes.DEFEND_Depot_Gates_8 = MapRoutes.DEFEND_Depot_Gates_6;
+	MapRoutes["DEFEND_Depot_Gates_1[27]"] = MapRoutes.DEFEND_Depot_Gates_6;
+	MapRoutes.REPAIRMG42_Side_MG = MapRoutes.DEFEND_Depot_Gates_6;
+	MapRoutes.MOUNTMG42_Side_MG = MapRoutes.DEFEND_Depot_Gates_6;
+	MapRoutes.PLANT_Allied_Command_Post = MapRoutes.DEFEND_Depot_Gates_6;
+	MapRoutes["DEFEND_Fuel_Dump.*"] = MapRoutes.DEFEND_Fuel_Dump_6;
+	MapRoutes["CALLARTILLERY_rDepotWall.*"] = MapRoutes.DEFEND_Fuel_Dump_6;
+	MapRoutes["PLANTMINE_rGate.*"] = MapRoutes.PLANTMINE_rGate1;
+	MapRoutes["PLANTMINE_rWall.*"] = MapRoutes.PLANTMINE_rGate1;
+
+	Util.Routes(MapRoutes);
+};

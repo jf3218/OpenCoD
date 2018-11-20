@@ -1,0 +1,10 @@
+if (GetModName()!="Jaymod") { return; }
+
+WEAPON.POISONGAS = 78;
+this.Name = "Poison Gas Grenade";
+this.WeaponId = WEAPON.POISONGAS;
+
+this.PrimaryFire.WeaponType = "projectile";
+this.PrimaryFire.WaterProof = true;
+this.PrimaryFire.IgnoreReload = true;
+this.PrimaryFire.SetDesirabilityRange(0, 64, 0.8);

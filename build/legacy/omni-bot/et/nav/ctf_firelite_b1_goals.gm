@@ -1,0 +1,128 @@
+global _MG = 
+{
+	AMMOCAB_bunker_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(610.000, -331.000, 160.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_yard_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-2213.000, -500.000, 191.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	CAPPOINT_allies = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(4.664, 2413.507, 24.125),
+	},
+	CAPPOINT_axis = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(415.866, -3174.138, 115.125),
+	},
+	FLAG_allied_flag = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(8.000, 2416.000, 28.125),
+		TeamAvailability = 2,
+	},
+	FLAG_axis_flag = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(407.000, -3172.000, 119.125),
+		TeamAvailability = 4,
+	},
+	HEALTHCAB_bunker_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(610.000, -395.000, 152.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_yard_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-2213.000, -564.000, 183.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	ROUTE_1 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(838.996, -312.405, 125.125),
+		Radius = 125,
+	},
+	ROUTE_1_allies_side_a = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(730.650, 2587.917, 8.125),
+		Radius = 125,
+	},
+	ROUTE_1_allies_side_b = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(718.659, 2122.969, 8.125),
+		Radius = 125,
+	},
+	ROUTE_1_axis_side = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(1308.749, -2044.074, 30.125),
+		Radius = 125,
+	},
+	ROUTE_2 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(146.357, -135.649, 114.368),
+		Radius = 125,
+	},
+	ROUTE_3 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-911.664, 1093.003, 127.828),
+		Radius = 125,
+	},
+	ROUTE_4 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1908.200, 1296.521, 116.125),
+		Radius = 125,
+	},
+	ROUTE_5 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1183.892, 1279.422, 122.326),
+		Radius = 125,
+	},
+	ROUTE_allied_spawn = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-14.848, 1822.079, 6.375),
+		Radius = 700,
+	},
+	ROUTE_axis_flag = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(420.631, -3166.327, 115.125),
+		Radius = 125,
+	},
+	ROUTE_axis_spawn = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(449.252, -2537.716, 72.474),
+		Radius = 700,
+	},
+	Version = 1,
+};

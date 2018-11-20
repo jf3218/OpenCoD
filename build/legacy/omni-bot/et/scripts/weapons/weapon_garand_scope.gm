@@ -1,0 +1,14 @@
+this.Name = "Garand Scoped";
+this.WeaponId = WEAPON.GARAND_SCOPE;
+this.WeaponAliasId = WEAPON.GARAND;
+
+this.PrimaryFire.CrouchToMoveWhenZoomed = true;
+this.PrimaryFire.HasClip = true;
+this.PrimaryFire.IgnoreReload = true;
+//this.PrimaryFire.DelayAfterFiring = 1.0;
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.SetDesirabilityRange(500, 4000, 0.8);
+// Use a 1-2 second delay between every 1 shot for stability.
+this.PrimaryFire.SetBurstRange(0, 10000, 1, 1.0, 2.0);
+this.PrimaryFire.LowAmmoThreshold = 1;
+this.PrimaryFire.LowAmmoPriority = 0.8;

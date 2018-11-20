@@ -1,0 +1,516 @@
+//==========================================================================================
+//
+//	mia1d.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	palota	18 September 2011	Initial Script
+//	palota	21 August 2015	updated from mia1 to mia1d, removed generator, lab spawn, tent spawn, removed ATTACK_stairs, DEFENDER2 role, elevator can be used in both directions, GRENADE_door_mg is disabled until window is broken
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+
+	gateDestroyed = false,
+	labDestroyed = false,
+	elevatorPos = 1,
+	callElevatorTime = 0,
+	windowDestroyed = {},
+
+	Navigation =
+	{
+		elevator_up =
+		{
+			navigate = function(_this)
+			{
+				//get inside
+				_this.Goto(Vec3(4.6, 1229, -55.6));
+				sleep(8);
+				if (Map.elevatorPos==1)
+				{
+					//failed, get out
+					_this.Goto(Vec3(4.387, 971.822, -55.875));
+				}else{
+					//wait until the elevator is down
+					while(Map.elevatorPos<4){
+						sleep(0.3);
+					}
+				}
+			},
+		},
+		elevator_down =
+		{
+			navigate = function(_this)
+			{
+				//get inside
+				_this.Goto(Vec3(21.4, 1229, -2198.8));
+				sleep(8);
+				if (Map.elevatorPos==4)
+				{
+					//failed, get out
+					_this.Goto(Vec3(-5.994, 951.788, -2206.880));
+				}else{
+					//wait until the elevator is up
+					while(Map.elevatorPos!=1){
+						sleep(0.3);
+					}
+				}
+			},
+		},
+		elevator_call =
+		{
+			EvalFunc = function(_this){
+				return (Map.elevatorPos==4 && !Map.labDestroyed || Map.elevatorPos==1 && Map.labDestroyed) &&
+				_this.Bot.GetTeam()==TEAM.ALLIES && GetTime()-Map.callElevatorTime > 9;
+			},
+			navigate = function(_this)
+			{
+				Map.callElevatorTime = GetTime();
+				_this.Goto(Vector3(120.114, 983.871, -55.875));
+				if (Map.elevatorPos==4 && !Map.labDestroyed || Map.elevatorPos==1 && Map.labDestroyed){
+					_this.AddAimRequest(Priority.High, "position", Vec3(118.7, 1037.8, -24.8));
+					sleep(0.3);
+					_this.Bot.PressButton(BTN.USE);
+				}
+			}
+		},
+	},
+
+	Switches =
+	{
+		elevator = //top
+		{
+			Enabled = true,
+			Priority = 0,
+			WaypointName = "elevator",
+			AimPosition = Vec3(118.7, 1037.8, -24.8)
+		},
+		elevator2 = //bottom
+		{
+			Enabled = true,
+			Priority = 0,
+			WaypointName = "elevator2",
+			AimPosition = Vec3(116.9, 989.8, -2201.9)
+		},
+	},
+
+	Roles =
+	{
+		AXIS =
+		{
+			DEFENDER2 =
+			{
+				numbots = 5,
+				crucialClass = CLASS.FIELDOPS,
+			},
+		},
+		ALLIES =
+		{
+			ATTACKER2 =
+			{
+				numbots = 3,
+			},
+		}
+	},
+
+
+	Main_Gate_Destroyed = function( trigger )
+	{
+		Map.gateDestroyed = true;
+		sleep(2);
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_gate.*",
+			".*MG42_gate.*",
+			".*ARTILLERY.*gate.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			".*MG42_Door.*",
+			"SNIPE_door.*",
+			"DEFEND_door.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_gate.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"PLANT_Door_Lock",
+			".*Command_Post",
+			"AMMOCAB_ammo",
+			"HEALTHCAB_health",
+			"ATTACK_door.*",
+			"ATTACK_roof.*",
+			"SMOKEBOMB_door.*",
+		});
+
+		for(i=1; i<=3; i+=1)
+		{
+			if(Map.windowDestroyed[i]) {
+				SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_door_mg" + i);
+			}
+		}
+		SetGoalPriority( "DEFEND_window.", 0.79);
+
+		Util.MapDebugPrint( "Main_Gate_Destroyed" );
+	},
+
+	Door_Lock_Destroyed = function( trigger )
+	{
+		sleep(8);
+		Map.SetLab(true);
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"SNIPE_door.*",
+			"DEFEND_door.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"ATTACK_door.*",
+			"ATTACK_roof.*",
+			"SMOKEBOMB_door.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Lab" );
+		Util.EnableGoal( "AMMOCAB_ammo_1" );
+		Util.EnableGoal( "HEALTHCAB_health_1" );
+
+		SetGoalPriority( "DEFEND_door.*", 0.45);
+		SetGoalPriority( "GRENADE_door.*", 0.49);
+		SetGoalPriority( "GRENADE_door.*", 0.65, TEAM.ALLIES, CLASS.FIELDOPS);
+		Util.SetGoalRange("BUILD_Neutral_Command_Post", 2700);
+
+		WeaponTable.SetWeaponAvailability(CLASS.SOLDIER, WEAPON.FLAMETHROWER, true);
+		Util.MapDebugPrint( "Door_Lock_Destroyed" );
+	},
+
+	Lab_Destroyed = function( trigger )
+	{
+		Map.labDestroyed = true;
+		Map.SetLab(false);
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cap.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"FLAG_allied_gold",
+			"CAPPOINT_truck",
+			"ATTACK_cap.*",
+		});
+
+		SetGoalPriority( "PLANT_Neutral_Command_Post", 0.9);
+
+		Util.EnableGoal(".*MG42_gate.*");
+		SetGoalPriority( "MOUNTMG42.*", 0.5);
+		ClearGoalRole("MOUNTMG42_gate.*", ROLE.DEFENDER2);
+
+		WeaponTable.SetWeaponAvailability(CLASS.SOLDIER, WEAPON.FLAMETHROWER, false);
+		Util.MapDebugPrint( "Lab_Destroyed" );
+	},
+
+	SetLab = function(b)
+	{
+		SetAvailableMapGoals( TEAM.AXIS, b, {
+			"DEFEND_lab.*",
+			"TRIPMINE_lab.*",
+			"MOBILEMG42_lab.*",
+			".*MG42_lower",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, b, "ATTACK_lab.*" );
+	},
+
+
+	allied_gold_Taken = function( trigger )
+	{
+		Util.ChangeSpawn( TEAM.ALLIES, 3); //command post
+		Util.MapDebugPrint( "allied_gold_Taken" );
+	},
+
+	allied_gold_Returned = function( trigger )
+	{
+		Util.ChangeSpawn( TEAM.ALLIES, 4); //lab
+		Util.MapDebugPrint( "allied_gold_Returned" );
+	},
+
+	allied_gold_Secured = function( trigger )
+	{
+		ETUtil.WinningChat( TEAM.ALLIES );
+		ETUtil.LosingChat( TEAM.AXIS );
+		Util.MapDebugPrint( "allied_gold_Secured" );
+	},
+
+
+	window_Destroyed = function( i )
+	{
+		Map.windowDestroyed[i] = true;
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_window" + i );
+		if(Map.gateDestroyed){
+			SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_door_mg" + i);
+		}
+		Util.MapDebugPrint( "window_Destroyed " + i );
+	},
+	window1_Destroyed = function( trigger )
+	{
+		Map.window_Destroyed(1);
+	},
+	window2_Destroyed = function( trigger )
+	{
+		Map.window_Destroyed(2);
+	},
+	window3_Destroyed = function( trigger )
+	{
+		Map.window_Destroyed(3);
+	},
+
+
+	elever_goto = function( trigger )
+	{
+		if (ToVector(trigger.Action).z > 0)
+		{
+			Map.Switches.elevator2.Enabled = false;
+			Util.MapDebugPrint( "elevator door closing" );
+		}else{
+			Map.Switches.elevator.Enabled = false;
+			Util.MapDebugPrint( "elevator door closing" );
+		}
+	},
+
+	elev_door_topl_goto = function( trigger )
+	{
+		if (ToVector(trigger.Action).x < 0)
+		{
+			Map.Switches.elevator.Enabled = true;
+			Wp.SetWaypointFlag("elevator_up", "closed", false);
+			Map.elevatorPos = 1;
+			Util.MapDebugPrint( "elevator up" );
+		}else{
+			sleep(1.7);
+			Map.elevatorPos = 3;
+			Util.MapDebugPrint( "elevator moving down" );
+			Wp.SetWaypointFlag("elevator_up", "closed", true);
+		}
+	},
+
+	elev_door_botl_goto = function( trigger )
+	{
+		if (ToVector(trigger.Action).x <= 0)
+		{
+			sleep(0.5);
+			Map.Switches.elevator2.Enabled = true;
+			Wp.SetWaypointFlag("elevator_down", "closed", false);
+			Map.elevatorPos = 4;
+			Util.MapDebugPrint( "elevator down" );
+			sleep(15);
+		}else{
+			sleep(1.7);
+			Map.elevatorPos = 5;
+			Util.MapDebugPrint( "elevator moving up" );
+			Wp.SetWaypointFlag("elevator_down", "closed", true);
+		}
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	OnTrigger( "The allies destroyed the Main Gate. Deffend the Door Lock!", Map.Main_Gate_Destroyed );
+	OnTrigger( "The allied team has destroyed the door locking mechanism and gained acc" /*ess to the lower base!"*/, Map.Door_Lock_Destroyed );
+	OnTrigger( "Allies have destroyed the lab!", Map.Lab_Destroyed );
+	OnTrigger( "Allies have taken the Axis gold!", Map.allied_gold_Taken );
+	OnTrigger( "Flag returned allied_gold!", Map.allied_gold_Returned );
+	OnTrigger( "The Allies have secured the Axis gold", Map.allied_gold_Secured );
+	OnTrigger( "GRENADE_window1 Exploded.", Map.window1_Destroyed );
+	OnTrigger( "GRENADE_window2 Exploded.", Map.window2_Destroyed );
+	OnTrigger( "GRENADE_window3 Exploded.", Map.window3_Destroyed );
+	OnTrigger( "lever3_goto", Map.elever_goto );
+	OnTrigger( "elev_door_topl_goto", Map.elev_door_topl_goto );
+	OnTrigger( "elev_door_botl_goto", Map.elev_door_botl_goto );
+
+	OnTriggerRegion(AABB(-563.898,-626.583,609.125,578.451,825.866,721.349),RegionTrigger.DisableCombatMovement); //roof
+
+	Util.DisableGoal( ".*", true );
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		".*MG42_gate.*",
+		".*Command_Post",
+		"AMMOCAB_ammo",
+		"DEFEND_gate.*",
+		"DEFEND_window.",
+		".*ARTILLERY.*gate.*",
+	});
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"PLANT_Axis_Gate",
+		"ATTACK_gate.*",
+	});
+
+	SetGoalPriority( "DEFEND_window.", 0.1);
+	SetGoalPriority( "FLAG_allied_gold", 0.61);
+	SetGoalPriority( "GRENADE.*", 0.6);
+	SetGoalPriority( "ATTACK_roof.*", 0.61);
+	SetGoalPriority( "DEFUSE_Neutral_Command_Post.*", 0.8, TEAM.ALLIES, CLASS.ENGINEER, true);
+	SetGoalPriority( "REPAIRMG42_Door.*", 0.82);
+	SetGoalPriority( "TRIPMINE.*", 0.82 );
+	SetGoalPriority( "REPAIRMG42_lower", 0.86);
+	SetGoalPriority( "SNIPE.*", 0.81);
+	SetGoalPriority( "MOUNTMG42.*", 0.6, TEAM.AXIS);
+	SetGoalPriority( "MOUNTMG42_Door.*", 0.4, TEAM.AXIS, CLASS.MEDIC);
+	SetGoalPriority( "MOUNTMG42_Door.*", 0.4, TEAM.AXIS, CLASS.FIELDOPS);
+	SetGoalPriority( "MOUNTMG42_Door.*", 0.4, TEAM.AXIS, CLASS.COVERTOPS);
+
+	Util.SetRoleForTable({ "ATTACK_roof.*", "ATTACK_cap_e.*" }, ROLE.ATTACKER2);
+	Util.SetRoleForTable({ "MOUNTMG42_gate.*", "DEFEND_gate_mg.*", "DEFEND_cap_e.*" }, ROLE.DEFENDER2);
+
+	Util.SetGoalRange("BUILD_Neutral_Command_Post", 0);
+
+	// Max users per goal
+	foreach (goal in { "DEFEND_.*", ".*MG42_.*", "GRENADE_.*",
+		"SNIPE_.*", ".*Command_Post", "REPAIRMG42_lower" }){
+		Util.SetMaxUsers(1, goal);
+	}
+	Util.SetMaxUsersInUse(1, "PLANT_Axis_Gate");
+	Util.SetMaxUsersInUse(1, "PLANT_Door_Lock");
+	Util.SetMaxUsersInProgress(2, "DEFEND_gate4");
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_Door.*", {MinCampTime=15, MaxCampTime=25} );
+	SetMapGoalProperties( "MOUNTMG42_lower", {MinCampTime=40, MaxCampTime=100} );
+	SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=30, MaxCampTime=90} );
+	SetMapGoalProperties( "DEFEND_door.*", {MinCampTime=15, MaxCampTime=70} );
+	SetMapGoalProperties( "DEFEND_gate.*", {MinCampTime=15, MaxCampTime=70} );
+
+	Util.SetGoalOffset(0, 10, -10, "MOUNTMG42_lower");
+	Util.SetGoalOffset(0, 10, 0, "MOUNTMG42_gate_west");
+	Util.SetGoalOffset(0, 10, 0, "MOUNTMG42_gate_east");
+	Util.AddUsePoint( "PLANT_Axis_Lab", { Vec3(2049.633, 277.719, -2431.875), Vec3(2277.201, 272.825, -2431.875) });
+
+	Wp.SetWaypointFlag("elevator_up", "closed", false);
+	Wp.SetWaypointFlag("elevator_down", "closed", true);
+
+	WeaponTable.SetWeaponAvailability(CLASS.SOLDIER, WEAPON.FLAMETHROWER, false);
+
+	Util.UpdateSwitchData();
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_Axis_Gate = {
+			ROUTE_allied_spawn = {
+				ROUTE_allied_main = {},
+				ROUTE_allied_west = { Weight=2.5,
+					ROUTE_allied_center = {},
+					ROUTE_allied_east = {},
+				},
+			}
+		},
+		MOUNTMG42_Door1 = {
+			ROUTE_lower_spawn = {
+				ROUTE_stairs_e = {},
+				ROUTE_stairs_w = {},
+			}
+		},
+		PLANT_Door_Lock = {
+			ROUTE_allied_spawn = {
+				ROUTE_side = { Weight=6,
+					ROUTE_hall1 = {},
+					ROUTE_hall2 = {},
+					ROUTE_hall3 = {},
+					ROUTE_hall4 = {},
+				},
+				ROUTE_hall5 = { Weight=2 },
+				ROUTE_hall6 = {},
+				ROUTE_hall7 = {},
+				ROUTE_hall8 = { Weight=2 },
+			},
+		},
+		ATTACK_door1 = {
+			ROUTE_allied_spawn = {
+				ROUTE_side = {}
+			},
+		},
+		ATTACK_door3 = {
+			ROUTE_allied_spawn = {
+				ROUTE_roof = {}
+			},
+		},
+		PLANT_Neutral_Command_Post = {
+			ROUTE_axis_spawn = {
+				ROUTE_side = {},
+			}
+		},
+		PLANT_Axis_Lab = {
+			ROUTE_cp_spawn = {
+				ROUTE_side = {
+					ROUTE_stairs_e = {
+						ROUTE_lab1 = {},
+						ROUTE_lab2 = {},
+						ROUTE_lab_lower = { Weight=2 },
+					},
+					ROUTE_elevator = {
+						ROUTE_lower_back = { Weight=2 },
+						ROUTE_lab1 = {},
+						ROUTE_lab2 = {},
+					},
+					ROUTE_stairs_w = { Weight=1.6,
+						ROUTE_lower_back = {},
+					},
+				},
+				ROUTE_stairs_e = { Weight=0.6, },
+				ROUTE_elevator = {},
+				ROUTE_stairs_w = {},
+			},
+			ROUTE_allied_spawn = {
+				ROUTE_stairs_e = {},
+				ROUTE_stairs_w = {},
+				ROUTE_elevator = {},
+			},
+		},
+		CAPPOINT_truck = {
+			ROUTE_gold = {
+				ROUTE_stairs_e = { Weight=0.6,
+					ROUTE_allied_east = { ROUTE_allied_west = {}},
+				},
+				ROUTE_stairs_w = {},
+				ROUTE_elevator2 = {},
+			},
+		},
+	};
+	MapRoutes["ATTACK_cap.*"] = {
+		ROUTE_lab_spawn = {
+			ROUTE_stairs_e = { Weight=0.6,
+				ROUTE_allied_east = { ROUTE_allied_west = {}},
+			},
+			ROUTE_stairs_w = {},
+			ROUTE_elevator2 = {},
+		},
+	};
+	MapRoutes["DEFEND_cap_e.*"] = {
+		ROUTE_tent_spawn = {
+			ROUTE_allied_east = {},
+		}
+	};
+	MapRoutes["ATTACK_gate.*"] = MapRoutes.PLANT_Axis_Gate;
+	MapRoutes["GRENADE_door_mg.*"] = MapRoutes.PLANT_Door_Lock;
+	MapRoutes.ATTACK_door5 = MapRoutes.PLANT_Door_Lock;
+	MapRoutes.ATTACK_door2 = MapRoutes.ATTACK_door1;
+	MapRoutes.BUILD_Neutral_Command_Post = MapRoutes.PLANT_Neutral_Command_Post;
+	MapRoutes.DEFEND_door12 = MapRoutes.PLANT_Neutral_Command_Post;
+	MapRoutes.DEFEND_door10 = MapRoutes.DEFEND_door12;
+	MapRoutes.DEFEND_door8 = MapRoutes.DEFEND_door12;
+	MapRoutes.SNIPE_door4 = MapRoutes.DEFEND_door12;
+	MapRoutes.MOUNTMG42_Door2 = MapRoutes.MOUNTMG42_Door1;
+	MapRoutes.MOUNTMG42_Door_Lock = MapRoutes.MOUNTMG42_Door1;
+	MapRoutes.REPAIRMG42_Door1 = MapRoutes.MOUNTMG42_Door1;
+	MapRoutes.REPAIRMG42_Door2 = MapRoutes.MOUNTMG42_Door2;
+	MapRoutes.REPAIRMG42_Door_Lock = MapRoutes.MOUNTMG42_Door_Lock;
+	MapRoutes["ATTACK_lab.*"] = MapRoutes.PLANT_Axis_Lab;
+	Util.Routes(MapRoutes);
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 250.0;
+	foreach ( weap in { WEAPON.THOMPSON,WEAPON.MP40,WEAPON.SHOTGUN } )
+	{
+		w = bot.GetWeapon(weap);
+		if(w){ w.PrimaryFire.SetTargetBias(CLASS.BREAKABLE, 1.2); }
+	}
+};

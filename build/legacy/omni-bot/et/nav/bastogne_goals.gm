@@ -1,0 +1,281 @@
+global _MG = 
+{
+	AMMOCAB_ammo = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-928.000, -1600.000, -1184.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	CAMP_AlliedGold = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.980, -0.200, 0.006),
+			[1] = Vec3(-0.998, 0.061, -0.006),
+			[2] = Vec3(-0.995, -0.102, 0.006),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-1427.397, 1269.223, -1215.875),
+		Radius = 32,
+	},
+	CAMP_AlliedGold_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.977, -0.187, -0.105),
+			[1] = Vec3(-0.990, 0.072, -0.119),
+			[2] = Vec3(-0.331, 0.899, -0.286),
+			[3] = Vec3(0.012, 0.961, -0.275),
+			[4] = Vec3(-0.994, -0.052, -0.094),
+			[5] = Vec3(-0.151, 0.946, -0.286),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-1418.125, 932.526, -1126.875),
+		Radius = 32,
+		TagName = "AlliedGold",
+	},
+	CAMP_AlliedGold_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.390, 0.912, -0.128),
+			[1] = Vec3(-0.636, 0.772, 0.000),
+			[2] = Vec3(-0.998, -0.062, 0.004),
+			[3] = Vec3(-0.360, -0.929, -0.086),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-1578.125, 817.227, -1158.875),
+		Radius = 32,
+		TagName = "AlliedGold",
+	},
+	CAMP_AlliedGold_3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.446, 0.889, -0.103),
+			[1] = Vec3(0.335, 0.934, -0.123),
+			[2] = Vec3(0.571, 0.821, -0.002),
+			[3] = Vec3(0.998, 0.057, -0.002),
+			[4] = Vec3(0.350, -0.932, -0.092),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-1893.875, 796.992, -1158.875),
+		Radius = 32,
+		TagName = "AlliedGold",
+	},
+	CAMP_AxisGold = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.978, -0.208, -0.008),
+			[1] = Vec3(-0.997, 0.080, 0.019),
+			[2] = Vec3(-0.996, -0.084, -0.004),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(350.396, 1276.841, -1214.875),
+		Radius = 32,
+	},
+	CAMP_AxisGold_1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.983, -0.156, -0.102),
+			[1] = Vec3(-0.987, 0.147, -0.063),
+			[2] = Vec3(-0.998, -0.017, -0.059),
+			[3] = Vec3(-0.276, 0.929, -0.247),
+			[4] = Vec3(-0.015, 0.973, -0.232),
+			[5] = Vec3(-0.112, 0.954, -0.277),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(365.874, 932.918, -1126.875),
+		Radius = 32,
+		TagName = "AxisGold",
+	},
+	CAMP_AxisGold_2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.354, 0.926, -0.132),
+			[1] = Vec3(0.564, 0.826, -0.015),
+			[2] = Vec3(0.906, 0.424, -0.015),
+			[3] = Vec3(0.978, -0.206, -0.015),
+			[4] = Vec3(0.332, -0.938, -0.096),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(-104.424, 830.229, -1158.875),
+		Radius = 32,
+		TagName = "AxisGold",
+	},
+	CAMP_AxisGold_3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.330, 0.934, -0.134),
+			[1] = Vec3(-0.552, 0.834, -0.012),
+			[2] = Vec3(-0.949, 0.314, -0.002),
+			[3] = Vec3(-0.887, -0.461, -0.008),
+			[4] = Vec3(-0.332, -0.936, -0.113),
+		},
+		GoalType = "CAMP",
+		MaxCampTime = 20,
+		MinCampTime = 10,
+		MinRadius = 32,
+		Position = Vec3(181.062, 860.230, -1158.875),
+		Radius = 32,
+		TagName = "AxisGold",
+	},
+	CAPPOINT_alliedgoldstorage = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(-1742.294, 820.154, -1158.875),
+	},
+	CAPPOINT_axisgoldstorage = 
+	{
+		GoalType = "CapPoint",
+		MinRadius = 32,
+		Position = Vec3(59.403, 797.050, -1158.875),
+	},
+	FLAG_allies_gold_crate = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(-1475.000, 938.000, -1122.875),
+		TeamAvailability = 2,
+	},
+	FLAG_axis_gold_crate = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		Position = Vec3(328.000, 919.000, -1122.875),
+		TeamAvailability = 4,
+	},
+	HEALTHCAB_health = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-960.000, 1656.000, -1184.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	ROUTE_Allied = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1739.741, -1158.793, -1214.875),
+		Radius = 125,
+	},
+	ROUTE_Allied_1 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1728.486, -444.556, -1203.537),
+		Radius = 125,
+		TagName = "Allied",
+	},
+	ROUTE_Allied_2 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1731.116, 966.941, -1158.875),
+		Radius = 125,
+		TagName = "Allied",
+	},
+	ROUTE_Allied_3 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1415.568, 1594.832, -1214.875),
+		Radius = 125,
+		TagName = "Allied",
+	},
+	ROUTE_Allied_4 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-267.296, 1608.059, -1214.875),
+		Radius = 125,
+		TagName = "Allied",
+	},
+	ROUTE_Allied_5 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(45.135, 1257.567, -1214.875),
+		Radius = 125,
+		TagName = "Allied",
+	},
+	ROUTE_Allied_6 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(325.137, 1234.610, -1214.875),
+		Radius = 125,
+		TagName = "Allied",
+	},
+	ROUTE_Axis = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(51.795, -1157.582, -1214.845),
+		Radius = 125,
+	},
+	ROUTE_Axis_1 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(58.031, -150.165, -1200.875),
+		Radius = 125,
+		TagName = "Axis",
+	},
+	ROUTE_Axis_2 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(48.237, 1356.261, -1214.874),
+		Radius = 125,
+		TagName = "Axis",
+	},
+	ROUTE_Axis_3 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-603.147, 1601.810, -1214.874),
+		Radius = 125,
+		TagName = "Axis",
+	},
+	ROUTE_Axis_4 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1620.646, 1603.968, -1214.874),
+		Radius = 125,
+		TagName = "Axis",
+	},
+	ROUTE_Axis_5 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1746.447, 1261.703, -1214.874),
+		Radius = 125,
+		TagName = "Axis",
+	},
+	ROUTE_Axis_6 = 
+	{
+		GoalType = "ROUTE",
+		Position = Vec3(-1466.934, 1225.273, -1214.875),
+		Radius = 125,
+		TagName = "Axis",
+	},
+	Version = 1,
+};

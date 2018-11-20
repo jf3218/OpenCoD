@@ -1,0 +1,15 @@
+if (GetModName()!="etpub" || GetCvar("g_etnamFlags")==0){ return; }
+
+WEAPON.NAPALM_MARKER = 101;
+this.Name = "Napalm Marker";
+this.WeaponId = WEAPON.NAPALM_MARKER;
+
+this.PrimaryFire.WeaponType = "grenade";
+this.PrimaryFire.ProjectileGravity = 1.0;
+this.PrimaryFire.FireOnRelease = true;
+this.PrimaryFire.NeedsCharged = true;
+this.PrimaryFire.SetTargetBias(CLASS.VEHICLE_HVY, 1);
+this.PrimaryFire.SetDesirabilityRange(500, 1000, 0.8);
+this.PrimaryFire.RequiresTargetOutside = true;
+this.PrimaryFire.RequiresShooterOutside = false;
+this.PrimaryFire.IgnoreReload = true;

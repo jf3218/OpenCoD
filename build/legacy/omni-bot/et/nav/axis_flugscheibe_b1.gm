@@ -1,0 +1,621 @@
+//==========================================================================================
+//
+//	axis_flugscheibe_b1.gm
+//
+//	Who          	When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Captain	21 March 2017	Initial Script
+//
+//==========================================================================================
+//
+// phase 1, Allies Plant Fence, Main Gate ,Rooftop Access,Built Assault Ramp.
+// phase 2, Allies Plant UFO Cargo ,Capture Flag spawn
+// phase 3, Steal goal crate and Desactive 2 generators security Door
+// phase 4, Allied team inserted the Transmitter 
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+
+      //set status' for conditionals
+	securitydoor = false,
+	maingate = false,
+	cratetaken = false,
+	elevator_opening = false,
+	phase = 1,
+	Navigation =
+	{
+		//  /bot waypoint_setproperty paththrough Navigation_PT:elevator_wait
+		elevator_wait =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("ufo", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					if ( Map.elevator_opening == true )
+					{
+					sleep(3);
+					_this.ReleaseAimRequest();
+					}
+					else if ( Map.elevator_opening == false )
+					{
+					_this.Bot.HoldButton(BTN.BACKWARD, 1);
+					 sleep(0.6);
+					_this.ReleaseAimRequest();
+					}
+				}
+			},
+		},		
+	},
+
+        //lift UFO
+	elevator_ufo = function( trigger )
+	{
+		if ( trigger.Action == "opening" )
+		{
+		Map.elevator_opening = true;
+		  Util.MapDebugPrint("Elevator UFO at Top");
+		}
+		else if ( trigger.Action == "closing" )
+		{
+		Map.elevator_opening = false;
+                  Util.MapDebugPrint("Elevator UFO at Bottom");
+		}
+	},
+	
+	Assault_Ramp_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Assault.*" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Assault.*" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Assault.*" );
+	}
+	        Util.EnableGoal("ROUTE_assault");
+		Util.MapDebugPrint( "Assault_Ramp_Built" );
+	},
+
+	Assault_Ramp_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Assault.*" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Assault.*" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Assault.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Assault.*" );
+	}
+	        Util.DisableGoal("ROUTE_assault");
+		Util.MapDebugPrint( "Assault_Ramp_Destroyed" );
+	},
+	
+	Axis_Command_Post_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Command_Post" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Post" );
+	}
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+	
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Command_Post" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Command_Post" );
+	}
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+
+	Allied_Command_Post_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_Command_Post" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Allied_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_Command_Post" );
+	}
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+	
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Allied_Command_Post" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_Command_Post" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Allied_Command_Post" );
+	}
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+	
+	Fence_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Fence" );
+	if ( Map.phase < 2 )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Fence" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Fence" );
+	}
+	    Util.DisableGoal("ROUTE_fence");
+		Util.MapDebugPrint( "Fence_Built" );
+	},
+	
+	Fence_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Fence" );
+	if ( Map.maingate == false )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Fence" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUID_Fence" );
+	} 
+	    Util.EnableGoal("ROUTE_fence");
+		Util.MapDebugPrint( "Fence_Destroyed" );
+	},
+
+	Main_Gate_Destroyed = function( trigger )
+	{
+	Map.maingate = true:
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"ATTACK_fence.*","ATTACK_assault.*","ATTACK_gate.*"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"ATTACK_roof.*","PLANT_Rooftop_Access"} );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, {"DEFEND_gate.*","DEFEND_fence.*"} );
+	
+		Util.MapDebugPrint( "Main_Gate_Destroyed" );
+	},
+
+	Rooftop_Access_Destroyed = function( trigger )
+	{
+	Map.phase = 2;
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"PLANT_UFO_Cargo","CHECKPOINT_.*","ATTACK_ufo.*","SWITCH_gates"} );
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"BUILD_Assault.*","ATTACK_roof.*","PLANT_Fence"} );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, {"CHECKPOINT_.*","DEFEND_ufo.*","DEFEND_inside_ufo.*","PLANTMINE_ufo.*",".*MG42_1193"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, {"BUILD_Fence","DEFEND_Fence.*","DEFEND_roof.*","PLANT_Assault.*","BUILD_Axis_.*","PLANT_Allied.*"} );
+	
+		Util.MapDebugPrint( "Rooftop_Access_Destroyed" );
+	},
+
+	UFO_Cargo_Destroyed = function( trigger )
+	{
+	Map.phase = 3;
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"PLANT_UFO_Cargo","ATTACK_ufo.*","SWITCH_gates"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"SWITCH_north","SWITCH_south","ATTACK_switch.*"} );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, {"DEFEND_ufo.*","DEFEND_inside_ufo.*","PLANTMINE_ufo.*",".*MG42_1193","SWITCH_gates"} );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_flag.*" );
+	
+		Util.MapDebugPrint( "UFO_Cargo_Destroyed" );
+	},
+
+	gold_crate_Taken = function( trigger )
+	{
+	Map.cratetaken = true;
+	SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_gold_crate" );
+	
+	if ( Map.securitydoor == true )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_cappoint.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_switch.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_flag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cappoint.*" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_cappoint.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_switch.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_flag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cappoint.*" );
+	}
+		Util.MapDebugPrint( "gold_crate_Taken" );
+	},
+
+	gold_crate_Returned = function( trigger )
+	{
+	Map.cratetaken = false;
+	if ( Map.securitydoor == true )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"ATTACK_cappoint.*","FLAG_gold_crate"} );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_switch.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_flag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cappoint.*" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"ATTACK_cappoint.*","FLAG_gold_crate"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_switch.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_flag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cappoint.*" );
+	}
+	
+		Util.MapDebugPrint( "gold_crate_Returned" );
+	},
+
+	gold_crate_Secured = function( trigger )
+	{
+	Map.phase = 4;
+	
+		Util.MapDebugPrint( "gold_crate_Secured" );
+	},
+
+	forwardspawn1_flag_Axis_Captured = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_.*" );
+	
+		Util.MapDebugPrint( "forwardspawn1_flag_Axis_Captured" );
+	},
+
+	forwardspawn1_flag_Allies_Captured = function( trigger )
+	{
+	if ( Map.securitydoor == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "CHECKPOINT_.*" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_.*" );
+	}
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_.*" );
+	
+		Util.MapDebugPrint( "forwardspawn1_flag_Allies_Captured" );
+	},
+	
+	generator_north_off = function( trigger )
+	{
+		
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_north" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_north" );
+	
+		Util.MapDebugPrint( "generator_north_off" );
+	},
+
+	generator_north_on = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_north" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_north" );
+	
+		Util.MapDebugPrint( "generator_north_on" );
+	},
+	
+	generator_south_off = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_south" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_south" );
+	
+		Util.MapDebugPrint( "generator_south_off" );
+	},
+
+	generator_south_on = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_south" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_south" );
+	
+		Util.MapDebugPrint( "generator_south_on" );
+	},
+	
+	gates_opened = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_gates" );
+	if ( Map.phase < 3 )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_gates" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_gates" );
+	}
+		Util.MapDebugPrint( "gates_opened" );
+	},
+
+	gates_closed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_gates" );
+	if ( Map.phase > 3 )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_gates" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_gates" );
+	}
+		Util.MapDebugPrint( "gates_closed" );
+	},
+	
+	security_door_opened = function( trigger )
+	{
+	Map.securitydoor = true;
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"CAPPOINT_crate","FLAG_gold_crate"} );
+	if ( Map.cratetaken == true )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_cappoint.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_switch.*" );
+	}
+	else
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_cappoint.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_switch.*" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_cappoint.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, {"DEFEND_flag.*","CHECKPOINT_.*"} );
+	
+		Util.MapDebugPrint( "security_door_opened" );
+	},
+
+	security_door_closed = function( trigger )
+	{
+	Map.securitydoor = false;
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"CAPPOINT_crate","FLAG_gold_crate"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_switch.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_cappoint.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, {"DEFEND_flag.*","CHECKPOINT_.*"} );
+	
+		Util.MapDebugPrint( "security_door_closed" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_Command_Post_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_Command_Post_Destroyed );
+	
+	OnTrigger( "Assault Ramp constructed.", Map.Assault_Ramp_Built );
+	OnTrigger( "Assault Ramp destroyed.", Map.Assault_Ramp_Destroyed );
+	OnTrigger( "Axis have rebuilt the fence.", Map.Fence_Built );
+	OnTrigger( "Allies have destroyed the fence.", Map.Fence_Destroyed );
+	OnTrigger( "^3Allies have destroyed the Gate!", Map.Main_Gate_Destroyed );
+        OnTrigger( "Allies destroyed Rooftop Entrance!", Map.Rooftop_Access_Destroyed );
+	
+	OnTrigger( "^3Allies have destroyed the UFO Cargo!", Map.UFO_Cargo_Destroyed );
+	OnTrigger( "Gates are now open!", Map.gates_opened );
+	OnTrigger( "Gates are now closed!", Map.gates_closed );
+	OnTrigger( "^1Axis reclaim the Forward Spawn!", Map.forwardspawn1_flag_Axis_Captured );
+	OnTrigger( "^3Allies capture the Forward Spawn!", Map.forwardspawn1_flag_Allies_Captured );
+	
+	OnTrigger( "^3Generator North on!", Map.generator_north_on );
+	OnTrigger( "^1Generator North off!", Map.generator_north_off );
+	OnTrigger( "^3Generator South on!", Map.generator_south_on );
+	OnTrigger( "^1Generator South off!", Map.generator_south_off );
+	OnTrigger( "^3Both Generators activated security Doors opening!", Map.security_door_opened );
+	OnTrigger( "^3Both Generators deactivated security Doors closing!", Map.security_door_closed );
+	OnTrigger( "Allies have stolen The Radar Prototype!", Map.gold_crate_Taken );
+	OnTrigger( "Axis have returned The Radar Prototype!", Map.gold_crate_Returned );
+	OnTrigger( "Allied team inserted the Transmitter!", Map.gold_crate_Secured );
+        OnTrigger( "dooor_Moving", Map.elevator_ufo );
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	//activation ALLIES
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+	"PLANT_Fence",
+	"PLANT_Main_Gate",
+	"BUILD_Assault_Ramp",
+	"BUILD_Allied_Command.*",
+	"ATTACK_assault.*",
+	"ATTACK_fence.*",
+	".*CAB.*",
+	});
+	
+	//activation AXIS
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+	"DEFEND_gate.*",
+	"DEFEND_roof.*",
+	"DEFEND_fence.*",
+	"BUILD_Axis_Command.*",
+	".*CAB.*",
+	});
+	//Offset Plant Fix
+	Util.SetGoalOffset( -180, 120, 150, "PLANT_Assault_Ramp" );
+
+	
+	// Max users per goal
+	Util.SetMaxUsers( 1, ".*MG42.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "CHECKPOINT.*" );
+	Util.SetMaxUsers( 1, "FLAG.*" );
+	Util.SetMaxUsers( 1, "CAPPOINT.*" );
+	Util.SetMaxUsers( 1, "PLANT.*" );
+	Util.SetMaxUsers( 1, "BUILD.*" );
+	Util.SetMaxUsers( 1, "SWITCH.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=60, MaxCampTime=90} );
+	SetMapGoalProperties( "DEFEND.*", {MinCampTime=45, MaxCampTime=60} );
+        SetMapGoalProperties( "ATTACK.*", {MinCampTime=40, MaxCampTime=60} );
+	
+	// Priority
+	SetGoalPriority( "PLANT_Main_Gate", 0.93 );	
+	SetGoalPriority( "PLANT_Rooftop_Access", 0.92 );
+	SetGoalPriority( "CHECKPOINT.*", 0.92 );
+	SetGoalPriority( "DEFEND_inside_ufo.*", 0.93 );
+	SetGoalPriority( "BUILD_Allied_Command_Post", 0.92 );
+	SetGoalPriority( "BUILD_Assault_Ramp", 0.93 );
+	SetGoalPriority( "SWITCH_gates", 0.94 );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Assault_Ramp = 
+		{
+			ROUTE_first_spawn_allies  = 
+			{
+				ROUTE_left_a  = 
+				{
+				},
+				ROUTE_left_b  = 
+				{
+				},
+			},
+		},
+		BUILD_Allied_Command_Post = 
+		{
+			ROUTE_first_spawn_allies  = 
+			{
+				ROUTE_right_a  = 
+				{
+				},
+				ROUTE_right_b  = 
+				{
+				},
+			},
+		},
+		PLANT_Fence = 
+		{
+			ROUTE_first_spawn_allies  = 
+			{
+				ROUTE_right_a  = 
+				{
+				},
+				ROUTE_right_b  = 
+				{
+				},
+			},
+		},
+		PLANT_Main_Gate = 
+		{
+			ROUTE_first_spawn_allies  = 
+			{
+				ROUTE_left_b  = 
+				{
+				},
+				ROUTE_left_a  = 
+				{
+				},
+				ROUTE_right_a  = 
+				{
+				},
+				ROUTE_right_b  = 
+				{
+				},
+			},
+		},
+		BUILD_Fence =
+		{
+		},
+		FLAG_gold_crate =
+		{
+		},
+		PLANT_Assault_Ramp =
+		{
+		},
+		PLANT_Rooftop_Access = 
+		{
+			ROUTE_first_spawn_allies  = 
+			{
+				ROUTE_right_a  = 
+				{
+					ROUTE_gate  = 
+					{
+					},
+					ROUTE_fence  = 
+					{
+					},
+				},
+				ROUTE_right_b  = 
+				{
+					ROUTE_gate  = 
+					{
+					},
+					ROUTE_fence  = 
+					{
+					},
+				},
+				ROUTE_left_a  = 
+				{
+					ROUTE_assault  = 
+					{
+					},
+					ROUTE_gate  = 
+					{
+					},
+				},
+				ROUTE_left_b  = 
+				{
+					ROUTE_assault  = 
+					{
+					},
+					ROUTE_gate  = 
+					{
+					},
+				},
+			},
+		},
+		PLANT_Allied_Command_Post =
+		{
+		},
+		BUILD_Axis_Command_Post =
+		{
+		},
+		PLANT_Axis_Command_Post =
+		{
+		},
+		CHECKPOINT_forwardspawn1_flag =
+		{
+		},
+		PLANT_UFO_Cargo =
+		{
+		},
+	};
+	MapRoutes["ATTACK_assault.*"] = MapRoutes.BUILD_Allied_Command_Post ;
+	MapRoutes["ATTACK_fence.*"] = MapRoutes.PLANT_Main_Gate ;
+	MapRoutes["ATTACK_gate.*"] = MapRoutes.PLANT_Main_Gate ;
+	MapRoutes["ATTACK_roof.*"] = MapRoutes.PLANT_Rooftop_Access ;
+	Util.Routes(MapRoutes);
+};

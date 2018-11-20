@@ -1,0 +1,326 @@
+global _MG = 
+{
+	ATTACK_66 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.207, -0.978, -0.012),
+			[1] = Vec3(0.605, -0.795, -0.052),
+		},
+		GoalType = "Attack",
+		Radius = 25,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		Position = Vec3(-133.359, 417.008, -199.875),
+	},
+	SNIPE_95 = 
+	{
+		TeamAvailability = 2,
+		AimVectors = 
+		{
+			[0] = Vec3(0.351, 0.746, -0.565),
+			[1] = Vec3(0.544, 0.425, -0.723),
+		},
+		GoalType = "Snipe",
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		Radius = 15,
+		MinRadius = 10,
+		MinCampTime = 5,
+		Stance = "crouch",
+		MaxCampTime = 30,
+		Position = Vec3(-219.885, -326.247, 304.125),
+	},
+	FLAG_goldbox_altar = 
+	{
+		TagName = "goldbox_altar",
+		CreateOnLoad = 0,
+		GoalType = "Flag",
+		TeamAvailability = 4,
+		Position = Vec3(0.000, 320.000, -183.875),
+	},
+	ATTACK_40 = 
+	{
+		TeamAvailability = 2,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.653, -0.758, -0.000),
+			[1] = Vec3(-0.941, -0.336, -0.040),
+			[2] = Vec3(-0.287, -0.958, -0.017),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		Position = Vec3(455.104, 179.920, -255.875),
+	},
+	ROUTE_allies_route1 = 
+	{
+		TagName = "allies_route1",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(-142.401, -298.853, -248.896),
+		Radius = 35,
+	},
+	ROUTE_allies_route2 = 
+	{
+		TagName = "allies_route2",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(314.339, 64.677, -255.875),
+		Radius = 35,
+	},
+	ROUTE_balcony2 = 
+	{
+		TagName = "balcony2",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		TeamAvailability = 2,
+		Position = Vec3(21.483, -410.666, 256.125),
+		Radius = 15,
+	},
+	ROUTE_allies_route3 = 
+	{
+		TagName = "allies_route3",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(-306.351, 79.438, -255.875),
+		Radius = 35,
+	},
+	ATTACK_cappoint3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.328, -0.945, -0.017),
+			[1] = Vec3(-0.825, -0.565, -0.029),
+		},
+		GoalType = "Attack",
+		Radius = 20,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		Position = Vec3(183.691, 324.249, -510.875),
+	},
+	ATTACK_63 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.102, -0.984, 0.144),
+			[1] = Vec3(-0.604, -0.795, -0.063),
+		},
+		GoalType = "Attack",
+		Radius = 25,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		Position = Vec3(123.691, 326.621, -199.875),
+	},
+	ATTACK_attack4 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.166, -0.885, -0.436),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		Position = Vec3(-136.339, 268.188, -199.875),
+	},
+	SNIPE_19 = 
+	{
+		TeamAvailability = 2,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.369, 0.744, -0.557),
+			[1] = Vec3(-0.338, 0.682, -0.649),
+		},
+		GoalType = "Snipe",
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		MinRadius = 15,
+		MinCampTime = 5,
+		Stance = "crouch",
+		MaxCampTime = 30,
+		Position = Vec3(214.332, -349.874, 303.125),
+	},
+	ROUTE_axis_spawn = 
+	{
+		TagName = "axis_spawn",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(-10.888, -457.599, 256.125),
+		Radius = 300,
+	},
+	Version = 1,
+	ROUTE_allied_spawn = 
+	{
+		TagName = "allied_spawn",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(-53.861, 227.688, -510.875),
+		Radius = 300,
+	},
+	ATTACK_cappoint1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.010, -1.000, 0.023),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 2,
+		MaxCampTime = 20,
+		Position = Vec3(-20.753, 344.759, -510.875),
+	},
+	ATTACK_attack1 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.039, -0.995, 0.087),
+			[1] = Vec3(0.315, -0.948, 0.040),
+			[2] = Vec3(-0.452, -0.889, 0.075),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 5,
+		MaxCampTime = 20,
+		Position = Vec3(21.663, 441.522, -199.875),
+	},
+	SNIPE_balcony2 = 
+	{
+		TeamAvailability = 2,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.032, 0.887, -0.461),
+			[1] = Vec3(-0.036, 0.846, -0.532),
+		},
+		GoalType = "Snipe",
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		Radius = 15,
+		MinRadius = 10,
+		MinCampTime = 2,
+		MaxCampTime = 30,
+		Position = Vec3(21.483, -410.666, 256.125),
+	},
+	CAPPOINT_1 = 
+	{
+		TagName = "1",
+		GoalType = "CapPoint",
+		Position = Vec3(1.452, 447.866, -510.875),
+		Radius = 35,
+	},
+	ROUTE_attack1 = 
+	{
+		TagName = "attack1",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(21.663, 441.522, -199.875),
+		Radius = 35,
+	},
+	ROUTE_axis_route1 = 
+	{
+		TagName = "axis_route1",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(318.354, 453.501, -55.875),
+		Radius = 45,
+	},
+	ATTACK_attack3 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.112, -0.952, -0.285),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		Position = Vec3(-129.647, 341.219, -199.875),
+	},
+	ATTACK_attack2 = 
+	{
+		TeamAvailability = 4,
+		AimVectors = 
+		{
+			[0] = Vec3(0.815, 0.006, -0.580),
+			[1] = Vec3(0.054, -0.976, -0.212),
+		},
+		GoalType = "Attack",
+		Radius = 35,
+		MinCampTime = 2,
+		Stance = "crouch",
+		MaxCampTime = 6,
+		Position = Vec3(-46.646, 316.539, -139.875),
+	},
+	SNIPE_balcony1 = 
+	{
+		TeamAvailability = 2,
+		AimVectors = 
+		{
+			[0] = Vec3(0.028, 0.867, -0.497),
+			[1] = Vec3(0.163, 0.840, -0.517),
+		},
+		GoalType = "Snipe",
+		Weapons = 
+		{
+			[29] = 1,
+			[22] = 1,
+			[33] = 1,
+		},
+		Radius = 15,
+		MinRadius = 10,
+		MinCampTime = 5,
+		MaxCampTime = 30,
+		Position = Vec3(-25.301, -412.802, 256.125),
+	},
+	ROUTE_obj1 = 
+	{
+		TagName = "obj1",
+		MinRadius = 32,
+		GoalType = "ROUTE",
+		Position = Vec3(76.186, 319.289, -140.010),
+		Radius = 100,
+	},
+	ATTACK_cappoint2 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.819, -0.566, -0.092),
+			[1] = Vec3(0.947, -0.310, -0.081),
+		},
+		GoalType = "Attack",
+		Radius = 20,
+		MinCampTime = 2,
+		MaxCampTime = 20,
+		Position = Vec3(-213.741, 324.563, -510.875),
+	},
+	ATTACK_balcony2 = 
+	{
+		TeamAvailability = 2,
+		AimVectors = 
+		{
+			[0] = Vec3(-0.032, 0.887, -0.461),
+			[1] = Vec3(-0.114, 0.863, -0.492),
+		},
+		GoalType = "Attack",
+		Radius = 15,
+		MinCampTime = 2,
+		MaxCampTime = 6,
+		Position = Vec3(21.483, -410.666, 256.125),
+	},
+};

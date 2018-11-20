@@ -1,0 +1,131 @@
+//==========================================================================================
+//
+//	ctf_cradle.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	palota	09 May 2015	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+};
+
+global OnMapLoad = function()
+{
+	OnTriggerRegion(AABB(819.590,-2271.584,632.481,1303.665,-1738.145,1106.843), RegionTrigger.DisableCombatMovement); //axis spawn
+	Util.SetMaxUsers( 1, "PLANT_Command_Post" );
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	axisRoute = {
+		ROUTE_middle_ladder_N = {
+			ROUTE_middle_pole_W = {},
+			ROUTE_middle_pole_E = {},
+		},
+		ROUTE_middle_ladder_S = {
+			ROUTE_middle_pole_W = {},
+			ROUTE_middle_pole_E = {},
+		},
+		ROUTE_middle_SE = {},
+		ROUTE_middle_SW = {},
+	};
+	alliedRoute = {
+		ROUTE_middle_ladder_N = {
+			ROUTE_middle_pole_W = {},
+			ROUTE_middle_pole_E = {},
+		},
+		ROUTE_middle_ladder_S = {
+			ROUTE_middle_pole_W = {},
+			ROUTE_middle_pole_E = {},
+		},
+		ROUTE_middle_NE = {},
+		ROUTE_middle_NW = {},
+	};
+
+	MapRoutes =
+	{
+		BUILD_Command_Post =
+		{
+			ROUTE_axis_spawn = {
+				ROUTE_top_E = {
+					ROUTE_top_pole_N = {},
+				},
+				ROUTE_top_S = {},
+			},
+			ROUTE_allied_spawn = {
+				ROUTE_top_W = {
+					ROUTE_top_pole_N = {},
+				},
+				ROUTE_top_S = {},
+			},
+		},
+		FLAG_allies_gold_crate =
+		{
+			ROUTE_axis_spawn = {
+				ROUTE_top_E = {
+					Weight = 2,
+					ROUTE_top_pole_N = axisRoute,
+					ROUTE_top_pole_S = axisRoute,
+					ROUTE_top_NE = axisRoute,
+				},
+				ROUTE_top_S = axisRoute,
+			},
+		},
+		FLAG_axis_gold_crate =
+		{
+			ROUTE_allied_spawn = {
+				ROUTE_top_W = {
+					Weight = 2,
+					ROUTE_top_pole_N = alliedRoute,
+					ROUTE_top_pole_S = alliedRoute,
+					ROUTE_top_NW = alliedRoute,
+				},
+				ROUTE_top_S = alliedRoute,
+			},
+		},
+		CAPPOINT_axis_storage = {
+			ROUTE_allied_gold = {
+				ROUTE_bottom_SE = {
+					ROUTE_middle_ladder_N = {
+						ROUTE_cab_roof = {},
+						ROUTE_cp_roof = {},
+					},
+				},
+				ROUTE_bottom_SW = {
+					ROUTE_middle_ladder_S = {
+						ROUTE_cab_roof = {},
+						ROUTE_cp_roof = {},
+					},
+				},
+				ROUTE_middle_SW = {},
+				ROUTE_middle_SE = {},
+			}
+		},
+		CAPPOINT_allied_storage = {
+			ROUTE_axis_gold = {
+				ROUTE_bottom_NE = {
+					ROUTE_middle_ladder_N = {
+						ROUTE_cab_roof = {},
+						ROUTE_cp_roof = {},
+					},
+				},
+				ROUTE_bottom_NW = {
+					ROUTE_middle_ladder_S = {
+						ROUTE_cab_roof = {},
+						ROUTE_cp_roof = {},
+					},
+				},
+				ROUTE_middle_NW = {},
+				ROUTE_middle_NE = {},
+			}
+		},
+	};
+	MapRoutes.PLANT_Command_Post = MapRoutes.BUILD_Command_Post;
+	Util.Routes(MapRoutes);
+};

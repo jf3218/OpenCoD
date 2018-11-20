@@ -1,0 +1,84 @@
+//==========================================================================================
+//
+//	oldbones_b1.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	palota	12 September 2015	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+};
+
+global OnMapLoad = function()
+{
+	Util.LimitToTeam(TEAM.AXIS, "ATTACK_x.*");
+	Util.LimitToTeam(TEAM.ALLIES, "ATTACK_l.*");
+	Util.LimitToTeam(TEAM.AXIS, ".*MG42_east");
+
+	SetGoalPriority("MOUNTMG42.*", 0.6);
+
+	Util.SetMaxUsersInProgress(2, "PLANT_Neutral_Command_Post");
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CHECKPOINT_forward_flag =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_a1 =
+				{
+				},
+				ROUTE_a2 =
+				{
+				},
+				ROUTE_a3 =
+				{
+				},
+				ROUTE_a4 =
+				{
+				},
+				ROUTE_a5 =
+				{
+					ROUTE_aN =
+					{
+					},
+				},
+			},
+			ROUTE_axis_spawn =
+			{
+				ROUTE_x1 =
+				{
+				},
+				ROUTE_x2 =
+				{
+				},
+				ROUTE_x3 =
+				{
+				},
+				ROUTE_x4 =
+				{
+				},
+				ROUTE_x5 =
+				{
+					ROUTE_xN =
+					{
+					},
+				},
+			},
+		},
+	};
+
+	MapRoutes["ATTACK.*"] = MapRoutes.CHECKPOINT_forward_flag;
+	MapRoutes["MOUNT.*"] = MapRoutes.CHECKPOINT_forward_flag;
+	Util.Routes(MapRoutes);
+};

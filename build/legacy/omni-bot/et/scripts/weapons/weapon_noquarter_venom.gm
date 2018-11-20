@@ -1,0 +1,13 @@
+//cvar jp_insanity & 256
+if (GetModName()!="noquarter") { return; }
+
+WEAPON.VENOM = 98;
+this.Name = "Venom";
+this.WeaponId = WEAPON.VENOM;
+
+this.PrimaryFire.MinChargeTime = 1000;		// The min amount of time the weapon must be 'charged' before firing(by holding down fire button)
+this.PrimaryFire.MaxChargeTime = 1000;		// The max amount of time the weapon must be 'charged' before firing(by holding down fire button)
+this.PrimaryFire.AimOffsetZ = -30;
+this.PrimaryFire.DefaultDesirability = 0.7;
+this.PrimaryFire.LowAmmoThreshold = 15;
+this.PrimaryFire.LowAmmoPriority = 0.8;

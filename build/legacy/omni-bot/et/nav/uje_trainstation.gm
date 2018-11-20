@@ -1,0 +1,529 @@
+//==========================================================================================
+//
+//	uje_trainstation.gm
+//
+//	Who       	When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Niek	15 August 2013	Initial Script
+//	MickyP		28 December 2013 Goals Roles & Routing
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 0,
+	ShowMovers = false,
+
+		Roles =
+	{
+		AXIS =
+		{
+			AllBots = true,
+			DEFENDER =
+			{
+				spawnpt = 1,
+				numbots = 1,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =
+			{
+				numbots = 10,
+			},
+			ATTACKER2 =
+			{
+				numbots = 10,
+			},
+		},
+
+		ALLIES =
+		{
+			AllBots = true,
+			ATTACKER1 =
+			{
+				numbots = 10,
+			},
+			ATTACKER2 =
+			{
+				numbots = 10,
+			},
+		},
+	},
+
+	Allied_Command_Post_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Allied_Command_Post_Built" );
+	},
+
+	Allied_Command_Post_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Allied_Command_Post_Destroyed" );
+	},
+
+	Axis_Command_Post_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Axis_Command_Post_Built" );
+	},
+
+	Axis_Command_Post_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Axis_Command_Post_Destroyed" );
+	},
+
+	oldcityflag_Axis_Captured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "oldcityflag_Axis_Captured" );
+	},
+
+	oldcityflag_Allies_Captured = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "oldcityflag_Allies_Captured" );
+	},
+
+	Trainstation_Entrance_Door_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.ClearRoleForGoals( "BUILD.*", ROLE.DEFENDER ); //Remove limit for axis building
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Flag.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_South_Gun.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "CAMP_North_Gun.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "MOUNTMG42_Garrison_MG_Nest.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "REPAIRMG42_Garrison_MG_Nest.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Main_Door.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Flaggun_door.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_North_PAK_75mm_Gun" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_South_PAK_75mm_Gun" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAMP_South_Gun.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CAMP_North_Gun.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Command_Post" );
+
+		Util.MapDebugPrint( "Trainstation_Entrance_Door_Destroyed" );
+	},
+
+	Garrison_MG_Nest_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Garrison_MG_Nest_Built" );
+	},
+
+	Garrison_MG_Nest_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Garrison_MG_Nest_Destroyed" );
+	},
+
+	Old_City_MG_Nest_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Old_City_MG_Nest_Built" );
+	},
+
+	Old_City_MG_Nest_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "Old_City_MG_Nest_Destroyed" );
+	},
+
+	Trainstation_Barrier_South_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ROUTE_Trainstation_Barrier_1" );
+		Util.MapDebugPrint( "Trainstation_Barrier_South_Built" );
+	},
+
+	Trainstation_Barrier_South_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ROUTE_Trainstation_Barrier_1" );
+		Util.MapDebugPrint( "Trainstation_Barrier_South_Destroyed" );
+	},
+
+	Trainstation_Barrier_North_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ROUTE_Trainstation_Barrier_2" );
+		Util.MapDebugPrint( "Trainstation_Barrier_North_Built" );
+	},
+
+	Trainstation_Barrier_North_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ROUTE_Trainstation_Barrier_2" );
+		Util.MapDebugPrint( "Trainstation_Barrier_North_Destroyed" );
+	},
+
+	FlakGun_Barrier_South_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "FlakGun_Barrier_South_Built" );
+	},
+
+	FlakGun_Barrier_South_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "FlakGun_Barrier_South_Destroyed" );
+	},
+
+	FlakGun_Barrier_North_Built = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "FlakGun_Barrier_North_Built" );
+	},
+
+	FlakGun_Barrier_North_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.MapDebugPrint( "FlakGun_Barrier_North_Destroyed" );
+	},
+
+	North_PAK_75mm_Gun_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.ClearRoleForGoals( "CAMP_North_Gun.*", ROLE.ATTACKER1 );
+		Util.ClearRoleForGoals( "CAMP_South_Gun.*", ROLE.ATTACKER2 );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CAMP_North_Gun.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Garrison_MG_Nest.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "MOUNTMG42_Garrison_MG_Nest.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "REPAIRMG42_Garrison_MG_Nest.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_North_Gun.*" );
+
+		Util.MapDebugPrint( "North_PAK_75mm_Gun_Destroyed" );
+	},
+
+	South_PAK_75mm_Gun_Destroyed = function( trigger )
+	{
+		if ( TestMap )
+			{ return; }
+
+		Util.ClearRoleForGoals( "CAMP_North_Gun.*", ROLE.ATTACKER1 );
+		Util.ClearRoleForGoals( "CAMP_South_Gun.*", ROLE.ATTACKER2 );
+		SetAvailableMapGoals( TEAM.AXIS, false, "CAMP_South_Gun.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CAMP_South_Gun.*" );
+
+		Util.MapDebugPrint( "South_PAK_75mm_Gun_Destroyed" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	if ( TestMapOn )
+		{ Util.AutoTestMap(); }
+
+	// Register callback functions
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_Command_Post_Built );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_Command_Post_Destroyed );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_Command_Post_Built );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_Command_Post_Destroyed );
+	OnTrigger( "Axis reclaim the Old City!", Map.oldcityflag_Axis_Captured );
+	OnTrigger( "Allies capture the Old City!", Map.oldcityflag_Allies_Captured );
+	OnTrigger( "Allies have breached the Old City wall", Map.Trainstation_Entrance_Door_Destroyed );
+	OnTrigger( "The Garrison MG Nest has been constructed!", Map.Garrison_MG_Nest_Built );
+	OnTrigger( "The Garrison MG Nest has been damaged!", Map.Garrison_MG_Nest_Destroyed );
+	OnTrigger( "The Old City MG Nest has been constructed!", Map.Old_City_MG_Nest_Built );
+	OnTrigger( "The Old City MG Nest has been damaged!", Map.Old_City_MG_Nest_Destroyed );
+	OnTrigger( "The South Barrier has been constructed", Map.Trainstation_Barrier_South_Built );
+	OnTrigger( "The South Barrier has been destroyed", Map.Trainstation_Barrier_South_Destroyed );
+	OnTrigger( "The North Barrier has been constructed", Map.Trainstation_Barrier_North_Built );
+	OnTrigger( "The North Barrier has been destroyed", Map.Trainstation_Barrier_North_Destroyed );
+	OnTrigger( "^2The South FlakGun Barrier has been constructed", Map.FlakGun_Barrier_South_Built );
+	OnTrigger( "^1The South FlakGun Barrier has been destroyed", Map.FlakGun_Barrier_South_Destroyed );
+	OnTrigger( "^2The North FlakGun Barrier has been constructed", Map.FlakGun_Barrier_North_Built );
+	OnTrigger( "^1The North FlakGun Barrier has been destroyed", Map.FlakGun_Barrier_North_Destroyed );
+	OnTrigger( "Allies have destroyed the North Anti-Tank Gun!", Map.North_PAK_75mm_Gun_Destroyed );
+	OnTrigger( "Allied team has destroyed the South Anti-Tank Gun!", Map.South_PAK_75mm_Gun_Destroyed );
+
+
+
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	Util.EnableGoal( "AMMOCAB.*" );
+	Util.EnableGoal( "HEALTHCAB.*" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_Main_Door.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_oldcityflag.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Allied_Command_Post" );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Trainstation_Entrance_Door" );
+
+	SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Flag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_oldcityflag.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD.*" );
+
+	SetGoalPriority( "BUILD_Flaggun_door.", 0.93, TEAM.AXIS);
+	SetGoalPriority( "PLANT_Axis_Command_Post", 0.78, TEAM.ALLIES);
+
+	// Max users per goal
+	//Util.SetMaxUsers( 1, "DEFEND_.*" );
+	//Util.SetMaxUsers( 1, "GRENADE_.*" );
+	//Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=15, MaxCampTime=90} );
+	SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=10, MaxCampTime=60} );
+
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//~bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CHECKPOINT_oldcityflag =
+		{
+			ROUTE_Allied_1st  =
+			{
+				ROUTE_Main_Path  =
+				{
+					ROUTE_Outside_Mini_Tunnel  =
+					{
+						ROUTE_Map_Picture  =
+						{
+							ROUTE_Far_Side_Path  =
+							{
+							},
+						},
+						ROUTE_Middle_Route  =
+						{
+							ROUTE_Middle_Left_Stairs  =
+							{
+							},
+							ROUTE_Middle_Right_Stairs  =
+							{
+							},
+						},
+					},
+				},
+				ROUTE_Left_Door  =
+				{
+					ROUTE_Map_Picture  =
+					{
+						ROUTE_Far_Side_Path  =
+						{
+						},
+					},
+				},
+				ROUTE_Right_Door  =
+				{
+					ROUTE_Middle_Route  =
+					{
+						ROUTE_Middle_Left_Stairs  =
+						{
+						},
+						ROUTE_Middle_Right_Stairs  =
+						{
+						},
+					},
+				},
+			},
+			ROUTE_Axis_1st  =
+			{
+				ROUTE_Door  =
+				{
+				},
+				ROUTE_Ladder  =
+				{
+				},
+			},
+			ROUTE_Axis_Back  =
+			{
+				ROUTE_Door  =
+				{
+				},
+				ROUTE_Ladder  =
+				{
+				},
+			},
+		},
+		CAMP_North_Gun_1 =
+		{
+			ROUTE_Axis_Back  =
+			{
+				ROUTE_North_Door_Exit  =
+				{
+				},
+				ROUTE_North_Upper_Exit  =
+				{
+				},
+				ROUTE_South_Door_Exit  =
+				{
+				},
+			},
+			ROUTE_Allied_Flag  =
+			{
+				ROUTE_Trainstation_Barrier_1  =
+				{
+					ROUTE_North_Far_Tunnel  =
+					{
+					},
+					ROUTE_Center_North_Lower_Stairs  =
+					{
+					},
+					ROUTE_Center_Stairs  =
+					{
+						ROUTE_North_Stairs_Exit  =
+						{
+						},
+					},
+				},
+				ROUTE_Trainstation_Barrier_2  =
+				{
+					ROUTE_Center_North_Lower_Stairs  =
+					{
+					},
+					ROUTE_North_Far_Tunnel  =
+					{
+					},
+					ROUTE_Center_Stairs  =
+					{
+						ROUTE_North_Stairs_Exit  =
+						{
+						},
+					},
+				},
+				ROUTE_Trainstation_Open_Exit  =
+				{
+					ROUTE_Center_Stairs  =
+					{
+						ROUTE_North_Stairs_Exit  =
+						{
+						},
+					},
+					ROUTE_Center_North_Lower_Stairs  =
+					{
+					},
+				},
+			},
+		},
+		CAMP_South_Gun_1 =
+		{
+			ROUTE_Axis_Back  =
+			{
+				ROUTE_South_Door_Exit  =
+				{
+				},
+				ROUTE_South_Upper_Exit  =
+				{
+				},
+				ROUTE_North_Door_Exit  =
+				{
+				},
+			},
+			ROUTE_Allied_Flag  =
+			{
+				ROUTE_Trainstation_Barrier_1  =
+				{
+					ROUTE_Center_Stairs  =
+					{
+						ROUTE_South_Stairs_Exit  =
+						{
+						},
+					},
+					ROUTE_Center_South_Lower_Stairs  =
+					{
+					},
+					ROUTE_South_Mini_Tunnel  =
+					{
+					},
+				},
+				ROUTE_Trainstation_Barrier_2  =
+				{
+					ROUTE_Center_Stairs  =
+					{
+						ROUTE_South_Stairs_Exit  =
+						{
+						},
+					},
+					ROUTE_Center_South_Lower_Stairs  =
+					{
+					},
+					ROUTE_South_Mini_Tunnel  =
+					{
+					},
+				},
+				ROUTE_Trainstation_Open_Exit  =
+				{
+					ROUTE_Center_Stairs  =
+					{
+						ROUTE_South_Stairs_Exit  =
+						{
+						},
+					},
+					ROUTE_Center_South_Lower_Stairs  =
+					{
+					},
+					ROUTE_South_Mini_Tunnel  =
+					{
+					},
+				},
+			},
+		},
+	};
+
+	MapRoutes["DEFEND_Flag.*"] = MapRoutes.CHECKPOINT_oldcityflag;
+	MapRoutes["ATTACK_Main_Door.*"] = MapRoutes.CHECKPOINT_oldcityflag;
+	MapRoutes["PLANT_Trainstation_Entrance_Door"] = MapRoutes.CHECKPOINT_oldcityflag;
+	MapRoutes["CAMP_South_Gun.*"] = CAMP_South_Gun_1;
+	MapRoutes["PLANT_South_PAK_75mm_Gun"] = CAMP_South_Gun_1;
+	MapRoutes["PLANT_Flaggun_door"] = CAMP_South_Gun_1;
+	MapRoutes["CAMP_North_Gun.*"] = CAMP_North_Gun_1;
+	MapRoutes["PLANT_North_PAK_75mm_Gun"] = CAMP_North_Gun_1;
+	MapRoutes["PLANT_Flaggun_door_1"] = CAMP_North_Gun_1;
+
+	Util.Routes(MapRoutes);
+};

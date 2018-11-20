@@ -1,0 +1,58 @@
+// this sole purpose of this goal is to do NOT shoot while covertops is disguised and moving
+this.Name = "InDisguise";
+this.Parent = "LowLevel";
+this.AutoAdd = true;
+this.Debug = false;
+
+this.LimitToEntityFlag(ENTFLAG.DISGUISED);
+
+this.Initialize = function()
+{
+	this.PainInflictor = -1;
+};
+
+this.GetPriority = function()
+{
+	this.Priority = 0.1; // so it can exit
+
+	t = this.Bot.GetTarget();
+	if (t && t != this.PainInflictor) {
+		entClass = GetEntClass(t);
+		if ( entClass < CLASS.ANYPLAYER || entClass==CLASS.MG42MOUNT
+			|| entClass==CLASS.BREAKABLE && this.Bot.DistanceTo(t)>150) {
+			// cs: don't ignore if at a camp spot
+			if ( !this.Bot.GetVelocity().IsZero() ) {
+				this.Bot.IgnoreTarget(t, this.Bot.ReactionTime + 0.2);
+				if ( this.Debug ) {
+					this.Bot.Say("ignoring: " + GetEntName(t) + "(" + GetGameIdFromEntity(t) + "), Last Inflictor: " + this.PainInflictor);
+				}
+			}
+		}
+		else if ( this.Debug && entClass) {
+			this.Bot.Say("targeting: " + GetEntName(t) + "(" + GetGameIdFromEntity(t) + "), Last Inflictor: " + this.PainInflictor);
+			sleep(2);
+		}
+	}
+	// GetPriority must be called every frame, because bot starts shooting immediately after IgnoreTarget expires
+};
+
+this.Enter = function()
+{
+	this.Bot.SetRoles(ROLE.INFILTRATOR);
+};
+
+this.Exit = function()
+{
+	if ( this.Debug ) { this.Bot.Say("lost disguise"); }
+	this.PainInflictor = -1;
+
+	this.Bot.ClearRoles(ROLE.INFILTRATOR);
+};
+
+this.Events[EVENT.FEEL_PAIN] = function(Inflictor, PreviousHealth, CurrentHealth)
+{
+	if (this.Bot) {
+		this.PainInflictor = Inflictor;
+	}
+};
+

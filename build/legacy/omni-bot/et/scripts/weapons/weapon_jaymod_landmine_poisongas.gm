@@ -1,0 +1,8 @@
+if (GetModName()!="Jaymod") { return; }
+
+WEAPON.MINE_POISONGAS = 80;
+this.Name = "Poison Gas";
+this.WeaponId = WEAPON.MINE_POISONGAS;
+
+this.PrimaryFire.WeaponType = "item";
+this.PrimaryFire.WaterProof = true;

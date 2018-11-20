@@ -1,0 +1,387 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3025C30A-CEB3-33F4-BD45-9BFBA406CF0C}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>freetype</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\libs\freetype\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">freetype.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">freetype</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\libs\freetype\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">freetype.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">freetype</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\libs\freetype\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">freetype.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">freetype</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\libs\freetype\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">freetype.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">freetype</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FT2_BUILD_LIBRARY;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\etlegacy_2\build\libs\freetype\include;D:\etlegacy_2\libs\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\etlegacy_2\libs\freetype\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/etlegacy_2/libs/freetype/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/freetype -BD:/etlegacy_2/build/libs/freetype --check-stamp-file D:/etlegacy_2/build/libs/freetype/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/etlegacy_2/libs/freetype/CMakeLists.txt;D:\etlegacy_2\libs\freetype\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystem.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerId.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCompilerIdDetection.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Bruce-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Compaq-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GNU-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\HP-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MIPSpro-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SDCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SunPro-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TinyCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\VisualAge-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\XL-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\zOS-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CompilerId\VS-10.vcxproj.in;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeFindBinUtils.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCompilerCommon.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerABI.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeParseImplicitLinkInfo.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompilerABI.c;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompileFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\libs\freetype\builds\cmake\FindHarfBuzz.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPNG.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindBZip2.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\GNUInstallDirs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\libs\freetype\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\etlegacy_2\build\libs\freetype\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/etlegacy_2/libs/freetype/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/freetype -BD:/etlegacy_2/build/libs/freetype --check-stamp-file D:/etlegacy_2/build/libs/freetype/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/etlegacy_2/libs/freetype/CMakeLists.txt;D:\etlegacy_2\libs\freetype\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystem.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerId.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCompilerIdDetection.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Bruce-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Compaq-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GNU-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\HP-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MIPSpro-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SDCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SunPro-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TinyCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\VisualAge-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\XL-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\zOS-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CompilerId\VS-10.vcxproj.in;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeFindBinUtils.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCompilerCommon.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerABI.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeParseImplicitLinkInfo.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompilerABI.c;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompileFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\libs\freetype\builds\cmake\FindHarfBuzz.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPNG.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindBZip2.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\GNUInstallDirs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\libs\freetype\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\etlegacy_2\build\libs\freetype\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule D:/etlegacy_2/libs/freetype/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/freetype -BD:/etlegacy_2/build/libs/freetype --check-stamp-file D:/etlegacy_2/build/libs/freetype/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:/etlegacy_2/libs/freetype/CMakeLists.txt;D:\etlegacy_2\libs\freetype\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystem.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerId.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCompilerIdDetection.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Bruce-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Compaq-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GNU-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\HP-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MIPSpro-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SDCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SunPro-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TinyCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\VisualAge-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\XL-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\zOS-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CompilerId\VS-10.vcxproj.in;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeFindBinUtils.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCompilerCommon.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerABI.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeParseImplicitLinkInfo.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompilerABI.c;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompileFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\libs\freetype\builds\cmake\FindHarfBuzz.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPNG.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindBZip2.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\GNUInstallDirs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\libs\freetype\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">D:\etlegacy_2\build\libs\freetype\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule D:/etlegacy_2/libs/freetype/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+C:\DATA\cmake\bin\cmake.exe -HD:/etlegacy_2/libs/freetype -BD:/etlegacy_2/build/libs/freetype --check-stamp-file D:/etlegacy_2/build/libs/freetype/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:/etlegacy_2/libs/freetype/CMakeLists.txt;D:\etlegacy_2\libs\freetype\CMakeLists.txt;C:\DATA\cmake\share\cmake-3.11\Modules\CheckIncludeFile.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystem.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerId.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCompilerIdDetection.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Bruce-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Compaq-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\GNU-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\HP-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MIPSpro-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SDCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\SunPro-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TI-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\TinyCC-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\VisualAge-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\XL-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\zOS-C-DetermineCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CompilerId\VS-10.vcxproj.in;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeFindBinUtils.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestRCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCCompiler.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeTestCompilerCommon.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompilerABI.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeParseImplicitLinkInfo.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompilerABI.c;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeDetermineCompileFeatures.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CMakeCCompiler.cmake.in;D:\etlegacy_2\build\libs\freetype\CMakeFiles\3.11.4\CMakeCCompiler.cmake;D:\etlegacy_2\libs\freetype\builds\cmake\FindHarfBuzz.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPNG.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindZLIB.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindBZip2.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\SelectLibraryConfigurations.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\GNUInstallDirs.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPack.cmake;C:\DATA\cmake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\DATA\cmake\share\cmake-3.11\Templates\CPackConfig.cmake.in;D:\etlegacy_2\libs\freetype\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">D:\etlegacy_2\build\libs\freetype\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\ft2build.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\freetype.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftadvanc.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftbbox.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftbdf.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftbitmap.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftbzip2.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftcache.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftchapters.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftcid.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftdriver.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\fterrdef.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\fterrors.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftfntfmt.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftgasp.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftglyph.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftgxval.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftgzip.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftimage.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftincrem.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftlcdfil.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftlist.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftlzw.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftmac.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftmm.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftmodapi.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftmoderr.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftotval.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftoutln.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftparams.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftpfr.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftrender.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftsizes.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftsnames.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftstroke.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftsynth.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftsystem.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\fttrigon.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\fttypes.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ftwinfnt.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\t1tables.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\ttnameid.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\tttables.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\tttags.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\config\ftheader.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\config\ftmodule.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\config\ftoption.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\autohint.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\cffotypes.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\cfftypes.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftcalc.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftdebug.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftdrv.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftgloadr.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\fthash.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftmemory.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftobjs.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftpic.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftpsprop.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftrfork.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftserv.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftstream.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\fttrace.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\ftvalid.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\internal.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\psaux.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\pshints.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\sfnt.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\t1types.h" />
+    <ClInclude Include="D:\etlegacy_2\libs\freetype\include\freetype\internal\tttypes.h" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\autofit\autofit.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftbase.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftbbox.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftbdf.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftbitmap.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftcid.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftfstype.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftgasp.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftglyph.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftgxval.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftinit.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftmm.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftotval.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftpatent.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftpfr.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftstroke.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftsynth.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftsystem.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\fttype1.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftwinfnt.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\bdf\bdf.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\bzip2\ftbzip2.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\cache\ftcache.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\cff\cff.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\cid\type1cid.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\gzip\ftgzip.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\lzw\ftlzw.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\pcf\pcf.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\pfr\pfr.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\psaux\psaux.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\pshinter\pshinter.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\psnames\psnames.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\raster\raster.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\sfnt\sfnt.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\smooth\smooth.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\truetype\truetype.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\type1\type1.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\type42\type42.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\src\winfonts\winfnt.c" />
+    <ClCompile Include="D:\etlegacy_2\libs\freetype\builds\windows\ftdebug.c" />
+    <ResourceCompile Include="D:\etlegacy_2\libs\freetype\src\base\ftver.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\etlegacy_2\build\libs\freetype\ZERO_CHECK.vcxproj">
+      <Project>{E3D7D2FD-3537-38DC-AE3A-E8AD36056FF7}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

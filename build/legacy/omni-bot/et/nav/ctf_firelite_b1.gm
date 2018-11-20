@@ -1,0 +1,149 @@
+//==========================================================================================
+//
+//	ctf_firelite_b1.gm
+//
+//	Who	When		What
+//------------------------------------------------------------------------------------------
+//	d00d	17 May 2016	Initial Script
+//
+//==========================================================================================
+//
+
+global Map =
+{
+	Debug = 1, // please set to zero before distributing your script
+
+	allied_flag_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "FLAG_allied_flag" );
+		Util.MapDebugPrint( "allied_flag_Taken" );
+	},
+
+	axis_flag_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_axis_flag" );
+		Util.MapDebugPrint( "axis_flag_Taken" );
+	},
+
+	allied_flag_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_allied_flag" );
+		Util.MapDebugPrint( "allied_flag_Returned" );
+	},
+
+	axis_flag_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_axis_flag" );
+		Util.MapDebugPrint( "axis_flag_Returned" );
+	},
+
+	allied_flag_Secured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_allied_flag" );
+		Util.MapDebugPrint( "allied_flag_Secured" );
+	},
+
+	axis_flag_Secured = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_axis_flag" );
+		Util.MapDebugPrint( "axis_flag_Secured" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "Axis have stolen the Flag!", Map.allied_flag_Taken );
+	OnTrigger( "Allies have stolen the Flag!", Map.axis_flag_Taken );
+	OnTrigger( "Allies have returned the Flag!", Map.allied_flag_Returned );
+	OnTrigger( "Axis have returned the Flag!", Map.axis_flag_Returned );
+	OnTrigger( "the Axis have Captured the Flag!!!", Map.allied_flag_Secured );
+	OnTrigger( "the Allies have Captured the Flag!!!", Map.axis_flag_Secured );
+
+	//~Util.DisableGoal( ".*", true ); // all but routes
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_allies" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_axis" );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.MaxViewDistance = 1500;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		FLAG_allied_flag =
+		{
+			ROUTE_axis_spawn =
+			{
+				ROUTE_1_axis_side =
+				{
+					ROUTE_1 = {},
+				},
+				ROUTE_1 = {},
+				ROUTE_2 = {},
+				ROUTE_3 = {},
+				ROUTE_4 = {},
+				ROUTE_5 = {}
+			}
+		},
+		FLAG_axis_flag =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_1_allies_side_a =
+				{
+					ROUTE_1 = {},
+				},
+				ROUTE_1_allies_side_b =
+				{
+					ROUTE_1 = {},
+				},
+				ROUTE_2 = {},
+				ROUTE_3 = {},
+				ROUTE_4 = {},
+				ROUTE_5 = {}
+			}
+		},
+		CAPPOINT_axis =
+		{
+			ROUTE_allied_spawn =
+			{
+				ROUTE_1_allies_side_a =
+				{
+					ROUTE_1 = {},
+				},
+				ROUTE_1_allies_side_b =
+				{
+					ROUTE_1 = {},
+				},
+				ROUTE_2 = {},
+				ROUTE_3 = {},
+				ROUTE_4 = {},
+				ROUTE_5 = {}
+			}
+		},
+		CAPPOINT_allies =
+		{
+			ROUTE_axis_flag =
+			{
+				ROUTE_1_axis_side =
+				{
+					ROUTE_1 = {},
+					ROUTE_1_allies_side_a = {},
+					ROUTE_1_allies_side_b = {},
+				},
+				ROUTE_2 = {},
+				ROUTE_3 = {},
+				ROUTE_4 = {},
+				ROUTE_5 = {}
+			}
+		},
+	};
+	Util.Routes(MapRoutes);
+};

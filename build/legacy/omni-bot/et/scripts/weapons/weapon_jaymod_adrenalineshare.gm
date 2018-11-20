@@ -1,0 +1,8 @@
+if (GetModName()!="Jaymod") { return; }
+
+WEAPON.ADRENALINESHARE = 76;
+this.Name = "Adrenaline Share";
+this.WeaponId = WEAPON.ADRENALINESHARE;
+
+this.PrimaryFire.WeaponType = "item";
+this.PrimaryFire.WaterProof = true;

@@ -1,0 +1,2304 @@
+global _MG = 
+{
+	AMMOCAB_uje1_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(816.000, 2192.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje2_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(40.000, 2752.000, 52.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje3_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(40.000, 2144.000, -668.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje4_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-40.000, -2144.000, -668.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje5_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-816.000, -2152.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje6_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(816.000, -2104.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje7_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-816.000, 2112.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	AMMOCAB_uje8_ammocabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "AMMOCAB",
+		Position = Vec3(-41.000, -2752.000, 52.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje1_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(816.000, 2112.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje2_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-40.000, 2752.000, 52.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje3_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-40.000, 2144.000, -668.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje4_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(40.000, -2144.000, -668.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje5_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-816.000, -2072.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje6_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(816.000, -2184.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje7_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(-816.000, 2192.000, -92.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	HEALTHCAB_uje8_healthcabinet = 
+	{
+		CreateOnLoad = 0,
+		GoalType = "HEALTHCAB",
+		Position = Vec3(39.000, -2752.000, 52.000),
+		Range = 1250,
+		TeamAvailability = 6,
+	},
+	SNIPE_allied01 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.058, -0.998, 0.008),
+			[1] = Vec3(-0.222, -0.975, -0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1950.319, 2226.126, 193.125),
+		Radius = 32,
+	},
+	SNIPE_allied02 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.030, -1.000, 0.002),
+			[1] = Vec3(-0.310, -0.951, -0.008),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1827.866, 2226.125, 193.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied03 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.030, -1.000, 0.006),
+			[1] = Vec3(-0.341, -0.940, -0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1704.898, 2226.125, 193.125),
+		Radius = 32,
+	},
+	SNIPE_allied04 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.193, -0.981, -0.023),
+			[1] = Vec3(-0.286, -0.955, -0.077),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1948.652, 2226.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied05 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.003, -1.000, -0.031),
+			[1] = Vec3(-0.277, -0.959, -0.056),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1833.264, 2226.126, 353.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied06 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.026, -0.999, -0.036),
+			[1] = Vec3(-0.246, -0.968, -0.042),
+			[2] = Vec3(-0.146, -0.988, 0.044),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1703.334, 2226.127, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied07 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.003, -0.999, -0.038),
+			[1] = Vec3(-0.531, -0.847, -0.019),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1553.078, 2642.741, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied08 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.099, -0.995, -0.029),
+			[1] = Vec3(-0.237, -0.971, -0.027),
+			[2] = Vec3(-0.521, -0.853, -0.017),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1302.474, 2853.737, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied09 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.244, -0.969, -0.023),
+			[1] = Vec3(-0.135, -0.990, -0.033),
+			[2] = Vec3(-0.467, -0.884, -0.027),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(719.208, 2592.994, 353.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied10 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.078, -0.997, -0.027),
+			[1] = Vec3(0.311, -0.950, -0.029),
+			[2] = Vec3(-0.276, -0.961, -0.031),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(454.342, 2450.126, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied11 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.101, -0.994, -0.042),
+			[1] = Vec3(0.452, -0.891, -0.031),
+			[2] = Vec3(-0.154, -0.988, -0.027),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-481.228, 2450.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied12 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.225, -0.971, -0.086),
+			[1] = Vec3(0.158, -0.987, -0.042),
+			[2] = Vec3(0.488, -0.872, -0.035),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-789.134, 2589.779, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied13 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.100, -0.994, -0.046),
+			[1] = Vec3(-0.123, -0.992, -0.036),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1327.616, 2814.518, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied14 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.396, -0.918, 0.010),
+			[1] = Vec3(0.002, -1.000, 0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1958.010, 2226.125, 193.125),
+		Radius = 32,
+	},
+	SNIPE_allied15 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.377, -0.926, 0.002),
+			[1] = Vec3(0.004, -1.000, -0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1833.408, 2228.987, 193.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied16 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.348, -0.937, -0.008),
+			[1] = Vec3(-0.015, -1.000, 0.008),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1709.775, 2226.125, 193.125),
+		Radius = 32,
+	},
+	SNIPE_allied17 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.029, -0.999, -0.027),
+			[1] = Vec3(0.253, -0.966, -0.050),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1948.487, 2226.127, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied18 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.376, -0.925, -0.054),
+			[1] = Vec3(-0.023, -0.999, -0.033),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1836.451, 2226.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied19 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.383, -0.915, -0.128),
+			[1] = Vec3(0.195, -0.979, -0.054),
+			[2] = Vec3(-0.015, -0.999, -0.038),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1707.759, 2227.875, 353.125),
+		Radius = 32,
+	},
+	SNIPE_allied20 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.326, -0.944, -0.050),
+			[1] = Vec3(-0.093, -0.994, -0.061),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1410.598, 2650.126, 513.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied21 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.456, -0.889, -0.048),
+			[1] = Vec3(0.065, -0.995, -0.069),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1180.456, 2846.124, 513.125),
+		Radius = 32,
+	},
+	SNIPE_allied22 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.555, -0.830, -0.050),
+			[1] = Vec3(-0.113, -0.992, -0.058),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1372.584, 2675.763, 641.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied23 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.546, -0.834, -0.077),
+			[1] = Vec3(0.301, -0.948, -0.105),
+			[2] = Vec3(-0.071, -0.997, -0.025),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1441.362, 2670.669, 641.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied24 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.605, -0.794, -0.061),
+			[1] = Vec3(0.433, -0.897, -0.090),
+			[2] = Vec3(0.323, -0.946, -0.008),
+			[3] = Vec3(0.110, -0.994, -0.000),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1613.021, 2322.125, 529.125),
+		Radius = 32,
+	},
+	SNIPE_allied25 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.355, -0.935, -0.008),
+			[1] = Vec3(0.150, -0.989, -0.008),
+			[2] = Vec3(0.010, -1.000, 0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1758.264, 2221.605, 529.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied26 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.633, -0.774, -0.027),
+			[1] = Vec3(0.379, -0.923, -0.065),
+			[2] = Vec3(0.027, -0.999, -0.035),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1889.699, 2203.503, 529.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied27 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.530, -0.845, -0.069),
+			[1] = Vec3(0.307, -0.951, -0.023),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1466.596, 3171.503, 625.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied28 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.449, -0.893, -0.044),
+			[1] = Vec3(0.179, -0.984, -0.008),
+			[2] = Vec3(-0.148, -0.989, 0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-943.951, 2834.125, 545.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied29 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.295, -0.956, 0.002),
+			[1] = Vec3(-0.125, -0.992, -0.000),
+			[2] = Vec3(0.135, -0.991, -0.010),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-866.161, 2834.126, 545.125),
+		Radius = 32,
+	},
+	SNIPE_allied30 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.023, -0.999, -0.031),
+			[1] = Vec3(0.441, -0.897, -0.021),
+			[2] = Vec3(-0.126, -0.991, -0.031),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1179.351, 2911.314, 705.185),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied31 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.142, -0.983, -0.113),
+			[1] = Vec3(-0.166, -0.986, -0.029),
+			[2] = Vec3(-0.037, -0.999, -0.019),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-747.795, 2895.979, 705.185),
+		Radius = 32,
+	},
+	SNIPE_allied32 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.412, -0.908, -0.079),
+			[1] = Vec3(0.140, -0.990, -0.031),
+			[2] = Vec3(-0.161, -0.986, -0.036),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-897.378, 2835.968, 705.185),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied33 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.360, -0.933, 0.010),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(207.925, 3022.359, 513.126),
+		Radius = 32,
+	},
+	SNIPE_allied34 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.032, -0.999, 0.013),
+			[1] = Vec3(-0.163, -0.987, 0.008),
+			[2] = Vec3(-0.312, -0.950, 0.013),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-158.755, 2543.385, 513.126),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied35 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.186, -0.981, -0.060),
+			[1] = Vec3(-0.039, -0.999, 0.008),
+			[2] = Vec3(-0.188, -0.982, 0.019),
+			[3] = Vec3(-0.377, -0.926, 0.017),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(78.289, 2541.196, 513.126),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied36 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.076, -0.996, -0.038),
+			[1] = Vec3(-0.268, -0.963, -0.027),
+			[2] = Vec3(-0.447, -0.894, -0.033),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(468.817, 2551.119, 739.666),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied37 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.151, -0.987, -0.061),
+			[1] = Vec3(-0.002, -1.000, -0.002),
+			[2] = Vec3(-0.154, -0.988, -0.012),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(861.715, 2834.125, 545.125),
+		Radius = 32,
+	},
+	SNIPE_allied38 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.198, -0.979, -0.052),
+			[1] = Vec3(-0.130, -0.992, 0.006),
+			[2] = Vec3(-0.382, -0.922, -0.065),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(946.798, 2834.125, 545.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied39 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.175, -0.984, -0.027),
+			[1] = Vec3(-0.087, -0.996, -0.029),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(757.674, 2894.590, 705.125),
+		Radius = 32,
+	},
+	SNIPE_allied40 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.183, -0.979, -0.094),
+			[1] = Vec3(-0.173, -0.984, -0.038),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(874.110, 2833.335, 705.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied41 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.129, -0.987, -0.096),
+			[1] = Vec3(-0.197, -0.980, -0.036),
+			[2] = Vec3(-0.411, -0.911, -0.031),
+			[3] = Vec3(-0.216, -0.957, -0.193),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1096.571, 2841.090, 705.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied42 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.104, -0.995, -0.010),
+			[1] = Vec3(-0.232, -0.973, -0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1159.461, 2829.250, 513.125),
+		Radius = 32,
+	},
+	SNIPE_allied43 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.070, -0.998, -0.002),
+			[1] = Vec3(-0.278, -0.961, -0.000),
+			[2] = Vec3(-0.543, -0.840, 0.012),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1422.863, 2659.373, 513.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied44 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.059, -0.998, -0.017),
+			[1] = Vec3(-0.277, -0.961, -0.025),
+			[2] = Vec3(-0.592, -0.797, -0.119),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1445.875, 2676.312, 641.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied45 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.109, -0.989, -0.103),
+			[1] = Vec3(-0.267, -0.963, -0.019),
+			[2] = Vec3(-0.502, -0.865, -0.019),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1373.808, 2675.622, 641.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied46 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.056, -0.996, -0.067),
+			[1] = Vec3(-0.530, -0.846, -0.058),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1469.654, 3170.850, 625.125),
+		Radius = 32,
+	},
+	SNIPE_allied47 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.188, -0.982, 0.013),
+			[1] = Vec3(-0.369, -0.930, 0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1894.897, 2255.711, 513.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied48 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.024, -0.999, -0.042),
+			[1] = Vec3(-0.345, -0.936, -0.073),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1760.528, 2214.911, 529.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied49 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.306, -0.952, -0.008),
+			[1] = Vec3(-0.555, -0.832, 0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1616.270, 2322.125, 529.125),
+		Radius = 32,
+	},
+	SNIPE_allied50 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.169, -0.986, 0.013),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1055.703, 2597.797, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied51 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.192, -0.981, 0.029),
+			[1] = Vec3(0.001, -1.000, 0.015),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(936.574, 2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied52 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.136, -0.988, 0.071),
+			[1] = Vec3(-0.198, -0.975, -0.100),
+			[2] = Vec3(-0.459, -0.888, 0.021),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(809.913, 2594.126, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied53 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.218, -0.976, 0.017),
+			[1] = Vec3(-0.255, -0.967, 0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(680.315, 2594.127, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied54 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.298, -0.954, -0.000),
+			[1] = Vec3(-0.092, -0.996, 0.021),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-677.501, 2594.126, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied55 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.198, -0.963, -0.183),
+			[1] = Vec3(0.459, -0.888, 0.035),
+			[2] = Vec3(-0.245, -0.969, 0.012),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-798.612, 2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied56 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.344, -0.939, -0.015),
+			[1] = Vec3(0.009, -1.000, -0.000),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-926.657, 2594.126, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied57 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.528, -0.849, 0.017),
+			[1] = Vec3(0.224, -0.974, 0.015),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1072.265, 2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_allied58 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.248, -0.969, 0.010),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-485.920, 2450.125, 97.125),
+		Radius = 32,
+	},
+	SNIPE_allied59 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.293, -0.956, 0.019),
+			[1] = Vec3(-0.245, -0.969, 0.010),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(443.839, 2450.125, 97.125),
+		Radius = 32,
+	},
+	SNIPE_allied60 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.021, -0.999, -0.025),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(31.975, 2354.158, 225.125),
+		Radius = 32,
+	},
+	SNIPE_allied61 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.383, -0.924, 0.013),
+			[1] = Vec3(0.015, -0.993, -0.121),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-61.373, 2354.125, 225.125),
+		Radius = 32,
+	},
+	SNIPE_allied62 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.003, -1.000, -0.000),
+			[1] = Vec3(0.413, -0.911, 0.013),
+			[2] = Vec3(-0.377, -0.926, 0.021),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-10.720, 2233.848, 97.223),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied63 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.435, -0.900, 0.023),
+			[1] = Vec3(0.053, -0.995, -0.082),
+			[2] = Vec3(-0.370, -0.929, -0.012),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-253.621, 2274.425, 97.223),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied64 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.179, -0.984, 0.010),
+			[1] = Vec3(-0.042, -0.995, -0.086),
+			[2] = Vec3(-0.435, -0.901, -0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(176.420, 2273.102, 97.223),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied65 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.411, -0.911, 0.035),
+			[1] = Vec3(-0.572, -0.820, 0.025),
+			[2] = Vec3(-0.668, -0.737, 0.107),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1737.218, 1638.572, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied66 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.138, -0.986, 0.094),
+			[1] = Vec3(-0.127, -0.992, 0.023),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1407.985, 1662.219, 17.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied67 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.095, -0.992, 0.079),
+			[1] = Vec3(-0.319, -0.946, 0.061),
+			[2] = Vec3(-0.614, -0.787, 0.052),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1404.551, 1878.529, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied68 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.160, -0.984, 0.073),
+			[1] = Vec3(-0.281, -0.959, -0.031),
+			[2] = Vec3(-0.529, -0.846, 0.065),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1207.902, 1917.762, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied69 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.282, -0.952, 0.119),
+			[1] = Vec3(-0.108, -0.994, 0.035),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(474.608, 2135.787, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied70 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.082, -0.992, -0.098),
+			[1] = Vec3(-0.288, -0.950, 0.119),
+			[2] = Vec3(0.366, -0.916, 0.164),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(258.678, 1661.422, -306.875),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied71 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.087, -0.988, -0.125),
+			[1] = Vec3(0.482, -0.868, 0.117),
+			[2] = Vec3(-0.354, -0.926, 0.132),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-292.714, 1678.201, -306.875),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied72 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.166, -0.985, 0.052),
+			[1] = Vec3(0.023, -0.999, 0.044),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-98.437, 2211.949, -126.875),
+		Radius = 32,
+	},
+	SNIPE_allied73 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.014, -0.991, 0.130),
+			[1] = Vec3(-0.210, -0.969, 0.128),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(84.919, 2210.125, -126.875),
+		Radius = 32,
+	},
+	SNIPE_allied74 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.124, -0.992, 0.025),
+			[1] = Vec3(-0.328, -0.945, 0.015),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-535.000, 2122.847, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied75 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.514, -0.858, 0.031),
+			[1] = Vec3(0.162, -0.985, -0.063),
+			[2] = Vec3(0.152, -0.983, 0.103),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-693.686, 2067.252, 17.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_allied76 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.556, -0.831, 0.002),
+			[1] = Vec3(0.282, -0.959, -0.029),
+			[2] = Vec3(-0.155, -0.988, -0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1190.234, 1900.705, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied77 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.595, -0.804, -0.000),
+			[1] = Vec3(0.311, -0.948, 0.069),
+			[2] = Vec3(-0.094, -0.993, 0.075),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1410.407, 1879.099, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_allied78 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.642, -0.761, 0.092),
+			[1] = Vec3(0.446, -0.894, 0.029),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1797.009, 1319.149, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis01 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.001, 1.000, -0.000),
+			[1] = Vec3(0.212, 0.975, 0.065),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1954.674, -2226.126, 193.125),
+		Radius = 32,
+	},
+	SNIPE_axis02 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.009, 0.997, 0.077),
+			[1] = Vec3(0.148, 0.989, 0.008),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1827.223, -2226.126, 193.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis03 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.039, 0.996, 0.077),
+			[1] = Vec3(0.172, 0.982, 0.071),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1699.505, -2226.126, 193.125),
+		Radius = 32,
+	},
+	SNIPE_axis04 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.055, 0.999, -0.000),
+			[1] = Vec3(0.216, 0.976, 0.038),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1951.918, -2226.126, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis05 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.014, 0.999, 0.033),
+			[1] = Vec3(0.361, 0.931, -0.048),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1828.937, -2226.127, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis06 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.030, 0.999, 0.044),
+			[1] = Vec3(0.377, 0.926, 0.035),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1706.553, -2226.126, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis07 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.163, 0.986, -0.021),
+			[1] = Vec3(0.291, 0.956, 0.029),
+			[2] = Vec3(0.553, 0.833, 0.029),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1556.841, -2642.126, 353.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis08 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.109, 0.993, 0.038),
+			[1] = Vec3(0.256, 0.966, 0.019),
+			[2] = Vec3(0.102, 0.994, -0.046),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1342.784, -2861.874, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis09 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.252, 0.967, -0.033),
+			[1] = Vec3(-0.053, 0.997, 0.057),
+			[2] = Vec3(0.306, 0.950, 0.057),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-695.320, -2557.153, 353.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis10 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.204, 0.978, 0.048),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-448.037, -2450.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis11 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.099, 0.995, 0.031),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(482.847, -2450.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis12 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.208, 0.977, 0.038),
+			[1] = Vec3(-0.160, 0.987, 0.033),
+			[2] = Vec3(-0.508, 0.861, 0.031),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(791.188, -2591.012, 353.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis13 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.057, 0.998, 0.035),
+			[1] = Vec3(0.075, 0.996, 0.038),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1324.441, -2815.085, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis14 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.559, 0.829, 0.031),
+			[1] = Vec3(-0.307, 0.950, -0.048),
+			[2] = Vec3(-0.030, 0.999, -0.025),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1569.417, -2642.125, 353.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis15 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.342, 0.938, 0.057),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1712.533, -2226.126, 193.125),
+		Radius = 32,
+	},
+	SNIPE_axis16 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.184, 0.980, 0.069),
+			[1] = Vec3(0.023, 1.000, 0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1824.877, -2226.127, 193.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis17 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.610, 0.792, 0.023),
+			[1] = Vec3(-0.384, 0.921, 0.065),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1977.440, -2226.126, 193.125),
+		Radius = 32,
+	},
+	SNIPE_axis18 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.162, 0.986, 0.048),
+			[1] = Vec3(0.046, 0.994, -0.098),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1699.539, -2226.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis19 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.380, 0.924, 0.036),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1834.537, -2226.126, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis20 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.382, 0.924, 0.025),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1956.893, -2226.125, 353.125),
+		Radius = 32,
+	},
+	SNIPE_axis21 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.519, 0.852, -0.065),
+			[1] = Vec3(-0.373, 0.928, 0.013),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1459.883, -3162.036, 625.125),
+		Radius = 32,
+	},
+	SNIPE_axis22 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.204, 0.979, 0.015),
+			[1] = Vec3(-0.376, 0.926, 0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1887.435, -2227.961, 529.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis23 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.363, 0.928, -0.086),
+			[1] = Vec3(-0.021, 0.995, -0.094),
+			[2] = Vec3(-0.164, 0.986, 0.040),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1761.172, -2218.681, 529.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis24 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.545, 0.839, 0.008),
+			[1] = Vec3(-0.306, 0.952, -0.012),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1616.111, -2332.241, 529.125),
+		Radius = 32,
+	},
+	SNIPE_axis25 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.495, 0.869, -0.000),
+			[1] = Vec3(-0.264, 0.965, -0.008),
+			[2] = Vec3(0.044, 0.999, 0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1399.685, -2658.200, 513.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis26 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.490, 0.871, 0.010),
+			[1] = Vec3(-0.223, 0.975, -0.004),
+			[2] = Vec3(0.133, 0.984, -0.119),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1268.419, -2656.748, 513.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis27 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.513, 0.857, -0.052),
+			[1] = Vec3(-0.258, 0.923, -0.286),
+			[2] = Vec3(-0.058, 0.996, -0.069),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1139.753, -2810.125, 513.125),
+		Radius = 32,
+	},
+	SNIPE_axis28 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.425, 0.905, -0.000),
+			[1] = Vec3(-0.151, 0.988, -0.014),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(872.000, -2834.125, 545.125),
+		Radius = 32,
+	},
+	SNIPE_axis29 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.177, 0.984, -0.004),
+			[1] = Vec3(0.142, 0.990, 0.008),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(942.477, -2834.125, 545.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis30 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.219, 0.975, -0.035),
+			[1] = Vec3(0.105, 0.994, -0.027),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1054.861, -2854.162, 705.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis31 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.354, 0.932, -0.077),
+			[1] = Vec3(-0.159, 0.987, -0.031),
+			[2] = Vec3(0.158, 0.987, -0.033),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(880.173, -2827.558, 705.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis32 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.200, 0.972, -0.125),
+			[1] = Vec3(0.025, 1.000, 0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(747.263, -2889.688, 705.125),
+		Radius = 32,
+	},
+	SNIPE_axis33 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.040, 0.999, 0.012),
+			[1] = Vec3(0.164, 0.985, 0.050),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(167.242, -2526.271, 513.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis34 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.321, 0.947, -0.000),
+			[1] = Vec3(0.024, 0.957, -0.288),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-160.125, -2518.938, 513.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis35 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.096, 0.995, -0.027),
+			[1] = Vec3(0.344, 0.939, -0.029),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-470.574, -2507.741, 741.071),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis36 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.200, 0.980, 0.013),
+			[1] = Vec3(0.094, 0.996, 0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-595.694, -2829.453, 513.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis37 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.015, 1.000, 0.023),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-864.865, -2834.125, 545.125),
+		Radius = 32,
+	},
+	SNIPE_axis38 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.162, 0.987, 0.004),
+			[1] = Vec3(0.189, 0.982, 0.006),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-945.591, -2834.125, 545.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis39 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.195, 0.980, -0.029),
+			[1] = Vec3(0.134, 0.990, -0.042),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-791.005, -2841.410, 705.125),
+		Radius = 32,
+	},
+	SNIPE_axis40 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.163, 0.987, -0.015),
+			[1] = Vec3(0.185, 0.982, -0.035),
+			[2] = Vec3(0.466, 0.884, -0.031),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1036.508, -2825.015, 705.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis41 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.074, 0.997, -0.029),
+			[1] = Vec3(0.519, 0.854, -0.017),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1479.384, -3182.116, 625.125),
+		Radius = 32,
+	},
+	SNIPE_axis42 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.087, 0.996, -0.021),
+			[1] = Vec3(0.281, 0.959, -0.019),
+			[2] = Vec3(0.546, 0.838, -0.013),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1445.875, -2719.302, 641.362),
+		Radius = 32,
+	},
+	SNIPE_axis43 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.541, 0.841, -0.015),
+			[1] = Vec3(0.227, 0.973, -0.042),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1370.125, -2712.554, 641.362),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis44 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.005, 1.000, 0.008),
+			[1] = Vec3(0.380, 0.921, -0.082),
+			[2] = Vec3(0.494, 0.868, 0.038),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1891.033, -2210.524, 529.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis45 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.043, 0.997, -0.060),
+			[1] = Vec3(0.347, 0.938, 0.002),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1766.673, -2216.893, 529.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis46 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.307, 0.952, -0.004),
+			[1] = Vec3(0.649, 0.753, -0.107),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1616.002, -2322.125, 529.125),
+		Radius = 32,
+	},
+	SNIPE_axis47 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.081, 0.997, 0.008),
+			[1] = Vec3(0.330, 0.908, -0.256),
+			[2] = Vec3(0.513, 0.858, 0.008),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1441.263, -2650.125, 513.149),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis48 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.255, 0.929, -0.267),
+			[1] = Vec3(-0.117, 0.988, -0.102),
+			[2] = Vec3(0.551, 0.829, -0.098),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1149.403, -2825.298, 513.125),
+		Radius = 32,
+	},
+	SNIPE_axis49 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.178, 0.984, -0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1057.100, -2604.671, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis50 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.091, 0.995, 0.027),
+			[1] = Vec3(0.328, 0.944, -0.008),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-930.813, -2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis51 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.223, 0.972, 0.079),
+			[1] = Vec3(0.184, 0.966, -0.183),
+			[2] = Vec3(0.322, 0.943, 0.079),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-800.564, -2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis52 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.261, 0.965, 0.019),
+			[1] = Vec3(0.127, 0.992, -0.002),
+			[2] = Vec3(0.300, 0.951, 0.079),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-669.916, -2594.126, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis53 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.036, 0.997, 0.067),
+			[1] = Vec3(0.414, 0.902, 0.123),
+			[2] = Vec3(0.670, 0.740, 0.056),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1813.535, -1385.064, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis54 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.061, 0.997, 0.052),
+			[1] = Vec3(0.351, 0.929, 0.121),
+			[2] = Vec3(0.527, 0.850, 0.004),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1572.589, -1703.758, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis55 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.094, 0.995, 0.035),
+			[1] = Vec3(0.291, 0.955, 0.060),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1419.892, -1902.619, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis56 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.099, 0.991, 0.084),
+			[1] = Vec3(0.273, 0.961, -0.033),
+			[2] = Vec3(0.644, 0.763, -0.052),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-1213.240, -1899.882, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis57 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.155, 0.988, 0.027),
+			[1] = Vec3(0.427, 0.898, 0.109),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-692.066, -2052.469, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis58 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.318, 0.947, 0.050),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-475.277, -2120.631, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis59 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.087, 0.993, 0.084),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-451.540, -2450.125, 97.125),
+		Radius = 32,
+	},
+	SNIPE_axis60 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.353, 0.934, 0.056),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-59.249, -2357.660, 225.125),
+		Radius = 32,
+	},
+	SNIPE_axis61 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.006, 0.969, -0.247),
+			[1] = Vec3(-0.170, 0.985, -0.040),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(60.559, -2360.763, 225.125),
+		Radius = 32,
+	},
+	SNIPE_axis62 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.360, 0.933, 0.021),
+			[1] = Vec3(0.044, 0.995, 0.086),
+			[2] = Vec3(0.462, 0.887, -0.023),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-248.174, -2243.117, 97.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis63 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.070, 0.980, -0.187),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(207.323, -2223.953, 97.125),
+		Radius = 32,
+	},
+	SNIPE_axis64 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.117, 0.990, -0.075),
+			[1] = Vec3(0.315, 0.948, 0.054),
+			[2] = Vec3(0.074, 0.986, 0.151),
+			[3] = Vec3(-0.124, 0.986, 0.111),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(527.846, -2086.962, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis65 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.558, 0.827, 0.071),
+			[1] = Vec3(-0.117, 0.992, -0.040),
+			[2] = Vec3(0.139, 0.988, -0.060),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1211.812, -1899.098, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis66 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.585, 0.809, 0.052),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1306.724, -2033.604, 257.125),
+		Radius = 32,
+	},
+	SNIPE_axis67 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.609, 0.793, 0.021),
+			[1] = Vec3(-0.328, 0.938, -0.111),
+			[2] = Vec3(0.118, 0.992, -0.048),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1402.521, -1867.109, 257.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis68 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.180, 0.983, 0.023),
+			[1] = Vec3(-0.087, 0.986, 0.145),
+			[2] = Vec3(0.094, 0.994, 0.048),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1435.368, -1780.069, 17.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis69 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.651, 0.757, 0.058),
+			[1] = Vec3(-0.410, 0.911, 0.033),
+			[2] = Vec3(-0.212, 0.977, 0.038),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1655.684, -1399.532, 17.125),
+		Radius = 32,
+		Stance = "prone",
+	},
+	SNIPE_axis70 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.554, 0.825, 0.109),
+			[1] = Vec3(-0.469, 0.880, -0.077),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1810.534, -1386.929, 17.125),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis71 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.396, 0.918, 0.031),
+			[1] = Vec3(0.289, 0.957, -0.010),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(489.936, -2450.125, 97.125),
+		Radius = 32,
+	},
+	SNIPE_axis72 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.252, 0.968, -0.019),
+			[1] = Vec3(0.266, 0.964, 0.012),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(672.529, -2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis73 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.204, 0.962, -0.183),
+			[1] = Vec3(-0.477, 0.879, 0.010),
+			[2] = Vec3(0.112, 0.993, 0.023),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(807.401, -2594.126, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis74 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.342, 0.939, -0.029),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(934.977, -2594.125, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis75 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.224, 0.975, -0.008),
+			[1] = Vec3(-0.492, 0.871, 0.010),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(1065.366, -2594.127, 129.125),
+		Radius = 32,
+	},
+	SNIPE_axis76 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.027, 0.999, 0.046),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(95.372, -2221.424, -126.875),
+		Radius = 32,
+	},
+	SNIPE_axis77 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(0.019, 0.999, 0.048),
+			[1] = Vec3(0.043, 0.990, -0.136),
+			[2] = Vec3(0.216, 0.967, 0.136),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-93.222, -2216.018, -126.875),
+		Radius = 32,
+	},
+	SNIPE_axis78 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.378, 0.914, 0.147),
+			[1] = Vec3(0.072, 0.990, -0.121),
+			[2] = Vec3(0.253, 0.951, 0.178),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(-252.494, -1675.876, -306.875),
+		Radius = 32,
+		Stance = "crouch",
+	},
+	SNIPE_axis79 = 
+	{
+		AimVectors = 
+		{
+			[0] = Vec3(-0.090, 0.990, -0.111),
+			[1] = Vec3(-0.468, 0.873, 0.140),
+			[2] = Vec3(-0.074, 0.980, 0.183),
+			[3] = Vec3(0.354, 0.917, 0.187),
+		},
+		GoalType = "Snipe",
+		MaxCampTime = 50,
+		MinCampTime = 30,
+		Position = Vec3(269.049, -1726.447, -306.875),
+		Radius = 32,
+	},
+	Version = 1,
+};

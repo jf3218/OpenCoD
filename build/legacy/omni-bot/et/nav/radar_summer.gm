@@ -1,0 +1,4129 @@
+//==========================================================================================
+//
+//	radar_summer.gm
+//
+//	Who      	When		What
+//------------------------------------------------------------------------------------------
+//	Qiki		17 August 2013	Initial Script & waypoints
+//	Native12	02.05.2014	Finished
+//	Bugs and suggestions: PM on http://omni-bot.invisionzone.com/index.php?/index
+//
+//==========================================================================================
+
+global Map =
+{
+	Debug = 0,
+
+	Axis_Road_MG_Nest_Dyno = 0,
+	Axis_Watchtower_MG_Nest_Dyno = 0,
+	Allied_Bunker_MG_Nest_Dyno = 0,
+	Axis_Bunker_MG_Nest_Dyno = 0,
+	Inner_Side_Entrance_Dyno = 0,
+	Main_Entrance_Dyno = 0,
+	North_Radar_Station_Dyno = 0,
+	Outer_Side_Entrance_Dyno = 0,
+	South_Radar_Station_Dyno = 0,
+	Allied_CP_Dyno = 0,
+	Axis_CP_Dyno = 0,
+	Allied_CP = false,
+	Axis_CP = false,
+	Axis_Road_MG_Nest = false,
+	Axis_Watchtower_MG_Nest = false,
+	Tank = false,
+	Inner_Side_Entrance = true,
+	Main_Entrance = true,
+	North_Radar_Station = true,
+	Outer_Side_Entrance = true,
+	South_Radar_Station = true,
+	West_Radar_Parts = true,
+	East_Radar_Parts = true,
+	Forward_Bunker_Axis = true,
+	Forward_Bunker_Allies = false,
+	Tank_At_Position = false,
+	Axis_Bunker_MG_Nest = false,
+	Allied_Bunker_MG_Nest = false,
+	version = 0,
+	wooden_barrier_intact = true,
+	generator_intact = true,
+	Generator_Dyno = 0,
+	West_RadarParts_Taken = false,
+	East_RadarParts_Taken = false,
+	NumberOfCompletedTasks = 0,
+	Allies_Win = false,
+	start = true,
+	radarbox1_dropped = 0,
+	radarbox2_dropped = 0,
+
+	DispenseAmmoTime = 40,
+
+	Roles =
+	{
+		/*==============================================
+		Allied spawns:
+		1 - Side Entrance Bunker
+		2 - Abandoned Villa
+		3 - Forward Bunker
+		==============================================*/
+		ALLIES =
+		{
+			AllBots = true, // each bot is considered for a role
+			ATTACKER =
+			{
+				numbots = 5,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER1 =
+			{
+				numbots = 5,
+				crucialClass = CLASS.MEDIC,
+			},
+			ATTACKER2 =
+			{
+				numbots = 4,
+				crucialClass = CLASS.ENGINEER,
+			},
+			ATTACKER3 =
+			{
+				numbots = 3,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+		/*==============================================
+		Axis spawns:
+		3 - Forward Bunker
+		4 - Forward Hut
+		5 - Lower Warehouse
+		6 - Road Hut
+		==============================================*/
+		AXIS =
+		{
+			AllBots = true, // each bot is considered for a role
+			DEFENDER =
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER1 =
+			{
+				numbots = 7,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER2 =
+			{
+				numbots = 7,
+				crucialClass = CLASS.ENGINEER,
+			},
+			DEFENDER3 =
+			{
+				numbots = 6,
+				crucialClass = CLASS.ENGINEER,
+			},
+		},
+	},
+
+	Navigation =
+	{
+		//  	/bot waypoint_setproperty paththrough Navigation_PT:ladder
+		ladder =
+		{
+			navigate = function(_this)
+			{
+				wpTable = {};
+				Wp.GetWaypointByName("Ladder", wpTable);
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+
+					_this.AddAimRequest(Priority.VeryHigh, "facing", wpTable.facing);
+					sleep(0.1);
+					_this.Bot.HoldButton(BTN.FORWARD, 0.5);
+					sleep(0.5);
+					_this.AddAimRequest(Priority.VeryHigh, "facing", Vector3(-0.636, -0.016, -0.772));
+					_this.Bot.HoldButton(BTN.FORWARD, 2);
+					sleep(2);
+				}
+			},
+		},
+	},
+
+	Axis_Road_MG_Nest_Built = function( trigger )
+	{
+
+		Map.Axis_Road_MG_Nest = true;
+
+		Wp.SetWaypointFlag( "MG", "closed", false );
+
+		if ( Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"MOUNTMG42_Axis_Road_MG_Nest",
+				"REPAIRMG42_Axis_Road_MG_Nest",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"MOUNTMG42_Axis_Road_MG_Nest",
+				"REPAIRMG42_Axis_Road_MG_Nest",
+			});
+		}
+
+		Util.MapDebugPrint( "^5Axis_Road_MG_Nest_Built" );
+	},
+
+	Axis_Road_MG_Nest_Planted = function( trigger )
+	{
+
+		Map.Axis_Road_MG_Nest_Dyno += 1;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Road_MG_Nest_.*" );
+
+		Util.MapDebugPrint( "^5Axis_Road_MG_Nest_Planted" );
+	},
+
+	Axis_Road_MG_Nest_Defused = function( trigger )
+	{
+
+		Map.Axis_Road_MG_Nest_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Axis_Road_MG_Nest_Defused" );
+	},
+
+	Axis_Road_MG_Nest_Destroyed = function( trigger )
+	{
+
+		Map.Axis_Road_MG_Nest_Dyno = 0;
+		Map.Axis_Road_MG_Nest = false;
+
+		Wp.SetWaypointFlag( "MG", "closed", true );
+
+		SetAvailableMapGoals( 0, false, {
+			"MOUNTMG42_Axis_Road_MG_Nest",
+			"REPAIRMG42_Axis_Road_MG_Nest",
+		});
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Road_MG_Nest" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Road_MG_Nest" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_Road_MG_Nest_Destroyed" );
+	},
+
+	Bunker_MG_Nest_Built = function( trigger )
+	{
+
+		if ( trigger.Entity == 439 )
+		{
+			Map.Allied_Bunker_MG_Nest = true;
+
+			Util.MapDebugPrint( "^5Allied_Bunker_MG_Nest_Built" );
+		}
+		else
+		{
+			Map.Axis_Bunker_MG_Nest = true;
+
+			Util.MapDebugPrint( "^5Axis_Bunker_MG_Nest_Built" );
+		}
+
+		if ( Map.Main_Entrance )
+		{
+			if ( !Map.Forward_Bunker_Allies )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"MOUNTMG42_Bunker_MG_Nest",
+					"REPAIRMG42_Bunker_MG_Nest",
+				});
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"MOUNTMG42_Bunker_MG_Nest",
+					"REPAIRMG42_Bunker_MG_Nest",
+				});
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"MOUNTMG42_Bunker_MG_Nest",
+				"REPAIRMG42_Bunker_MG_Nest",
+			});
+		}
+	},
+
+	Bunker_MG_Nest_Planted = function( trigger )
+	{
+
+		SetAvailableMapGoals( 0, false, "DEFUSE_Bunker_MG_Nest_.*" );
+
+		if ( Map.Allied_Bunker_MG_Nest )
+		{
+			Map.Allied_Bunker_MG_Nest_Dyno += 1;
+
+			Util.MapDebugPrint( "^5Allied_Bunker_MG_Nest_Planted" );
+		}
+		else
+		{
+			Map.Axis_Bunker_MG_Nest_Dyno += 1;
+
+			Util.MapDebugPrint( "^5Axis_Bunker_MG_Nest_Planted" );
+		}
+	},
+
+	Bunker_MG_Nest_Defused = function( trigger )
+	{
+
+		if ( Map.Allied_Bunker_MG_Nest )
+		{
+			Map.Allied_Bunker_MG_Nest_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Allied_Bunker_MG_Nest_Defused" );
+		}
+		else
+		{
+			Map.Axis_Bunker_MG_Nest_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Axis_Bunker_MG_Nest_Defused" );
+		}
+	},
+
+	Bunker_MG_Nest_Destroyed = function( trigger )
+	{
+
+		Map.Bunker_MG_Nest_Dyno = 0;
+
+		SetAvailableMapGoals( 0, false, {
+			"MOUNTMG42_Bunker_MG_Nest",
+			"REPAIRMG42_Bunker_MG_Nest",
+		});
+
+		if ( trigger.Entity == 439 )
+		{
+			Map.Allied_Bunker_MG_Nest = false;
+
+			Util.MapDebugPrint( "^5Allied_Bunker_MG_Nest_Destroyed" );
+		}
+		else
+		{
+			Map.Axis_Bunker_MG_Nest = false;
+
+			Util.MapDebugPrint( "^5Axis_Bunker_MG_Nest_Destroyed" );
+		}
+	},
+
+	Forward_Bunker_Axis_Captured = function( trigger )
+	{
+
+		Map.Forward_Bunker_Axis = true;
+		Map.Forward_Bunker_Allies = false;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam(TEAM.AXIS) )
+			{
+				if ( Map.start )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER1) )
+					{
+						r = RandInt(0,2);
+						if ( r == 2 )
+						{
+							bot.ChangeSpawnPoint(5);	//Lower Warehouse
+						}
+						else
+						{
+							bot.ChangeSpawnPoint(3);	//Forward Bunker
+						}
+					}
+					if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+					if ( bot.HasRole(ROLE.DEFENDER) )
+					{
+						bot.ChangeSpawnPoint(6);	//Road Hut
+					}
+				}
+				if ( !Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER1) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+					if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+					if ( bot.HasRole(ROLE.DEFENDER) )
+					{
+						bot.ChangeSpawnPoint(6);	//Road Hut
+					}
+				}
+				if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+					if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER1) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+				}
+			}
+			else
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) or bot.HasRole(ROLE.ATTACKER2) )
+				{
+					bot.ChangeSpawnPoint(2);	//Villa
+				}
+
+				if ( bot.HasRole(ROLE.ATTACKER1) or bot.HasRole(ROLE.ATTACKER3) )
+				{
+					if ( Map.Allied_CP )
+					{
+						bot.ChangeSpawnPoint(1);	//CP Spawn
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(2);	//Villa
+					}
+				}
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_Axis_MainEntrance_.*",
+			"CHECKPOINT_roadbunker",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_Allies_ForwardSpawn_.*" );
+
+		if ( Map.generator_intact )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainRoad_.*" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"BUILD_Bunker_MG_Nest",
+			"REPAIRMG42_Bunker_MG_Nest",
+			"MOUNTMG42_Bunker_MG_Nest",
+			".*_Axis_ForwardSpawn_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "CHECKPOINT_roadbunker" );
+
+		Util.MapDebugPrint( "^5Forward_Bunker_Axis_Captured" );
+	},
+
+	Forward_Bunker_Allies_Captured = function( trigger )
+	{
+
+		Map.Forward_Bunker_Allies = true;
+		Map.Forward_Bunker_Axis = false;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam(TEAM.AXIS) )
+			{
+				if ( Map.start )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER1) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+					if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+					{
+						bot.ChangeSpawnPoint(6);	//Road Hut
+					}
+				}
+				if ( !Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER1) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+					if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+					{
+						bot.ChangeSpawnPoint(6);	//Road Hut
+					}
+				}
+				if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+					{
+						bot.ChangeSpawnPoint(6);	//Road Hut
+					}
+					if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER1) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+				}
+			}
+			else
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) or bot.HasRole(ROLE.ATTACKER2) )
+				{
+					bot.ChangeSpawnPoint(3);	//Forward Bunker
+				}
+
+				if ( bot.HasRole(ROLE.ATTACKER1) or bot.HasRole(ROLE.ATTACKER3) )
+				{
+					if ( Map.Allied_CP )
+					{
+						bot.ChangeSpawnPoint(1);	//CP Spawn
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+				}
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_Axis_MainRoad_.*",
+			"BUILD_Bunker_MG_Nest",
+			"REPAIRMG42_Bunker_MG_Nest",
+			"MOUNTMG42_Bunker_MG_Nest",
+			".*_Axis_ForwardSpawn_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "CHECKPOINT_roadbunker" );
+
+		if ( Map.generator_intact )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_MainEntrance_.*" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "CHECKPOINT_roadbunker" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_Allies_ForwardSpawn_.*" );
+
+		Util.MapDebugPrint( "^5Forward_Bunker_Allies_Captured" );
+	},
+
+	Main_Entrance_Planted = function( trigger )
+	{
+
+		Map.Main_Entrance_Dyno += 1;
+
+		if ( Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+		{
+			Util.SetRoleForGoals( "DEFUSE_Main_Entrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		else
+		{
+			Util.SetRoleForGoals( "DEFUSE_Main_Entrance_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+
+		Util.MapDebugPrint( "^5Main_Entrance_Planted" );
+	},
+
+	Main_Entrance_Defused = function( trigger )
+	{
+
+		Map.Main_Entrance_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Main_Entrance_Defused" );
+	},
+
+	Main_Entrance_Destroyed = function( trigger )
+	{
+
+		if ( Map.Main_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Main_Entrance_.*" );
+		}
+
+		Map.Main_Entrance_Dyno = 0;
+		Map.Main_Entrance = false;
+		Map.Forward_Bunker_Allies = true;
+		Map.Forward_Bunker_Axis = false;
+		Map.start = false;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam(TEAM.AXIS) )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER2) )
+				{
+					bot.ChangeSpawnPoint(4);	//Forward Hut
+				}
+				if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER1) or bot.HasRole(ROLE.DEFENDER3) )
+				{
+					bot.ChangeSpawnPoint(5);	//Lower Warehouse
+				}
+			}
+		}
+
+		Util.ClearRoleForGoals( "MOUNTMG42_CP", ROLE.DEFENDER1 );
+		Util.ClearRoleForGoals( "REPAIRMG42_CP", ROLE.DEFENDER1 );
+
+		SetAvailableMapGoals( 0, false, "CHECKPOINT_roadbunker" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_MainRoad_.*",
+			".*_Axis_ForwardSpawn_.*",
+			".*_Axis_AboveTunnel_.*",
+			".*_Axis_Road_MG_Nest",
+			".*_Bunker_MG_Nest",
+			".*_Axis_MainEntrance_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Main_Entrance" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"AMMOCAB_.*",
+			"HEALTHCAB_.*",
+		});
+
+		if ( !Map.Allied_CP and !Map.Axis_CP)
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+		}
+
+		if ( !Map.Axis_Watchtower_MG_Nest )
+		{
+			if ( GetModName() == "nitmod" )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_WatchtoMG_Nest" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Watchtower_MG_Nest" );
+			}
+		}
+
+		if ( !Map.Tank )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Tank" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNT_Tank" );
+		}
+
+		if ( !Map.West_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_WestRadarParts_.*" );
+		}
+
+		if ( Map.South_Radar_Station )
+		{
+			Util.ClearRoleForGoals( ".*_Axis_WestRadarParts_.*", ROLE.DEFENDER3 );
+
+			Util.SetRoleForGoals( ".*_Axis_SouthRadarStation_.*", ROLE.DEFENDER3 );
+
+			if ( Map.West_Radar_Parts and ( Map.East_Radar_Parts or Map.North_Radar_Station ) )
+			{
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", ROLE.DEFENDER2 );
+			}
+			if ( Map.West_Radar_Parts and !Map.East_Radar_Parts and !Map.North_Radar_Station )
+			{
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+			}
+		}
+		else
+		{
+			if ( Map.West_Radar_Parts and ( Map.East_Radar_Parts or Map.North_Radar_Station ) )
+			{
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			}
+			if ( Map.West_Radar_Parts and !Map.East_Radar_Parts and !Map.North_Radar_Station )
+			{
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			}
+		}
+
+		if ( !Map.East_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_Axis_EastRadarParts_.*",
+				"PLANTMINE_Axis_EastRadarParts_.*",
+			});
+		}
+
+		if ( Map.West_Radar_Parts or Map.South_Radar_Station )
+		{
+			Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Axis_Passage_.*" );
+
+			if ( (GetModName() == "nitmod") or (GetModName() == "silEnT" ))
+			{
+				Util.SetRoleForGoals( "TRIPMINE_Axis_Wall_WRP_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_WRP_.*" );
+				Util.MapDebugPrint( "^3Nitmod or Silent" );
+			}
+		}
+
+		if ( !Map.East_RadarParts_Taken and Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_East_North_Radar_15" );
+		}
+
+		if ( Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_NorthRadarStation_04" );
+		}
+
+		if ( !Map.East_RadarParts_Taken and  !Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_OnlyEastRadarParts_01" );
+		}
+
+		if ( Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_NorthRadarStation_.*" );
+		}
+
+		if ( !Map.East_RadarParts_Taken and !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"CALLARTILLERY_Axis_EastRadarParts_.*",
+				"ARTILLERY_S_Axis_EastRadarParts_.*",
+			});
+		}
+
+		if ( Map.South_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_SouthRadarStation_.*" );
+		}
+
+		if ( Map.Outer_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+			if ( Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+			}
+		}
+
+		if ( !Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				".*_Axis_SideEntrance_.*",
+				"DEFEND_Axis_SideInnerDoor_.*",
+			});
+
+			if ( !Map.Allied_CP )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+					".*_Axis_SideZone_.*",
+				});
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+			}
+		}
+
+		if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+			if ( !Map.Allied_CP )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideZone_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+					".*_Axis_SideInnerPlace_.*",
+					"PLANTMINE_Axis_SideZone_.*",
+				});
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+			}
+		}
+
+		if ( Map.Tank_At_Position )
+		{
+			if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", { Vec3(-1487.413, -791.334, 1277.209), Vec3(2662.479, -1638.656, 1725.899) });
+			}
+			if ( Map.Outer_Side_Entrance or Map.Inner_Side_Entrance )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", Vec3(-1487.413, -791.334, 1277.209));
+			}
+		}
+
+		sleep(1.8);
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			".*_Allies_MainEntrance_.*",
+			"DEFEND_Allies_ForwardSpawn_.*",
+		});
+
+		//attacker Flag West radar parts	=> Bunker spawn
+		//attacker1 Flag East radar parts	=> CP spawn
+		//attacker2 Attack + Plant South radar station	=> Bunker spawn
+		//attacker3 Attack + Plant North radar station	=> CP spawn
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam(TEAM.ALLIES) )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER1) or bot.HasRole(ROLE.ATTACKER3) )
+				{
+					if ( Map.Allied_CP )
+					{
+						bot.ChangeSpawnPoint(1);	//CP Spawn
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+				}
+				if ( bot.HasRole(ROLE.ATTACKER) or bot.HasRole(ROLE.ATTACKER2) )
+				{
+					bot.ChangeSpawnPoint(3);	//Forward Bunker
+				}
+			}
+		}
+
+		if ( !Map.Allied_CP and !Map.Axis_CP)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		}
+
+		if ( Map.Axis_CP)
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+
+		if ( Map.Inner_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_InnerSideEntrance_1" );
+		}
+		else
+		{
+			if ( Map.Outer_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_OuterSideEntrance_1" );
+			}
+		}
+
+		if ( !Map.East_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox2" );
+		}
+
+		if ( Map.Inner_Side_Entrance or Map.Outer_Side_Entrance )
+		{
+			if ( Map.version == 130 )
+			{
+				if ( Map.wooden_barrier_intact )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_WoodenBarrier_.*" );
+				}
+			}
+			if ( Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_North_Radar_Station",
+					"ATTACK_Allies_NorthRadarStation_.*",
+				});
+			}
+		}
+
+		if ( !Map.West_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox1" );
+		}
+
+		if ( Map.South_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"PLANT_South_Radar_Station",
+				"ATTACK_Allies_SouthRadarStation_.*",
+			});
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"AMMOCAB_.*",
+			"HEALTHCAB_.*",
+		});
+
+		Util.MapDebugPrint( "^5Main_Entrance_Destroyed" );
+	},
+
+	Entrance_Destroyed = function( trigger )
+	{
+
+		if ( Map.Outer_Side_Entrance )
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER1) )
+					{
+						while ( bot.GetReinforceTime() > 2 )
+						{
+							yield();
+						}
+
+						if ( Map.Outer_Side_Entrance )
+						{
+							bot.ExecCommand("kill");
+						}
+					}
+				}
+			}
+
+			if ( Map.Outer_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Entrance_Destroyed" );
+
+		if ( Map.Outer_Side_Entrance or Map.Inner_Side_Entrance )	//prevention of duplicity
+		{
+			while (1)
+			{
+				if (GetGoal("FLAG_radarbox1_dropped") != null or GetGoal("FLAGRETURN_radarbox1_dropped") != null)
+				{
+					//setting roles for (Flag.*_dropped) Allies and Axis - goals: "FLAG_radarbox1_dropped" and "FLAGRETURN_radarbox1_dropped"
+					if ( Map.radarbox1_dropped == 0 )
+					{
+						Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.DEFENDER2 } );
+						Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.DEFENDER2" );
+
+						if ( !Map.South_Radar_Station )
+						{
+							if ( Map.West_Radar_Parts )
+							{
+								Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+								Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+							}
+						}
+
+						if ( !Map.North_Radar_Station )
+						{
+							if ( !Map.East_Radar_Parts )
+							{
+								if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2" );
+								}
+
+								if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+
+						if ( !Map.East_Radar_Parts )
+						{
+							if ( !Map.North_Radar_Station )
+							{
+								if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2" );
+								}
+
+								if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+					}
+
+					Map.radarbox1_dropped = 1;
+				}
+				if (GetGoal("FLAG_radarbox2_dropped") != null or GetGoal("FLAGRETURN_radarbox2_dropped") != null)
+				{
+					//setting roles for (Flag.*_dropped) Allies and Axis - goals: "FLAG_radarbox2_dropped" and "FLAGRETURN_radarbox2_dropped"
+					if ( Map.radarbox2_dropped == 0 )
+					{
+						Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.DEFENDER1 } );
+						Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER1, ROLE.DEFENDER1" );
+
+						if ( !Map.North_Radar_Station )
+						{
+							if ( Map.East_Radar_Parts )
+							{
+								Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1 } );
+								Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1" );
+							}
+						}
+
+						if ( !Map.South_Radar_Station )
+						{
+							if ( !Map.West_Radar_Parts )
+							{
+								if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+
+								if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+
+						if ( !Map.West_Radar_Parts )
+						{
+							if ( !Map.South_Radar_Station )
+							{
+								if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+
+								if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+					}
+
+					Map.radarbox2_dropped = 1;
+				}
+
+				yield();
+			}
+		}
+	},
+
+	Outer_Side_Entrance_Planted = function( trigger )
+	{
+
+		Map.Outer_Side_Entrance_Dyno += 1;
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Outer_Side_Entrance_.*" );
+		}
+		else
+		{
+			Util.SetRoleForGoals( "DEFUSE_Outer_Side_Entrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		}
+
+		Util.MapDebugPrint( "^5Outer_Side_Entrance_Planted" );
+	},
+
+	Outer_Side_Entrance_Defused = function( trigger )
+	{
+
+		Map.Outer_Side_Entrance_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Outer_Side_Entrance_Defused" );
+	},
+
+	Outer_Side_Entrance_Destroyed = function( trigger )
+	{
+
+		if ( Map.Outer_Side_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Outer_Side_Entrance_.*" );
+		}
+
+		Map.Outer_Side_Entrance_Dyno = 0;
+		Map.Outer_Side_Entrance = false;
+		Map.start = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_OuterSideEntrance_1",
+			"PLANT_Outer_Side_Entrance",
+		});
+
+		if ( Map.Main_Entrance )
+		{
+			if ( Map.Inner_Side_Entrance )
+			{
+				foreach ( id and bot in BotTable )
+				{
+					if ( bot.GetTeam(TEAM.AXIS) )
+					{
+						if ( bot.HasRole(ROLE.DEFENDER1) )
+						{
+							bot.ChangeSpawnPoint(5);	//Lower Warehouse
+						}
+					}
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideEntrance_.*" );
+
+				if ( !Map.Allied_CP and !Map.Axis_CP)
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+					"DEFEND_Axis_SideInnerDoor_.*",
+					"PLANTMINE_Axis_SideZone_.*",
+				});
+
+				sleep(1.8);
+
+				if ( Map.Inner_Side_Entrance )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Inner_Side_Entrance" );
+				}
+
+				Util.MapDebugPrint( "^5Outer_Side_Entrance_Destroyed" );
+			}
+			else
+			{
+				Util.ClearRoleForGoals( ".*_Axis_MainRoad_.*", ROLE.DEFENDER );
+				Util.ClearRoleForGoals( "CHECKPOINT_roadbunker", ROLE.DEFENDER );
+				Util.ClearRoleForGoals( "BUILD_Axis_Road_MG_Nest", ROLE.DEFENDER );
+				Util.ClearRoleForGoals( "MOUNTMG42_Axis_Road_MG_Nest", ROLE.DEFENDER );
+				Util.ClearRoleForGoals( "REPAIRMG42_Axis_Road_MG_Nest", ROLE.DEFENDER );
+				Util.ClearRoleForGoals( "MOUNTMG42_CP", ROLE.DEFENDER1 );
+				Util.ClearRoleForGoals( "REPAIRMG42_CP", ROLE.DEFENDER1 );
+				Util.ClearRoleForGoals( "DEFEND_Axis_SideEntrance_.*", ROLE.DEFENDER1 );
+
+				foreach ( id and bot in BotTable )
+				{
+					if ( bot.GetTeam(TEAM.AXIS) )
+					{
+						if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER1) )
+						{
+							bot.ChangeSpawnPoint(5);	//Lower Warehouse
+						}
+					}
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					".*_Axis_SideEntrance_.*",
+					".*_Axis_SideInnerDoor_.*",
+				});
+
+				if ( !Map.Tank )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Tank" );
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "MOUNT_Tank" );
+				}
+
+				if ( !Map.Allied_CP and !Map.Axis_CP)
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+				}
+
+				if ( !Map.Allied_CP )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"MOUNTMG42_CP",
+						"REPAIRMG42_CP",
+						".*_Axis_SideInnerPlace_.*",
+						"PLANTMINE_Axis_SideZone_.*",
+					});
+
+					if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_CP_.*" );
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+				}
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"CALLARTILLERY_Axis_EastRadarParts_.*",
+						"ARTILLERY_S_Axis_EastRadarParts_.*",
+						"DEFEND_Axis_EastRadarParts_.*",
+						"PLANTMINE_Axis_EastRadarParts_.*",
+					});
+				}
+
+				if ( !Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_East_North_Radar_15" );
+				}
+
+				if ( Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_NorthRadarStation_04" );
+				}
+
+				if ( !Map.East_RadarParts_Taken and  !Map.North_Radar_Station )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_OnlyEastRadarParts_01" );
+				}
+
+				if ( Map.North_Radar_Station )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_NorthRadarStation_.*" );
+				}
+
+				if ( Map.Tank_At_Position )
+				{
+					ETUtil.SetAimModeForMount("MOUNT_Tank", Vec3(2662.479, -1638.656, 1725.899));
+				}
+
+				sleep(1.8);
+
+				Util.ClearRoleForGoals( "CHECKPOINT_roadbunker", ROLE.ATTACKER1 );
+				Util.ClearRoleForGoals( ".*_Allies_ForwardSpawn_.*", ROLE.ATTACKER1 );
+
+				SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_SideEntrance_.*" );
+
+				if ( Map.Main_Entrance )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main__Entrance1" );
+				}
+
+				if ( !Map.Allied_CP and !Map.Axis_CP)
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+				}
+
+				if ( Map.Axis_CP)
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+				}
+
+				if ( Map.version == 130 )
+				{
+					if ( Map.wooden_barrier_intact )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_WoodenBarrier_.*" );
+					}
+				}
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox2" );
+				}
+
+				if ( Map.North_Radar_Station )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"PLANT_North_Radar_Station",
+						"ATTACK_Allies_NorthRadarStation_.*",
+					});
+				}
+
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"AMMOCAB_objhacab3",
+					"HEALTHCAB_objhacab4",
+				});
+
+				Util.MapDebugPrint( "^5Outer_Side_Entrance_Destroyed" );
+
+				while (1)
+				{
+					if (GetGoal("FLAG_radarbox1_dropped") != null or GetGoal("FLAGRETURN_radarbox1_dropped") != null)
+					{
+						//setting roles for (Flag.*_dropped) Allies and Axis - goals: "FLAG_radarbox1_dropped" and "FLAGRETURN_radarbox1_dropped"
+						if ( Map.radarbox1_dropped == 0 )
+						{
+							Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.DEFENDER2 } );
+							Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.DEFENDER2" );
+
+							if ( !Map.South_Radar_Station )
+							{
+								if ( Map.West_Radar_Parts )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+
+							if ( !Map.North_Radar_Station )
+							{
+								if ( !Map.East_Radar_Parts )
+								{
+									if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2" );
+									}
+
+									if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+									}
+								}
+							}
+
+							if ( !Map.East_Radar_Parts )
+							{
+								if ( !Map.North_Radar_Station )
+								{
+									if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2" );
+									}
+
+									if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+									}
+								}
+							}
+						}
+
+						Map.radarbox1_dropped = 1;
+					}
+					if (GetGoal("FLAG_radarbox2_dropped") != null or GetGoal("FLAGRETURN_radarbox2_dropped") != null)
+					{
+						//setting roles for (Flag.*_dropped) Allies and Axis - goals: "FLAG_radarbox2_dropped" and "FLAGRETURN_radarbox2_dropped"
+						if ( Map.radarbox2_dropped == 0 )
+						{
+							Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.DEFENDER1 } );
+							Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER1, ROLE.DEFENDER1" );
+
+							if ( !Map.North_Radar_Station )
+							{
+								if ( Map.East_Radar_Parts )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1" );
+								}
+							}
+
+							if ( !Map.South_Radar_Station )
+							{
+								if ( !Map.West_Radar_Parts )
+								{
+									if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+									}
+
+									if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+									}
+								}
+							}
+
+							if ( !Map.West_Radar_Parts )
+							{
+								if ( !Map.South_Radar_Station )
+								{
+									if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+									}
+
+									if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+									{
+										Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+										Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+									}
+								}
+							}
+						}
+
+						Map.radarbox2_dropped = 1;
+					}
+
+					yield();
+				}
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+			if ( Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Inner_Side_Entrance" );
+
+				if ( !Map.Allied_CP )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"MOUNTMG42_CP",
+						"REPAIRMG42_CP",
+						".*_Axis_SideZone_.*",
+					});
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+				}
+
+				Util.MapDebugPrint( "^5Outer_Side_Entrance_Destroyed" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_SideEntrance_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+				if ( Map.version == 130 )
+				{
+					if ( Map.wooden_barrier_intact )
+					{
+						SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_WoodenBarrier_.*" );
+					}
+				}
+
+				if ( !Map.Allied_CP )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideZone_.*" );
+
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"MOUNTMG42_CP",
+						"REPAIRMG42_CP",
+						".*_Axis_SideInnerPlace_.*",
+						"PLANTMINE_Axis_SideZone_.*",
+					});
+
+					if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+					{
+						SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_CP_.*" );
+					}
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+				}
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"CALLARTILLERY_Axis_EastRadarParts_.*",
+						"ARTILLERY_S_Axis_EastRadarParts_.*",
+					});
+				}
+
+				if ( Map.North_Radar_Station )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, {
+						"PLANT_North_Radar_Station",
+						"ATTACK_Allies_NorthRadarStation_.*",
+					});
+				}
+
+				if ( Map.Tank_At_Position )
+				{
+					ETUtil.SetAimModeForMount("MOUNT_Tank", { Vec3(-1487.413, -791.334, 1277.209), Vec3(2662.479, -1638.656, 1725.899) });
+				}
+
+				Util.MapDebugPrint( "^5Outer_Side_Entrance_Destroyed" );
+			}
+		}
+	},
+
+	Inner_Side_Entrance_Planted = function( trigger )
+	{
+
+		Map.Inner_Side_Entrance_Dyno += 1;
+
+		if ( !Map.Main_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Inner_Side_Entrance_.*" );
+		}
+		else
+		{
+			Util.SetRoleForGoals( "DEFUSE_Inner_Side_Entrance_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		}
+
+		Util.MapDebugPrint( "^5Inner_Side_Entrance_Planted" );
+	},
+
+	Inner_Side_Entrance_Defused = function( trigger )
+	{
+
+		Map.Inner_Side_Entrance_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Inner_Side_Entrance_Defused" );
+	},
+
+	Inner_Side_Entrance_Destroyed = function( trigger )
+	{
+
+		if ( Map.Inner_Side_Entrance_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Inner_Side_Entrance_.*" );
+		}
+
+		Map.Inner_Side_Entrance_Dyno = 0;
+		Map.Inner_Side_Entrance = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_Inner_Side_Entrance",
+			"PLANT_InnerSideEntrance_1",
+		});
+
+		if ( Map.Main_Entrance and !Map.Outer_Side_Entrance )
+		{
+			Util.ClearRoleForGoals( ".*_Axis_MainRoad_.*", ROLE.DEFENDER );
+			Util.ClearRoleForGoals( "BUILD_Axis_Road_MG_Nest", ROLE.DEFENDER );
+			Util.ClearRoleForGoals( "MOUNTMG42_Axis_Road_MG_Nest", ROLE.DEFENDER );
+			Util.ClearRoleForGoals( "REPAIRMG42_Axis_Road_MG_Nest", ROLE.DEFENDER );
+			Util.ClearRoleForGoals( "MOUNTMG42_CP", ROLE.DEFENDER1 );
+			Util.ClearRoleForGoals( "REPAIRMG42_CP", ROLE.DEFENDER1 );
+			Util.ClearRoleForGoals( "DEFEND_Axis_SideEntrance_.*", ROLE.DEFENDER1 );
+
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER) or bot.HasRole(ROLE.DEFENDER1) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				".*_Axis_SideEntrance_.*",
+				".*_Axis_SideInnerDoor_.*",
+			});
+
+			if ( !Map.Tank )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Tank" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOUNT_Tank" );
+			}
+
+			if ( !Map.Allied_CP and !Map.Axis_CP)
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+			}
+
+			if ( !Map.Allied_CP )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+					".*_Axis_SideInnerPlace_.*",
+					"PLANTMINE_Axis_SideZone_.*",
+				});
+
+				if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_CP_.*" );
+				}
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+			}
+
+			if ( !Map.East_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"CALLARTILLERY_Axis_EastRadarParts_.*",
+					"ARTILLERY_S_Axis_EastRadarParts_.*",
+					"DEFEND_Axis_EastRadarParts_.*",
+					"PLANTMINE_Axis_EastRadarParts_.*",
+				});
+			}
+
+			if ( !Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_East_North_Radar_15" );
+			}
+
+			if ( Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_NorthRadarStation_04" );
+			}
+
+			if ( !Map.East_RadarParts_Taken and  !Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_OnlyEastRadarParts_01" );
+			}
+
+			if ( Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_NorthRadarStation_.*" );
+			}
+
+			if ( Map.Tank_At_Position )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", Vec3(2662.479, -1638.656, 1725.899));
+			}
+
+			sleep(1.8);
+
+			Util.ClearRoleForGoals( "CHECKPOINT_roadbunker", ROLE.ATTACKER1 );
+			Util.ClearRoleForGoals( ".*_Allies_ForwardSpawn_.*", ROLE.ATTACKER1 );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_SideEntrance_.*" );
+
+			if ( Map.Main_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main__Entrance1" );
+			}
+
+			if ( !Map.Allied_CP and !Map.Axis_CP)
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+			}
+
+			if ( Map.Axis_CP)
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+			}
+
+			if ( Map.version == 130 )
+			{
+				if ( Map.wooden_barrier_intact )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_WoodenBarrier_.*" );
+				}
+			}
+
+			if ( !Map.East_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox2" );
+			}
+
+			if ( Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_North_Radar_Station",
+					"ATTACK_Allies_NorthRadarStation_.*",
+				});
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"AMMOCAB_objhacab3",
+				"HEALTHCAB_objhacab4",
+			});
+
+			Util.MapDebugPrint( "^5Inner_Side_Entrance_Destroyed" );
+
+			while (1)
+			{
+				if (GetGoal("FLAG_radarbox1_dropped") != null or GetGoal("FLAGRETURN_radarbox1_dropped") != null)
+				{
+					//setting roles for (Flag.*_dropped) Allies and Axis - goals: "FLAG_radarbox1_dropped" and "FLAGRETURN_radarbox1_dropped"
+					if ( Map.radarbox1_dropped == 0 )
+					{
+						Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.DEFENDER2 } );
+						Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.DEFENDER2" );
+
+						if ( !Map.South_Radar_Station )
+						{
+							if ( Map.West_Radar_Parts )
+							{
+								Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+								Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+							}
+						}
+
+						if ( !Map.North_Radar_Station )
+						{
+							if ( !Map.East_Radar_Parts )
+							{
+								if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2" );
+								}
+
+								if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+
+						if ( !Map.East_Radar_Parts )
+						{
+							if ( !Map.North_Radar_Station )
+							{
+								if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2" );
+								}
+
+								if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 1: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+					}
+
+					Map.radarbox1_dropped = 1;
+				}
+				if (GetGoal("FLAG_radarbox2_dropped") != null or GetGoal("FLAGRETURN_radarbox2_dropped") != null)
+				{
+					//setting roles for (Flag.*_dropped) Allies and Axis - goals: "FLAG_radarbox2_dropped" and "FLAGRETURN_radarbox2_dropped"
+					if ( Map.radarbox2_dropped == 0 )
+					{
+						Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.DEFENDER1 } );
+						Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER1, ROLE.DEFENDER1" );
+
+						if ( !Map.North_Radar_Station )
+						{
+							if ( Map.East_Radar_Parts )
+							{
+								Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1 } );
+								Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1" );
+							}
+						}
+
+						if ( !Map.South_Radar_Station )
+						{
+							if ( !Map.West_Radar_Parts )
+							{
+								if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+
+								if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+
+						if ( !Map.West_Radar_Parts )
+						{
+							if ( !Map.South_Radar_Station )
+							{
+								if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+
+								if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+								{
+									Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+									Util.MapDebugPrint( "^3roles for (Flag.*_dropped) Allies and Axis => radarbox 2: ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3" );
+								}
+							}
+						}
+					}
+
+					Map.radarbox2_dropped = 1;
+				}
+
+				yield();
+			}
+		}
+
+		if ( !Map.Main_Entrance and !Map.Outer_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, ".*_Allies_SideEntrance_.*" );
+
+			if ( Map.version == 130 )
+			{
+				if ( Map.wooden_barrier_intact )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "GRENADE_WoodenBarrier_.*" );
+				}
+			}
+
+			if ( !Map.Allied_CP )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideZone_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					".*_Axis_SideInnerPlace_.*",
+					"PLANTMINE_Axis_SideZone_.*",
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+				});
+
+				if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_CP_.*" );
+				}
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+			}
+
+			if ( !Map.East_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"CALLARTILLERY_Axis_EastRadarParts_.*",
+					"ARTILLERY_S_Axis_EastRadarParts_.*",
+				});
+			}
+
+			if ( Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, {
+					"PLANT_North_Radar_Station",
+					"ATTACK_Allies_NorthRadarStation_.*",
+				});
+			}
+
+			if ( Map.Tank_At_Position )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", { Vec3(-1487.413, -791.334, 1277.209), Vec3(2662.479, -1638.656, 1725.899) });
+			}
+
+			Util.MapDebugPrint( "^5Inner_Side_Entrance_Destroyed" );
+		}
+
+		if ( Map.Outer_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_OuterSideEntrance_1" );
+		}
+
+		Util.MapDebugPrint( "^5Inner_Side_Entrance_Destroyed" );
+	},
+
+	Axis_Watchtower_MG_Nest_Built = function( trigger )
+	{
+
+		Map.Axis_Watchtower_MG_Nest = true;
+
+		Wp.SetWaypointFlag( "MG_1", "closed", false );
+
+		if ( GetModName() == "nitmod" )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_WatchtoMG_Nest" );
+
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"REPAIRMG42_Axis_WatchtoMG_Nest",
+				"MOUNTMG42_Axis_WatchtoMG_Nest",
+			});
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Axis_Watchtower_MG_Nest" );
+
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"REPAIRMG42_Axis_Watchtower_MG_Nest",
+				"MOUNTMG42_Axis_Watchtower_MG_Nest",
+			});
+		}
+
+		if ( !Map.Main_Entrance or ( !Map.Inner_Side_Entrance and !Map.Outer_Side_Entrance ))
+		{
+			if ( GetModName() == "nitmod" )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_WatchtoMG_Nest" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Axis_Watchtower_MG_Nest" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Axis_Watchtower_MG_Nest_Built" );
+	},
+
+	Axis_Watchtower_MG_Nest_Planted = function( trigger )
+	{
+
+		Map.Axis_Watchtower_MG_Nest_Dyno += 1;
+
+		if ( GetModName() == "nitmod" )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_WatchtoMG_Nest_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Axis_Watchtower_MG_Nest_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_Watchtower_MG_Nest_Planted" );
+	},
+
+	Axis_Watchtower_MG_Nest_Defused = function( trigger )
+	{
+
+		Map.Axis_Watchtower_MG_Nest_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Axis_Watchtower_MG_Nest_Defused" );
+	},
+
+	Axis_Watchtower_MG_Nest_Destroyed = function( trigger )
+	{
+
+		Map.Axis_Watchtower_MG_Nest_Dyno = 0;
+		Map.Axis_Watchtower_MG_Nest = false;
+
+		Wp.SetWaypointFlag( "MG_1", "closed", true );
+
+		if ( GetModName() == "nitmod" )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_WatchtoMG_Nest" );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"REPAIRMG42_Axis_WatchtoMG_Nest",
+				"MOUNTMG42_Axis_WatchtoMG_Nest",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_WatchtoMG_Nest" );
+
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Watchtower_MG_Nest" );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"REPAIRMG42_Axis_Watchtower_MG_Nest",
+				"MOUNTMG42_Axis_Watchtower_MG_Nest",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Axis_Watchtower_MG_Nest" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_Watchtower_MG_Nest_Destroyed" );
+	},
+
+	Allied_CP_Built = function( trigger )
+	{
+
+		Map.Allied_CP = true;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam(TEAM.ALLIES) )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER1) or bot.HasRole(ROLE.ATTACKER3) )
+				{
+					bot.ChangeSpawnPoint(1);	//CP Spawn
+				}
+				if ( bot.HasRole(ROLE.ATTACKER) or bot.HasRole(ROLE.ATTACKER2) )
+				{
+					if ( Map.Forward_Bunker_Allies )
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(2);	//Villa
+					}
+				}
+			}
+		}
+
+		if ( Map.Main_Entrance )
+		{
+			if ( Map.Outer_Side_Entrance or Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideInnerPlace_.*" );
+			}
+			else
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideInnerPlace_.*" );
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"MOUNTMG42_CP",
+				"REPAIRMG42_CP",
+			});
+
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+		}
+
+		if ( !Map.Inner_Side_Entrance and !Map.Outer_Side_Entrance and ( GetModName() == "nitmod" or GetModName() == "silEnT" ) )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "TRIPMINE_Axis_Wall_CP_.*" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Command_Post" );
+
+		Util.MapDebugPrint( "^5Allied_CP_Built" );
+	},
+
+	Axis_CP_Built = function( trigger )
+	{
+
+		Map.Axis_CP = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Command_Post" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Command_Post" );
+
+		if ( !Map.Main_Entrance or ( !Map.Inner_Side_Entrance and !Map.Outer_Side_Entrance ))
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_CP_Built" );
+	},
+
+	Command_Post_Planted = function( trigger )
+	{
+
+		if ( Map.Allied_CP )
+		{
+			Map.Allied_CP_Dyno += 1;
+
+			Util.SetRoleForGoals( "DEFUSE_Command_Post_.*", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+
+			Util.MapDebugPrint( "^5Allied_CP_Planted" );
+		}
+		else
+		{
+			Map.Axis_CP_Dyno += 1;
+
+			Util.SetRoleForGoals( "DEFUSE_Command_Post_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+
+			Util.MapDebugPrint( "^5Axis_CP_Planted" );
+		}
+	},
+
+	Command_Post_Defused = function( trigger )
+	{
+
+		if ( Map.Allied_CP )
+		{
+			Map.Allied_CP_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Allied_CP_Defused" );
+		}
+		else
+		{
+			Map.Axis_CP_Dyno -= 1;
+
+			Util.MapDebugPrint( "^5Axis_CP_Defused" );
+		}
+	},
+
+	Allied_CP_Destroyed = function( trigger )
+	{
+
+		if ( Map.Allied_CP_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "DEFUSE_Command_Post_.*" );
+		}
+
+		Map.Allied_CP_Dyno = 0;
+		Map.Allied_CP = false;
+
+		foreach ( id and bot in BotTable )
+		{
+			if ( bot.GetTeam(TEAM.ALLIES) )
+			{
+				if ( bot.HasRole(ROLE.ATTACKER) or bot.HasRole(ROLE.ATTACKER3) or bot.HasRole(ROLE.ATTACKER1) or bot.HasRole(ROLE.ATTACKER2) )
+				{
+					if ( Map.Forward_Bunker_Allies )
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(2);	//Villa
+					}
+				}
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Command_Post" );
+
+		if ( Map.Main_Entrance )
+		{
+			if ( Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"DEFEND_Axis_SideZone_.*",
+					".*_Axis_SideInnerPlace_.*",
+				});
+			}
+
+			if ( !Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					"DEFEND_Axis_SideZone_.*",
+					".*_Axis_SideInnerPlace_.*",
+				});
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+					"DEFEND_Axis_SideInnerDoor_.*",
+				});
+			}
+
+			if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_Axis_SideZone_.*" );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					".*_Axis_SideInnerPlace_.*",
+					"MOUNTMG42_CP",
+					"REPAIRMG42_CP",
+				});
+			}
+		}
+
+		if ( !Map.Main_Entrance or ( !Map.Inner_Side_Entrance and !Map.Outer_Side_Entrance ))
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		}
+
+		if ( !Map.Inner_Side_Entrance and !Map.Outer_Side_Entrance and ( GetModName() == "nitmod" or GetModName() == "silEnT" ) )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_CP_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Allied_CP_Destroyed" );
+	},
+
+	Axis_CP_Destroyed = function( trigger )
+	{
+
+		if ( Map.Axis_CP_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Command_Post_.*" );
+		}
+
+		Map.Axis_CP_Dyno = 0;
+		Map.Axis_CP = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Command_Post" );
+
+		if ( !Map.Main_Entrance or ( !Map.Inner_Side_Entrance and !Map.Outer_Side_Entrance ))
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Command_Post" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+		}
+
+		Util.MapDebugPrint( "^5Axis_CP_Destroyed" );
+	},
+
+	Tank_Built = function( trigger )
+	{
+
+		Map.Tank = true;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_Tank" );
+
+		if ( !Map.Main_Entrance or ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance ) )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOUNT_Tank" );
+		}
+
+		Util.MapDebugPrint( "^5Tank_Built" );
+	},
+
+	Tank_Destroyed = function( trigger )
+	{
+
+		Map.Tank = false;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "MOUNT_Tank" );
+
+		if ( !Map.Main_Entrance or ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance ) )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_Tank" );
+		}
+
+		Util.MapDebugPrint( "^5Tank_Destroyed" );
+	},
+
+	North_Radar_Station_Planted = function( trigger )
+	{
+
+		Map.North_Radar_Station_Dyno += 1;
+
+		if ( !Map.South_Radar_Station and !Map.West_Radar_Parts )
+		{
+			Util.SetRoleForGoals( "DEFUSE_North_Radar_Station_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		else if ( !Map.South_Radar_Station and Map.West_Radar_Parts )
+		{
+			Util.SetRoleForGoals( "DEFUSE_North_Radar_Station_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+		}
+		else
+		{
+			Util.SetRoleForGoals( "DEFUSE_North_Radar_Station_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+		}
+
+		Util.MapDebugPrint( "^5North_Radar_Station_Planted" );
+	},
+
+	North_Radar_Station_Defused = function( trigger )
+	{
+
+		Map.North_Radar_Station_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5North_Radar_Station_Defused" );
+	},
+
+	North_Radar_Station_Destroyed = function( trigger )
+	{
+
+		if ( Map.North_Radar_Station_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_North_Radar_Station_.*" );
+		}
+
+		Map.North_Radar_Station_Dyno = 0;
+		Map.North_Radar_Station = false;
+		Map.NumberOfCompletedTasks +=  1;
+
+		if ( Map.version == 120 )
+		{
+			if ( Map.NumberOfCompletedTasks == 3 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		if ( Map.version == 130 )
+		{
+			if ( Map.NumberOfCompletedTasks == 4 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_NorthRadarStation_.*",
+			"DEFEND_Axis_F_NRS_.*",
+			"MOBILEMG42_Axis_East_North_Radar_15",
+			"MOBILEMG42_Axis_NorthRadarStation_04",
+			"PLANTMINE_Axis_NRS_.*",
+			"ARTILLERY_S_Axis_Hill_01",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_NorthRadarStation_.*" );
+
+		if ( !Map.East_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_OnlyEastRadarParts_01" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "CALLARTILLERY_Axis_EastRadarParts_16" );
+
+		}
+
+		if ( Map.East_Radar_Parts )
+		{
+			if ( !Map.East_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_ERP_.*" );
+			}
+
+			if ( !Map.South_Radar_Station and !Map.West_Radar_Parts )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "DEFEND_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "CALLARTILLERY_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ARTILLERY_S_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_ERP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_ERP_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_ERP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+			else
+			{
+				Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1 } );
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_EastRadarParts_.*" );
+
+			WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+
+			if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_WRP_.*" );
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_WRP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_WRP_.*", ROLE.DEFENDER1 );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				if ( !Map.West_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_WRP_.*" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_SRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_WRP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_WRP_.*", { ROLE.ATTACKER, ROLE.ATTACKER3 } );
+			}
+
+			if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_WRP_.*" );
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_WRP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_WRP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				if ( !Map.West_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_WRP_.*" );
+				}
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_WRP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_WRP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+
+			if ( !Map.West_Radar_Parts and Map.South_Radar_Station )
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_SouthRadarStation_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_SRS_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_SRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_SouthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_SouthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+		}
+
+		Util.MapDebugPrint( "^5North_Radar_Station_Destroyed" );
+	},
+
+	South_Radar_Station_Planted = function( trigger )
+	{
+
+		Map.South_Radar_Station_Dyno += 1;
+
+		if ( !Map.North_Radar_Station and !Map.East_Radar_Parts )
+		{
+			Util.SetRoleForGoals( "DEFUSE_South_Radar_Station_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+		else
+		{
+			Util.SetRoleForGoals( "DEFUSE_South_Radar_Station_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+		}
+
+		Util.MapDebugPrint( "^5South_Radar_Station_Planted" );
+	},
+
+	South_Radar_Station_Defused = function( trigger )
+	{
+
+		Map.South_Radar_Station_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5South_Radar_Station_Defused" );
+	},
+
+	South_Radar_Station_Destroyed = function( trigger )
+	{
+
+		if ( Map.South_Radar_Station_Dyno > 0 )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_South_Radar_Station_.*" );
+		}
+
+		Map.South_Radar_Station_Dyno = 0;
+		Map.South_Radar_Station = false;
+		Map.NumberOfCompletedTasks +=  1;
+
+		if ( Map.version == 120 )
+		{
+			if ( Map.NumberOfCompletedTasks == 3 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		if ( Map.version == 130 )
+		{
+			if ( Map.NumberOfCompletedTasks == 4 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"DEFEND_Axis_SouthRadarStation_.*",
+			"DEFEND_Axis_F_SRS_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_SouthRadarStation_.*" );
+
+		if ( Map.West_Radar_Parts )
+		{
+			if ( !Map.West_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_WRP_.*" );
+			}
+
+			if ( !Map.North_Radar_Station and !Map.East_Radar_Parts )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_WRP_.*" );
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_WRP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_WRP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_WRP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_WRP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+			else
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_WRP_.*" );
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_WRP_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_WRP_.*", ROLE.DEFENDER3 );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_WRP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_WRP_.*", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+
+			}
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER2) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"PLANTMINE_Axis_Passage_.*",
+				"CALLARTILLERY_Axis_WestRadarParts_12",
+				"ARTILLERY_S_Axis_WestRadarParts_13",
+			});
+
+			if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "TRIPMINE_Axis_Wall_WRP_.*" );
+
+				Util.SetRoleForGoals( "TRIPMINE_Axis_Wall_CP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+			}
+
+			if ( Map.North_Radar_Station or Map.East_Radar_Parts )
+			{
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Route_.*" );
+				}
+			}
+
+			if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "DEFEND_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "CALLARTILLERY_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ARTILLERY_S_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_ERP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_ERP_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_NRS_.*", ROLE.DEFENDER3 );
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_ERP_.*" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_NRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_ERP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+			}
+
+			if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "DEFEND_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "CALLARTILLERY_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ARTILLERY_S_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_ERP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_ERP_.*", { ROLE.DEFENDER, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_ERP_.*" );
+				}
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_ERP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+
+			if ( !Map.East_Radar_Parts and Map.North_Radar_Station )
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_NorthRadarStation_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_NRS_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_NRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_NorthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_NorthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+		}
+
+		Util.MapDebugPrint( "^5South_Radar_Station_Destroyed" );
+	},
+
+	West_Radar_Parts_Taken = function( trigger )
+	{
+
+		Map.West_RadarParts_Taken = true;
+		Map.radarbox1_dropped = 0;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_WestRadarParts_.*",
+			"DEFEND_Axis_F_WRP_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox1" );
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_Truck_WRP_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"ATTACK_Allies_Truck_WRP_.*",
+			"CAPPOINT_Truck",
+		});
+
+		Util.MapDebugPrint( "^5West_Radar_Parts_Taken" );
+	},
+
+	West_Radar_Parts_Returned = function( trigger )
+	{
+
+		Map.West_RadarParts_Taken = false;
+		Map.radarbox1_dropped = 0;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_Truck_WRP_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Truck_WRP_.*" );
+
+		if ( !Map.South_Radar_Station or ( !Map.North_Radar_Station and !Map.East_Radar_Parts) )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_WRP_.*" );
+		}
+
+		if ( !Map.East_Radar_Parts )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_Truck_ERP_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Truck_ERP_.*" );
+		}
+
+		if ( !Map.East_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Truck" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_WestRadarParts_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox1" );
+
+		Util.MapDebugPrint( "^5West_Radar_Parts_Returned" );
+	},
+
+	West_Radar_Parts_Secured = function( trigger )
+	{
+
+		Map.West_Radar_Parts = false;
+		Map.NumberOfCompletedTasks +=  1;
+
+		if ( Map.version == 120 )
+		{
+			if ( Map.NumberOfCompletedTasks == 3 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		if ( Map.version == 130 )
+		{
+			if ( Map.NumberOfCompletedTasks == 4 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_WestRadarParts_.*",
+			"DEFEND_Axis_F_WRP_.*",
+		});
+
+		if ( !Map.East_RadarParts_Taken or !Map.East_Radar_Parts )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"ATTACK_Axis_Truck_WRP_.*",
+				"ATTACK_Axis_Truck_ERP_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_Truck_WRP_.*",
+				"ATTACK_Allies_Truck_ERP_.*",
+				"CAPPOINT_Truck",
+			});
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox1" );
+
+		if ( Map.South_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_Axis_F_SRS_.*",
+				"CALLARTILLERY_Axis_WestRadarParts_12",
+				"ARTILLERY_S_Axis_WestRadarParts_13",
+			});
+
+			if ( !Map.North_Radar_Station and !Map.East_Radar_Parts )
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_SouthRadarStation_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_SRS_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_SouthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_SouthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_South_Radar_Station", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+			else
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_SouthRadarStation_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_SRS_.*", ROLE.DEFENDER2 );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_SouthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_SouthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+				Util.SetRoleForGoals( "PLANT_South_Radar_Station", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+			}
+		}
+		else
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER2) )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+				}
+			}
+
+			SetAvailableMapGoals( TEAM.AXIS, false, "PLANTMINE_Axis_Passage_.*" );
+
+			if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "TRIPMINE_Axis_Wall_WRP_.*" );
+
+				Util.SetRoleForGoals( "TRIPMINE_Axis_Wall_CP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+			}
+
+			if ( Map.North_Radar_Station or Map.East_Radar_Parts )
+			{
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Route_.*" );
+				}
+			}
+
+			if ( Map.North_Radar_Station and Map.East_Radar_Parts )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "DEFEND_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "CALLARTILLERY_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ARTILLERY_S_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_ERP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_ERP_.*", ROLE.DEFENDER2 );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_NRS_.*", ROLE.DEFENDER3 );
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_ERP_.*" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_NRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_ERP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2 } );
+			}
+
+			if ( Map.East_Radar_Parts and !Map.North_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "DEFEND_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "CALLARTILLERY_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ARTILLERY_S_Axis_EastRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_ERP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_ERP_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				if ( !Map.East_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_ERP_.*" );
+				}
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_ERP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox2.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_ERP_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+
+			if ( !Map.East_Radar_Parts and Map.North_Radar_Station )
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_NorthRadarStation_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_NRS_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_NRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_NorthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_NorthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+		}
+
+		Util.MapDebugPrint( "^5West_Radar_Parts_Secured" );
+	},
+
+	East_Radar_Parts_Taken = function( trigger )
+	{
+
+		Map.East_RadarParts_Taken = true;
+		Map.radarbox2_dropped = 0;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox2" );
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_EastRadarParts_.*",
+			"DEFEND_Axis_F_ERP_.*",
+			".*_Axis_Route_.*",
+		});
+
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_Axis_Truck_ERP_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"ATTACK_Allies_Truck_ERP_.*",
+			"CAPPOINT_Truck",
+		});
+
+		Util.MapDebugPrint( "^5East_Radar_Parts_Taken" );
+
+		sleep(3);
+
+		if ( Map.East_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"MOBILEMG42_Axis_East_North_Radar_15",
+				"MOBILEMG42_Axis_OnlyEastRadarParts_01",
+			});
+		}
+
+		if ( Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_NorthRadarStation_04" );
+		}
+	},
+
+	East_Radar_Parts_Returned = function( trigger )
+	{
+
+		Map.East_RadarParts_Taken = false;
+		Map.radarbox2_dropped = 0;
+
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_Truck_ERP_.*" );
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Truck_ERP_.*" );
+
+		if ( !Map.West_Radar_Parts )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_Axis_Truck_WRP_.*" );
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_Allies_Truck_WRP_.*" );
+		}
+
+		if ( !Map.West_RadarParts_Taken )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "CAPPOINT_Truck" );
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"DEFEND_Axis_EastRadarParts_.*",
+			"PLANTMINE_Axis_EastRadarParts_.*",
+		});
+
+		if ( Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "MOBILEMG42_Axis_NorthRadarStation_04" );
+
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_East_North_Radar_15" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_OnlyEastRadarParts_01" );
+		}
+
+		if ( ( !Map.South_Radar_Station and !Map.West_Radar_Parts ) or !Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_ERP_.*" );
+		}
+
+		if ( !Map.South_Radar_Station and !Map.West_Radar_Parts )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Route_.*" );
+		}
+
+		if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"CALLARTILLERY_Axis_EastRadarParts_.*",
+				"ARTILLERY_S_Axis_EastRadarParts_.*",
+			});
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox2" );
+
+		Util.MapDebugPrint( "^5East_Radar_Parts_Returned" );
+	},
+
+	East_Radar_Parts_Secured = function( trigger )
+	{
+
+		Map.East_Radar_Parts = false;
+		Map.NumberOfCompletedTasks +=  1;
+
+		if ( Map.version == 120 )
+		{
+			if ( Map.NumberOfCompletedTasks == 3 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		if ( Map.version == 130 )
+		{
+			if ( Map.NumberOfCompletedTasks == 4 )
+			{
+				Map.Allies_Win = true;
+
+				sleep(1);
+				ETUtil.WinningChat( TEAM.ALLIES );
+				sleep(1.5);
+				ETUtil.LosingChat( TEAM.AXIS );
+
+				Util.MapDebugPrint( "^5Allies win" );
+			}
+		}
+
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			".*_Axis_EastRadarParts_.*",
+			"DEFEND_Axis_F_ERP_.*",
+			"MOBILEMG42_Axis_East_North_Radar_15",
+			"MOBILEMG42_Axis_OnlyEastRadarParts_01",
+		});
+
+		if ( !Map.West_RadarParts_Taken or !Map.West_Radar_Parts )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"ATTACK_Axis_Truck_ERP_.*",
+				"ATTACK_Axis_Truck_WRP_.*",
+			});
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"ATTACK_Allies_Truck_ERP_.*",
+				"ATTACK_Allies_Truck_WRP_.*",
+				"CAPPOINT_Truck",
+			});
+		}
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "FLAG_radarbox2" );
+
+		if ( !Map.South_Radar_Station and !Map.West_Radar_Parts and Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_Route_.*" );
+		}
+
+		if ( Map.North_Radar_Station )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_Axis_F_NRS_.*",
+				"MOBILEMG42_Axis_NorthRadarStation_04",
+				"PLANTMINE_Axis_NRS_.*",
+				"CALLARTILLERY_Axis_EastRadarParts_16",
+				"ARTILLERY_S_Axis_Hill_01",
+			});
+
+			if ( !Map.West_Radar_Parts and !Map.South_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "DEFEND_Axis_NorthRadarStation_.*" );
+				Util.SetRoleForGoals( "DEFEND_Axis_NorthRadarStation_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_NRS_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_NorthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_NorthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "PLANT_North_Radar_Station", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+			else
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_F_NRS_.*", ROLE.DEFENDER1 );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_NorthRadarStation_.*" );
+				Util.SetRoleForGoals( "PLANT_North_Radar_Station", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_NorthRadarStation_.*", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+			}
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_EastRadarParts_.*" );
+
+			WeaponTable.SetWeaponTeamAvailability ( TEAM.AXIS, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+
+			if ( Map.West_Radar_Parts and Map.South_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_WRP_.*" );
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_WRP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_WRP_.*", ROLE.DEFENDER1 );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				if ( !Map.West_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_WRP_.*" );
+				}
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_SRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_WRP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER3, ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_WRP_.*", { ROLE.ATTACKER, ROLE.ATTACKER3 } );
+			}
+
+			if ( Map.West_Radar_Parts and !Map.South_Radar_Station )
+			{
+				Util.SetMaxUsers( 2, "ATTACK_Axis_Truck_WRP_.*" );
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Axis_Truck_WRP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_WRP_.*", { ROLE.DEFENDER1, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				if ( !Map.West_RadarParts_Taken )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_WRP_.*" );
+				}
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_Truck_WRP_.*" );
+				Util.SetRoleForGoals( "FLAG.*_radarbox1.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3, ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "ATTACK_Allies_Truck_WRP_.*", { ROLE.ATTACKER, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+
+			if ( !Map.West_Radar_Parts and Map.South_Radar_Station )
+			{
+				Util.SetRoleForGoals( "DEFEND_Axis_SouthRadarStation_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+				Util.SetRoleForGoals( "DEFEND_Axis_F_SRS_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2 } );
+				Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_F_SRS_.*" );
+
+				Util.SetMaxUsers( 2, "ATTACK_Allies_SouthRadarStation_.*" );
+				Util.SetRoleForGoals( "ATTACK_Allies_SouthRadarStation_.*", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 } );
+			}
+		}
+
+		Util.MapDebugPrint( "^5East_Radar_Parts_Secured" );
+	},
+
+	Wooden_Barrier_destroyed = function( trigger )
+	{
+
+		Map.wooden_barrier_intact = false;
+
+		SetAvailableMapGoals( TEAM.ALLIES, false, "GRENADE_WoodenBarrier_.*" );
+
+		sleep(1.8);
+
+		if ( Map.version == 130 )
+		{
+			if ( Map.generator_intact )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Generator" );
+			}
+		}
+
+		Util.MapDebugPrint( "^5Wooden_Barrier_destroyed" );
+	},
+
+	Generator_planted = function( trigger )
+	{
+
+		Map.Generator_Dyno += 1;
+
+		if ( !Map.Main_Entrance )
+		{
+			Util.SetMaxUsers( 1, "DEFUSE_Generator_.*" );
+		}
+		else
+		{
+			Util.SetMaxUsers( 2, "DEFUSE_Generator_.*" );
+		}
+
+		Util.MapDebugPrint( "^5Generator_planted" );
+	},
+
+	Generator_defused = function( trigger )
+	{
+
+		Map.Generator_Dyno -= 1;
+
+		Util.MapDebugPrint( "^5Generator_defused" );
+	},
+
+	Generator_destroyed = function( trigger )
+	{
+
+		if ( Map.generator_intact )
+		{
+			if ( Map.Generator_Dyno > 0 )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, "DEFUSE_Generator_.*" );
+			}
+
+			Map.Generator_Dyno = 0;
+
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Generator" );
+
+			Util.MapDebugPrint( "^5Generator_destroyed" );
+		}
+
+		Map.generator_intact = false;
+
+		if ( Map.Main_Entrance )
+		{
+			foreach ( id and bot in BotTable )
+			{
+				if ( bot.GetTeam(TEAM.AXIS) )
+				{
+					if ( bot.HasRole(ROLE.DEFENDER2) )
+					{
+						bot.ChangeSpawnPoint(4);	//Forward Hut
+					}
+				}
+			}
+
+			Util.SetRoleForGoals( "CHECKPOINT_roadbunker", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				".*_Axis_MainRoad_.*",
+				".*_Axis_Road_MG_Nest",
+				".*_Axis_AboveTunnel_.*",
+				".*_Axis_MainEntrance_.*",
+			});
+
+			Util.ClearRoleForGoals( ".*_Axis_AboveTunnel_.*", ROLE.DEFENDER3 );
+			Util.ClearRoleForGoals( ".*_Axis_MainEntrance_.*", ROLE.DEFENDER3 );
+
+			if ( Map.West_Radar_Parts )
+			{
+				Util.ClearRoleForGoals( ".*_Axis_WestRadarParts_.*", ROLE.DEFENDER2 );
+				Util.ClearRoleForGoals( ".*_Axis_SouthRadarStation_.*", ROLE.DEFENDER3 );
+
+				Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", ROLE.DEFENDER3 );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_WestRadarParts_.*" );
+			}
+
+			if ( Map.West_Radar_Parts or Map.South_Radar_Station )
+			{
+				Util.ClearRoleForGoals( "PLANTMINE_Axis_Passage_.*", ROLE.DEFENDER2 );
+
+				SetAvailableMapGoals( TEAM.AXIS, true, "PLANTMINE_Axis_Passage_.*" );
+
+				if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+				{
+					Util.ClearRoleForGoals( "TRIPMINE_Axis_Wall_WRP_.*", ROLE.DEFENDER2 );
+
+					SetAvailableMapGoals( TEAM.AXIS, true, "TRIPMINE_Axis_Wall_WRP_.*" );
+				}
+			}
+
+			if ( !Map.East_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"DEFEND_Axis_EastRadarParts_.*",
+					"PLANTMINE_Axis_EastRadarParts_.*",
+				});
+			}
+
+			if ( !Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_East_North_Radar_15" );
+			}
+
+			if ( Map.East_RadarParts_Taken and  Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_NorthRadarStation_04" );
+			}
+
+			if ( !Map.East_RadarParts_Taken and  !Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "MOBILEMG42_Axis_OnlyEastRadarParts_01" );
+			}
+
+			if ( Map.North_Radar_Station )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_Axis_NorthRadarStation_.*" );
+			}
+
+			if ( !Map.East_RadarParts_Taken and !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, true, {
+					"CALLARTILLERY_Axis_EastRadarParts_.*",
+					"ARTILLERY_S_Axis_EastRadarParts_.*",
+				});
+			}
+			if ( Map.Outer_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+				if ( Map.Inner_Side_Entrance )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+				}
+			}
+
+			if ( !Map.Outer_Side_Entrance and Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, {
+					".*_Axis_SideEntrance_.*",
+					"DEFEND_Axis_SideInnerDoor_.*",
+				});
+
+				if ( !Map.Allied_CP )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"MOUNTMG42_CP",
+						"REPAIRMG42_CP",
+						".*_Axis_SideZone_.*",
+					});
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+				}
+			}
+
+			if ( !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideEntrance_.*" );
+
+				if ( !Map.Allied_CP )
+				{
+					SetAvailableMapGoals( TEAM.AXIS, false, ".*_Axis_SideZone_.*" );
+
+					SetAvailableMapGoals( TEAM.AXIS, true, {
+						"MOUNTMG42_CP",
+						"REPAIRMG42_CP",
+						".*_Axis_SideInnerPlace_.*",
+						"PLANTMINE_Axis_SideZone_.*",
+					});
+				}
+				else
+				{
+					SetAvailableMapGoals( TEAM.AXIS, true, ".*_Axis_SideZone_.*" );
+				}
+			}
+
+			sleep(1.8);
+
+			if ( Map.Main_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Main__Entrance1" );
+			}
+
+			if ( !Map.Allied_CP and !Map.Axis_CP)
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Command_Post" );
+			}
+
+			if ( Map.Axis_CP)
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_Command_Post" );
+			}
+
+			if ( Map.Inner_Side_Entrance )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_InnerSideEntrance_1" );
+			}
+			else
+			{
+				if ( Map.Outer_Side_Entrance )
+				{
+					SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_OuterSideEntrance_1" );
+				}
+			}
+
+			if ( !Map.East_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox2" );
+			}
+
+			if ( !Map.West_RadarParts_Taken )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, true, "FLAG_radarbox1" );
+			}
+
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"AMMOCAB_.*",
+				"HEALTHCAB_.*",
+			});
+		}
+	},
+
+	TankAtPosition =
+	{
+		Name = "TankAtPosition",
+		TriggerOnEntity = GetGoal("MOVER_tank").GetEntity(),
+		OnEnter = function(ent)
+		{
+			Map.Tank_At_Position = true;
+
+			SetAvailableMapGoals( 0, false, "ESCORT_Tank" );
+			Util.SetRoleForGoals( "BUILD_Tank", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+			Util.SetRoleForGoals( "MOUNT_Tank", { ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+			ETUtil.SetExcludeIndexes( "MOUNT_Tank", { 2, 3 } );
+
+			if ( !Map.Main_Entrance and !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", { Vec3(-1487.413, -791.334, 1277.209), Vec3(2662.479, -1638.656, 1725.899) });
+			}
+			if ( !Map.Main_Entrance and ( Map.Outer_Side_Entrance or Map.Inner_Side_Entrance ) )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", Vec3(-1487.413, -791.334, 1277.209));
+			}
+			if ( Map.Main_Entrance and !Map.Outer_Side_Entrance and !Map.Inner_Side_Entrance )
+			{
+				ETUtil.SetAimModeForMount("MOUNT_Tank", Vec3(2662.479, -1638.656, 1725.899));
+			}
+
+			Util.MapDebugPrint( "^5Tank_At_Position" );
+		},
+	},
+
+	Thirty_second = function( trigger )
+	{
+
+		Util.MapDebugPrint( "^5Thirty_second" );
+
+		sleep(30);
+
+		if ( !Map.Allies_Win )
+		{
+			Util.MapDebugPrint( "^5Axis_Win" );
+
+			sleep(1);
+			ETUtil.WinningChat( TEAM.AXIS );
+			sleep(1.5);
+			ETUtil.LosingChat( TEAM.ALLIES );
+		}
+	},
+};
+
+/*Commands["botsgoals"] = function(_params)	//only for testing roles (thx. Palota) => called at the end of OnMapLoad
+{
+	foreach (team in TEAM)
+	{
+		foreach (class in Util.PlayerClassTable)
+		{
+			foreach ( bot in BotTable )
+			{
+				if(bot.GetClass()==class && bot.GetTeam()==team)
+				{
+					s="";
+					foreach ( id and role in ROLE )
+					{
+						if(bot.HasRole(role))
+						{
+							s= s + " " + id;
+						}
+					}
+					goal=bot.GetMapGoalName();
+					if(!goal)
+					{
+						goal=bot.GetHighLevelGoalName();
+					}
+					if(!goal)
+					{
+						goal = "";
+					}
+					print(Util.TeamName(team) + " " + Util.ClassName(class) + s + ": " + goal);
+				}
+			}
+		}
+	}
+};*/
+
+global OnMapLoad = function()
+{
+
+	OnTrigger( "The Axis Road MG Nest has been constructed.", Map.Axis_Road_MG_Nest_Built );
+	OnTrigger( "The Axis Watchtower MG Nest has been constructed.", Map.Axis_Watchtower_MG_Nest_Built );
+	OnTrigger( "The Bunker MG Nest has been constructed.", Map.Bunker_MG_Nest_Built );
+	OnTrigger( "Allied Command Post constructed. Charge speed increased!", Map.Allied_CP_Built );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.Axis_CP_Built );
+
+	OnTrigger( "axis_our_tank_repaired", Map.Tank_Built );
+	OnTrigger( "The tank has been damaged!", Map.Tank_Destroyed );
+
+	OnTrigger( "Planted at the Axis Road MG Nest.", Map.Axis_Road_MG_Nest_Planted );
+	OnTrigger( "Planted at Axis Road MG Nest.", Map.Axis_Road_MG_Nest_Planted );	//Nitmod
+	OnTrigger( "Planted at the Axis Watchtower MG Nest.", Map.Axis_Watchtower_MG_Nest_Planted );
+	OnTrigger( "Planted at Axis WatchtoMG Nest.", Map.Axis_Watchtower_MG_Nest_Planted );	//Nitmod
+	OnTrigger( "Planted at the Bunker MG Nest.", Map.Bunker_MG_Nest_Planted );
+	OnTrigger( "Planted at Bunker MG Nest.", Map.Bunker_MG_Nest_Planted );	//Nitmod
+	OnTrigger( "Planted at the Command Post.", Map.Command_Post_Planted );
+	OnTrigger( "Planted at Command Post.", Map.Command_Post_Planted );	//Nitmod
+	OnTrigger( "Planted at the Inner Side Entrance.", Map.Inner_Side_Entrance_Planted );
+	OnTrigger( "Planted at Inner Side Entrance.", Map.Inner_Side_Entrance_Planted );	//Nitmod
+	OnTrigger( "Planted at the Main Entrance.", Map.Main_Entrance_Planted );
+	OnTrigger( "Planted at Main Entrance.", Map.Main_Entrance_Planted );	//Nitmod
+	OnTrigger( "Planted at the North Radar Station.", Map.North_Radar_Station_Planted );
+	OnTrigger( "Planted at North Radar Station.", Map.North_Radar_Station_Planted );	//Nitmod
+	OnTrigger( "Planted at the Outer Side Entrance.", Map.Outer_Side_Entrance_Planted );
+	OnTrigger( "Planted at Outer Side Entrance.", Map.Outer_Side_Entrance_Planted );	//Nitmod
+	OnTrigger( "Planted at the South Radar Station.", Map.South_Radar_Station_Planted );
+	OnTrigger( "Planted at South Radar Station.", Map.South_Radar_Station_Planted );	//Nitmod
+
+	OnTrigger( "Defused at the Axis Road MG Nest.", Map.Axis_Road_MG_Nest_Defused );
+	OnTrigger( "Defused at Axis Road MG Nest.", Map.Axis_Road_MG_Nest_Defused );	//Nitmod
+	OnTrigger( "Defused at the Axis Watchtower MG Nest.", Map.Axis_Watchtower_MG_Nest_Defused );
+	OnTrigger( "Defused at Axis WatchtoMG Nest.", Map.Axis_Watchtower_MG_Nest_Defused );	//Nitmod
+	OnTrigger( "Defused at the Bunker MG Nest.", Map.Bunker_MG_Nest_Defused );
+	OnTrigger( "Defused at Bunker MG Nest.", Map.Bunker_MG_Nest_Defused );	//Nitmod
+	OnTrigger( "Defused at the Command Post.", Map.Command_Post_Defused );
+	OnTrigger( "Defused at Command Post.", Map.Command_Post_Defused );	//Nitmod
+	OnTrigger( "Defused at the Inner Side Entrance.", Map.Inner_Side_Entrance_Defused );
+	OnTrigger( "Defused at Inner Side Entrance.", Map.Inner_Side_Entrance_Defused );	//Nitmod
+	OnTrigger( "Defused at the Main Entrance.", Map.Main_Entrance_Defused );
+	OnTrigger( "Defused at Main Entrance.", Map.Main_Entrance_Defused );	//Nitmod
+	OnTrigger( "Defused at the North Radar Station.", Map.North_Radar_Station_Defused );
+	OnTrigger( "Defused at North Radar Station.", Map.North_Radar_Station_Defused );	//Nitmod
+	OnTrigger( "Defused at the Outer Side Entrance.", Map.Outer_Side_Entrance_Defused );
+	OnTrigger( "Defused at Outer Side Entrance.", Map.Outer_Side_Entrance_Defused );	//Nitmod
+	OnTrigger( "Defused at the South Radar Station.", Map.South_Radar_Station_Defused );
+	OnTrigger( "Defused at South Radar Station.", Map.South_Radar_Station_Defused );	//Nitmod
+
+	OnTrigger( "The Axis Road MG Nest has been destroyed.", Map.Axis_Road_MG_Nest_Destroyed );
+	OnTrigger( "The Axis Watchtower MG Nest has been destroyed.", Map.Axis_Watchtower_MG_Nest_Destroyed );
+	OnTrigger( "The Bunker MG Nest has been destroyed.", Map.Bunker_MG_Nest_Destroyed );
+	OnTrigger( "Axis team has destroyed the Allied Command Post!", Map.Allied_CP_Destroyed );
+	OnTrigger( "Allied team has destroyed the Axis Command Post!", Map.Axis_CP_Destroyed );
+	OnTrigger( "Allies have breached the Inner Side Entrance!", Map.Inner_Side_Entrance_Destroyed );
+	OnTrigger( "Allies have breached the Main Entrance and secured the Forward Bunker!", Map.Main_Entrance_Destroyed );
+	OnTrigger( "Allies have breached the Main Entrance and secured the Forward Bunker!", Map.Entrance_Destroyed );
+	OnTrigger( "The Allies have destroyed the North Radar Station!", Map.North_Radar_Station_Destroyed );
+	OnTrigger( "Allies have breached the Outer Side Entrance!", Map.Outer_Side_Entrance_Destroyed );
+	OnTrigger( "The Allies have destroyed the South Radar!", Map.South_Radar_Station_Destroyed );
+
+	OnTrigger( "Allies have stolen the West Radar Parts!", Map.West_Radar_Parts_Taken );
+	OnTrigger( "USA have stolen the West Radar Parts!", Map.West_Radar_Parts_Taken );	//ETNam
+	OnTrigger( "Flag returned radarbox1!", Map.West_Radar_Parts_Returned );
+	OnTrigger( "Allies have secured the West Radar Parts!", Map.West_Radar_Parts_Secured );
+
+	OnTrigger( "Allies have stolen the East Radar Parts!", Map.East_Radar_Parts_Taken );
+	OnTrigger( "USA have stolen the East Radar Parts!", Map.East_Radar_Parts_Taken );	//ETNam
+	OnTrigger( "Flag returned radarbox2!", Map.East_Radar_Parts_Returned );
+	OnTrigger( "Allies have secured the East Radar Parts!", Map.East_Radar_Parts_Secured );
+
+	OnTrigger( "Axis reclaim the Forward Bunker!", Map.Forward_Bunker_Axis_Captured );
+	OnTrigger( "Allies capture the Forward Bunker!", Map.Forward_Bunker_Allies_Captured );
+
+	OnTrigger( "GRENADE_WoodenBarrier_01 Exploded.", Map.Wooden_Barrier_destroyed );
+
+	OnTrigger( "Planted at the Generator.", Map.Generator_planted );
+	OnTrigger( "Planted at Generator.", Map.Generator_planted );	//Nitmod
+	OnTrigger( "Defused at the Generator.", Map.Generator_defused );
+	OnTrigger( "Defused at Generator.", Map.Generator_defused );	//Nitmod
+	OnTrigger( "security_door_Moving", Map.Generator_destroyed );
+
+	OnTrigger( "thirty second warning.", Map.Thirty_second );
+
+	Util.DisableGoal( ".*", true );
+
+	foreach ( id and bot in BotTable )
+	{
+		if ( Map.Main_Entrance )
+		{
+			if ( bot.GetTeam(TEAM.AXIS) )
+			{
+				if ( bot.HasRole(ROLE.DEFENDER1) )
+				{
+					r = RandInt(0,2);
+					if ( r == 2 )
+					{
+						bot.ChangeSpawnPoint(5);	//Lower Warehouse
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+				}
+				if ( bot.HasRole(ROLE.DEFENDER) )
+				{
+					bot.ChangeSpawnPoint(6);	//Road Hut
+				}
+				if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+				{
+					bot.ChangeSpawnPoint(3);	//Forward Bunker
+				}
+			}
+		}
+	}
+
+	Util.ClearRoleForGoals(".*", { ROLE.DEFENDER, ROLE.DEFENDER1, ROLE.DEFENDER2, ROLE.DEFENDER3, ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.ATTACKER2, ROLE.ATTACKER3 });
+
+	Util.SetRoleForGoals( "CHECKPOINT_roadbunker", { ROLE.ATTACKER, ROLE.ATTACKER1, ROLE.DEFENDER, ROLE.DEFENDER2 } );
+
+	//Axis roles - at the start:
+	Util.SetRoleForGoals( ".*_Axis_MainRoad_.*", ROLE.DEFENDER );
+	Util.SetRoleForGoals( "BUILD_Axis_Road_MG_Nest", ROLE.DEFENDER );
+	Util.SetRoleForGoals( "MOUNTMG42_Axis_Road_MG_Nest", ROLE.DEFENDER );
+	Util.SetRoleForGoals( "REPAIRMG42_Axis_Road_MG_Nest", ROLE.DEFENDER );
+
+	Util.SetRoleForGoals( ".*_Axis_SideEntrance_.*", ROLE.DEFENDER1 );
+
+	Util.SetRoleForGoals( ".*_Axis_ForwardSpawn_.*", ROLE.DEFENDER2 );
+	Util.SetRoleForGoals( "BUILD_Bunker_MG_Nest", ROLE.DEFENDER2 );
+	Util.SetRoleForGoals( "MOUNTMG42_Bunker_MG_Nest", ROLE.DEFENDER2 );
+	Util.SetRoleForGoals( "REPAIRMG42_Bunker_MG_Nest", ROLE.DEFENDER2 );
+
+	Util.SetRoleForGoals( ".*_Axis_AboveTunnel_.*", ROLE.DEFENDER3 );
+	Util.SetRoleForGoals( ".*_Axis_MainEntrance_.*", ROLE.DEFENDER3 );
+
+	//Axis roles - for next phases:
+	Util.SetRoleForGoals( ".*_Axis_SideInnerPlace_.*", ROLE.DEFENDER );
+	Util.SetRoleForGoals( ".*_Axis_SideZone_.*", ROLE.DEFENDER );
+
+	Util.SetRoleForGoals( ".*_Axis_SideInnerDoor_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "DEFEND_Axis_EastRadarParts_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "PLANTMINE_Axis_EastRadarParts_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "CALLARTILLERY_Axis_EastRadarParts_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "ARTILLERY_S_Axis_EastRadarParts_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( ".*_Axis_Truck_ERP_.*", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "BUILD_Tank", ROLE.DEFENDER1 );
+	Util.SetRoleForGoals( "MOUNT_Tank", ROLE.DEFENDER1 );
+
+	Util.SetRoleForGoals( "MOUNTMG42_CP", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	Util.SetRoleForGoals( "REPAIRMG42_CP", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	Util.SetRoleForGoals( "BUILD_Command_Post", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	Util.SetRoleForGoals( "PLANT_Command_Post", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	Util.SetRoleForGoals( "DEFEND_Axis_NorthRadarStation_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+
+	if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+	{
+		Util.SetRoleForGoals( "TRIPMINE_Axis_Wall_CP_.*", { ROLE.DEFENDER, ROLE.DEFENDER1 } );
+	}
+
+	Util.SetRoleForGoals( ".*_Axis_WestRadarParts_.*", ROLE.DEFENDER2 );
+	Util.SetRoleForGoals( ".*_Axis_Truck_WRP_.*", ROLE.DEFENDER2 );
+
+	Util.SetRoleForGoals( ".*_Axis_SouthRadarStation_.*", ROLE.DEFENDER3 );
+
+	Util.SetRoleForGoals( "PLANTMINE_Axis_Passage_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+
+	if ( GetModName() == "nitmod" or GetModName() == "silEnT" )
+	{
+		Util.SetRoleForGoals( "TRIPMINE_Axis_Wall_WRP_.*", { ROLE.DEFENDER2, ROLE.DEFENDER3 } );
+	}
+
+	//Allied roles - at the start:
+	Util.SetRoleForGoals( "DEFEND_Allies_ForwardSpawn_.*", { ROLE.ATTACKER, ROLE.ATTACKER1 } );
+
+	Util.SetRoleForGoals( "PLANT_Main_Entrance", { ROLE.ATTACKER, ROLE.ATTACKER2 } );
+	Util.SetRoleForGoals( ".*_Allies_MainEntrance_.*", ROLE.ATTACKER2 );
+
+	Util.SetRoleForGoals( "PLANT_Outer_Side_Entrance", ROLE.ATTACKER3 );
+	Util.SetRoleForGoals( "PLANT_Inner_Side_Entrance", ROLE.ATTACKER3 );
+	Util.SetRoleForGoals( ".*_Allies_SideEntrance_.*", ROLE.ATTACKER3 );
+
+	//Allied roles - for next phases:
+	Util.SetRoleForGoals( "FLAG_radarbox1", ROLE.ATTACKER );
+	Util.SetRoleForGoals( ".*_Allies_Truck_WRP_.*", ROLE.ATTACKER );
+
+	Util.SetRoleForGoals( "FLAG_radarbox2", ROLE.ATTACKER1 );
+	Util.SetRoleForGoals( ".*_Allies_Truck_ERP_.*", ROLE.ATTACKER1 );
+
+	Util.SetRoleForGoals( ".*_Allies_SouthRadarStation_.*", ROLE.ATTACKER2 );
+	Util.SetRoleForGoals( "PLANT_South_Radar_Station", ROLE.ATTACKER2 );
+
+	Util.SetRoleForGoals( "PLANT_North_Radar_Station", ROLE.ATTACKER3 );
+	Util.SetRoleForGoals( ".*_Allies_NorthRadarStation_.*", ROLE.ATTACKER3 );
+
+	Util.SetRoleForGoals( "BUILD_Command_Post", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+	Util.SetRoleForGoals( "PLANT_Command_Post", { ROLE.ATTACKER1, ROLE.ATTACKER3 } );
+
+	SetAvailableMapGoals( 0, true, {
+		"AMMOCAB_objhacab2",
+		"HEALTHCAB_objhacab1",
+	});
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		".*_Axis_MainRoad_.*",
+		".*_Axis_ForwardSpawn_.*",
+		".*_Axis_SideEntrance_.*",
+		".*_Axis_AboveTunnel_.*",
+		"BUILD_Axis_Road_MG_Nest",
+		"BUILD_Bunker_MG_Nest",
+		"PLANTMINE_Axis_MainEntrance_.*",
+		"AMMOCAB_objhacab3",
+		"HEALTHCAB_objhacab4",
+	});
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"PLANT_Main_Entrance",
+		".*_Allies_MainEntrance_.*",
+		"PLANT_Outer_Side_Entrance",
+		".*_Allies_SideEntrance_.*",
+		"CHECKPOINT_roadbunker",
+	});
+
+	//Settings of priorities:
+	SetGoalPriority( ".*_Truck_WRP_.*", 0.79, 0, 0 );
+	SetGoalPriority( ".*_Truck_ERP_.*", 0.79, 0, 0 );
+	SetGoalPriority( "MOUNT_Tank", 0.76, 0, 0 );
+	SetGoalPriority( "ESCORT_Tank", 0.76, 0, 0 );
+	SetGoalPriority( "DEFEND_Axis_ForwardSpawn_02", 0.51, 0, 0 );
+	SetGoalPriority( "DEFEND_Axis_ForwardSpawn_05", 0.51, 0, 0 );
+	SetGoalPriority( "PLANTMINE_Axis_.*", 0.78, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "TRIPMINE_.*", 0.77, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_Passage_.*", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_EastRadarParts_09", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_EastRadarParts_11", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_EastRadarParts_12", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_EastRadarParts_13", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_WestRadarParts_07", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_WestRadarParts_08", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_WestRadarParts_09", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANTMINE_Axis_NRS_.*", 0.79, TEAM.AXIS, CLASS.ENGINEER );
+	SetGoalPriority( "PLANT_Command_Post", 0.82, TEAM.AXIS, CLASS.COVERTOPS );
+
+	if ( GetModName() == "nitmod" )
+	{
+		SetGoalPriority( "BUILD_Axis_WatchtoMG_Nest", 0.5, TEAM.AXIS, CLASS.ENGINEER );	//not important goal, I think => bad position of MG42
+		SetGoalPriority( "REPAIRMG42_Axis_WatchtoMG_Nest", 0.5, TEAM.AXIS, CLASS.ENGINEER );	//not important goal, I think
+		SetGoalPriority( "MOUNTMG42_Axis_WatchtoMG_Nest", 0.49, TEAM.AXIS, 0 );	//not important goal, I think
+
+		SetGoalPriority( "PLANT_Axis_WatchtoMG_Nest", 0.7, TEAM.ALLIES, CLASS.ENGINEER );
+		Util.AddUseWp( "BUILD_Axis_WatchtoMG_Nest", "Axis_Watchtower_MG_Nest_Build_WP" );
+		Util.SetMaxUsers( 1, "BUILD_Axis_WatchtoMG_Nest" );
+
+		Util.MapDebugPrint( "^3Nitmod" );
+	}
+	else
+	{
+		SetGoalPriority( "BUILD_Axis_Watchtower_MG_Nest", 0.5, TEAM.AXIS, CLASS.ENGINEER );	////not important goal, I think => bad position of MG42
+		SetGoalPriority( "REPAIRMG42_Axis_Watchtower_MG_Nest", 0.5, TEAM.AXIS, CLASS.ENGINEER );	//not important goal, I think
+		SetGoalPriority( "MOUNTMG42_Axis_Watchtower_MG_Nest", 0.49, TEAM.AXIS, 0 );	//not important goal, I think
+
+		SetGoalPriority( "PLANT_Axis_Watchtower_MG_Nest", 0.7, TEAM.ALLIES, CLASS.ENGINEER );
+		Util.AddUseWp( "BUILD_Axis_Watchtower_MG_Nest", "Axis_Watchtower_MG_Nest_Build_WP" );
+		Util.SetMaxUsers( 1, "BUILD_Axis_Watchtower_MG_Nest" );
+
+		Util.MapDebugPrint( "^3Other mod" );
+	}
+
+	SetGoalPriority( "DEFEND_Axis_MainRoad_01", 0.5, TEAM.AXIS, 0 );	//this goal is only for selected weapons
+	SetGoalPriority( "MOUNTMG42_Axis_Road_MG_Nest", 0.72, TEAM.AXIS, 0 );
+
+
+	Wp.SetWaypointFlag( "MG", "closed", true );
+	Wp.SetWaypointFlag( "MG_1", "closed", true );
+
+	Util.SetMaxUsers( 1, "MOUNT_.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsers( 2, "BUILD_.*" );
+	Util.SetMaxUsers( 1, "BUILD_Tank" );
+	Util.SetMaxUsers( 2, "PLANT_.*" );
+
+	Util.AddUseWp( "BUILD_Bunker_MG_Nest", "Bunker_MG_Nest_Build_WP" );
+	Util.AddUseWp( "BUILD_Axis_Road_MG_Nest", "Axis_Road_MG_Nest_Build_WP" );
+
+	Util.SetGoalPosition(-2197, 3328, 1440, "REPAIRMG42_Axis_Road_MG_Nest");
+	Util.SetGoalPosition(67, 1408, 1420, "REPAIRMG42_Bunker_MG_Nest");
+
+	T = OnTriggerRegion(AABB(-814.241,-2785.028,1225.125,-776.241,-2747.028,1299.125), Map.TankAtPosition );
+
+	NP1 = OnTriggerRegion(AABB(1822.318,2604.565,1297.726,2135.711,2995.524,1501.174), RegionTrigger.DisableBotPush);
+	DCM1 = OnTriggerRegion(AABB(1822.318,2604.565,1297.726,2135.711,2995.524,1501.174), RegionTrigger.DisableCombatMovement);
+
+	DCM2 = OnTriggerRegion(AABB(-2527.476,628.357,1592.715,-719.616,1725.647,1898.942), RegionTrigger.DisableCombatMovement);	//Above tunnel to Main entrance
+	DCM3 = OnTriggerRegion(AABB(-1095.308,-3538.284,1441.125,-979.161,-3437.125,1634.848), RegionTrigger.DisableCombatMovement);	//Lower warehouse spawn exit
+	DCM4 = OnTriggerRegion(AABB(-1865.596,-2413.763,1509.125,-1663.446,-2085.333,1642.718), RegionTrigger.DisableCombatMovement);	//Flag_WestRadarParts
+
+	NP2 = OnTriggerRegion(AABB(-2386.835,3401.357,1658.541,-2290.908,3509.077,1785.125), RegionTrigger.DisableBotPush);	//DEFEND_Axis_MainRoad_03
+	NP3 = OnTriggerRegion(AABB(-960.875,1407.125,1333.125,-879.637,1526.875,1472.300), RegionTrigger.DisableBotPush);	//DEFEND_Axis_ForwardSpawn_01
+	NP4 = OnTriggerRegion(AABB(-960.875,1812.095,1345.125,-847.739,1920.875,1459.651), RegionTrigger.DisableBotPush);	//DEFEND_Axis_ForwardSpawn_02
+	NP5 = OnTriggerRegion(AABB(-689.779,1407.125,1301.125,-603.706,1472.742,1410.944), RegionTrigger.DisableBotPush);	//DEFEND_Axis_ForwardSpawn_06
+	NP6 = OnTriggerRegion(AABB(-2416.795,3107.126,1393.125,-2357.970,3161.374,1496.633), RegionTrigger.DisableBotPush);	//CALLARTILLERY_Axis_MainRoad_06
+	NP7 = OnTriggerRegion(AABB(-1929.367,936.118,1601.125,-1862.622,1023.738,1675.125), RegionTrigger.DisableBotPush);	//DEFEND_Axis_AboveTunnel_01
+	NP8 = OnTriggerRegion(AABB(-1786.268,1095.570,1601.125,-1697.203,1161.367,1675.125), RegionTrigger.DisableBotPush);	//DEFEND_Axis_AboveTunnel_02
+	NP9 = OnTriggerRegion(AABB(-2028.885,750.677,1598.710,-1937.370,850.382,1720.676), RegionTrigger.DisableBotPush);	//ATTACK_Allies_MainEntrance_05
+	NP10 = OnTriggerRegion(AABB(-3194.361,-2812.167,1403.409,-3025.710,-2597.085,1502.661), RegionTrigger.DisableBotPush);	//DEFEND_Axis_WestRadarParts_04
+	NP11 = OnTriggerRegion(AABB(315.615,-5032.640,1227.710,434.293,-4896.125,1348.410), RegionTrigger.DisableBotPush);	//DEFEND_Axis_EastRadarParts_04
+	NP12 = OnTriggerRegion(AABB(417.805,-5585.456,1524.766,523.498,-5461.072,1638.368), RegionTrigger.DisableBotPush);	//DEFEND_Axis_EastRadarParts_05
+	NP13 = OnTriggerRegion(AABB(-752.875,-3426.292,1601.125,-667.307,-3335.059,1725.702), RegionTrigger.DisableBotPush);	//DEFEND_Axis_EastRadarParts_06
+	NP14 = OnTriggerRegion(AABB(-996.685,-3672.875,1321.125,-856.956,-3598.759,1425.106), RegionTrigger.DisableBotPush);	//DEFEND_Axis_EastRadarParts_07
+	NP15 = OnTriggerRegion(AABB(2339.799,-4215.629,1556.357,2460.654,-4106.183,1674.497), RegionTrigger.DisableBotPush);	//DEFEND_Axis_EastRadarParts_14
+	NP16 = OnTriggerRegion(AABB(2200.289,-4596.027,1570.061,2341.278,-4466.500,1700.019), RegionTrigger.DisableBotPush);	//MOBILEMG42_Axis_EastRadarParts_15
+	NP17 = OnTriggerRegion(AABB(-3612.875,-3838.421,1442.345,-3462.542,-3685.744,1553.562), RegionTrigger.DisableBotPush);	//DEFEND_Axis_SouthRadarStation_02
+	NP18 = OnTriggerRegion(AABB(-3195.359,-4932.008,1577.967,-3092.880,-4801.706,1688.593), RegionTrigger.DisableBotPush);	//DEFEND_Axis_SouthRadarStation_05
+	NP19 = OnTriggerRegion(AABB(-1300.716,322.273,1340.960,-1204.289,402.966,1416.409), RegionTrigger.DisableBotPush);	//ATTACK_Axis_Truck_WRP_02
+	NP20 = OnTriggerRegion(AABB(2987.844,-1103.883,1501.125,3083.409,-1023.125,1606.163), RegionTrigger.DisableBotPush);	//DEFEND_Axis_SideInnerPlace_06
+	NP21 = OnTriggerRegion(AABB(478.787,-4359.677,1344.159,562.870,-4253.545,1441.201), RegionTrigger.DisableBotPush);	//DEFEND_Axis_F_ERP_04
+	NP22 = OnTriggerRegion(AABB(-736.654,-4067.419,1371.056,-625.959,-3964.672,1477.429), RegionTrigger.DisableBotPush);	//DEFEND_Axis_F_ERP_07
+	NP23 = OnTriggerRegion(AABB(-743.014,-3973.390,1418.069,-631.316,-3847.126,1539.125), RegionTrigger.DisableBotPush);	//DEFEND_Axis_F_ERP_08
+	NP24 = OnTriggerRegion(AABB(1002.150,-3724.099,1473.354,1155.950,-3587.680,1571.958), RegionTrigger.DisableBotPush);	//DEFEND_Axis_F_NRS_08
+	NP25 = OnTriggerRegion(AABB(-2009.827,-4447.111,1321.125,-1901.899,-4351.128,1395.125), RegionTrigger.DisableBotPush);	//DEFEND_Axis_F_SRS_09
+	NP26 = OnTriggerRegion(AABB(-940.530,-4312.883,1217.125,-830.323,-4220.813,1295.303), RegionTrigger.DisableBotPush);	//MOBILEMG42_Axis_OnlyEastRadarParts_01
+
+	if (GetGoal("PLANT_Generator")==null)
+	{
+		//goal does not exist
+		Map.version = 120;
+		print( "^3Omni-bot map script for ^1" + GetMapName() + " ^5(ver.1.2.0) ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3." );
+	}
+	else
+	{
+		//goal exists
+		Map.version = 130;
+		print( "^3Omni-bot map script for ^1" + GetMapName() + " ^5(ver.1.3.0) ^3by ^1Q^2i^3k^4i ^3and ^1n^2a^4t^8i^3v^5e12^3." );
+	}
+
+	if ( Map.version == 120 )
+	{
+		Wp.SetWaypointFlag( "Ladder_1", "closed", true );
+		Wp.SetWaypointFlag( "Ladder_2", "closed", true );
+	}
+	else if ( Map.version == 130 )
+	{
+		Wp.SetWaypointFlag( "Ladder_1", "closed", false );
+		Wp.SetWaypointFlag( "Ladder_2", "closed", false );
+	}
+	else
+	{
+		Wp.SetWaypointFlag( "Ladder_1", "closed", true );
+		Wp.SetWaypointFlag( "Ladder_2", "closed", true );
+	}
+
+	/*while (1)	//for testing roles
+	{
+		print( "^3=========================Test Roles & Goals=========================" );
+		Commands["botsgoals"](_params);
+		print( "^3============================End of Test=============================" );
+		sleep(5);
+	}*/
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 100.0;
+
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.MORTAR, false );
+	WeaponTable.SetWeaponAvailability ( CLASS.SOLDIER, WEAPON.FLAMETHROWER, false );
+
+	WeaponTable.SetWeaponTeamAvailability ( TEAM.ALLIES, CLASS.SOLDIER, WEAPON.MOBILE_MG42, false );
+
+	yield();
+	yield();
+
+	if ( Map.start )
+	{
+		if ( bot.GetTeam(TEAM.AXIS) )
+		{
+			if ( bot.HasRole(ROLE.DEFENDER1) )
+			{
+				r = RandInt(0,2);
+				if ( r == 2 )
+				{
+					bot.ChangeSpawnPoint(5);	//Lower Warehouse
+				}
+				else
+				{
+					if ( Map.Forward_Bunker_Axis )
+					{
+						bot.ChangeSpawnPoint(3);	//Forward Bunker
+					}
+					else
+					{
+						bot.ChangeSpawnPoint(6);	//Road Hut
+					}
+				}
+			}
+			if ( bot.HasRole(ROLE.DEFENDER) )
+			{
+				bot.ChangeSpawnPoint(6);	//Road Hut
+			}
+			if ( bot.HasRole(ROLE.DEFENDER2) or bot.HasRole(ROLE.DEFENDER3) )
+			{
+				bot.ChangeSpawnPoint(3);	//Forward Bunker
+			}
+		}
+	}
+
+	/*	//replaced by new goal: goal_respawn.gm
+	while(1)
+	{
+		if ( bot.HasEntityFlag ( ENTFLAG.DEAD ) and ( GetModName() == "noquarter" ) )
+		{
+			bot.ExecCommand("kill");
+			//print( "^3I am dead" );
+		}
+
+		sleep(1);
+	}*/
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		BUILD_Axis_Road_MG_Nest =
+		{
+		},
+		BUILD_Bunker_MG_Nest =
+		{
+		},
+		BUILD_Tank =
+		{
+		},
+		BUILD_Command_Post =
+		{
+		},
+		PLANT_Outer_Side_Entrance =
+		{
+		},
+		PLANT_South_Radar_Station =
+		{
+		},
+		PLANT_Command_Post =
+		{
+		},
+		PLANT_North_Radar_Station =
+		{
+		},
+		PLANT_Main_Entrance =
+		{
+			ROUTE_Villa_1 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+					ROUTE_Around_Hut =
+					{
+
+					},
+				},
+				ROUTE_Under_Hill =
+				{
+					ROUTE_Trees =
+					{
+						ROUTE_SideWayToBunker =
+						{
+
+						},
+						ROUTE_Trees2 =
+						{
+							ROUTE_Around_Hut =
+							{
+
+							},
+						},
+					},
+				},
+			},
+			ROUTE_Villa_2 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+					ROUTE_Around_Hut =
+					{
+
+					},
+				},
+				ROUTE_Under_Hill =
+				{
+					ROUTE_Trees =
+					{
+						ROUTE_SideWayToBunker =
+						{
+
+						},
+						ROUTE_Trees2 =
+						{
+							ROUTE_Around_Hut =
+							{
+
+							},
+						},
+					},
+				},
+			},
+			ROUTE_Villa_3 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+					ROUTE_Around_Hut =
+					{
+
+					},
+				},
+				ROUTE_Under_Hill =
+				{
+					ROUTE_Trees =
+					{
+						ROUTE_SideWayToBunker =
+						{
+
+						},
+						ROUTE_Trees2 =
+						{
+							ROUTE_Around_Hut =
+							{
+
+							},
+						},
+					},
+				},
+			},
+			ROUTE_Villa_4 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+					ROUTE_Around_Hut =
+					{
+
+					},
+				},
+				ROUTE_Under_Hill =
+				{
+					ROUTE_Trees =
+					{
+						ROUTE_SideWayToBunker =
+						{
+
+						},
+						ROUTE_Trees2 =
+						{
+							ROUTE_Around_Hut =
+							{
+
+							},
+						},
+					},
+				},
+			},
+		},
+		PLANT_Bunker_MG_Nest =
+		{
+		},
+		PLANT_Axis_Road_MG_Nest =
+		{
+		},
+		PLANT_Inner_Side_Entrance =
+		{
+		},
+		FLAG_radarbox2 =
+		{
+		},
+		FLAG_radarbox1 =
+		{
+		},
+		CHECKPOINT_roadbunker =
+		{
+			ROUTE_Villa_1 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Fence =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+				},
+			},
+			ROUTE_Villa_2 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Fence =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+				},
+			},
+			ROUTE_Villa_3 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Fence =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+				},
+			},
+			ROUTE_Villa_4 =
+			{
+				ROUTE_Above_MG42 =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Fence =
+				{
+					ROUTE_Around_bunkerMG42 =
+					{
+
+					},
+				},
+				ROUTE_Street =
+				{
+					ROUTE_SideWayToBunker =
+					{
+
+					},
+				},
+			},
+			ROUTE_Hut_Spawn_1 =
+			{
+				ROUTE_Around_Hut =
+				{
+					ROUTE_NearTruck =
+					{
+
+					},
+				},
+				ROUTE_SideWayToBunker =
+				{
+
+				},
+			},
+			ROUTE_Hut_Spawn_2 =
+			{
+				ROUTE_Around_Hut =
+				{
+					ROUTE_NearTruck =
+					{
+
+					},
+				},
+				ROUTE_SideWayToBunker =
+				{
+
+				},
+			},
+			ROUTE_Hut_Spawn_3 =
+			{
+				ROUTE_Around_Hut =
+				{
+					ROUTE_NearTruck =
+					{
+
+					},
+				},
+				ROUTE_SideWayToBunker =
+				{
+
+				},
+			},
+		},
+	};
+	MapRoutes["MOBILEMG42_Axis_.*"] =
+	{
+		ROUTE_ForwardHut =
+		{
+			ROUTE_Wall =
+			{
+
+			},
+		},
+	};
+	Util.Routes(MapRoutes);
+};

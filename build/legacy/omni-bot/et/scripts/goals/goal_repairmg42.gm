@@ -1,0 +1,75 @@
+// This script contains functionality to allow engineers to repair MG42
+this.Name = "REPAIRMG42";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+this.LimitToWeapon( WEAPON.PLIERS );
+
+this.Initialize = function()
+{
+	// check for entity status so we can finish if another player repairs it
+	this.LimitTo( this.CheckRepairableState, 2, true );
+};
+
+this.CheckRepairableState = function()
+{
+	return !this.GoalEntity || this.Bot.IsMG42Repairable(this.GoalEntity);
+};
+
+this.GetPriority = function()
+{
+	Util.GetPriority(this,0x17929136 /* REPAIRMG42 */,0,0, function(goal, bot, _this)
+	{
+		ent = goal.GetEntity();
+		if ( ent && bot.IsMG42Repairable(ent) ) {
+			_this.GoalEntity = ent;
+			return true;
+		}
+	});
+};
+
+this.Enter = function()
+{
+	// cs:   commenting for now. default behavior is to just keep repairing even though it is
+	// slow with no charge
+	//this.AddFinishCriteria(this.Bot.GetGameEntity(),"not weaponcharged", WEAPON.DYNAMITE);
+
+	if(!this.MarkInProgress()) { this.Finished(); }
+};
+
+this.Update = function()
+{
+	Util.RouteTo(this);
+
+	if ( this.MapGoal.Stance == "crouch" ) {
+		this.Bot.HoldButton(BTN.CROUCH, 99);
+	}
+
+	this.AddAimRequest(Priority.High, "position", this.MapGoal.GetPosition());
+
+	this.AddWeaponRequest(Priority.High, WEAPON.PLIERS );
+	this.BlockForWeaponChange( WEAPON.PLIERS );
+
+	timeout=0;
+	while( this.Bot.IsMG42Repairable(this.GoalEntity) )
+	{
+		if (timeout > 10)
+		{
+			this.BlackboardDelay(45);
+			Util.ScriptDebugPrint(this.MapGoal.GetName(), "timedout");
+			this.Finished();
+		}
+
+		this.Bot.HoldButton(BTN.ATTACK1, 1);
+		sleep(1);
+		timeout+=1;
+	}
+
+	this.BlackboardDelay(5);
+	this.Finished();
+};
+
+this.Exit = function()
+{
+	this.GoalEntity = null;
+	this.Bot.ReleaseButton(BTN.CROUCH);
+};

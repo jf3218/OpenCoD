@@ -1,0 +1,83 @@
+//This script contains functionality to allow bots to choose ANY available goal (ignoring class or maxusers restrictions) if there is no goal available for them
+this.Name = "ROAMING";
+this.Parent = "HighLevel";
+this.SkipGetPriorityWhenActive = true;
+
+//query cannot have more than 8 goals
+this.query = { 0xbbcae592 /* PLANT */, 0xc39bf2a3 /* BUILD */, 0xa9ef3654 /* CAMP */, 0x4fed19c1 /* DEFEND */, 0x4595b8fd /* ATTACK */, 0xd988d8fd /* GRENADE */, 0x6c166aba /* MOUNT */, 0xc8998d3d /* AIRSTRIKE */ };
+
+this.Delay = 0;
+
+this.GetPriority = function()
+{
+	sleep(this.Delay);
+	this.Delay = 0;
+
+	if ( !Map.DeathMatch && !Map.PanzerMap
+		&& GetGameType() != 5  //last man standing
+		&& GetModName() != "infected")
+	{
+		// just a bit higher than the default roam goal
+		this.Priority = 0.1;
+	}
+	block(0);
+};
+
+this.Enter = function()
+{
+	this.GotoPosition = null;
+
+	// find some goals available to my team
+	goalsAvailable = {};
+	this.QueryGoals(Util.QueryTable, this.query, { NoFilters=true } );
+	foreach(goal in Util.QueryTable)
+	{
+		if(this.Bot.DistanceTo(goal) > 400) {
+			Util.AddToTable(goalsAvailable, goal);
+		}
+	}
+	if ( tableCount(goalsAvailable) > 0 ) {
+		goal = Util.GetRandomTableValue(goalsAvailable);
+		this.DebugString = goal.GetName();
+		this.GotoPosition = goal.GetPosition();
+	}
+
+	// is there a teammate we can go to?
+	if(!this.GotoPosition)
+	{
+		botId = this.Bot.GetGameId();
+		teammatesAlive = {};
+
+		for( i = 0; i < Server.MaxPlayers; i += 1 ) {
+			if ( !EntityIsValid(i) ) {
+				continue;
+			}
+
+			ent = GetGameIdFromEntity(i);
+			if ( typeId(ent) == 0 || ent == botId || this.Bot.DistanceTo(ent) < 256 || !this.Bot.IsAllied(ent) ) {
+				continue;
+			}
+
+			if ( GetEntFlags(ent, ENTFLAG.DEAD, ENTFLAG.LIMBO) ) {
+				continue;
+			}
+
+			Util.AddToTable(teammatesAlive, ent);
+		}
+
+		if ( tableCount(teammatesAlive) > 0 ) {
+			ent = Util.GetRandomTableValue(teammatesAlive);
+			this.DebugString = GetEntName(ent);
+			this.GotoPosition = GetEntPosition(ent);
+		}
+	}
+};
+
+this.Update = function()
+{
+	if ( !this.GotoPosition || this.Goto(this.GotoPosition, 150.0) == EVENT.PATH_FAILED) {
+		// delay it so the default roam goal can activate
+		this.Delay = 15;
+	}
+	this.Finished();
+};

@@ -1,0 +1,889 @@
+//==========================================================================================
+//  Kerkyra FP5
+//	kerkyra.gm
+//
+//	Who       	When		What
+//------------------------------------------------------------------------------------------
+//	^1[UJE]^3Niek	06 March 2016	Initial Script
+//	^1[UJE]^3Captain  30 March 2016	Add Defense/Attack/Stuckage
+//	^1[UJE]^3Captain  15 December 2016	Fix/Clean 
+//	^1[UJE]^3Captain  21 December 2016	Add Route/Fix for new version Kerkyra B1
+//  ^1[UJE]^3Captain  13 March    2017	Small correct
+//==========================================================================================
+//
+global Map =
+{
+	Debug = 0, // please set to zero before distributing your script
+    ShowMovers = false,
+
+	Tankatb1 = false,
+	Tankatb2 = false,
+	Tankatposition = false,
+	SwordTaken = false,
+	CrownTaken = false,
+	ChaliceTaken = false,
+	ArtifactsSecured = false,
+
+	
+	axis_cp_Build = function( trigger )
+	{
+    SetAvailableMapGoals( TEAM.AXIS, false, {"BUILD_axis_cp","ROUTE_backdoor"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "PLANT_axis_cp" );
+		
+		Util.MapDebugPrint( "axis_cp_Build" );
+	},
+	
+	axis_cp_Destroyed = function( trigger )
+	{
+    if ( Map.ArtifactsSecured == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, {"BUILD_axis_cp","ROUTE_backdoor"} );
+	}
+	if ( Map.ArtifactsSecured == false )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, {"BUILD_axis_cp","ROUTE_backdoor"} );
+	}
+	SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_axis_cp" );
+	
+		Util.MapDebugPrint( "axis_cp_Destroyed" );
+	},
+	
+	SdKfz_234_Built = function( trigger )
+	{
+    if ( Map.Tankatb1 == true && Map.Tankatb2 == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_SdKfz_234" );
+	}
+	if ( Map.Tankatb1 == false && Map.Tankatb2 == false )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_SdKfz_234" );
+	}
+	if ( Map.Tankatposition == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_SdKfz_234" );
+	}		
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_SdKfz_234" );
+	
+		Util.MapDebugPrint( "SdKfz_234_Built" );
+	},
+	
+	SdKfz_234_Destroyed = function( trigger )
+	{
+	if ( Map.Tankatb1 == true && Map.Tankatb2 == false )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_SdKfz_234" );
+	}
+	if ( Map.Tankatb1 == false && Map.Tankatb2 == true )
+	{
+    SetAvailableMapGoals( TEAM.AXIS, false, "BUILD_SdKfz_234" );
+	}
+	if ( Map.Tankatb1 == false && Map.Tankatb2 == false )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "BUILD_SdKfz_234" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_SdKfz_234" );
+
+		Util.MapDebugPrint( "SdKfz_234_Destroyed" );
+	},
+	
+	Tank_Barrier_1_Built = function( trigger )
+	{	
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Tank_Barrier_1" );
+	
+	if ( Map.Tankatb1 == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Tank_Barrier_1" );
+	SetAvailableMapGoals( TEAM.AXIS, false, {"ESCORT_SdKfz_234","BUILD_SdKfz_234"} );
+	}
+		Util.MapDebugPrint( "Tank_Barrier_1_Built" );
+	},
+	
+	Tank_Barrier_1_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Tank_Barrier_1" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Tank_Barrier_1" );
+	
+	if ( Map.Tankatb1 == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, {"ESCORT_SdKfz_234","BUILD_SdKfz_234"} );
+	}
+		Util.MapDebugPrint( "Tank_Barrier_1_Destroyed" );
+	},
+	
+	Tank_at_Barrier_1 = function( trigger )
+	{
+	Map.Tankatb1 = true;
+	
+    SetAvailableMapGoals( TEAM.AXIS, true, {"PLANT_Tank_Barrier_1","SMOKEBOMB_tb1"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_SdKfz_234" );
+	
+		Util.MapDebugPrint( "Tank_at_Barrier_1" );
+	},
+
+	Tank_Pass_Barrier_1 = function( trigger )
+	{
+	Map.Tankatb1 = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, {"PLANT_Tank_Barrier_1","SMOKEBOMB_tb1"} );
+
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Tank_Barrier_1" );
+	
+		Util.MapDebugPrint( "Tank_Pass_Barrier_1" );
+	},
+	
+	Axis_Taken_over_City  = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_tb1_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_tb2_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"CALLARTILLERY_tb1","ARTILLERY_S_barrier_1","DEFEND_tb1_.*"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_tb2_.*" );
+	
+		Util.MapDebugPrint( "Axis_Taken_over_City" );
+	},
+	
+	Tank_Barrier_2_Built = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Tank_Barrier_2" );
+	
+	if ( Map.Tankatb2 == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Tank_Barrier_2" );
+	SetAvailableMapGoals( TEAM.AXIS, false, {"ESCORT_SdKfz_234","BUILD_SdKfz_234"} );
+	}
+		Util.MapDebugPrint( "Tank_Barrier_2_Built" );
+	},
+	
+	Tank_Barrier_2_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Tank_Barrier_2" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Tank_Barrier_2" );
+	
+	if ( Map.Tankatb2 == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, {"ESCORT_SdKfz_234","BUILD_SdKfz_234"} );
+	}
+		Util.MapDebugPrint( "Tank_Barrier_2_Destroyed" );
+	},
+	
+	Tank_at_Barrier_2 = function( trigger )
+	{
+	Map.Tankatb2 = true;
+	
+    SetAvailableMapGoals( TEAM.AXIS, true, {"PLANT_Tank_Barrier_2","SMOKEBOMB_tb2"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_SdKfz_234" );
+	
+		Util.MapDebugPrint( "Tank_at_Barrier_2" );
+	},
+	
+	Tank_Pass_Barrier_2 = function( trigger )
+	{
+	Map.Tankatb2 = false;
+	
+	SetAvailableMapGoals( TEAM.AXIS, false, "SMOKEBOMB_tb2" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"DEFEND_palace_gate_.*","MOUNTMG42_.*"} );
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"DEFEND_tb2_.*","BUILD_Tank_Barrier_2"} );
+	
+		Util.MapDebugPrint( "Tank_Pass_Barrier_2" );
+	},
+	
+	Palace_Gates_Destroyed = function( trigger )
+	{
+
+	SetAvailableMapGoals( TEAM.AXIS, true, {"BUILD_axis_cp",".*CAB.*","ROUTE_backdoor","ATTACK_palace_.*"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_tb2_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {".*CAB_base.*","ROUTE_backdoor"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, ".*CAB_first.*");
+	
+		Util.MapDebugPrint( "Palace_Gates_Destroyed" );
+	},
+	
+	Tunnel_Door_Built = function( trigger )
+	{
+	if ( Map.ArtifactsSecured == false )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, true, "PLANT_Tunnel_Door" );
+	}
+    if ( Map.ArtifactsSecured == true )
+	{
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Tunnel_Door" );	
+	}
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Tunnel_Door" );
+	
+	    Util.DisableGoal("ROUTE_tunnel");
+	
+		Util.MapDebugPrint( "Tunnel_Door_Built" );
+	},
+
+	Tunnel_Door_Destroyed = function( trigger )
+	{
+	if ( Map.ArtifactsSecured == false )
+	{
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Tunnel_Door" );
+	}
+    if ( Map.ArtifactsSecured == true )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, false, "BUILD_Tunnel_Door" );
+	}
+	SetAvailableMapGoals( TEAM.AXIS, false, "PLANT_Tunnel_Door" );
+	   
+	    Util.EnableGoal("ROUTE_tunnel");
+		
+		Util.MapDebugPrint( "Tunnel_Door_Destroyed" );
+	},
+	
+	Wall_Destroyed = function( trigger )
+	{
+	SetAvailableMapGoals( TEAM.ALLIES, true, {"DEFEND_chapel_.*","DEFEND_hall_.*"} );
+
+		Util.MapDebugPrint( "Wall_Destroyed" );
+	},
+	
+	SdKfz_in_position = function( trigger )
+	{
+	Map.Tankatposition = true;
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, {"FLAG_.*","FLAG_chalice","PLANT_Tunnel_Door"} );
+	SetAvailableMapGoals( TEAM.AXIS, false, "ESCORT_SdKfz_234" );
+	
+		Util.MapDebugPrint( "SdKfz_in_position" );
+	},
+	
+	chalice_Taken = function( trigger )
+	{
+	Map.ChaliceTaken = true;
+	SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_chalice" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "FLAG_chalice" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_chapel_.*" );
+	
+		Util.MapDebugPrint( "chalice_Taken" );
+	},
+
+	crown_Taken = function( trigger )
+	{
+	Map.CrownTaken = true;
+	SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_crown" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "FLAG_crown" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	
+	if ( Map.sword_Secured )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_hall_.*" );
+	}
+		Util.MapDebugPrint( "crown_Taken" );
+	},
+
+	sword_Taken = function( trigger )
+	{
+	Map.SwordTaken = true;
+	SetAvailableMapGoals( TEAM.AXIS, true, "CAPPOINT_sword" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "FLAG_sword" );
+
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	
+	if ( Map.crown_Secured )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_hall_.*" );
+	}
+		Util.MapDebugPrint( "sword_Taken" );
+	},
+
+	chalice_Returned = function( trigger )
+	{
+	Map.ChaliceTaken = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_chalice" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_chalice" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_chapel_.*" );
+	
+	if ( Map.SwordTaken == true && Map.CrownTaken == true )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	}
+	if ( Map.SwordTaken == false && Map.CrownTaken == false )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	}
+		Util.MapDebugPrint( "chalice_Returned" );
+	},
+
+	crown_Returned = function( trigger )
+	{
+	Map.CrownTaken = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_crown" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_crown" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_hall_.*" );
+	
+	if ( Map.SwordTaken == true && Map.Chalice == true )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	}
+	if ( Map.SwordTaken == false && Map.Chalice == false )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	}
+		Util.MapDebugPrint( "crown_Returned" );
+	},
+
+	sword_Returned = function( trigger )
+	{
+	Map.SwordTaken = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, "CAPPOINT_sword" );
+	SetAvailableMapGoals( TEAM.AXIS, true, "FLAG_sword" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_hall_.*" );
+	
+	if ( Map.CrownTaken == true && Map.Chalice == true )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	}
+	if ( Map.CrownTaken == false && Map.Chalice == false )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	}
+		Util.MapDebugPrint( "sword_Returned" );
+	},
+
+	chalice_Secured = function( trigger )
+	{
+	Map.ChaliceTaken = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, {"CAPPOINT_chalice","FLAG_chalice"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_chapel_.*" );
+	
+	if ( Map.SwordTaken == true && Map.CrownTaken == true )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	}
+	if ( Map.SwordTaken == false && Map.CrownTaken == false )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	}
+		Util.MapDebugPrint( "chalice_Secured" );
+	},
+
+	crown_Secured = function( trigger )
+	{
+	Map.CrownTaken = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, {"CAPPOINT_crown","FLAG_crown"} );
+	
+	if ( Map.sword_Secured )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_hall_.*" );
+	}
+	if ( Map.SwordTaken == true && Map.ChaliceTaken == true )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	}
+	if ( Map.SwordTaken == false && Map.ChaliceTaken == false )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	}
+		Util.MapDebugPrint( "crown_Secured" );
+	},
+
+	sword_Secured = function( trigger )
+	{
+	Map.SwordTaken = false;
+	SetAvailableMapGoals( TEAM.AXIS, false, {"CAPPOINT_sword","FLAG_sword"} );
+	
+	if ( Map.crown_Secured )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_hall_.*" );
+	}
+	if ( Map.CrownTaken == true && Map.ChaliceTaken == true )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_palace_gate_.*" );
+	}
+	if ( Map.CrownTaken == false && Map.ChaliceTaken == false )
+	{
+    SetAvailableMapGoals( TEAM.ALLIES, false, "DEFEND_palace_gate_.*" );
+	}
+		Util.MapDebugPrint( "sword_Secured" );
+	},
+	
+	The_Artifacts_Secured = function( trigger )
+	{
+	Map.Tankatposition = false;
+	Map.ArtifactsSecured = true;
+	
+	SetAvailableMapGoals( TEAM.AXIS, true, "ESCORT_SdKfz_234" );
+	SetAvailableMapGoals( TEAM.AXIS, false, {"PLANT_Tunnel_Door",".*CAB.*","ROUTE_backdoor"} );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, {".*CAB.*","ROUTE_backdoor","DEFEND_palace_.*"} );
+	
+		Util.MapDebugPrint( "The Artifacts_Secured" );		
+	},
+	
+	Tank_pass_palace_wall = function( trigger )
+	{	
+	
+	SetAvailableMapGoals( TEAM.ALLIES, true, ".*CAB.*" );
+	
+		Util.MapDebugPrint( "Tank_pass_palace_wall" );	
+	},
+	
+	Tank_escape_at_tb2 = function( trigger )
+	{
+
+	SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_tb2_.*" );
+	SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_palace_.*" );
+	
+	SetAvailableMapGoals( TEAM.ALLIES, false, {"DEFEND_palace_gate_.*","MOUNTMG42_.*"} );
+	SetAvailableMapGoals( TEAM.ALLIES, true, "DEFEND_tb2.*" );
+	
+		Util.MapDebugPrint( "Tank_escape_at_tb2" );	
+	},
+	
+    vehicle_at_location = function( trigger )
+	{
+		switch(Map.VehicleLocation)
+		{
+			case 1: 
+			{
+            Map.Tank_at_Barrier_1();
+			}
+			case 2: 
+			{
+			Map.Tank_at_Barrier_2();
+			}
+			case 3: 
+			{
+			Map.Tank_Pass_Barrier_2();
+			}	
+			case 4: 
+			{
+			Map.Tank_pass_palace_wall();
+			}
+			case 5: 
+			{
+			Map.Tank_escape_at_tb2();
+			}
+		}
+		Util.MapDebugPrint("vehicle at location " + Map.VehicleLocation, true);
+	},
+};
+global OnMapLoad = function()
+{
+	// Register callback functions
+	OnTrigger( "The SdKfz 234 has been damaged!", Map.SdKfz_234_Destroyed );
+	OnTrigger( "The SdKfz 234 has been repaired!", Map.SdKfz_234_Built );
+	OnTrigger( "Tank Barrier #1 has been constructed.", Map.Tank_Barrier_1_Built );
+	OnTrigger( "Tank Barrier #1 has been destroyed.", Map.Tank_Barrier_1_Destroyed );
+	OnTrigger( "Axis team has passed the First Barrier!", Map.Tank_Pass_Barrier_1 );
+	OnTrigger( "Axis team has passed the Second Barrier!", Map.Tank_Pass_Barrier_2 );
+	OnTrigger( "Axis team has taken over The City!", Map.Axis_Taken_over_City );
+	OnTrigger( "Tank Barrier #2 has been constructed.", Map.Tank_Barrier_2_Built );
+	OnTrigger( "Tank Barrier #2 has been destroyed.", Map.Tank_Barrier_2_Destroyed );
+	OnTrigger( "Axis have breached the Palace Gates!", Map.Palace_Gates_Destroyed );
+	OnTrigger( "The Tunnel Door has been constructed.", Map.Tunnel_Door_Built );
+	OnTrigger( "The Tunnel Door has been destroyed.", Map.Tunnel_Door_Destroyed );
+	OnTrigger( "Axis have breached a hole in the wall!", Map.Wall_Destroyed );
+	OnTrigger( "The SdKfz 234 is in position to take the artifacts!", Map.SdKfz_in_position );
+	OnTrigger( "Axis have stolen The Emperor's Chalice!", Map.chalice_Taken );
+	OnTrigger( "Axis have stolen The King's Crown!", Map.crown_Taken );
+	OnTrigger( "Axis have stolen The Achilles' Sword!", Map.sword_Taken );
+	OnTrigger( "Flag returned chalice!", Map.chalice_Returned );
+	OnTrigger( "Flag returned crown!", Map.crown_Returned );
+	OnTrigger( "Flag returned sword!", Map.sword_Returned );
+	OnTrigger( "Axis have secured The Emperor's chalice!", Map.chalice_Secured );
+	OnTrigger( "Axis have secured The King's Crown!", Map.crown_Secured );
+	OnTrigger( "Axis have secured The Achilles' sword!", Map.sword_Secured );
+	OnTrigger( "Axis team has stolen all the artifacts!", Map.The_Artifacts_Secured );
+	OnTrigger( "Axis Command Post constructed. Charge speed increased!", Map.axis_cp_Build );
+	OnTrigger( "Allied team has destroyed the Axis Command Post! Spawning changed!", Map.axis_cp_Destroyed );
+	OnTrigger( "tank at location", Map.vehicle_at_location );
+		
+	TankatB1 = OnTriggerRegion(AABB(-2121.093,110.942,1.125,-1826.827,333.952,75.125), RegionTrigger.VehicleTrigger);
+	TankatB2 = OnTriggerRegion(AABB(2627.607,896.144,-39.422,2700.874,1023.255,36.883), RegionTrigger.VehicleTrigger);
+	TankpassB2 = OnTriggerRegion(AABB(3141.755,1174.243,-62.276,3227.052,1237.319,18.739), RegionTrigger.VehicleTrigger);
+	TankPassTheWall = OnTriggerRegion(AABB(3481.890,2810.562,-94.875,3535.273,3019.033,-20.875), RegionTrigger.VehicleTrigger);
+
+	Util.DisableGoal( ".*", true ); // all but routes
+	Util.DisableGoal("ROUTE_tunnel");
+	
+	//Axis activation
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+    "ESCORT_SdKfz_234",
+	"MOVER_tank",
+	"ATTACK_tb1_.*",
+	});
+	
+	//Allied activation
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+    "DEFEND_tb1_.*",
+	"CALLARTILLERY_tb1",
+	"ARTILLERY_S_barrier_1",
+	".*CAB_base.*",
+	});
+	
+    //Priority goals
+	SetGoalPriority( "CALLARTILLERY_tb1", 0.93 );
+	SetGoalPriority( "ARTILLERY_S_barrier_1", 0.93 );
+	SetGoalPriority( "DEFEND_.*", 0.83 );
+	SetGoalPriority( "ATTACK_.*", 0.82 );
+	SetGoalPriority( "PLANT_.*", 0.92 );
+	SetGoalPriority( "ESCORT_SdKfz_234", 0.95 );
+	SetGoalPriority( "FLAG_.*", 0.92 );
+	//SetGoalPriority( "ROUTE_axis_cp", 0.93 );
+	SetGoalPriority( "SMOKEBOMB_tb.*", 0.93 );
+	SetGoalPriority( ".*_balcony_mg", 0.93 );
+	SetGoalPriority( "BUILD_axis_cp", 0.93 );
+	
+	// Max users per goal
+	Util.SetMaxUsersInProgress( 1, "ATTACK_.*" );
+	Util.SetMaxUsersInProgress( 1, "DEFEND_.*" );
+	Util.SetMaxUsersInProgress( 1, "BUILD_.*" );
+	Util.SetMaxUsersInProgress( 1, "PLANT_.*" );
+	Util.SetMaxUsersInProgress( 1, "ESCORT_.*" );
+	Util.SetMaxUsersInProgress( 1, "MOUNTMG42_.*" );
+	Util.SetMaxUsersInProgress( 4, "FLAG_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "DEFEND_.*", {MinCampTime=15, MaxCampTime=45} );
+    SetMapGoalProperties( "ATTACK_.*", {MinCampTime=15, MaxCampTime=45} );
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=45, MaxCampTime=90} );
+
+	Util.MapDebugPrint( "Omni-bot map script for " + GetMapName() + " executed." );
+};
+
+global OnBotJoin = function( bot )
+{
+	// Uncomment for shootable breakables
+	bot.TargetBreakableDist = 90.0;
+	// Only set MaxViewDistance on maps with limited sight (e.g. fog)
+	//bot.MaxViewDistance = 2400;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		PLANT_axis_cp =
+		{
+		},
+		BUILD_axis_cp =
+		{
+		},
+		FLAG_crown = 
+		{
+			ROUTE_axis_palace_spawn  = 
+			{
+				ROUTE_cp_exit_east  = {Weight = 3,},
+				ROUTE_main_stairs  = {Weight = 2,},
+				ROUTE_strair_right  = {Weight = 3,},
+				ROUTE_tunnel  = {Weight = 2,},
+			},
+			ROUTE_main_palace  = 
+			{
+				ROUTE_cp_exit_east  = {Weight = 3,},
+				ROUTE_main_stairs  = {Weight = 2,},
+				ROUTE_strair_right  = {Weight = 3,},
+				ROUTE_tunnel  = {Weight = 2,},
+			},
+			ROUTE_city_spawn  = 
+			{
+				ROUTE_split_city  = {ROUTE_main_palace  = {},},
+				ROUTE_backdoor  = {ROUTE_cp_exit_east  = {},
+				ROUTE_tunnel  = {Weight = 3,},
+				},
+			},
+			ROUTE_cp_exit_east  = 
+			{
+				ROUTE_east_door  = 
+				{
+					ROUTE_back_stairs_0  = 
+					{
+						ROUTE_back_stairs_1  = 
+						{
+							ROUTE_back_stairs_2  = 
+							{
+								ROUTE_south_door  = 
+								{
+									ROUTE_split_stairs  = {},
+								},
+								ROUTE_west_door  = 
+								{
+									ROUTE_split_stairs  = {},
+								},
+							},
+						},
+					},
+				},
+			},
+			ROUTE_main_stairs  = 
+			{
+				ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+				ROUTE_split_mainstairs  = 
+				{
+					ROUTE_split_base  = 
+					{
+						ROUTE_base  = 
+						{
+							ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+						},
+					},
+				},
+			},
+			ROUTE_strair_right  = 
+			{
+				ROUTE_south_door  = 
+				{
+					ROUTE_split_stairs  = {},
+				},
+				ROUTE_west_door  = {},
+			},
+            ROUTE_tunnel  = 
+			{
+				ROUTE_axis_cp  = 
+				{
+					ROUTE_split_base  = 
+					{
+						ROUTE_base  = 
+						{
+							ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+						},
+						ROUTE_split_mainstairs  = 
+						{
+							ROUTE_main_stairs  = 
+							{
+								ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+							},
+						},
+					},
+				},
+			},
+		},
+		FLAG_sword = 
+		{
+			ROUTE_axis_palace_spawn  = 
+			{
+				ROUTE_cp_exit_east  = {Weight = 3,},
+				ROUTE_main_stairs  = {Weight = 2,},
+				ROUTE_strair_right  = {Weight = 3,},
+				ROUTE_tunnel  = {Weight = 2,},
+			},
+			ROUTE_main_palace  = 
+			{
+				ROUTE_cp_exit_east  = {Weight = 3,},
+				ROUTE_main_stairs  = {Weight = 2,},
+				ROUTE_strair_right  = {Weight = 3,},
+				ROUTE_tunnel  = {Weight = 2,},
+			},
+			ROUTE_city_spawn  = 
+			{
+				ROUTE_split_city  = 
+				{
+					ROUTE_main_palace  = {},
+				},
+				ROUTE_backdoor  = 
+				{
+					ROUTE_cp_exit_east  = {},
+					ROUTE_tunnel  = {},},
+			},
+			ROUTE_cp_exit_east  = 
+			{
+				ROUTE_east_door  = 
+				{
+					ROUTE_back_stairs_0  = 
+					{
+						ROUTE_back_stairs_1  = 
+						{
+							ROUTE_back_stairs_2  = 
+							{
+								ROUTE_south_door  = {ROUTE_split_stairs  = {},},
+								ROUTE_west_door  = {ROUTE_split_stairs  = {},},
+							},
+						},
+					},
+				},
+			},
+			ROUTE_main_stairs  = 
+			{
+				ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+				ROUTE_split_mainstairs  = 
+				{
+					ROUTE_split_base  = 
+					{
+						ROUTE_base  = 
+						{
+							ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+						},
+					},
+				},
+			},
+			ROUTE_strair_right  = 
+			{
+				ROUTE_south_door  = {ROUTE_split_stairs  = {},},
+				ROUTE_west_door  = {},
+			},
+            ROUTE_tunnel  = 
+			{
+				ROUTE_axis_cp  = 
+				{
+					ROUTE_split_base  = 
+					{
+						ROUTE_base  = 
+						{
+							ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+						},
+						ROUTE_split_mainstairs  = 
+						{
+							ROUTE_main_stairs  = 
+							{
+								ROUTE_split_chapel  = {ROUTE_split_stairs  = {},},
+							},
+						},
+					},
+				},
+			},
+		},
+		PLANT_Tank_Barrier_1 = 
+		{
+			ROUTE_first_axis  = 
+			{
+				ROUTE_split_s1  = 
+				{
+					ROUTE_split_b1  = 
+					{
+						ROUTE_split_bl1  = {},
+						ROUTE_split_bl2  = {},
+					},
+				},
+				ROUTE_split_s2  = 
+				{
+					ROUTE_split_b1  = 
+					{
+						ROUTE_split_bl1  = {},
+						ROUTE_split_bl2  = {},
+					},
+					ROUTE_split_b2  = 
+					{
+						ROUTE_split_br1  = {},
+						ROUTE_split_br2  = {},
+						ROUTE_split_bl2  = {},
+					},
+				},
+				ROUTE_split_s3  = 
+				{
+					ROUTE_split_s2  = {},
+					ROUTE_split_br1  = {},
+					ROUTE_split_br2  = {},
+					ROUTE_split_b2  = {ROUTE_split_b1  = {},},
+				},
+			},
+		},
+		DEFEND_tb2_0 = 
+		{
+			ROUTE_axis_cp  = 
+			{
+				ROUTE_backdoor  = 
+				{
+					ROUTE_split_corner_city  = {ROUTE_split_city  = {},},
+				},
+			},
+		},
+		FLAG_chalice = 
+		{
+			ROUTE_axis_palace_spawn  = 
+			{   
+				ROUTE_cp_exit_east  = {Weight = 3,},
+				ROUTE_main_stairs  = {Weight = 2,},
+				ROUTE_strair_right  = {Weight = 3,},
+			},
+			ROUTE_main_palace  = 
+			{
+				ROUTE_cp_exit_east  = {Weight = 3,},
+				ROUTE_main_stairs  = {Weight = 2,},
+				ROUTE_strair_right  = {Weight = 3,},
+			},
+			ROUTE_city_spawn  = 
+			{
+				ROUTE_split_city  = {ROUTE_main_palace  = {},},
+				ROUTE_backdoor  = {ROUTE_cp_exit_east  = {},},
+			},
+			ROUTE_cp_exit_east  = 
+			{   
+				ROUTE_east_door  = 
+				{
+					ROUTE_back_stairs_0  = 
+					{
+						ROUTE_back_stairs_1  = 
+						{
+							ROUTE_back_stairs_2  = 
+							{
+								ROUTE_south_door  = 
+								{
+									ROUTE_split_stairs  = {ROUTE_split_chapel  = {},},
+								},
+								ROUTE_west_door  = 
+								{
+									ROUTE_split_stairs  = {ROUTE_split_chapel  = {},},
+								},
+							},
+						},
+					},
+				},
+			},
+            ROUTE_main_stairs  = 
+			{
+				ROUTE_split_chapel  = {},
+				ROUTE_split_mainstairs  = 
+				{
+					ROUTE_split_base  = 
+					{
+						ROUTE_base  = {ROUTE_split_chapel  = {},},
+					},
+				},
+			},
+			ROUTE_strair_right  =
+			{
+				ROUTE_south_door  = 
+				{
+					ROUTE_split_stairs  = {ROUTE_split_chapel  = {},},
+				},
+				ROUTE_west_door  = 
+				{
+					ROUTE_split_stairs  = {ROUTE_split_chapel  = {},},
+				},
+			},
+		},
+		BUILD_SdKfz_234 =
+		{
+		},
+		MOUNTMG42_balcony_mg = 
+		{
+		},
+		REPAIRMG42_balcony_mg = 
+		{
+		},
+		BUILD_Tank_Barrier_1 =
+		{
+		},
+		BUILD_Tank_Barrier_2 =
+		{
+		},
+		PLANT_Tank_Barrier_2 =
+		{
+		},
+		BUILD_Tunnel_Door =
+		{
+		},
+		PLANT_Tunnel_Door =
+		{
+		},
+	};
+	MapRoutes["ATTACK_tb1_.*"] = MapRoutes.PLANT_Tank_Barrier_1;
+	MapRoutes["DEFEND_tb2_.*"] = MapRoutes.DEFEND_tb2_0;
+	Util.Routes(MapRoutes);
+};

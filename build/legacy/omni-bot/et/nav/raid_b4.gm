@@ -1,0 +1,1290 @@
+//==========================================================================================
+//
+//	raid_b4.gm
+//
+//	Who            When		What
+//------------------------------------------------------------------------------------------
+//	Magic & d00d   03 May 2014	Initial Script
+//	d00d           08 May 2014	Added some basic logic for the elevator
+//	Tardis         23 June 2014	Fixed Truck Barrier & ladders
+//	d00d           10 Sep. 2014	Fixed elevator usage
+//	d00d           11 Sep. 2014	Improved overall navigation, added goals
+//	d00d           12 Sep. 2014	Stuckage fixes, added attack/defend goals
+//	d00d           21 Sep. 2014	First go at routing
+//	d00d           24 Sep. 2014	Work on elevator, routing, way through library window
+//==========================================================================================
+//
+
+global Map =
+{
+	// Set Talk to false if you don't want the bots to talk.
+	Talk = true,
+	Debug = false,
+	switchStatus = "lowered",
+	TruckPosition = "start",
+	DefendingTeam = TEAM.AXIS,
+	SewerDoorTeam = TEAM.AXIS,
+	SewerBoardStatus = true,
+	Barrier2Status = false,
+	FenceIntact = true,
+	LibraryDoorCount = 0,
+	ElevatorPosition = "",
+	ElevatorButtonWasPressed = false,
+	ElevatorInUse = false,
+
+	Movers =
+	{
+		// keep the elevator (and the truck)
+		"MOVER_elevator",
+		"MOVER_truck"
+	},
+
+	Navigation =
+	{
+		elevator =
+		{
+			EvalFunc = function()
+			{
+				return true; // every bot should use the elevator if necessary
+			},
+			navigate = function(_this)
+			{
+				wpTable = {};
+				// some other bot is already using the elevator, wait
+				if ( Map.ElevatorInUse )
+				{
+					counter = 1;
+					while ( Map.ElevatorInUse && Map.ElevatorPosition != "ElevatorGroundLevel" && Map.ElevatorPosition != "ElevatorTopLevel" && counter < 10 )
+					{
+						sleep(1);
+						counter += 1;
+					}
+					counter = 1;
+					if ( Map.ElevatorPosition == "ElevatorGroundLevel" )
+					{
+						// move into elevator and use it
+						Wp.GetWaypointByName( "elevator_ground2", wpTable );
+						if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+						{
+							while ( Map.ElevatorPosition != "ElevatorTopLevel" && counter < 10 )
+							{
+								sleep(1);
+								counter += 1;
+								if ( counter == 9 )
+								{
+									Map.ElevatorInUse = false;
+								}
+							}
+						}
+					}
+					return;
+				}
+				// if elevator is not in use, press elevator button
+				Wp.GetWaypointByName( "elevator_ground", wpTable );
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					Util.MapDebugPrint( "Got to the switch!", true );
+					if ( Map.ElevatorPosition != "ElevatorGroundLevel" && !Map.ElevatorInUse )
+					{
+						// Call the elevator
+						Map.ElevatorInUse = true;
+						_this.AddAimRequest( Priority.High, "position", Vec3(-5963,-2212,129) );
+						sleep(0.5);
+						_this.Bot.SayTeam( "I'm calling the elevator!" );
+						_this.Bot.HoldButton(BTN.USE, 2);
+						counter = 1;
+						while ( Map.ElevatorPosition != "ElevatorGroundLevel" && counter < 10 )
+						{
+							sleep(1);
+							counter += 1;
+						}
+						Map.ElevatorInUse = false;
+						return;
+					}
+					else if ( Map.ElevatorPosition == "ElevatorGroundLevel" && !Map.ElevatorInUse )
+					{
+						// use the elevator; first push the button
+						Map.ElevatorInUse = true;
+						counter = 0;
+						while ( !Map.ElevatorButtonWasPressed )
+						{
+							if ( counter > 2 )
+							{
+								_this.ReleaseAimRequest();
+								Map.ElevatorInUse = false;
+								counter = 0;
+								return;
+							}
+							_this.AddAimRequest( Priority.High, "position", Vec3(-5963,-2212,147) );
+							sleep(0.5);
+							_this.Bot.HoldButton(BTN.USE, 2);
+							sleep(1);
+							counter += 1;
+						}
+						_this.ReleaseAimRequest();
+						// move into elevator and go up
+						Wp.GetWaypointByName( "elevator_ground2", wpTable );
+						if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+						{
+							counter = 1;
+							while ( Map.ElevatorPosition != "ElevatorTopLevel" && counter < 10 )
+							{
+								sleep(1);
+								counter += 1;
+							}
+						}
+						Map.ElevatorInUse = false;
+					}
+				}
+				yield();
+			},
+		},
+
+		elevator2 =
+		{
+			EvalFunc = function()
+			{
+				return true; // every bot should use the elevator if necessary
+			},
+			navigate = function(_this)
+			{
+				wpTable = {};
+				// some other bot is already using the elevator, wait
+				if ( Map.ElevatorInUse )
+				{
+					counter = 1;
+					while ( Map.ElevatorInUse && Map.ElevatorPosition != "ElevatorBasementLevel" && Map.ElevatorPosition != "ElevatorGroundLevel" && counter < 16 )
+					{
+						sleep(1);
+						counter += 1;
+					}
+					counter = 1;
+					if ( Map.ElevatorPosition == "ElevatorBasementLevel" )
+					{
+						// move into elevator and use it
+						Wp.GetWaypointByName( "elevator_basement2", wpTable );
+						if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+						{
+							while ( Map.ElevatorPosition != "ElevatorGroundLevel" && counter < 6 )
+							{
+								sleep(1);
+								counter += 1;
+							}
+						}
+					}
+					return;
+				}
+				// if elevator is not in use, press elevator button
+				Wp.GetWaypointByName( "elevator_basement", wpTable );
+				if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+				{
+					Util.MapDebugPrint( "Got to the switch!", true );
+					if ( Map.ElevatorPosition != "ElevatorBasementLevel" && !Map.ElevatorInUse )
+					{
+						// Call the elevator
+						Map.ElevatorInUse = true;
+						_this.AddAimRequest( Priority.High, "position", Vec3(-5972,-2213,-164) );
+						sleep(1);
+						_this.Bot.SayTeam( "I'm calling the elevator!" );
+						_this.Bot.HoldButton(BTN.USE, 2);
+						sleep(1);
+						_this.ReleaseAimRequest();
+						counter = 1;
+						while ( Map.ElevatorPosition != "ElevatorBasementLevel" && counter < 16 )
+						{
+							sleep(1);
+							counter += 1;
+						}
+						Map.ElevatorInUse = false;
+						return;
+					}
+					else if ( Map.ElevatorPosition == "ElevatorBasementLevel" && !Map.ElevatorInUse )
+					{
+						// use the elevator; first push the button
+						Map.ElevatorInUse = true;
+						_this.AddAimRequest( Priority.High, "position", Vec3(-5972,-2213,-129) );
+						sleep(1);
+						_this.Bot.HoldButton(BTN.USE, 2);
+						sleep(0.5);
+						_this.ReleaseAimRequest();
+						// move into elevator and go up
+						Wp.GetWaypointByName( "elevator_basement2", wpTable );
+						if ( _this.Goto(wpTable.position) == EVENT.PATH_SUCCESS )
+						{
+							counter = 1;
+							while ( Map.ElevatorPosition != "ElevatorGroundLevel" && counter < 7 )
+							{
+								sleep(1);
+								counter += 1;
+							}
+						}
+						Map.ElevatorInUse = false;
+					}
+				}
+				yield();
+			},
+		},
+	},
+
+	//=======================================================================
+	// *** TRIGGER TABLES ***
+	//=======================================================================
+
+	// Trigger tables for the elevator.
+	// These keep track of the elevator's position.
+	ElevatorTopLevel =
+	{
+		Name = "ElevatorTopLevel",
+		TriggerOnEntity = GetGoal("MOVER_elevator").GetEntity(),
+		OnEnter = function( ent )
+		{
+			if ( Map.ElevatorPosition != "ElevatorTopLevel" )
+			{
+				Map.ElevatorPosition = "ElevatorTopLevel";
+				Util.MapDebugPrint( "ElevatorTopLevel" );
+			};
+		},
+		OnExit = function( ent )
+		{
+			Map.ElevatorPosition = "moving";
+		},
+	},
+
+	ElevatorGroundLevel =
+	{
+		Name = "ElevatorGroundLevel",
+		TriggerOnEntity = GetGoal("MOVER_elevator").GetEntity(),
+		OnEnter = function( ent )
+		{
+			if ( Map.ElevatorPosition != "ElevatorGroundLevel" )
+			{
+				Map.ElevatorPosition = "ElevatorGroundLevel";
+				Util.MapDebugPrint( "ElevatorGroundLevel" );
+			};
+		},
+		OnExit = function( ent )
+		{
+			Map.ElevatorPosition = "moving";
+			Util.MapDebugPrint( "elevator moving" );
+		},
+	},
+
+	ElevatorBasementLevel =
+	{
+		Name = "ElevatorBasementLevel",
+		TriggerOnEntity = GetGoal("MOVER_elevator").GetEntity(),
+		OnEnter = function( ent )
+		{
+			if ( Map.ElevatorPosition != "ElevatorBasementLevel" )
+			{
+				Map.ElevatorPosition = "ElevatorBasementLevel";
+				Util.MapDebugPrint( "ElevatorBasementLevel" );
+			};
+		},
+		OnExit = function( ent )
+		{
+			Map.ElevatorPosition = "moving";
+		},
+	},
+
+	// Trigger tables for the truck.
+	// Those monitor the truck's position.
+	Truck_Near_Fence =
+	{
+		// Near the corner before the destructible gate.
+		Name = "Truck_Near_Fence",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			Map.TruckPosition = "near_fence";
+			SetGoalPriority( "PLANT_City_Fence", 0.92, TEAM.ALLIES );
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_phase.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_phase2.*",
+				"BUILD_sewer_door",
+			});
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_phase.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_phase2.*" );
+			Util.MapDebugPrint( "Truck_Near_Fence" );
+		},
+	},
+
+	Truck_at_Fence =
+	{
+		// Immediately before the destructible gate.
+		Name = "Truck_at_Fence",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			Map.TruckPosition = "at_fence";
+			if ( Map.FenceIntact )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_truck" );
+				if ( Map.Talk && MAP_TALK )
+				{
+					foreach ( gameId and bot in BotTable )
+					{
+						if ( bot.GetTeam() == TEAM.ALLIES && bot.GetClass() != CLASS.ENGINEER && !bot.GetNearestAlly( CAT.PLAYER, CLASS.ENGINEER ) && bot.DistanceTo( Vec3(-1965,-952,244) ) < 150  )
+						{
+							sleep( RandRange(0.5,1.3) );
+							bot.SayVoice( VOICE.NEED_ENGINEER );
+							break;
+						}
+						else if ( bot.GetTeam() == TEAM.ALLIES && bot.GetClass() != CLASS.ENGINEER && bot.GetNearestAlly( CAT.PLAYER, CLASS.ENGINEER ) && bot.DistanceTo( Vec3(-1965,-952,244) ) < 150  )
+						{
+							sleep( RandRange(0.5,1.3) );
+							if ( RandInt(0,1) == 1 )
+								{ bot.ExecCommand( "vsay_team ClearPath" ); }
+							else
+								{ bot.ExecCommand( "vsay_team DestroyConstruction" ); }
+							break;
+						}
+					}
+				}
+			}
+			Util.MapDebugPrint( "Truck_at_Fence" );
+
+		},
+		OnExit = function( ent )
+		{
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_phase.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_phase3.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_phase.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"BUILD_sewer_door_1",
+				"ATTACK_phase3.*",
+				"PLANT_Library_door",
+				"PLANT_Library_Side_Door",
+			});
+			Util.MapDebugPrint( "Truck past fence" );
+		},
+	},
+
+	Truck_at_Library =
+	{
+		// *** MAJOR EVENT ***
+		Name = "Truck_at_Library",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			Map.TruckPosition = "at_library";
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"BUILD_Truck",
+				"ESCORT_truck",
+			});
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"FLAG_keycard_flag",
+				"CAPPOINT_keycard",
+				"ATTACK_phase4.*",
+			});
+			SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_phase4.*" );
+			if ( Map.Talk && MAP_TALK )
+			{
+				foreach ( gameId and bot in BotTable )
+				{
+					if ( bot.GetTeam() == TEAM.AXIS )
+					{
+						sleep( RandRange(1,2.5) );
+						bot.SayVoice( VOICE.DEFEND_OBJECTIVE );
+						break;
+					}
+				}
+				Map.lt1 = OnTriggerRegion( AABB(-4783.664,-1542.096,518.812,-4685.288,-1189.961,634.215), RegionTrigger.IntrusionWarning );
+				Map.lt2 = OnTriggerRegion( AABB(-4971.525,-902.265,480.092,-4796.364,-829.737,620.994), RegionTrigger.IntrusionWarning );
+				Map.lt3 = OnTriggerRegion( AABB(-4982.973,-1916.264,495.312,-4808.513,-1799.330,686.788), RegionTrigger.IntrusionWarning );
+				Map.lt4 = OnTriggerRegion( AABB(-5939.077,-1911.469,493.940,-5755.128,-1825.294,677.452), RegionTrigger.IntrusionWarning );
+				Map.lt5 = OnTriggerRegion( AABB(-5926.502,-895.636,474.541,-5759.085,-835.894,670.680), RegionTrigger.IntrusionWarning );
+			}
+			Util.MapDebugPrint( "Truck is at the library." );
+		},
+		OnExit = function( ent )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "BUILD_Truck" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Restaurant_Door" );
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"BUILD_Restaurant_Door",
+				"BUILD_Axis_Churchtower_MG_Nest",
+			});
+			if ( Map.Talk && MAP_TALK )
+			{
+				foreach ( gameId and bot in BotTable )
+				{
+					if ( bot.GetTeam() == TEAM.AXIS )
+					{
+						sleep( RandRange(1,2.5) );
+						bot.ExecCommand( "vsay_team FTFallBack" );
+						break;
+					}
+				}
+				DeleteTriggerRegion( Map.lt1 );
+				DeleteTriggerRegion( Map.lt2 );
+				DeleteTriggerRegion( Map.lt3 );
+				DeleteTriggerRegion( Map.lt4 );
+				DeleteTriggerRegion( Map.lt5 );
+			}
+			Util.MapDebugPrint( "Truck is leaving the library." );
+		},
+	},
+
+	Truck_at_Switch =
+	{
+		Name = "Truck_at_Switch",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "GRENADE_church_mg" );
+			Map.TruckPosition = "at_switch";
+			if ( Map.switchStatus == "lowered" )
+			{
+				SetAvailableMapGoals( TEAM.ALLIES, false, "ESCORT_truck" );
+			}
+			Util.MapDebugPrint( "Truck is at the switch near the library." );
+		},
+	},
+
+	Truck_past_Switch =
+	{
+		Name = "Truck_past_Switch",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			Map.TruckPosition = "past_switch";
+			SetAvailableMapGoals( TEAM.ALLIES, false, {
+				"SWITCH_street",
+				"ATTACK_phase.*",
+			});
+			SetAvailableMapGoals( TEAM.ALLIES, true, {
+				"GRENADE_bridge_mg",
+				"ATTACK_phase6.*",
+				"PLANT_Truck_Barrier_2",
+				"MOUNTMG42_mg42_bank",
+			});
+			SetAvailableMapGoals( TEAM.ALLIES, false, "PLANT_Axis_Churchtower_MG_Nest" );
+			SetGoalPriority( "PLANT_Truck_Barrier_2", 0.9, TEAM.ALLIES );
+			SetAvailableMapGoals( TEAM.AXIS, false, {
+				"REPAIRMG42_Axis_Churchtower_MG_Nest",
+				"MOUNTMG42_Axis_Churchtower_MG_Nest",
+				"SWITCH_street",
+				"DEFEND_phase.*",
+			});
+			SetAvailableMapGoals( TEAM.AXIS, true, {
+				"DEFEND_phase6.*",
+				"MOUNTMG42_mg42_bank",
+			});
+			Util.MapDebugPrint( "Truck is past the switch near the library." );
+		},
+		OnExit = function( ent )
+		{
+			if ( Map.Talk && MAP_TALK )
+			{
+				foreach ( gameId and bot in BotTable )
+				{
+					if ( bot.GetTeam() == TEAM.AXIS )
+					{
+						if ( !Map.runs )
+						{
+							sleep( RandRange(0.5,5) );
+							bot.SayTeam( "Call in Aunt Hilary!" );
+							Map.runs = 1;
+						}
+						else if ( Map.runs == 1 )
+						{
+							sleep( RandRange(0.5,5) );
+							bot.ExecCommand("vsay_team FTMortar");
+							Map.runs = 2;
+						}
+						else if ( Map.runs == 2 )
+						{
+							sleep( RandRange(0.5,5) );
+							bot.ExecCommand("vsay_team FTCallAirStrike");
+							Map.runs = 0;
+							break;
+						}
+					}
+				}
+			}
+		},
+	},
+
+	Truck_Near_Bridge =
+	{
+		Name = "Truck_Near_Bridge",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			Map.TruckPosition = "near_bridge";
+			Util.MapDebugPrint( "Truck_Near_Bridge" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_phase.*" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_phase7.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_phase.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_phase7.*" );
+		},
+	},
+
+	Truck_at_Bridge =
+	{
+		Name = "Truck_at_Bridge",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			if ( Map.Barrier2Status == true )
+			{
+				SetAvailableMapGoals ( TEAM.ALLIES, false, "ESCORT_truck" );
+			}
+			Map.TruckPosition = "at_bridge";
+			Util.MapDebugPrint( "Truck_at_Bridge" );
+		},
+	},
+
+	Truck_Near_Destination =
+	{
+		Name = "Truck_Near_Destination",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			Map.TruckPosition = "near_destination";
+			SetAvailableMapGoals( 0, false, {
+				"BUILD_sewer_door.*",
+				"MOUNTMG42_mg42_bank",
+				"ATTACK_phase.*",
+			});
+			SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_phase9.*" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_phase9.*" );
+			Util.MapDebugPrint( "Truck_Near_Destination" );
+		},
+	},
+
+	Truck_at_Destination =
+	{
+		Name = "Truck_at_Destination",
+		TriggerOnEntity = GetGoal("MOVER_truck").GetEntity(),
+		OnEnter = function( ent )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "GRENADE_bridge_mg" );
+			SetAvailableMapGoals( 0, false, {
+				"REPAIRMG42_mg42_bank",
+				"MOUNTMG42_mg42_bank",
+			});
+			Map.TruckPosition = "at_destination";
+			Util.MapDebugPrint( "Truck_at_Destination" );
+		},
+	},
+
+	//=======================================================================
+	// *** HELPER FUNCTIONS ***
+	//=======================================================================
+
+	SewerBoardThread = function()
+	{
+		start = Vec3(-4675,-1364,40);
+		end = Vec3(-4675,-1364,0);
+		Util.MapDebugPrint( "Monitor sewer boards thread started.", true );
+		while (1)
+		{
+			tr = TraceLine( start, end, null, TRACE.SOLID, 0, false );
+			if ( tr.fraction < 1 )
+			{
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.RED, 2 );
+				}
+			}
+			else
+			{
+				if ( Map.Debug )
+				{
+					DrawDebugLine( start, end, COLOR.GREEN, 600 );
+				}
+				Map.SewerBoardStatus = false;
+				Map.ToggleSewerRoute();
+				Util.MapDebugPrint( "Map.SewerBoardStatus: " + Map.SewerBoardStatus, true );
+				return;
+			}
+			yield();
+		}
+	},
+
+	ToggleSewerRoute = function()
+	{
+		// Needs work if ROUTE_sewer is used for Axis
+		if ( Map.SewerDoorTeam == TEAM.ALLIES && Map.SewerBoardStatus == false )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ROUTE_sewer" );
+		}
+		else
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "ROUTE_sewer" );
+		}
+	},
+
+	ManageLibraryRoutes = function( arg )
+	{
+		Map.LibraryDoorCount = Map.LibraryDoorCount + arg;
+		Util.MapDebugPrint( "LibraryDoorCount = " + Map.LibraryDoorCount );
+		if ( Map.LibraryDoorCount > 1 )
+		{
+			SetAvailableMapGoals( 0, false, "ROUTE_gold_.*" );
+		}
+		else
+		{
+			SetAvailableMapGoals( 0, true, "ROUTE_gold_.*" );
+		}
+	},
+
+	//=======================================================================
+	// *** CALLBACK FUNCTIONS ***
+	//=======================================================================
+
+	Library_Side_Door_Built = function( trigger )
+	{
+		Map.ManageLibraryRoutes(+1);
+		SetAvailableMapGoals( 0, false, "ROUTE_side_door" );
+		Util.MapDebugPrint( "Library_Side_Door_Built" );
+	},
+
+	Library_door_Built = function( trigger )
+	{
+		Map.ManageLibraryRoutes(+1);
+		SetAvailableMapGoals( 0, false, "ROUTE_main_door" );
+		Util.MapDebugPrint( "Library_door_Built" );
+	},
+
+	Restaurant_Door_Built = function( trigger )
+	{
+		Util.MapDebugPrint( "Restaurant_Door_Built" );
+	},
+
+	Truck_Built = function( trigger )
+	{
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( bot.GetTeam() == TEAM.AXIS && bot.GetClass() != CLASS.ENGINEER )
+				{
+					if ( RandInt(1,2) == 2 )
+					{
+						sleep(1.0);
+						bot.SayVoice( VOICE.DESTROY_VEHICLE );
+					}
+					break;
+				}
+			}
+		}
+
+		Util.MapDebugPrint( "Truck_Built" );
+	},
+
+	Truck_Barrier_2_Built = function( trigger )
+	{
+		Map.Barrier2Status = true;
+		if ( Map.TruckPosition == "at_bridge" )
+		{
+			SetAvailableMapGoals ( TEAM.ALLIES, false, "ESCORT_truck" );
+		}
+		Util.MapDebugPrint( "Truck_Barrier_2_Built" );
+	},
+
+	sewer_door_Allies_Built = function( trigger )
+	{
+		Map.SewerDoorTeam = TEAM.ALLIES;
+		Map.ToggleSewerRoute();
+		Wp.SetWaypointFlag( "sewer_door", "allies", true );
+		Wp.SetWaypointFlag( "sewer_door", "axis", false );
+		Util.MapDebugPrint( "sewer_door_Allies_Built" );
+	},
+
+	sewer_door_Axis_Built = function( trigger )
+	{
+		Map.SewerDoorTeam = TEAM.AXIS;
+		Map.ToggleSewerRoute();
+		Wp.SetWaypointFlag( "sewer_door", "allies", false );
+		Wp.SetWaypointFlag( "sewer_door", "axis", true );
+		Util.MapDebugPrint( "sewer_door_Axis_Built" );
+	},
+
+	City_Fence_Planted = function( trigger )
+	{
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( bot.GetTeam() == TEAM.AXIS && bot.GetClass() != CLASS.ENGINEER && bot.GetNearestAlly( CAT.PLAYER, CLASS.ENGINEER ) && bot.DistanceTo( Vec3(-1965,-952,244) ) < 200 )
+				{
+					sleep( RandRange(0.5,1.0) );
+					bot.ExecCommand( "vsay_team DisarmDynamite" );
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "City_Fence_Planted" );
+	},
+
+	City_Fence_Destroyed = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_truck" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "SMOKEBOMB_fence" );
+		Wp.SetWaypointFlag( "destructible_door", "axis", false );
+		Map.FenceIntact = false;
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( bot.GetTeam() == TEAM.ALLIES && bot.GetClass() == CLASS.ENGINEER )
+				{
+					sleep( RandRange(0.5,1.3) );
+					if ( RandInt(0,1) == 1 )
+						{ bot.ExecCommand( "vsay_team CommandCompleted" ); }
+					else
+						{ bot.SayVoice( VOICE.PATH_CLEARED ); }
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "City_Fence_Destroyed" );
+	},
+
+	Library_Side_Door_Destroyed = function( trigger )
+	{
+		Map.ManageLibraryRoutes(-1);
+		SetAvailableMapGoals( 0, true, "ROUTE_side_door" );
+		Util.MapDebugPrint( "Library_Side_Door_Destroyed" );
+	},
+
+	Library_door_Destroyed = function( trigger )
+	{
+		Map.ManageLibraryRoutes(-1);
+		SetAvailableMapGoals( 0, true, "ROUTE_main_door" );
+		Util.MapDebugPrint( "Library_door_Destroyed" );
+	},
+
+	Restaurant_Door_Destroyed = function( trigger )
+	{
+		Util.MapDebugPrint( "Restaurant_Door_Destroyed" );
+	},
+
+	Truck_Barrier_2_Destroyed = function( trigger )
+	{
+		Map.Barrier2Status = false;
+		if ( Map.TruckPosition == "at_bridge" )
+		{
+			SetAvailableMapGoals ( TEAM.ALLIES, true, "ESCORT_truck" );
+		}
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( bot.GetTeam() == TEAM.ALLIES && bot.GetClass() == CLASS.ENGINEER )
+				{
+					sleep( RandRange(0.5,1.3) );
+					if ( RandInt(0,1) == 1 )
+						{ bot.ExecCommand( "vsay_team CommandCompleted" ); }
+					else
+						{ bot.SayVoice( VOICE.PATH_CLEARED ); }
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "Truck_Barrier_2_Destroyed" );
+	},
+
+	keycard_flag_Taken = function( trigger )
+	{
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( GetEntFlags(bot.GetGameEntity(), ENTFLAG.CARRYINGGOAL) && bot.GetNearestAlly(CAT.PLAYER) )
+				{
+					sleep( RandRange(0.2,1.0) );
+					bot.ExecCommand( "vsay_team FollowMe" );
+					Util.MapDebugPrint( "Found the bot: " + GetEntName(bot.GetGameEntity()) );
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "keycard_flag_Taken" );
+	},
+
+	keycard_flag_Returned = function( trigger )
+	{
+		if ( Map.Talk )
+			{ ETUtil.WinningChat( TEAM.AXIS ); }
+		Util.MapDebugPrint( "keycard_flag_Returned" );
+	},
+
+	keycard_flag_Used = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"FLAG_gold",
+			"CAPPOINT_gold",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"FLAG_keycard_flag",
+			"CAPPOINT_keycard",
+		});
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( bot.GetTeam() == TEAM.AXIS )
+				{
+					sleep( RandRange(1,2.5) );
+					bot.SayVoice( VOICE.DEFEND_OBJECTIVE );
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "keycard_flag_Used" );
+	},
+
+	gold_Taken = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, false, "DEFEND_phase4.*" );
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_truck_cappoint.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_phase4.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_truck_cappoint.*" );
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( GetEntFlags(bot.GetGameEntity(), ENTFLAG.CARRYINGGOAL) && bot.GetNearestAlly(CAT.PLAYER) )
+				{
+					sleep( RandRange(0.2,1.0) );
+					bot.ExecCommand( "vsay_team FollowMe" );
+					Util.MapDebugPrint( "Found the bot: " + GetEntName(bot.GetGameEntity()) );
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "gold_Taken" );
+	},
+
+	gold_Returned = function( trigger )
+	{
+		SetAvailableMapGoals( TEAM.AXIS, true, "DEFEND_phase4.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, "ATTACK_truck_cappoint.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_phase4.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_truck_cappoint.*" );
+		Util.MapDebugPrint( "gold_Returned" );
+	},
+
+	gold_on_Truck = function( trigger )
+	{
+		// *** MAJOR EVENT ***
+		SetAvailableMapGoals( TEAM.ALLIES, true, {
+			"ESCORT_truck",
+			"BUILD_Truck",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, false, {
+			"PLANT_Library_door",
+			"PLANT_Library_Side_Door",
+			"ATTACK_.*",
+		});
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_phase5.*" );
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"BUILD_Library_door",
+			"BUILD_Library_Side_Door",
+			"DEFEND_phase4.*",
+			"ATTACK_truck_cappoint.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, {
+			"BUILD_Truck_Barrier_2",
+			"DEFEND_phase5.*",
+		});
+
+		if ( Map.switchStatus == "lowered" && (Map.TruckPosition == "at_library" || Map.TruckPosition == "at_switch") )
+			{ SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_street" ); }
+		else if ( Map.TruckPosition == "at_library" || Map.TruckPosition == "at_switch" )
+			{ SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_street" ); }
+
+		Util.MapDebugPrint( "gold_on_Truck" );
+	},
+
+	Truck_Past_Barrier2 = function( trigger )
+	{
+		Map.TruckPosition = "past_bridge";
+		SetAvailableMapGoals( TEAM.AXIS, false, {
+			"BUILD_Truck_Barrier_2",
+			"DEFEND_phase.*",
+		});
+		SetAvailableMapGoals( TEAM.AXIS, true, "ATTACK_phase8.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, false, "ATTACK_phase.*" );
+		SetAvailableMapGoals( TEAM.ALLIES, true, "ATTACK_phase8.*" );
+		if ( Map.Talk && MAP_TALK )
+		{
+			wt = OnTriggerRegion( AABB(-7806.750,-5067.872,61.250,-7644.121,-4850.923,225.558), RegionTrigger.IntrusionWarning );
+			ETUtil.LosingChat( TEAM.AXIS );
+			ETUtil.WinningChat( TEAM.ALLIES );
+		}
+		Util.MapDebugPrint( "Truck_Past_Barrier2" );
+	},
+
+	gold_Secured = function( trigger )
+	{
+		// Allies win
+		if ( Map.Talk )
+		{
+			ETUtil.LosingChat( TEAM.AXIS );
+			ETUtil.WinningChat( TEAM.ALLIES );
+		}
+		Util.MapDebugPrint( "gold_Secured: Allies win!" );
+	},
+
+	oldcityflag_Axis_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "oldcityflag_Axis_Captured" );
+	},
+
+	oldcityflag_Allies_Captured = function( trigger )
+	{
+		Util.MapDebugPrint( "oldcityflag_Allies_Captured" );
+	},
+
+	switch_Raised = function( trigger )
+	{
+		Map.switchStatus = "raised";
+		if ( Map.TruckPosition == "at_library" || Map.TruckPosition == "at_switch" )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, false, "SWITCH_street" );
+			SetAvailableMapGoals( TEAM.ALLIES, true, "ESCORT_truck" );
+			SetAvailableMapGoals( TEAM.AXIS, true, "SWITCH_street" );
+			if ( Map.Talk && MAP_TALK )
+			{
+				foreach ( gameId and bot in BotTable )
+				{
+					if ( bot.GetTeam() == TEAM.ALLIES )
+					{
+						evalDist = bot.DistanceTo( Vec3(-3710,-1960,203) );
+						if ( !dist || evalDist < dist )
+						{
+							dist = evalDist;
+							foundBot = bot;
+						}
+					}
+				}
+				sleep( RandRange(0.5,1.3) );
+				foundBot.SayVoice( VOICE.PATH_CLEARED );
+			}
+		};
+		Util.MapDebugPrint( "switch_Raised" );
+	},
+
+	switch_Lowered = function( trigger )
+	{
+		Map.switchStatus = "lowered";
+		if ( Map.TruckPosition == "at_library" || Map.TruckPosition == "at_switch" )
+		{
+			SetAvailableMapGoals( TEAM.ALLIES, true, "SWITCH_street" );
+			SetAvailableMapGoals( TEAM.AXIS, false, "SWITCH_street" );
+			if ( Map.Talk && MAP_TALK )
+			{
+				foreach ( gameId and bot in BotTable )
+				{
+					if ( bot.GetTeam() == TEAM.AXIS )
+					{
+						if ( Map.HasSpoken )
+							{ continue; }
+						sleep( RandRange(0.5,1.3) );
+						bot.SayVoice( VOICE.ENEMY_WEAK );
+						Map.HasSpoken = true;
+					}
+					else
+					{
+						sleep( RandRange(0.5,1.3) );
+						bot.SayVoice( VOICE.CLEAR_PATH );
+						break;
+					}
+				}
+			}
+		};
+		Util.MapDebugPrint( "switch_Lowered" );
+	},
+
+	elevator_button_Pressed = function( trigger )
+	{
+		Map.ElevatorButtonWasPressed = true;
+		sleep(10);
+		Map.ElevatorButtonWasPressed = false;
+		Util.MapDebugPrint( "elevator_button_Pressed" );
+	},
+
+	two_minute_warning = function( trigger )
+	{
+		if ( Map.Talk && MAP_TALK )
+		{
+			foreach ( gameId and bot in BotTable )
+			{
+				if ( bot.GetTeam() == TEAM.ALLIES )
+				{
+					bot.SayVoice( VOICE.MOVE );
+					break;
+				}
+			}
+		}
+		Util.MapDebugPrint( "two_minute_warning" );
+	},
+
+};
+
+global OnMapLoad = function()
+{
+	// Register callback functions in the Map table for important events
+	OnTrigger( "^3Axis team has built the Library Side Door!", Map.Library_Side_Door_Built );
+	OnTrigger( "^3Axis team has built the Library Main door!", Map.Library_door_Built );
+	OnTrigger( "^3Axis team have constructed the Restaurant Door", Map.Restaurant_Door_Built );
+	OnTrigger( "^3The Truck has been repaired!", Map.Truck_Built );
+	OnTrigger( "^3Truck Barrier has been constructed.", Map.Truck_Barrier_2_Built );
+	OnTrigger( "^1Allied team has locked the Sewer door!", Map.sewer_door_Allies_Built );
+	OnTrigger( "^1Axis team has locked the Sewer door!", Map.sewer_door_Axis_Built );
+	OnTrigger( "Planted at ^3The City Fence.", Map.City_Fence_Planted );
+	OnTrigger( "^3Allies have breached the fence!", Map.City_Fence_Destroyed );
+	OnTrigger( "^3Allied team has destroyed the Library Side Door!", Map.Library_Side_Door_Destroyed );
+	OnTrigger( "^3Allied team has destroyed the Library Main Door!", Map.Library_door_Destroyed );
+	OnTrigger( "^3Allied team have destroyed the Restaurant Door", Map.Restaurant_Door_Destroyed );
+	OnTrigger( "^3Truck Barrier has been destroyed.", Map.Truck_Barrier_2_Destroyed );
+	OnTrigger( "Allies have stolen ^3the Keycard!", Map.keycard_flag_Taken );
+	OnTrigger( "Flag returned keycard_flag!", Map.keycard_flag_Returned );
+	OnTrigger( "^3Allied team has used the keycard!", Map.keycard_flag_Used );
+	OnTrigger( "goldrush_axis_gold1_taken", Map.gold_Taken ); // gold was stolen
+	OnTrigger( "goldrush_allies_gold1_returned", Map.gold_Returned ); //gold was returned by defenders
+	OnTrigger( "goldrush_allies_gold1_secured", Map.gold_on_Truck );
+	OnTrigger( "goldrush_axis_truck_barrier2", Map.Truck_Past_Barrier2 );
+	OnTrigger( "^3Allied team escaped with the Gold Crate!", Map.gold_Secured );
+	OnTrigger( "^3Axis reclaim the Old City command room!", Map.oldcityflag_Axis_Captured );
+	OnTrigger( "^3Allies capture the Old City command room!", Map.oldcityflag_Allies_Captured );
+	OnTrigger( "^3Track Switch lowered!", Map.switch_Lowered );
+	OnTrigger( "^3Track Switch raised!", Map.switch_Raised );
+	OnTrigger( "t58 activated", Map.elevator_button_Pressed );
+	OnTrigger( "two minute warning.", Map.two_minute_warning );
+
+	// Dyno on Truck Barrier and Library Door: usepoints
+	Util.AddUseWp( "PLANT_Truck_Barrier_2", "barrier1" );
+	Util.AddUseWp( "PLANT_Truck_Barrier_2", "barrier1a" );
+	Util.AddUseWp( "PLANT_Truck_Barrier_2", "barrier1b" );
+	Util.AddUseWp( "PLANT_Library_door", "libdoor" );
+
+	// Remove bogus plant goals
+	Util.RemoveGoal( "PLANT_sewer_door" );
+	Util.RemoveGoal( "PLANT_sewer_door_1" );
+
+	// Trigger regions for the elevator
+	l_1 = OnTriggerRegion( Vec3(-5870,-2325,590), 20, Map.ElevatorTopLevel );
+	l_0 = OnTriggerRegion( Vec3(-5870,-2325,180), 20, Map.ElevatorGroundLevel );
+	l_minus_1 = OnTriggerRegion( Vec3(-5870,-2325,-100), 30, Map.ElevatorBasementLevel );
+
+	// Trigger regions for the truck
+	truck_near_fence = OnTriggerRegion( Vec3(-1078,-95,93), 60, Map.Truck_Near_Fence );
+	truck_at_fence = OnTriggerRegion( Vec3(-2000,-955,250), 90, Map.Truck_at_Fence );
+	truck_at_library = OnTriggerRegion( Vec3(-4320,-1363,233), 60, Map.Truck_at_Library );
+	truck_at_switch = OnTriggerRegion( Vec3(-3761,-1563,239), 70, Map.Truck_at_Switch );
+	truck_past_switch = OnTriggerRegion( Vec3(-3582,-2023,176), 50, Map.Truck_past_Switch );
+	truck_near_bridge = OnTriggerRegion( Vec3(-3112,-3031,-65), 60, Map.Truck_Near_Bridge );
+	truck_at_bridge = OnTriggerRegion( Vec3(-2534,-3932,-180), 60, Map.Truck_at_Bridge );
+	truck_near_destination = OnTriggerRegion( Vec3(-6262,-4684,-30), 60, Map.Truck_Near_Destination );
+	truck_at_destination = OnTriggerRegion( Vec3(-7701,-5002,115), 60, Map.Truck_at_Destination );
+
+	// Disable combat movement here
+	dcm1 = OnTriggerRegion( AABB(-2343.168,-751.458,363.803,-2115.099,-670.598,545.660), RegionTrigger.DisableCombatMovement );
+	dcm2 = OnTriggerRegion( AABB(-1986.819,-562.871,379.149,-1692.604,-498.450,525.818), RegionTrigger.DisableCombatMovement );
+	dcm3 = OnTriggerRegion( AABB(-1599.679,-129.002,378.350,-1549.924,123.423,614.638), RegionTrigger.DisableCombatMovement );
+
+	// Set axis flag on destructible door at the fence and sewer door initially
+	Wp.SetWaypointFlag( "destructible_door", "axis", true );
+	Wp.SetWaypointFlag( "sewer_door", "axis", true );
+
+	// Disable flag goals on map start because they are not reachable
+	SetAvailableMapGoals( TEAM.ALLIES, false, {
+		"FLAG_gold",
+		"FLAG_keycard_flag",
+	});
+
+	// Disable/enable some other goals initially
+	SetAvailableMapGoals( 0, false, {
+		"GRENADE_bridge_mg",
+		"BUILD_sewer_door.*",
+	});
+	SetAvailableMapGoals( TEAM.ALLIES, false, {
+		"ROUTE_sewer",
+		"DEFEND_.*",
+		"ATTACK_.*",
+	});
+	SetAvailableMapGoals( TEAM.ALLIES, true, {
+		"ATTACK_phase1.*",
+		"SMOKEBOMB_fence",
+	});
+	SetAvailableMapGoals( TEAM.ALLIES, false, {
+		"CAPPOINT_gold",
+		"CAPPOINT_keycard",
+		"SWITCH_street",
+		"MOUNTMG42_mg42_bank",
+		"MOUNTMG42_Axis_Churchtower_MG_Nest",
+		"REPAIRMG42_Axis_Churchtower_MG_Nest",
+		"PLANT_Truck_Barrier_2",
+		"PLANT_Library_door",
+		"PLANT_Library_Side_Door",
+	});
+	SetAvailableMapGoals( TEAM.AXIS, false, {
+		"BUILD_Truck_Barrier_2",
+		"ATTACK_.*",
+		"DEFEND_.*",
+	});
+	SetAvailableMapGoals( TEAM.AXIS, true, {
+		"DEFEND_phase1.*",
+		"MOUNTMG42_Axis_Churchtower_MG_Nest",
+	});
+	SetAvailableMapGoals( TEAM.AXIS, false, {
+		"GRENADE_church_mg",
+		"MOUNTMG42_mg42_bank",
+		"SMOKEBOMB_fence",
+		"SWITCH_street",
+	});
+
+	// Priority
+	SetGoalPriority( "ATTACK_truck_cappoint.*", 0.51 );
+	SetGoalPriority( "PLANT_Axis_Churchtower_MG_Nest", 0.7, TEAM.ALLIES, CLASS.ENGINEER );
+	SetGoalPriority( "DEFUSE_Command_Post_.*", 0.8, 0, CLASS.ENGINEER, true );
+	SetGoalPriority( "BUILD_Truck", 0.91, TEAM.ALLIES );
+	SetGoalPriority( "PLANT_Library_Side_Door", 0.82 );
+	SetGoalPriority( "PLANT_Library_door", 0.82 );
+	SetGoalPriority( "BUILD_Restaurant_Door", 0.79 );
+	SetGoalPriority( "PLANT_Command_Post", 0.7 );
+	SetGoalPriority( "CHECKPOINT_oldcityflag", 0.81 );
+	SetGoalPriority( "BUILD_Command_Post", 0.81 );
+	SetGoalPriority( "BUILD_sewer_door", 0.8 );
+	SetGoalPriority( "BUILD_sewer_door_1", 0.8 );
+
+	// Max users per individual goal
+	Util.SetMaxUsers( 2, "ESCORT_truck" );
+	Util.SetMaxUsers( 2, "BUILD_Truck" );
+	Util.SetMaxUsers( 2, "CHECKPOINT_oldcityflag" );
+	Util.SetMaxUsers( 1, "SWITCH_street" );
+	Util.SetMaxUsers( 1, "PLANT_.*" );
+	Util.SetMaxUsers( 1, "BUILD_.*" );
+	Util.SetMaxUsers( 1, "ATTACK_.*" );
+	Util.SetMaxUsers( 1, "DEFEND_.*" );
+	Util.SetMaxUsers( 1, "GRENADE_.*" );
+	Util.SetMaxUsers( 1, "REPAIRMG42_.*" );
+	Util.SetMaxUsers( 1, "MOUNTMG42_.*" );
+
+	// Camp times
+	SetMapGoalProperties( "MOUNTMG42_.*", {MinCampTime=20, MaxCampTime=120} );
+	SetMapGoalProperties( "MOBILEMG42_.*", {MinCampTime=10, MaxCampTime=60} );
+
+	// Spawn thread that tells us if boards at the sewer are broken
+	thread( Map.SewerBoardThread );
+
+	Util.FixMoverPos("truck", Vec3(-2256.500, 2339.000, 24.500), Vec3(-2397.000, 2342.000, -33.000));
+
+	print( "^NOmni-bot map script for ^ARaid^N by ^0d^100^3d^N. Enjoy!" );
+};
+
+global OnBotJoin = function( bot )
+{
+	bot.TargetBreakableDist = 150;
+	bot.MaxViewDistance = 3200;
+};
+
+global InitializeRoutes = function()
+{
+	MapRoutes =
+	{
+		CAPPOINT_gold =
+		{
+			ROUTE_gold =
+			{
+				ROUTE_window = { Weight = 3 },
+				ROUTE_sewer = {},
+				ROUTE_gold_northwest =
+				{
+					ROUTE_main_door = {},
+					ROUTE_side_door = {},
+					ROUTE_sewer = {}
+				},
+				ROUTE_gold_southwest =
+				{
+					ROUTE_main_door = {},
+					ROUTE_side_door = {},
+					ROUTE_sewer = {}
+				},
+				ROUTE_gold_northeast =
+				{
+					ROUTE_main_door = {},
+					ROUTE_side_door = {},
+					ROUTE_sewer = {}
+				},
+				ROUTE_gold_southeast =
+				{
+					ROUTE_main_door = {},
+					ROUTE_side_door = {},
+					ROUTE_sewer = {}
+				}
+			},
+		},
+		FLAG_gold =
+		{
+			ROUTE_fence_spawn =
+			{
+				ROUTE_main_door =
+				{
+					ROUTE_gold_northeast = {},
+					ROUTE_gold_southeast = {},
+					ROUTE_gold_northwest = {},
+					ROUTE_gold_southwest = {}
+				},
+				ROUTE_side_door =
+				{
+					ROUTE_gold_northeast = {},
+					ROUTE_gold_southeast = {},
+					ROUTE_gold_northwest = {},
+					ROUTE_gold_southwest = {}
+				},
+				ROUTE_bridge =
+				{
+					ROUTE_gold_southeast = {},
+					ROUTE_gold_northwest = {}
+				},
+				ROUTE_fence =
+				{
+					ROUTE_gold_northeast = {},
+					ROUTE_gold_southwest = {}
+				},
+				ROUTE_balcony = {}
+			},
+		},
+		DEFEND_phase4 =
+		{
+			ROUTE_lib_spawn =
+			{
+				ROUTE_axis_door =
+				{
+					ROUTE_gold_northeast = {},
+					ROUTE_gold_southeast = {},
+					ROUTE_gold_northwest = {},
+					ROUTE_gold_southwest = {}
+				},
+			},
+		},
+		PLANT_Library_Side_Door =
+		{
+			ROUTE_fence_spawn =
+			{
+				ROUTE_fence = {},
+				ROUTE_bridge = { Weight = 2 }
+			}
+		},
+		PLANT_Library_Door =
+		{
+			ROUTE_fence_spawn =
+			{
+				ROUTE_fence = { Weight = 2 },
+				ROUTE_bridge = {},
+				ROUTE_balcony = {}
+			}
+		},
+	};
+	MapRoutes.CAPPOINT_keycard = MapRoutes.FLAG_gold;
+	MapRoutes["DEFEND_phase4_.*"] = MapRoutes.DEFEND_phase4;
+
+	Util.Routes( MapRoutes );
+};
